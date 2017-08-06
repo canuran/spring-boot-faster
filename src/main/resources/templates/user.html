@@ -80,14 +80,14 @@
         <thead>
         <th>名称</th>
         <th>生日</th>
-        <th>操作</th>
+        <th sec:authorize="hasRole('ROLE_USER')">操作</th>
         </thead>
         <tbody>
         <tr th:each="user, curr : ${users}">
             <td><span th:text="${user.username}"/></td>
             <td><span th:text="${#dates.format(user.birthday,'yyyy-MM-dd')}"/></td>
             <td><a href="#" th:href="@{/deleteUser(userId=${user.userId})}"
-                   class="btn btn-danger btn-sm">删除</a></td>
+                   sec:authorize="hasRole('ROLE_USER')" class="btn btn-danger btn-sm">删除</a></td>
         </tr>
         </tbody>
     </table>
