@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false">
+    <!--<diskStore path="ehcache"/>-->
+
+    <defaultCache
+            eternal="false"
+            overflowToDisk="false"
+            diskPersistent="false"
+            maxElementsInMemory="100000"
+            maxElementsOnDisk="0"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="0"
+            diskSpoolBufferSizeMB="50"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="UserCache"
+           eternal="false"
+           overflowToDisk="false"
+           diskPersistent="false"
+           maxElementsInMemory="100000"
+           maxElementsOnDisk="0"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="0"
+           diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LFU"/>
+</ehcache>

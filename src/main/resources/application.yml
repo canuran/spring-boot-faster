@@ -1,0 +1,19 @@
+# 服务配置
+server:
+  port: 80
+# Spring配置
+spring:
+  http:
+    multipart: #文件上传大小限制
+      maxFileSize: 1024MB
+      maxRequestSize: 10240MB
+  jackson: # Jackson配置
+    timeZone: GMT+8
+    dateFormat: yyyy-MM-dd HH:mm:ss
+  thymeleaf:
+    cache: false
+  datasource: # 数据库配置
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/security?useUnicode=true
+    username: security
+    password: security

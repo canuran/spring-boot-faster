@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>用户登陆</title>
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+    <style type="text/css">
+        body {
+            margin: 40px;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #eee;
+            text-align: center;
+        }
+
+        form {
+            max-width: 350px;
+            margin: 12px auto;
+        }
+
+        input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Spring Boot QueryDSL Security</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a th:href="@{/}">首页</a></li>
+                <li><a th:href="@{/user}">用户管理</a></li>
+                <li><a th:href="@{/swagger-ui.html}">接口文档</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a th:href="@{/login}">请登陆</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div th:if="${param.logout}" class="alert alert-success">
+        <strong>注销成功！</strong>
+    </div>
+    <div th:if="${param.error}" class="alert alert-warning">
+        <strong>登陆失败！</strong>
+    </div>
+    <h2>用户登陆</h2>
+    <form th:action="@{/login}" action="/login" method="post">
+        <div class="form-group">
+            <input type="text" class="form-control" name="username" value="元宝" placeholder="用户名"/>
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" name="password" value="yb" placeholder="密码"/>
+        </div>
+        <input type="reset" value="重置" class="btn btn-info col-md-4 col-md-offset-2"/>
+        <input type="submit" value="登陆" class="btn btn-primary col-md-4"/>
+    </form>
+</div>
+
+</body>
+</html>
