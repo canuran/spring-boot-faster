@@ -44,8 +44,8 @@ public class QueryHelper {
     /**
      * 使用全部Expression参数查询指定类型的Bean。
      */
-    public static <T> QBean<T> expressionsBean(Class<? extends T> type,
-                                               RelationalPathBase pathBase, Expression... expressions) {
+    public static <T> QBean<T> allToBean(Class<? extends T> type,
+                                         RelationalPathBase pathBase, Expression... expressions) {
         if (pathBase == null)
             return Projections.bean(type, expressions);
         Path[] paths = pathBase.all();
@@ -60,8 +60,8 @@ public class QueryHelper {
     /**
      * 使用与Bean属性有对应的Expression参数查询Bean。
      */
-    public static <T> QBean<T> projectionBean(Class<? extends T> type,
-                                              RelationalPathBase pathBase, Expression... expressions) {
+    public static <T> QBean<T> matchToBean(Class<? extends T> type,
+                                           RelationalPathBase pathBase, Expression... expressions) {
         if (pathBase == null)
             return Projections.bean(type, expressions);
         ImmutableMap.Builder<String, Expression<?>> mapBuilder = ImmutableMap.builder();

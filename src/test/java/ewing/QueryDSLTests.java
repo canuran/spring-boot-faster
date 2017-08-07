@@ -169,7 +169,7 @@ public class QueryDSLTests {
     @Test
     public void queryDetail() {
         List<UserDetail> users = queryFactory
-                .select(QueryHelper.projectionBean(UserDetail.class,
+                .select(QueryHelper.matchToBean(UserDetail.class,
                         User, Expressions.cases()
                                 .when(User.gender.eq(1)).then("男")
                                 .when(User.gender.eq(2)).then("女")
