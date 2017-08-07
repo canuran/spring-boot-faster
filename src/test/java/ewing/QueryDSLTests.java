@@ -169,11 +169,12 @@ public class QueryDSLTests {
     @Test
     public void queryDetail() {
         List<UserDetail> users = queryFactory
-                .select(QueryHelper.matchToBean(UserDetail.class,
-                        User, Expressions.cases()
-                                .when(User.gender.eq(1)).then("男")
-                                .when(User.gender.eq(2)).then("女")
-                                .otherwise("保密").as("genderName"))
+                .select( // 如果取部分属性字段则用matchToBean
+                        QueryHelper.allToBean(UserDetail.class,
+                                User, Expressions.cases()
+                                        .when(User.gender.eq(1)).then("男")
+                                        .when(User.gender.eq(2)).then("女")
+                                        .otherwise("保密").as("genderName"))
                 ).from(User)
                 .leftJoin(UserRole).on(User.userId.eq(UserRole.userId))
                 .leftJoin(Role).on(UserRole.roleId.eq(Role.roleId))
