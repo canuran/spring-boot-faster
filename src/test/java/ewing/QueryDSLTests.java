@@ -3,7 +3,9 @@ package ewing;
 import com.querydsl.core.QueryFlag;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
+import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.common.JsonConverter;
@@ -86,7 +88,7 @@ public class QueryDSLTests {
      */
     @Test
     public void queryWhere() {
-        List<User> users = queryFactory
+        SQLQuery<User> query = queryFactory
                 .selectFrom(User).distinct()
                 .leftJoin(UserRole).on(User.userId.eq(UserRole.userId))
                 .leftJoin(Role).on(UserRole.roleId.eq(Role.roleId))
@@ -99,8 +101,12 @@ public class QueryDSLTests {
                                         User.username.contains("宝").and(User.gender.eq(0))
                                 )
                         )
-                ).fetch();
-        System.out.println(JsonConverter.toJson(users));
+                );
+        // 查看SQL和绑定的参数
+        SQLBindings sqlBindings = query.getSQL();
+        System.out.println(sqlBindings.getSQL());
+        System.out.println(sqlBindings.getBindings());
+        System.out.println(JsonConverter.toJson(query.fetch()));
     }
 
     /**
