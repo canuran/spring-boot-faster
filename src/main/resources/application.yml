@@ -1,6 +1,14 @@
 # 服务配置
 server:
   port: 80
+
+# Https配置
+sslserver:
+  port: 443
+  keyStore: .keystore
+  keyStorePassword: changeit
+  keyAlias: tomcat
+
 # Spring配置
 spring:
   http:
