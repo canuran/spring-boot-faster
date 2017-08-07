@@ -58,7 +58,7 @@ public class QueryHelper {
     }
 
     /**
-     * 使用与Bean属性有对应的Expression参数查询Bean。
+     * 使用与Bean属性匹配的Expression参数查询Bean。
      */
     public static <T> QBean<T> matchToBean(Class<? extends T> type,
                                            RelationalPathBase pathBase, Expression... expressions) {
