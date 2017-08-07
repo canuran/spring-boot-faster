@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.security;
 
 import ewing.security.SecurityUserService;
 import org.springframework.context.annotation.Bean;

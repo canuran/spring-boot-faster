@@ -44,11 +44,13 @@ public class QueryHelper {
     /**
      * 使用全部Expression参数查询指定类型的Bean。
      */
-    public static <T> QBean<T> projectionExpressions(Class<? extends T> type,
-                                                     RelationalPathBase pathBase, Expression... expressions) {
+    public static <T> QBean<T> expressionsBean(Class<? extends T> type,
+                                               RelationalPathBase pathBase, Expression... expressions) {
         if (pathBase == null)
             return Projections.bean(type, expressions);
         Path[] paths = pathBase.all();
+        if (expressions.length == 0)
+            return Projections.bean(type, paths);
         Expression<?>[] allExpress = new Expression[paths.length + expressions.length];
         System.arraycopy(paths, 0, allExpress, 0, paths.length);
         System.arraycopy(expressions, 0, allExpress, paths.length, expressions.length);

@@ -1,7 +1,7 @@
 package ewing.security;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLQueryFactory;
-import ewing.common.queryutils.QueryHelper;
 import ewing.query.QRole;
 import ewing.query.QUser;
 import ewing.query.QUserRole;
@@ -23,7 +23,7 @@ public class SecurityUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SecurityUser user = queryFactory.select(
-                QueryHelper.projectionExpressions(SecurityUser.class, User))
+                Projections.bean(SecurityUser.class, User.all()))
                 .from(User)
                 .where(User.username.eq(username))
                 .fetchOne();
