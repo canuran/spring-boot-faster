@@ -1,7 +1,10 @@
 package ewing;
 
 import com.querydsl.core.QueryFlag;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
@@ -20,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,19 +114,27 @@ public class QueryDSLTests {
     }
 
     /**
-     * 自定义语句片段。
+     * 自定义SQL语句。
      */
     @Test
     public void customStatement() {
-        List<User> users = queryFactory.selectFrom(User)
-                // 使用数据库的 HINTS 优化查询
-                .addFlag(QueryFlag.Position.AFTER_SELECT, "/*HINTS*/ ")
+        SQLQuery<Tuple> query = queryFactory
+                .select( // 常用的表达式构建类
+                        ExpressionUtils.count(Expressions.constant(1)),
+                        SQLExpressions.sum(Expressions.constant(2)),
+                        User.gender.max(), User.gender.avg()).from(User)
+                // 【非必要则不用】使用数据库的 HINTS 优化查询
+                .addFlag(QueryFlag.Position.AFTER_SELECT, "SQL_NO_CACHE ")
                 .where(
-                        // 该方法可自定义表达式及其返回类型、可调用数据库函数等
-                        Expressions.booleanTemplate("{0} * {0} + {1} * {1} < {2}",
-                                User.gender, User.gender, 100)
-                ).fetch();
-        System.out.println(JsonConverter.toJson(users));
+                        // 【非必要则不用】自定义表达式及其返回类型、可调用数据库函数等
+                        Expressions.booleanTemplate("NOW() < {0} OR NOW() > {0}",
+                                DateExpression.currentDate())
+                );
+        try {
+            System.out.println(query.fetch());
+        } catch (BadSqlGrammarException e) {
+            System.out.println("数据库不支持该SQL！");
+        }
     }
 
     /**
@@ -160,6 +172,7 @@ public class QueryDSLTests {
      * 聚合UNION查询结果。
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void queryUnion() {
         List<User> users = queryFactory.query().unionAll(
                 SQLExpressions.selectFrom(User).where(User.gender.eq(0)),
