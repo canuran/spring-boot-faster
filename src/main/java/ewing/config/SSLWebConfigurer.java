@@ -1,23 +1,23 @@
 package ewing.config;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.tomcat.util.net.SSLHostConfig;
+import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 
 /**
  * 进入 JDK 的 bin 目录运行以下命令生成 keystore
  * keytool -genkey -alias tomcat -keyalg RSA
- * 自己生成的密码必须是 changeit
  * 生成的 .keystore 文件在个人 home 目录下
  */
 @Configuration
@@ -33,40 +33,34 @@ public class SSLWebConfigurer extends WebMvcConfigurerAdapter {
 
     private Connector createSSlConnector(SSLConnectorProperties properties) {
         Connector connector = new Connector();
-        connector.setPort(properties.getPort() == null ? 443 : properties.getPort());
+        connector.setPort(properties.getPort());
         connector.setSecure(true);
         connector.setScheme("https");
         connector.setProperty("SSLEnabled", "true");
-        File file = new File("resources/" + properties.getKeyStore());
-        if (!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
+        SSLHostConfig sslHostConfig = new SSLHostConfig();
+        SSLHostConfigCertificate certificate = new SSLHostConfigCertificate(
+                sslHostConfig, SSLHostConfigCertificate.Type.RSA);
         try {
-            FileCopyUtils.copy(SSLWebConfigurer.class.getClassLoader()
-                            .getResourceAsStream(properties.getKeyStore()),
-                    new FileOutputStream(file));
-        } catch (IOException e) {
+            // 证书类型：JKS JCEKS PKCS12 BKS UBER
+            KeyStore keyStore = KeyStore.getInstance(properties.getKeyStoreType());
+            keyStore.load(SSLWebConfigurer.class.getClassLoader().getResourceAsStream(
+                    properties.getKeyStore()), properties.getKeyStorePassword().toCharArray());
+            certificate.setCertificateKeystore(keyStore);
+        } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);
         }
-        connector.setProperty("keystoreFile", file.getAbsolutePath());
-        connector.setProperty("keystorePassword", properties.getKeyStorePassword());
+        // 使用SSL证书配置连接器
+        sslHostConfig.addCertificate(certificate);
+        connector.addSslHostConfig(sslHostConfig);
         return connector;
     }
 
     @ConfigurationProperties(prefix = "sslserver")
     public static class SSLConnectorProperties {
-        /*
-        application.yml 配置：
-        sslserver:
-          port: 443
-          keyStore: .keystore
-          keyStorePassword: changeit
-          keyAlias: tomcat
-        */
-
-        private Integer port;
+        private Integer port = 443;
         private String keyStore;
         private String keyStorePassword;
-        private String keyAlias;
+        private String keyStoreType;
 
         public Integer getPort() {
             return port;
@@ -92,12 +86,12 @@ public class SSLWebConfigurer extends WebMvcConfigurerAdapter {
             this.keyStorePassword = keyStorePassword;
         }
 
-        public String getKeyAlias() {
-            return keyAlias;
+        public String getKeyStoreType() {
+            return keyStoreType;
         }
 
-        public void setKeyAlias(String keyAlias) {
-            this.keyAlias = keyAlias;
+        public void setKeyStoreType(String keyStoreType) {
+            this.keyStoreType = keyStoreType;
         }
     }
 

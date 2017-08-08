@@ -7,7 +7,7 @@ sslserver:
   port: 443
   keyStore: .keystore
   keyStorePassword: changeit
-  keyAlias: tomcat
+  keyStoreType: JKS
 
 # Spring配置
 spring:
