@@ -44,8 +44,8 @@ public class QueryHelper {
     /**
      * 使用全部Expression参数查询指定类型的Bean。
      */
-    public static <T> QBean<T> allToBean(Class<? extends T> type,
-                                         RelationalPathBase pathBase, Expression... expressions) {
+    public static <T> QBean<T> allToBean(
+            Class<? extends T> type, RelationalPathBase pathBase, Expression... expressions) {
         if (pathBase == null)
             return Projections.bean(type, expressions);
         Path[] paths = pathBase.all();
@@ -60,15 +60,14 @@ public class QueryHelper {
     /**
      * 使用与Bean属性匹配的Expression参数查询Bean。
      */
-    public static <T> QBean<T> matchToBean(Class<? extends T> type,
-                                           RelationalPathBase pathBase, Expression... expressions) {
-        if (pathBase == null)
-            return Projections.bean(type, expressions);
+    public static <T> QBean<T> matchToBean(
+            Class<? extends T> type, RelationalPathBase pathBase, Expression... expressions) {
         ImmutableMap.Builder<String, Expression<?>> mapBuilder = ImmutableMap.builder();
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
             PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
-            matchBindings(mapBuilder, properties, pathBase.all());
+            if (pathBase != null)
+                matchBindings(mapBuilder, properties, pathBase.all());
             matchBindings(mapBuilder, properties, expressions);
         } catch (IntrospectionException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -80,8 +79,9 @@ public class QueryHelper {
      * 根据属性匹配Expression并添加绑定到MapBuilder。
      * 实现逻辑参考自QBean.createBindings方法。
      */
-    private static void matchBindings(ImmutableMap.Builder<String, Expression<?>> mapBuilder,
-                                      PropertyDescriptor[] properties, Expression<?>[] expressions) {
+    private static void matchBindings(
+            ImmutableMap.Builder<String, Expression<?>> mapBuilder,
+            PropertyDescriptor[] properties, Expression<?>[] expressions) {
         for (Expression<?> expression : expressions) {
             if (expression instanceof Path<?>) {
                 String name = ((Path<?>) expression).getMetadata().getName();
@@ -99,7 +99,8 @@ public class QueryHelper {
                     for (PropertyDescriptor property : properties) {
                         if (property.getName().equals(name) && property.getWriteMethod() != null) {
                             Expression<?> express = operation.getArg(0);
-                            if (express instanceof FactoryExpression || express instanceof GroupExpression) {
+                            if (express instanceof FactoryExpression
+                                    || express instanceof GroupExpression) {
                                 mapBuilder.put(name, express);
                             } else {
                                 mapBuilder.put(name, operation);
