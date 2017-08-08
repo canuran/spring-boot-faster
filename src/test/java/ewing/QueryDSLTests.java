@@ -9,7 +9,7 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.common.JsonConverter;
-import ewing.common.queryutils.QueryHelper;
+import ewing.common.QueryHelper;
 import ewing.entity.User;
 import ewing.query.QRole;
 import ewing.query.QUser;

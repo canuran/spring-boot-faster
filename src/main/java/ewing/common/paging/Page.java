@@ -1,4 +1,4 @@
-package ewing.common.queryutils;
+package ewing.common.paging;
 
 import java.util.List;
 
@@ -8,21 +8,21 @@ import java.util.List;
  * @author Ewing
  * @since 2017-04-22
  **/
-public class PageData<T> {
+public class Page<T> {
     private long total;
 
     private List<T> content;
 
-    public PageData() {
+    public Page() {
     }
 
-    public PageData(List<T> content) {
+    public Page(List<T> content) {
         if (content == null) return;
         this.content = content;
         this.total = content.size();
     }
 
-    public PageData(long total, List<T> content) {
+    public Page(long total, List<T> content) {
         this.total = total;
         this.content = content;
     }
@@ -31,7 +31,7 @@ public class PageData<T> {
         return total;
     }
 
-    public PageData<T> setTotal(long total) {
+    public Page<T> setTotal(long total) {
         this.total = total;
         return this;
     }
@@ -40,7 +40,7 @@ public class PageData<T> {
         return content;
     }
 
-    public PageData<T> setContent(List<T> content) {
+    public Page<T> setContent(List<T> content) {
         this.content = content;
         return this;
     }

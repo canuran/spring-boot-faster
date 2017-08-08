@@ -1,4 +1,4 @@
-package ewing.common.queryutils;
+package ewing.common.paging;
 
 /**
  * 分页参数。
@@ -6,20 +6,20 @@ package ewing.common.queryutils;
  * @author Ewing
  * @since 2017-04-22
  **/
-public class PageParam {
+public class Paging {
     private int offset = 0;
     private int limit = 100;
     private boolean count = true;
 
-    public PageParam() {
+    public Paging() {
     }
 
-    public PageParam(int offset, int limit) {
+    public Paging(int offset, int limit) {
         this.offset = offset;
         this.limit = limit;
     }
 
-    public PageParam(int offset, int limit, boolean count) {
+    public Paging(int offset, int limit, boolean count) {
         this.offset = offset;
         this.limit = limit;
         this.count = count;

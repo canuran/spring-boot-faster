@@ -1,10 +1,12 @@
-package ewing.common.queryutils;
+package ewing.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.querydsl.core.group.GroupExpression;
 import com.querydsl.core.types.*;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
+import ewing.common.paging.Page;
+import ewing.common.paging.Paging;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -23,21 +25,21 @@ public class QueryHelper {
     /**
      * 使用分页参数和查询对象进行分页查询。
      */
-    public static <T> PageData<T> queryPage(PageParam pageParam, SQLQuery<T> query) {
+    public static <T> Page<T> queryPage(Paging paging, SQLQuery<T> query) {
         // 是否统计总数
-        if (pageParam.isCount()) {
-            PageData<T> pageData = new PageData<>();
-            pageData.setTotal(query.fetchCount());
-            if (pageData.getTotal() < 1) {
+        if (paging.isCount()) {
+            Page<T> page = new Page<>();
+            page.setTotal(query.fetchCount());
+            if (page.getTotal() < 1) {
                 // 一条也没有则返回空集
-                return pageData.setContent(Collections.emptyList());
+                return page.setContent(Collections.emptyList());
             } else {
-                query.limit(pageParam.getLimit()).offset(pageParam.getOffset());
-                return pageData.setContent(query.fetch());
+                query.limit(paging.getLimit()).offset(paging.getOffset());
+                return page.setContent(query.fetch());
             }
         } else {
-            query.limit(pageParam.getLimit()).offset(pageParam.getOffset());
-            return new PageData<>(query.fetch());
+            query.limit(paging.getLimit()).offset(paging.getOffset());
+            return new Page<>(query.fetch());
         }
     }
 

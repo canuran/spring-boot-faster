@@ -1,8 +1,8 @@
 package ewing.user;
 
 import ewing.application.Result;
-import ewing.common.queryutils.PageData;
-import ewing.common.queryutils.PageParam;
+import ewing.common.paging.Page;
+import ewing.common.paging.Paging;
 import ewing.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,9 +25,9 @@ public class UserController {
 
     @PostMapping("findUser")
     @ApiOperation("分页查找用户")
-    public Result<PageData<User>> findUsers(PageParam pageParam,
-                                            String username, String roleName) {
-        return new Result<>(userService.findUsers(pageParam, username, roleName));
+    public Result<Page<User>> findUsers(Paging paging,
+                                        String username, String roleName) {
+        return new Result<>(userService.findUsers(paging, username, roleName));
     }
 
     @PostMapping("addUser")

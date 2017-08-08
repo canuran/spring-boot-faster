@@ -3,9 +3,9 @@ package ewing.user;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import ewing.application.AppException;
-import ewing.common.queryutils.PageData;
-import ewing.common.queryutils.PageParam;
-import ewing.common.queryutils.QueryHelper;
+import ewing.common.paging.Page;
+import ewing.common.paging.Paging;
+import ewing.common.QueryHelper;
 import ewing.entity.User;
 import ewing.query.QRole;
 import ewing.query.QUser;
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageData<User> findUsers(PageParam pageParam, String username, String roleName) {
+    public Page<User> findUsers(Paging paging, String username, String roleName) {
         SQLQuery<User> query = queryFactory.selectFrom(User);
         if (StringUtils.hasText(username))
             query.where(User.username.contains(username));
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
             query.leftJoin(UserRole).on(User.userId.eq(UserRole.userId))
                     .leftJoin(Role).on(UserRole.roleId.eq(Role.roleId))
                     .where(Role.name.contains(roleName));
-        return QueryHelper.queryPage(pageParam, query);
+        return QueryHelper.queryPage(paging, query);
     }
 
     @Override

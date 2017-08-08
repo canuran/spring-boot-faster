@@ -1,6 +1,6 @@
 package ewing.demo;
 
-import ewing.common.queryutils.PageParam;
+import ewing.common.paging.Paging;
 import ewing.entity.User;
 import ewing.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class ThymeleafUser {
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("user");
         modelAndView.addObject("user", new User());
-        PageParam pageParam = new PageParam(0, 100, false);
+        Paging paging = new Paging(0, 100, false);
         modelAndView.addObject("users", userService.findUsers(
-                pageParam, null, null).getContent());
+                paging, null, null).getContent());
         return modelAndView;
     }
 
