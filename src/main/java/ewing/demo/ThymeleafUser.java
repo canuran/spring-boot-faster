@@ -4,6 +4,7 @@ import ewing.common.paging.Paging;
 import ewing.entity.User;
 import ewing.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -33,12 +34,14 @@ public class ThymeleafUser {
     }
 
     @PostMapping("addUser")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ModelAndView addUser(@ModelAttribute User user) {
         userService.addUser(user);
         return index();
     }
 
     @GetMapping("deleteUser")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ModelAndView deleteUser(Integer userId) {
         userService.deleteUser(userId);
         return index();
