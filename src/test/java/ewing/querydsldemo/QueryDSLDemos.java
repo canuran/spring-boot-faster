@@ -10,6 +10,7 @@ import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
 import ewing.common.JsonConverter;
@@ -67,7 +68,7 @@ public class QueryDSLDemos {
         DemoUser demoUser = newDemoUser();
         // 新增
         demoUser.setUserId(queryFactory.insert(DemoUser)
-                .populate(demoUser)
+                .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .executeWithKey(DemoUser.userId));
         System.out.println(demoUser.getUserId());
         // 更新
