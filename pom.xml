@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ewing</groupId>
-    <artifactId>spring-boot-querydsl-security</artifactId>
+    <artifactId>spring-boot-faster</artifactId>
     <version>1.2.0</version>
     <packaging>jar</packaging>
-    <name>Spring Boot QueryDSL Security</name>
-    <description>Spring Boot QueryDSL Security</description>
+    <name>Spring Boot Faster</name>
+    <description>Spring Boot Faster</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -166,7 +166,7 @@
     </dependencies>
 
     <build>
-        <finalName>spring-boot-querydsl-security</finalName>
+        <finalName>spring-boot-faster</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
