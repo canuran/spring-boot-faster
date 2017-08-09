@@ -15,6 +15,8 @@ import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
 import ewing.common.JsonConverter;
 import ewing.common.QueryHelper;
+import ewing.common.paging.Page;
+import ewing.common.paging.Paging;
 import ewing.querydsldemo.entity.DemoUser;
 import ewing.querydsldemo.query.QDemoAddress;
 import ewing.querydsldemo.query.QDemoUser;
@@ -109,11 +111,14 @@ public class QueryDSLDemos {
                                 .and(DemoUser.gender.eq(0))
                 ))
         );
-        // 查看SQL和绑定的参数
+        // 查看SQL和参数
         SQLBindings sqlBindings = query.getSQL();
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
-        System.out.println(JsonConverter.toJson(query.fetch()));
+        // 分页获取数据
+        Paging paging = new Paging();
+        Page<DemoUser> userPage = QueryHelper.queryPage(paging, query);
+        System.out.println(JsonConverter.toJson(userPage));
     }
 
     /**
