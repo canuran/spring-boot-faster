@@ -123,7 +123,7 @@ public class QueryDSLDemos {
     public void selectSubQuery() {
         QDemoUser UserA = new QDemoUser("A");
         List<String> names = queryFactory
-                // 条件中使用子查询
+                // 结果中使用子查询
                 .select(SQLExpressions.select(DemoUser.username)
                         .from(DemoUser)
                         .where(DemoUser.userId.eq(UserA.userId)))
@@ -141,7 +141,7 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 分组聚合关联查询并取自定义字段。
+     * 关联分组并取自定义字段。
      */
     @Test
     public void queryJoinGroup() {
@@ -158,7 +158,7 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 自定义SQL语句。
+     * 自定义SQL查询。
      */
     @Test
     public void customQuery() {
