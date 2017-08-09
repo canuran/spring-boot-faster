@@ -197,9 +197,9 @@
                 <version>4.1.4</version>
                 <configuration>
                     <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:mysql://localhost:3306/security?useUnicode=true</jdbcUrl>
-                    <jdbcUser>security</jdbcUser>
-                    <jdbcPassword>security</jdbcPassword>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
+                    <jdbcUser>faster</jdbcUser>
+                    <jdbcPassword>faster</jdbcPassword>
                     <exportForeignKeys>false</exportForeignKeys>
                     <packageName>ewing.query</packageName>
                     <targetFolder>${project.basedir}/src/main/java</targetFolder>

@@ -22,6 +22,6 @@ spring:
     cache: false
   datasource: # 数据库配置
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/security?useUnicode=true
-    username: security
-    password: security
+    url: jdbc:mysql://localhost:3306/faster?useUnicode=true
+    username: faster
+    password: faster
