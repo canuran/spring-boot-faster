@@ -40,7 +40,7 @@ public class ThymeleafUser {
     }
 
     @GetMapping("deleteUser")
-    @PreAuthorize("hasPermission(#userId,'USER')")
+    @PreAuthorize("hasPermission(#userId,'ROLE_USER')")
     public ModelAndView deleteUser(Integer userId) {
         userService.deleteUser(userId);
         return index();
