@@ -34,6 +34,7 @@ public class ThymeleafUser {
     }
 
     @PostMapping("addUser")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ModelAndView addUser(@ModelAttribute User user) {
         userService.addUser(user);
         return index();
