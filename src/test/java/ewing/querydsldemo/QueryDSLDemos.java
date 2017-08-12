@@ -111,7 +111,7 @@ public class QueryDSLDemos {
                                 .and(DemoUser.gender.eq(0))
                 ))
         );
-        // 查看SQL和参数
+        // 查看SQL和参数（默认提供SQL日志）
         SQLBindings sqlBindings = query.getSQL();
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
