@@ -150,7 +150,7 @@ public class QueryDSLDemos {
      */
     @Test
     public void queryJoinGroup() {
-        // 权限用户统计
+        // 统计城市用户数
         List<DemoAddressUser> addressUsers = queryFactory
                 .select(Projections.bean(DemoAddressUser.class,
                         DemoAddress.city, DemoUser.count().as("totalUser")))
