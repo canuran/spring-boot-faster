@@ -7,9 +7,11 @@ Spring Framework：Spring基础框架，提供Context、Task Schedule等功能�
 Spring Security：Spring安全框架，提供了常规功能和诸多高级特性以满足复杂场景下的安全需求。  
 Spring MVC：Web访问接口与控制器，Restful，全局异常，自动转换时间，静态资源访问，动态国际化支持等。  
 Thymeleaf：页面视图的模板引擎，页面侵入较少，很适合作为Web应用视图上的业务逻辑控制。  
-QueryDSL：通用高效的查询框架，专注于通过API构建类型安全的SQL查询，支持SQL标准且可跨数据库，详细的参考案例见test目录，已配置Maven一键生成插件。  
+QueryDSL：通用高效的类型安全的查询框架，它的API语法与SQL几乎一致，配合IDE具有非常高的开发效率、利于重构、适应需求变更，覆盖SQL标准且可跨数据库。  
+QueryDSL 案例：Maven生成插件配置、独立的参考案例（位于test目录），覆盖绝大多数应用场景，可快速上手。  
+Spring Jdbc：Spring Jdbc事务及异常支持、JdbcTemplate作为特殊情况下的后备支持，确保无后顾之忧。  
 GlobalIdWorker：全局ID生成器，支持多机多实例运行，保持趋势递增，尾数均匀，对分表分库非常友好，也可用于唯一资源命名。  
-Spring Cache + EhCache：使用声明式缓存，对方法返回值进行缓存，使用EhCache作为本地缓存，可轻松切换为Redis共享缓存。  
+Spring Cache + EhCache：使用声明式缓存，对方法返回值进行缓存，使用EhCache作为本地缓存，resources目录中提供了Redis参考。  
 Protostuff 序列化：Protostuff 序列化可以大幅提高时间及空间性能，适合传输对象，比如存储到Redis等。  
 Spring AOP：使用AOP对方法日志进行统一处理，也可用做收集信息、事务处理、权限校验等。  
 RSA 和 AES：RSA 非对称可逆加密可用于登陆加密等， AES 对称可逆加密可用于内部存储数据。  
