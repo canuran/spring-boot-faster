@@ -171,7 +171,10 @@ public class QueryDSLDemos {
                 // 常用的表达式构建方法
                 ExpressionUtils.count(Expressions.constant(1)),
                 SQLExpressions.sum(Expressions.constant(2)),
-                DemoUser.gender.max(), DemoUser.gender.avg())
+                Expressions.cases().when(DemoUser.birthday.max()
+                        .gt(DemoUser.birthday.min())).then("生日不同")
+                        .otherwise("生日相同"),
+                DemoUser.gender.avg())
                 .from(DemoUser);
 
         // 【非必要则不用】使用数据库的 HINTS 优化查询
@@ -210,9 +213,9 @@ public class QueryDSLDemos {
         List<DemoUserDetail> demoUsers = queryFactory.select(
                 // 如果取部分属性字段则用matchToBean
                 QueryHelper.allToBean(DemoUserDetail.class,
-                        DemoUser, Expressions.cases()
-                                .when(DemoUser.gender.eq(1)).then("男")
-                                .when(DemoUser.gender.eq(2)).then("女")
+                        DemoUser,
+                        DemoUser.gender.when(1).then("男")
+                                .when(2).then("女")
                                 .otherwise("保密").as("genderName"),
                         DemoAddress.city.as("addressCity")))
                 .from(DemoUser)
