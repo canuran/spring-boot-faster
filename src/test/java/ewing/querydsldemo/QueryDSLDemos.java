@@ -185,7 +185,7 @@ public class QueryDSLDemos {
                 "NOW() < {0} OR NOW() > {0}",
                 DateExpression.currentDate()));
         try {
-            System.out.println(query.fetch());
+            System.out.println(query.fetchFirst());
         } catch (BadSqlGrammarException e) {
             System.out.println("数据库不支持该SQL！");
         }
