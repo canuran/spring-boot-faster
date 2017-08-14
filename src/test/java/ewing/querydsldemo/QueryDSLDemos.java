@@ -160,6 +160,13 @@ public class QueryDSLDemos {
                 .having(DemoUser.count().gt(0))
                 .fetch();
         System.out.println(JsonConverter.toJson(addressUsers));
+        // 关联查询取两个表的全部属性
+        List addressAndUser = queryFactory
+                .select(Projections.list(DemoAddress, DemoUser))
+                .from(DemoAddress)
+                .leftJoin(DemoUser).on(DemoAddress.addressId.eq(DemoUser.userId))
+                .fetch();
+        System.out.println(JsonConverter.toJson(addressAndUser));
     }
 
     /**
