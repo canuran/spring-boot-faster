@@ -2,7 +2,6 @@ package ewing.querydsldemo;
 
 import com.querydsl.core.QueryFlag;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -176,8 +175,9 @@ public class QueryDSLDemos {
     public void customQuery() {
         SQLQuery<Tuple> query = queryFactory.select(
                 // 常用的表达式构建方法
-                ExpressionUtils.count(Expressions.constant(1)),
-                SQLExpressions.sum(Expressions.constant(2)),
+                Expressions.asNumber(1).count(),
+                Expressions.asNumber(2).sum(),
+                SQLExpressions.sum(Expressions.constant(3)),
                 Expressions.cases().when(DemoUser.birthday.max()
                         .gt(DemoUser.birthday.min())).then("生日不同")
                         .otherwise("生日相同"),
