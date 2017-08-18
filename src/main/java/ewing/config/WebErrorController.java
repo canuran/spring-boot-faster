@@ -63,11 +63,11 @@ public class WebErrorController implements ErrorController {
             return;
         }
         writer.print("<html>\n<head>\n" +
-                "<meta charset=\"UTF-8\">\n" +
+                "<meta charset='UTF-8'>\n" +
                 "<title>页面出错了</title>\n</head>\n" +
-                "<body style=\"background-color:#eee\">\n" +
-                "<div style=\"width:500px;position:absolute;" +
-                "top:5%;left:50%;margin-left:-250px\">\n" +
+                "<body style='background-color:#eee'>\n" +
+                "<div style='width:500px;position:absolute;" +
+                "top:5%;left:50%;margin-left:-250px'>\n" +
                 "<h2>页面出错了</h2>");
         for (String key : keys) {
             writer.print("\n" + key + " : " + model.get(key) + "<br/>");
