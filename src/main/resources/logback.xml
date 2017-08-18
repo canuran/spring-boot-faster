@@ -19,5 +19,5 @@
         <appender-ref ref="FILEOUT"/>
     </root>
     <logger name="com.querydsl.sql" level="DEBUG"/>
-    <logger name="ewing.application.AppLogAspect" level="INFO"/>
+    <logger name="AppMethodLogger" level="INFO"/>
 </configuration>
