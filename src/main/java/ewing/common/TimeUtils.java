@@ -44,16 +44,14 @@ public class TimeUtils {
      * 转sql的time格式。
      */
     public static Timestamp convertSqlTime(Date date) {
-        Timestamp timestamp = new Timestamp(date.getTime());
-        return timestamp;
+        return new Timestamp(date.getTime());
     }
 
     /**
      * 转sql的日期格式。
      */
     public static Date convertSqlDate(Date date) {
-        Date Datetamp = new Date(date.getTime());
-        return Datetamp;
+        return new Date(date.getTime());
     }
 
     /**
@@ -213,8 +211,7 @@ public class TimeUtils {
 
         Calendar cal = (GregorianCalendar) c.clone();
         cal.add(Calendar.DATE, (week - 1) * 7);
-        firstDate = getFirstDayOfWeek(cal.getTime());
-        return firstDate;
+        return getFirstDayOfWeek(cal.getTime());
     }
 
     /**
@@ -235,8 +232,7 @@ public class TimeUtils {
 
         Calendar cal = (GregorianCalendar) c.clone();
         cal.add(Calendar.DATE, (week - 1) * 7);
-        Date lastDate = getLastDayOfWeek(cal.getTime());
-        return lastDate;
+        return getLastDayOfWeek(cal.getTime());
     }
 
     /**
@@ -388,9 +384,9 @@ public class TimeUtils {
     public static Date setStartDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 00);
-        calendar.set(Calendar.MINUTE, 00);
-        calendar.set(Calendar.SECOND, 00);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
         return calendar.getTime();
     }
 
