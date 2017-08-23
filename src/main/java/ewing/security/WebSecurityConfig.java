@@ -27,12 +27,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 允许跨域访问
         security.csrf().disable()
                 // 除首页外所有请求都需要验证
-                .authorizeRequests().antMatchers("/", "/index.html").permitAll()
-                .anyRequest().authenticated()
+                .authorizeRequests()
+                .antMatchers("/", "/index.html")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
                 // 定义登陆页面并允许所有人访问
-                .and().formLogin().loginPage("/login").failureUrl("/login?error").permitAll()
+                .and().formLogin()
+                .loginPage("/login")
+                .failureUrl("/login?error")
+                .permitAll()
                 // 登出页面允许所有人访问
-                .and().logout().logoutSuccessUrl("/").permitAll();
+                .and().logout()
+                .logoutSuccessUrl("/")
+                .permitAll();
     }
 
 }
