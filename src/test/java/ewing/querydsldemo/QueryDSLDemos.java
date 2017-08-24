@@ -239,9 +239,9 @@ public class QueryDSLDemos {
         // 批量更新 插入和删除操作类似
         SQLUpdateClause update = queryFactory.update(DemoUser);
         update.set(DemoUser.username, DemoUser.username.append("哥哥"))
-                .where(DemoUser.userId.eq(1)).addBatch();
+                .where(DemoUser.gender.eq(1)).addBatch();
         update.set(DemoUser.username, DemoUser.username.append("妹妹"))
-                .where(DemoUser.userId.eq(2)).addBatch();
+                .where(DemoUser.gender.eq(2)).addBatch();
         System.out.println(update.execute());
     }
 
