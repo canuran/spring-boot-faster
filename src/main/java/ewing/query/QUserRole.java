@@ -1,20 +1,16 @@
 package ewing.query;
 
-import static com.querydsl.core.types.PathMetadataFactory.*;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.dsl.DateTimePath;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.sql.ColumnMetadata;
 import ewing.entity.UserRole;
 
-
-import com.querydsl.core.types.dsl.*;
-
-import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
-import com.querydsl.core.types.Path;
-
-import com.querydsl.sql.ColumnMetadata;
 import java.sql.Types;
 
-
-
+import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
 /**
  * QUserRole is a Querydsl query type for UserRole
