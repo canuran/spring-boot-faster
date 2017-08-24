@@ -22,22 +22,22 @@ public class SecurityUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SecurityUser user = queryFactory.select(
+        SecurityUser securityUser = queryFactory.select(
                 Projections.bean(SecurityUser.class, User.all()))
                 .from(User)
                 .where(User.username.eq(username))
                 .fetchOne();
-        if (user == null) {
+        if (securityUser == null) {
             throw new UsernameNotFoundException("Username not found.");
         } else {
-            user.addAuthoritiesByRoles(
+            securityUser.addAuthoritiesByRoles(
                     queryFactory.selectFrom(Role)
                             .leftJoin(UserRole).on(Role.roleId.eq(UserRole.roleId))
-                            .where(UserRole.userId.eq(user.getUserId()))
+                            .where(UserRole.userId.eq(securityUser.getUserId()))
                             .fetch()
             );
         }
-        return user;
+        return securityUser;
     }
 
 }
