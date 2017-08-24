@@ -13,7 +13,7 @@ import java.io.Serializable;
  * 自定义权限求值策略，实现更细更灵活的权限控制。
  */
 @Component
-public class UserPermissionEvaluator implements PermissionEvaluator {
+public class UserHasPermission implements PermissionEvaluator {
 
     @Autowired
     private UserService userService;
