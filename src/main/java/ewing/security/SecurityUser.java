@@ -1,5 +1,6 @@
 package ewing.security;
 
+import ewing.entity.Permission;
 import ewing.entity.Role;
 import ewing.entity.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,9 +18,24 @@ public class SecurityUser extends User implements UserDetails {
 
     private List<GrantedAuthority> authorities = new ArrayList<>();
 
-    public void addAuthoritiesByRoles(List<Role> roles) {
+    private List<Permission> permissions;
+
+    /**
+     * Authority相当于角色，对应hasRole方法。
+     */
+    public void addRoleAuthorities(List<Role> roles) {
         for (Role role : roles)
-            authorities.add(new SimpleGrantedAuthority(role.getCode()));
+            this.authorities.add(new SimpleGrantedAuthority(role.getCode()));
+    }
+
+    /**
+     * 是否有对应的权限编码。
+     */
+    public boolean hasPermission(String code) {
+        for (Permission permission : permissions)
+            if (permission.getCode().equals(code))
+                return true;
+        return false;
     }
 
     @Override
@@ -45,5 +61,13 @@ public class SecurityUser extends User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public List<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
     }
 }

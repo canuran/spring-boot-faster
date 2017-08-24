@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(unless = "#result==null")
-    public User getUser(Integer userId) {
+    public User getUser(Long userId) {
         return queryFactory.selectFrom(User)
                 .where(User.userId.eq(userId))
                 .fetchOne();
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CacheEvict
-    public void deleteUser(Integer userId) {
+    public void deleteUser(Long userId) {
         queryFactory.delete(User)
                 .where(User.userId.eq(userId))
                 .execute();

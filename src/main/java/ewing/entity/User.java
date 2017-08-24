@@ -10,11 +10,11 @@ public class User {
 
     private java.util.Date birthday;
 
-    private Integer gender;
+    private java.util.Date createTime;
 
     private String password;
 
-    private Integer userId;
+    private Long userId;
 
     private String username;
 
@@ -26,12 +26,12 @@ public class User {
         this.birthday = birthday;
     }
 
-    public Integer getGender() {
-        return gender;
+    public java.util.Date getCreateTime() {
+        return createTime;
     }
 
-    public void setGender(Integer gender) {
-        this.gender = gender;
+    public void setCreateTime(java.util.Date createTime) {
+        this.createTime = createTime;
     }
 
     public String getPassword() {
@@ -42,11 +42,11 @@ public class User {
         this.password = password;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

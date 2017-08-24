@@ -11,13 +11,13 @@ public interface UserService {
 
     User addUser(User user);
 
-    User getUser(Integer userId);
+    User getUser(Long userId);
 
     void updateUser(User user);
 
     Page<User> findUsers(Paging paging, String username, String roleName);
 
-    void deleteUser(Integer userId);
+    void deleteUser(Long userId);
 
     void clearUsers();
 }

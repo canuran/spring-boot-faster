@@ -3,26 +3,16 @@ package ewing.entity;
 import javax.annotation.Generated;
 
 /**
- * Role is a Querydsl bean type
+ * RolePermission is a Querydsl bean type
  */
 @Generated("com.querydsl.codegen.BeanSerializer")
-public class Role {
-
-    private String code;
+public class RolePermission {
 
     private java.util.Date createTime;
 
-    private String name;
+    private Long permissionId;
 
     private Long roleId;
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public java.util.Date getCreateTime() {
         return createTime;
@@ -32,12 +22,12 @@ public class Role {
         this.createTime = createTime;
     }
 
-    public String getName() {
-        return name;
+    public Long getPermissionId() {
+        return permissionId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPermissionId(Long permissionId) {
+        this.permissionId = permissionId;
     }
 
     public Long getRoleId() {

@@ -38,7 +38,7 @@ public class UserController {
 
     @GetMapping("getUser")
     @ApiOperation("根据ID获取用户")
-    public Result<User> getUser(Integer userId) {
+    public Result<User> getUser(Long userId) {
         return new Result<>(userService.getUser(userId));
     }
 
@@ -51,7 +51,7 @@ public class UserController {
 
     @GetMapping("deleteUser")
     @ApiOperation("根据ID删除用户")
-    public Result deleteUser(Integer userId) {
+    public Result deleteUser(Long userId) {
         userService.deleteUser(userId);
         return new Result();
     }

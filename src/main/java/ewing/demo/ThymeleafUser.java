@@ -24,6 +24,7 @@ public class ThymeleafUser {
     private UserService userService;
 
     @RequestMapping("/user")
+    @PreAuthorize("hasPermission(null,'USER_VIEW')")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("user");
         modelAndView.addObject("user", new User());
@@ -41,8 +42,8 @@ public class ThymeleafUser {
     }
 
     @GetMapping("deleteUser")
-    @PreAuthorize("hasRole('ROLE_USER') and hasPermission(#userId,'ROLE_USER')")
-    public ModelAndView deleteUser(Integer userId) {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ModelAndView deleteUser(Long userId) {
         userService.deleteUser(userId);
         return index();
     }
