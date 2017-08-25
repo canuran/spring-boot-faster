@@ -1,0 +1,58 @@
+package ewing.common;
+
+import com.google.gson.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * GSON工具类。
+ */
+public final class GsonUtils {
+
+    private static final Gson gson = new GsonBuilder()
+            .setLenient()
+            .enableComplexMapKeySerialization()
+            .serializeNulls()
+            .setPrettyPrinting()
+            .setDateFormat("yyyy-MM-dd HH:mm:ss")
+            .disableHtmlEscaping()
+            .create();
+
+    private GsonUtils() {
+    }
+
+    /**
+     * 公开可给外部使用。
+     */
+    public static Gson getGson() {
+        return gson;
+    }
+
+    /**
+     * 将object对象转成json字符串。
+     */
+    public static String toJson(Object object) {
+        return gson.toJson(object);
+    }
+
+    /**
+     * 将json字符串转成泛型object。
+     */
+    public static <T> T toObject(String json, Class<T> cls) {
+        return gson.fromJson(json, cls);
+    }
+
+    /**
+     * 将json字符串转成转成list。
+     */
+    public static <T> List<T> toList(String arrayJson, Class<T> cls) {
+        List<T> list = new ArrayList<>();
+        JsonArray array = new JsonParser().parse(arrayJson).getAsJsonArray();
+        for (JsonElement elem : array) {
+            list.add(gson.fromJson(elem, cls));
+        }
+        return list;
+    }
+
+}
