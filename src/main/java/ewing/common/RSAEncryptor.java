@@ -46,40 +46,45 @@ public class RSAEncryptor {
     }
 
     /**
-     * 用公钥加密字符串。
+     * 用公钥加密任意数组。
      * Cipher是线程不安全的。
      */
-    public static byte[] encrypt(String text) {
+    public static byte[] encrypt(byte[] bytes) {
         try {
             Cipher cipher = Cipher.getInstance(PADDING, PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return cipher.doFinal(text.getBytes());
+            return cipher.doFinal(bytes);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * 使用私钥解密字符串。
+     * 用公钥加密字符串。
+     */
+    public static String encryptString(String text) {
+        return byteToHexStr(encrypt(text.getBytes()));
+    }
+
+    /**
+     * 使用私钥解密加密后的数组。
      * Cipher是线程不安全的。
      */
-    public static String decrypt(byte[] text) {
+    public static byte[] decrypt(byte[] text) {
         try {
             Cipher cipher = Cipher.getInstance(PADDING, PROVIDER);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] dectyptedText = cipher.doFinal(text);
-            return new String(dectyptedText);
-        } catch (Exception ex) {
-            return null;
+            return cipher.doFinal(text);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * 使用私钥解密字符串。
-     * Cipher是线程不安全的。
      */
     public static String decryptString(String str) {
-        return decrypt(hexStrToByte(str));
+        return new String(decrypt(hexStrToByte(str)));
     }
 
     /**
@@ -143,7 +148,7 @@ public class RSAEncryptor {
             RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -156,7 +161,7 @@ public class RSAEncryptor {
             RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(modulus, exponent);
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -171,12 +176,12 @@ public class RSAEncryptor {
                 System.out.println("原始：" + originalText);
 
                 // 加密
-                byte[] cipherText = encrypt(originalText);
+                byte[] cipherText = encrypt(originalText.getBytes());
                 String hex = byteToHexStr(cipherText);
                 System.out.println("加密：" + hex);
 
                 // 解密
-                String plainText = decrypt(hexStrToByte(hex));
+                String plainText = new String(decrypt(hexStrToByte(hex)));
                 System.out.println("解密：" + plainText + "\n");
             }
         } catch (Exception e) {
