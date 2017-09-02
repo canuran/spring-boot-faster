@@ -31,17 +31,16 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SQLQueryFactory queryFactory;
 
-    // 约定查询对象以大写字母开头
-    private QUser User = QUser.user;
-    private QUserRole UserRole = QUserRole.userRole;
-    private QRole Role = QRole.role;
+    private QUser qUser = QUser.user;
+    private QUserRole qUserRole = QUserRole.userRole;
+    private QRole qRole = QRole.role;
 
     @Override
     public User addUser(User user) {
         if (!StringUtils.hasText(user.getUsername()))
             throw new AppException("用户名不能为空！");
-        if (queryFactory.selectFrom(User)
-                .where(User.username.eq(user.getUsername()))
+        if (queryFactory.selectFrom(qUser)
+                .where(qUser.username.eq(user.getUsername()))
                 .fetchCount() > 0)
             throw new AppException("用户名已被使用！");
         if (!StringUtils.hasText(user.getPassword()))
@@ -50,52 +49,52 @@ public class UserServiceImpl implements UserService {
         if (user.getBirthday() == null)
             user.setBirthday(new Date());
 
-        user.setUserId(queryFactory.insert(User)
+        user.setUserId(queryFactory.insert(qUser)
                 .populate(user)
-                .executeWithKey(User.userId));
+                .executeWithKey(qUser.userId));
         return user;
     }
 
     @Override
     @Cacheable(unless = "#result==null")
     public User getUser(Long userId) {
-        return queryFactory.selectFrom(User)
-                .where(User.userId.eq(userId))
+        return queryFactory.selectFrom(qUser)
+                .where(qUser.userId.eq(userId))
                 .fetchOne();
     }
 
     @Override
     @CacheEvict(key = "#user.userId")
     public void updateUser(User user) {
-        queryFactory.update(User)
+        queryFactory.update(qUser)
                 .populate(user)
-                .where(User.userId.eq(user.getUserId()))
+                .where(qUser.userId.eq(user.getUserId()))
                 .execute();
     }
 
     @Override
     public Page<User> findUsers(Paging paging, String username, String roleName) {
-        SQLQuery<User> query = queryFactory.selectFrom(User);
+        SQLQuery<User> query = queryFactory.selectFrom(qUser);
         if (StringUtils.hasText(username))
-            query.where(User.username.contains(username));
+            query.where(qUser.username.contains(username));
         if (roleName != null)
-            query.leftJoin(UserRole).on(User.userId.eq(UserRole.userId))
-                    .leftJoin(Role).on(UserRole.roleId.eq(Role.roleId))
-                    .where(Role.name.contains(roleName));
+            query.leftJoin(qUserRole).on(qUser.userId.eq(qUserRole.userId))
+                    .leftJoin(qRole).on(qUserRole.roleId.eq(qRole.roleId))
+                    .where(qRole.name.contains(roleName));
         return QueryHelper.queryPage(paging, query);
     }
 
     @Override
     @CacheEvict
     public void deleteUser(Long userId) {
-        queryFactory.delete(User)
-                .where(User.userId.eq(userId))
+        queryFactory.delete(qUser)
+                .where(qUser.userId.eq(userId))
                 .execute();
     }
 
     @Override
     public void clearUsers() {
-        queryFactory.delete(User)
+        queryFactory.delete(qUser)
                 .execute();
     }
 

@@ -44,9 +44,8 @@ public class QueryDSLDemos {
     @Autowired
     private SQLQueryFactory queryFactory;
 
-    // 约定查询对象以大写字母开头
-    private QDemoUser DemoUser = QDemoUser.demoUser;
-    private QDemoAddress DemoAddress = QDemoAddress.demoAddress;
+    private QDemoUser qDemoUser = QDemoUser.demoUser;
+    private QDemoAddress qDemoAddress = QDemoAddress.demoAddress;
 
     /**
      * 创建新对象。
@@ -68,24 +67,24 @@ public class QueryDSLDemos {
     public void simpleCrud() {
         DemoUser demoUser = newDemoUser();
         // 新增
-        demoUser.setUserId(queryFactory.insert(DemoUser)
+        demoUser.setUserId(queryFactory.insert(qDemoUser)
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
-                .executeWithKey(DemoUser.userId));
+                .executeWithKey(qDemoUser.userId));
         System.out.println(demoUser.getUserId());
         // 更新
         demoUser.setUsername("EWING");
         demoUser.setPassword("ABC123");
-        queryFactory.update(DemoUser)
-                .where(DemoUser.userId.eq(demoUser.getUserId()))
+        queryFactory.update(qDemoUser)
+                .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .populate(demoUser)
                 .execute();
         // 查询
-        demoUser = queryFactory.selectFrom(DemoUser)
-                .where(DemoUser.userId.eq(demoUser.getUserId()))
+        demoUser = queryFactory.selectFrom(qDemoUser)
+                .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .fetchOne();
         // 删除
-        queryFactory.delete(DemoUser)
-                .where(DemoUser.userId.eq(demoUser.getUserId()))
+        queryFactory.delete(qDemoUser)
+                .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
         System.out.println(JsonConverter.toJson(demoUser));
     }
@@ -96,18 +95,18 @@ public class QueryDSLDemos {
     @Test
     public void queryWhere() {
         SQLQuery<DemoUser> query = queryFactory
-                .selectFrom(DemoUser).distinct()
-                .leftJoin(DemoAddress)
-                .on(DemoUser.addressId.eq(DemoAddress.addressId))
-                .orderBy(DemoUser.birthday.desc().nullsFirst());
+                .selectFrom(qDemoUser).distinct()
+                .leftJoin(qDemoAddress)
+                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                .orderBy(qDemoUser.birthday.desc().nullsFirst());
         // where可多次使用，相当于and，注意and优先级高于or
-        query.where(DemoAddress.city.contains("深圳")
+        query.where(qDemoAddress.city.contains("深圳")
                 .and((
-                        DemoUser.username.contains("元")
-                                .and(DemoUser.gender.eq(1))
+                        qDemoUser.username.contains("元")
+                                .and(qDemoUser.gender.eq(1))
                 ).or(
-                        DemoUser.username.contains("宝")
-                                .and(DemoUser.gender.eq(0))
+                        qDemoUser.username.contains("宝")
+                                .and(qDemoUser.gender.eq(0))
                 ))
         );
         // 查看SQL和参数（默认提供SQL日志）
@@ -128,17 +127,17 @@ public class QueryDSLDemos {
         QDemoUser UserA = new QDemoUser("A");
         List<String> names = queryFactory
                 // 结果中使用子查询
-                .select(SQLExpressions.select(DemoUser.username)
-                        .from(DemoUser)
-                        .where(DemoUser.userId.eq(UserA.userId)))
+                .select(SQLExpressions.select(qDemoUser.username)
+                        .from(qDemoUser)
+                        .where(qDemoUser.userId.eq(UserA.userId)))
                 // 嵌套子查询
-                .from(SQLExpressions.selectFrom(DemoUser)
-                        .where(DemoUser.userId.eq(1))
+                .from(SQLExpressions.selectFrom(qDemoUser)
+                        .where(qDemoUser.userId.eq(1))
                         .as(UserA))
                 // 条件中使用子查询
                 .where(SQLExpressions.selectOne()
-                        .from(DemoUser)
-                        .where(DemoUser.userId.eq(UserA.userId))
+                        .from(qDemoUser)
+                        .where(qDemoUser.userId.eq(UserA.userId))
                         .exists())
                 .fetch();
         System.out.println(JsonConverter.toJson(names));
@@ -152,18 +151,18 @@ public class QueryDSLDemos {
         // 统计城市用户数
         List<DemoAddressUser> addressUsers = queryFactory
                 .select(Projections.bean(DemoAddressUser.class,
-                        DemoAddress.city, DemoUser.count().as("totalUser")))
-                .from(DemoAddress)
-                .leftJoin(DemoUser).on(DemoAddress.addressId.eq(DemoUser.userId))
-                .groupBy(DemoAddress.city)
-                .having(DemoUser.count().gt(0))
+                        qDemoAddress.city, qDemoUser.count().as("totalUser")))
+                .from(qDemoAddress)
+                .leftJoin(qDemoUser).on(qDemoAddress.addressId.eq(qDemoUser.userId))
+                .groupBy(qDemoAddress.city)
+                .having(qDemoUser.count().gt(0))
                 .fetch();
         System.out.println(JsonConverter.toJson(addressUsers));
         // 关联查询取两个表的全部属性
         List addressAndUser = queryFactory
-                .select(Projections.list(DemoAddress, DemoUser))
-                .from(DemoAddress)
-                .leftJoin(DemoUser).on(DemoAddress.addressId.eq(DemoUser.userId))
+                .select(Projections.list(qDemoAddress, qDemoUser))
+                .from(qDemoAddress)
+                .leftJoin(qDemoUser).on(qDemoAddress.addressId.eq(qDemoUser.userId))
                 .fetch();
         System.out.println(JsonConverter.toJson(addressAndUser));
     }
@@ -178,11 +177,11 @@ public class QueryDSLDemos {
                 Expressions.asNumber(1).count(),
                 Expressions.asNumber(2).sum(),
                 SQLExpressions.sum(Expressions.constant(3)),
-                Expressions.cases().when(DemoUser.birthday.max()
-                        .gt(DemoUser.birthday.min())).then("生日不同")
+                Expressions.cases().when(qDemoUser.birthday.max()
+                        .gt(qDemoUser.birthday.min())).then("生日不同")
                         .otherwise("生日相同"),
-                DemoUser.gender.avg())
-                .from(DemoUser);
+                qDemoUser.gender.avg())
+                .from(qDemoUser);
 
         // 【非必要则不用】使用数据库的 HINTS 优化查询
         query.addFlag(QueryFlag.Position.AFTER_SELECT, "SQL_NO_CACHE ");
@@ -205,9 +204,9 @@ public class QueryDSLDemos {
     @SuppressWarnings("unchecked")
     public void queryUnion() {
         List<DemoUser> demoUsers = queryFactory.query().unionAll(
-                SQLExpressions.selectFrom(DemoUser).where(DemoUser.gender.eq(0)),
-                SQLExpressions.selectFrom(DemoUser).where(DemoUser.gender.eq(1)),
-                SQLExpressions.selectFrom(DemoUser).where(DemoUser.gender.eq(2))
+                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(0)),
+                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(1)),
+                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(2))
         ).fetch();
         System.out.println(JsonConverter.toJson(demoUsers));
     }
@@ -220,13 +219,13 @@ public class QueryDSLDemos {
         List<DemoUserDetail> demoUsers = queryFactory.select(
                 // 如果取部分属性字段则用matchToBean
                 QueryHelper.allToBean(DemoUserDetail.class,
-                        DemoUser,
-                        DemoUser.gender.when(1).then("男")
+                        qDemoUser,
+                        qDemoUser.gender.when(1).then("男")
                                 .when(2).then("女")
                                 .otherwise("保密").as("genderName"),
-                        DemoAddress.city.as("addressCity")))
-                .from(DemoUser)
-                .leftJoin(DemoAddress).on(DemoUser.addressId.eq(DemoAddress.addressId))
+                        qDemoAddress.city.as("addressCity")))
+                .from(qDemoUser)
+                .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .fetch();
         System.out.println(JsonConverter.toJson(demoUsers));
     }
@@ -237,11 +236,11 @@ public class QueryDSLDemos {
     @Test
     public void executeBatch() {
         // 批量更新 插入和删除操作类似
-        SQLUpdateClause update = queryFactory.update(DemoUser);
-        update.set(DemoUser.username, DemoUser.username.append("哥哥"))
-                .where(DemoUser.gender.eq(1)).addBatch();
-        update.set(DemoUser.username, DemoUser.username.append("妹妹"))
-                .where(DemoUser.gender.eq(2)).addBatch();
+        SQLUpdateClause update = queryFactory.update(qDemoUser);
+        update.set(qDemoUser.username, qDemoUser.username.append("哥哥"))
+                .where(qDemoUser.gender.eq(1)).addBatch();
+        update.set(qDemoUser.username, qDemoUser.username.append("妹妹"))
+                .where(qDemoUser.gender.eq(2)).addBatch();
         System.out.println(update.execute());
     }
 

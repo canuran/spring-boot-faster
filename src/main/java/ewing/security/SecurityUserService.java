@@ -19,45 +19,45 @@ public class SecurityUserService implements UserDetailsService {
 
     @Autowired
     private SQLQueryFactory queryFactory;
-    private QUser User = QUser.user;
-    private QUserRole UserRole = QUserRole.userRole;
-    private QRole Role = QRole.role;
-    private QRolePermission RolePermission = QRolePermission.rolePermission;
-    private QUserPermission UserPermission = QUserPermission.userPermission;
-    private QPermission Permission = QPermission.permission;
+    private QUser qUser = QUser.user;
+    private QUserRole qUserRole = QUserRole.userRole;
+    private QRole qRole = QRole.role;
+    private QRolePermission qRolePermission = QRolePermission.rolePermission;
+    private QUserPermission qUserPermission = QUserPermission.userPermission;
+    private QPermission qPermission = QPermission.permission;
 
     @Override
     @SuppressWarnings("unchecked")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SecurityUser securityUser = queryFactory.select(
-                Projections.bean(SecurityUser.class, User.all()))
-                .from(User)
-                .where(User.username.eq(username))
+                Projections.bean(SecurityUser.class, qUser.all()))
+                .from(qUser)
+                .where(qUser.username.eq(username))
                 .fetchOne();
         if (securityUser == null) {
             throw new UsernameNotFoundException("Username not found.");
         } else {
             // 获取用户角色
-            List<Role> roles = queryFactory.selectFrom(Role)
-                    .join(UserRole)
-                    .on(UserRole.roleId.eq(Role.roleId))
-                    .where(UserRole.userId.eq(securityUser.getUserId()))
+            List<Role> roles = queryFactory.selectFrom(qRole)
+                    .join(qUserRole)
+                    .on(qUserRole.roleId.eq(qRole.roleId))
+                    .where(qUserRole.userId.eq(securityUser.getUserId()))
                     .fetch();
             securityUser.addRoleAuthorities(roles);
             // 获取用户权限
             List<Permission> permissions = queryFactory.query().unionAll(
                     // 用户->权限
-                    SQLExpressions.selectFrom(Permission)
-                            .join(UserPermission)
-                            .on(Permission.permissionId.eq(UserPermission.permissionId))
-                            .where(UserPermission.userId.eq(securityUser.getUserId())),
+                    SQLExpressions.selectFrom(qPermission)
+                            .join(qUserPermission)
+                            .on(qPermission.permissionId.eq(qUserPermission.permissionId))
+                            .where(qUserPermission.userId.eq(securityUser.getUserId())),
                     // 用户->角色->权限
-                    SQLExpressions.selectFrom(Permission)
-                            .join(RolePermission)
-                            .on(Permission.permissionId.eq(RolePermission.permissionId))
-                            .join(UserRole)
-                            .on(RolePermission.roleId.eq(UserRole.roleId))
-                            .where(UserRole.userId.eq(securityUser.getUserId()))
+                    SQLExpressions.selectFrom(qPermission)
+                            .join(qRolePermission)
+                            .on(qPermission.permissionId.eq(qRolePermission.permissionId))
+                            .join(qUserRole)
+                            .on(qRolePermission.roleId.eq(qUserRole.roleId))
+                            .where(qUserRole.userId.eq(securityUser.getUserId()))
             ).fetch();
             securityUser.setPermissions(permissions);
         }
