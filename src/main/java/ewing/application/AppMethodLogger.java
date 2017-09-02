@@ -36,60 +36,45 @@ public class AppMethodLogger {
         if (LOGGER.isInfoEnabled() && signature instanceof MethodSignature) {
             // 获取方法名、方法上的Swagger注释
             Method method = ((MethodSignature) signature).getMethod();
-            String methodName = methodToString(method);
+            String methodName = method.getDeclaringClass()
+                    .getName().substring(START_PACKAGE.length() + 1)
+                    + "." + method.getName();
             ApiOperation operation = method.getAnnotation(ApiOperation.class);
-            String annotation = operation == null ? "" : operation.value() + "：";
+            String methodDetail = operation == null ? methodName
+                    : operation.value() + "：" + methodName;
             // 记录执行日志 方法名、参数、返回值、异常信息等
-            LOGGER.info("调用方法：" + annotation + methodName
-                    + " 参数：" + argsToString(point.getArgs()));
+            LOGGER.info("调用方法：" + methodDetail + argsToString(point.getArgs()));
             long time = System.currentTimeMillis();
             try {
                 result = point.proceed();
             } catch (Throwable throwable) {
-                LOGGER.info("执行方法：" + annotation + methodName
+                LOGGER.info("执行方法：" + methodDetail
                         + " 经过时间：" + (System.currentTimeMillis() - time)
                         + "ms 发生异常：" + throwable.getMessage());
                 throw throwable; // 原来的异常继续抛出去
             }
             String returnValue = method.getReturnType() == void.class
-                    ? "无" : "ms 返回值：" + result;
-            LOGGER.info("结束方法：" + annotation + methodName
+                    ? "ms" : "ms 返回值：" + result;
+            LOGGER.info("结束方法：" + methodDetail
                     + " 执行耗时：" + (System.currentTimeMillis() - time)
-                    + "ms 返回值：" + returnValue);
+                    + returnValue);
         } else {
             result = point.proceed();
         }
         return result;
     }
 
-    private String methodToString(Method method) {
-        String name = method.getDeclaringClass()
-                .getName().substring(START_PACKAGE.length() + 1);
-        Class[] types = method.getParameterTypes();
-        if (types.length == 0) return name + "()";
-        StringBuilder builder = new StringBuilder(name).append('(');
-        for (int i = 0; i < types.length; i++) {
-            String typeName = types[i].getSimpleName();
-            if (i > 0) {
-                builder.append(',').append(typeName);
-            } else {
-                builder.append(typeName);
-            }
-        }
-        return builder.append(')').toString();
-    }
-
     private String argsToString(Object[] args) {
-        if (args.length == 0) return "无";
-        StringBuilder builder = new StringBuilder();
+        if (args.length == 0) return "()";
+        StringBuilder builder = new StringBuilder().append('(');
         for (Object arg : args) {
-            if (builder.length() > 0) {
+            if (builder.length() > 1) {
                 builder.append(',').append(arg);
             } else {
                 builder.append(arg);
             }
         }
-        return builder.toString();
+        return builder.append(')').toString();
     }
 
 }
