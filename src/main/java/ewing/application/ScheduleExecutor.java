@@ -14,8 +14,8 @@ import java.util.Date;
  * @date 2017/4/24
  */
 @Component
-public class TimeTaskExecutor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeTaskExecutor.class);
+public class ScheduleExecutor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleExecutor.class);
 
     /**
      * 执行定时任务，执行频率单位为毫秒。

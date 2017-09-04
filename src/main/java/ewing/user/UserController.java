@@ -1,6 +1,6 @@
 package ewing.user;
 
-import ewing.application.Result;
+import ewing.application.ResultMessage;
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
 import ewing.entity.User;
@@ -25,42 +25,42 @@ public class UserController {
 
     @PostMapping("findUser")
     @ApiOperation("分页查找用户")
-    public Result<Page<User>> findUsers(Paging paging,
-                                        String username, String roleName) {
-        return new Result<>(userService.findUsers(paging, username, roleName));
+    public ResultMessage<Page<User>> findUsers(Paging paging,
+                                               String username, String roleName) {
+        return new ResultMessage<>(userService.findUsers(paging, username, roleName));
     }
 
     @PostMapping("addUser")
     @ApiOperation("添加用户")
-    public Result<User> addUser(User user) {
-        return new Result<>(userService.addUser(user));
+    public ResultMessage<User> addUser(User user) {
+        return new ResultMessage<>(userService.addUser(user));
     }
 
     @GetMapping("getUser")
     @ApiOperation("根据ID获取用户")
-    public Result<User> getUser(Long userId) {
-        return new Result<>(userService.getUser(userId));
+    public ResultMessage<User> getUser(Long userId) {
+        return new ResultMessage<>(userService.getUser(userId));
     }
 
     @PostMapping("updateUser")
     @ApiOperation("更新用户")
-    public Result updateUser(User user) {
+    public ResultMessage updateUser(User user) {
         userService.updateUser(user);
-        return new Result();
+        return new ResultMessage();
     }
 
     @GetMapping("deleteUser")
     @ApiOperation("根据ID删除用户")
-    public Result deleteUser(Long userId) {
+    public ResultMessage deleteUser(Long userId) {
         userService.deleteUser(userId);
-        return new Result();
+        return new ResultMessage();
     }
 
     @GetMapping("clearUsers")
     @ApiOperation("删除所有用户")
-    public Result clearUsers() {
+    public ResultMessage clearUsers() {
         userService.clearUsers();
-        return new Result();
+        return new ResultMessage();
     }
 
 }

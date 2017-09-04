@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
  * AppException可自动转换成Result格式返回。
  */
 @ApiModel("结果对象")
-public class Result<E> {
+public class ResultMessage<E> {
 
     @ApiModelProperty("结果编码：默认1为成功 0为失败")
     private int code = 1;
@@ -25,38 +25,38 @@ public class Result<E> {
     /**
      * 默认构造为成功，因为失败还可以用异常。
      */
-    public Result() {
+    public ResultMessage() {
     }
 
     /**
      * 默认构造为成功并设置数据。
      */
-    public Result(E data) {
+    public ResultMessage(E data) {
         this.data = data;
     }
 
-    public Result<E> toSuccess() {
+    public ResultMessage<E> toSuccess() {
         this.code = 1;
         this.success = true;
         this.message = "成功！";
         return this;
     }
 
-    public Result<E> toFailure() {
+    public ResultMessage<E> toFailure() {
         this.code = 0;
         this.success = false;
         this.message = "失败！";
         return this;
     }
 
-    public Result<E> toSuccess(String message) {
+    public ResultMessage<E> toSuccess(String message) {
         this.code = 1;
         this.success = true;
         this.message = message;
         return this;
     }
 
-    public Result<E> toFailure(String message) {
+    public ResultMessage<E> toFailure(String message) {
         this.code = 0;
         this.success = false;
         this.message = message;
@@ -67,7 +67,7 @@ public class Result<E> {
         return code;
     }
 
-    public Result<E> setCode(int code) {
+    public ResultMessage<E> setCode(int code) {
         this.code = code;
         return this;
     }
@@ -76,7 +76,7 @@ public class Result<E> {
         return success;
     }
 
-    public Result<E> setSuccess(boolean success) {
+    public ResultMessage<E> setSuccess(boolean success) {
         this.success = success;
         return this;
     }
@@ -85,7 +85,7 @@ public class Result<E> {
         return message;
     }
 
-    public Result<E> setMessage(String message) {
+    public ResultMessage<E> setMessage(String message) {
         this.message = message;
         return this;
     }
@@ -94,7 +94,7 @@ public class Result<E> {
         return data;
     }
 
-    public Result<E> setData(E data) {
+    public ResultMessage<E> setData(E data) {
         this.data = data;
         return this;
     }
