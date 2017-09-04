@@ -28,17 +28,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         security.csrf().disable()
                 // 除首页外所有请求都需要验证
                 .authorizeRequests()
-                .antMatchers("/", "/index.html")
+                .antMatchers("/index.html")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
                 // 定义登陆页面并允许所有人访问
-                .and().formLogin()
+                .and()
+                .formLogin()
                 .loginPage("/login")
                 .failureUrl("/login?error")
                 .permitAll()
                 // 登出页面允许所有人访问
-                .and().logout()
+                .and()
+                .logout()
                 .logoutSuccessUrl("/")
                 .permitAll();
     }
