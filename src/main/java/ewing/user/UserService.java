@@ -2,7 +2,12 @@ package ewing.user;
 
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
+import ewing.entity.Permission;
+import ewing.entity.Role;
 import ewing.entity.User;
+import ewing.security.SecurityUser;
+
+import java.util.List;
 
 /**
  * 用户服务接口。
@@ -13,11 +18,17 @@ public interface UserService {
 
     User getUser(Long userId);
 
-    void updateUser(User user);
+    long updateUser(User user);
 
     Page<User> findUsers(Paging paging, String username, String roleName);
 
-    void deleteUser(Long userId);
+    long deleteUser(Long userId);
 
-    void clearUsers();
+    long clearUsers();
+
+    SecurityUser getByUsername(String username);
+
+    List<Role> getUserRoles(Long userId);
+
+    List<Permission> getUserPermissions(Long userId);
 }

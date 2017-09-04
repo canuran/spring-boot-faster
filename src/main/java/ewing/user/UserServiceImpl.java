@@ -1,15 +1,18 @@
 package ewing.user;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import ewing.application.AppException;
 import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
+import ewing.entity.Permission;
+import ewing.entity.Role;
 import ewing.entity.User;
-import ewing.query.QRole;
-import ewing.query.QUser;
-import ewing.query.QUserRole;
+import ewing.query.*;
+import ewing.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户服务实现。
@@ -34,6 +38,9 @@ public class UserServiceImpl implements UserService {
     private QUser qUser = QUser.user;
     private QUserRole qUserRole = QUserRole.userRole;
     private QRole qRole = QRole.role;
+    private QRolePermission qRolePermission = QRolePermission.rolePermission;
+    private QUserPermission qUserPermission = QUserPermission.userPermission;
+    private QPermission qPermission = QPermission.permission;
 
     @Override
     public User addUser(User user) {
@@ -58,6 +65,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(unless = "#result==null")
     public User getUser(Long userId) {
+        if (userId == null)
+            throw new AppException("用户ID不能为空！");
         return queryFactory.selectFrom(qUser)
                 .where(qUser.userId.eq(userId))
                 .fetchOne();
@@ -65,8 +74,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CacheEvict(key = "#user.userId")
-    public void updateUser(User user) {
-        queryFactory.update(qUser)
+    public long updateUser(User user) {
+        if (user == null || user.getUserId() == null)
+            throw new AppException("用户信息不能为空！");
+        return queryFactory.update(qUser)
                 .populate(user)
                 .where(qUser.userId.eq(user.getUserId()))
                 .execute();
@@ -86,16 +97,61 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CacheEvict
-    public void deleteUser(Long userId) {
-        queryFactory.delete(qUser)
+    public long deleteUser(Long userId) {
+        if (userId == null)
+            throw new AppException("用户ID不能为空！");
+        return queryFactory.delete(qUser)
                 .where(qUser.userId.eq(userId))
                 .execute();
     }
 
     @Override
-    public void clearUsers() {
-        queryFactory.delete(qUser)
+    public long clearUsers() {
+        return queryFactory.delete(qUser)
                 .execute();
+    }
+
+    @Override
+    public SecurityUser getByUsername(String username) {
+        if (!StringUtils.hasText(username))
+            throw new AppException("用户名不能为空！");
+        return queryFactory.select(
+                Projections.bean(SecurityUser.class, qUser.all()))
+                .from(qUser)
+                .where(qUser.username.eq(username))
+                .fetchOne();
+    }
+
+    @Override
+    public List<Role> getUserRoles(Long userId) {
+        if (userId == null)
+            throw new AppException("用户ID不能为空！");
+        return queryFactory.selectFrom(qRole)
+                .join(qUserRole)
+                .on(qUserRole.roleId.eq(qRole.roleId))
+                .where(qUserRole.userId.eq(userId))
+                .fetch();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Permission> getUserPermissions(Long userId) {
+        if (userId == null)
+            throw new AppException("用户ID不能为空！");
+        return queryFactory.query().unionAll(
+                // 用户->权限
+                SQLExpressions.selectFrom(qPermission)
+                        .join(qUserPermission)
+                        .on(qPermission.permissionId.eq(qUserPermission.permissionId))
+                        .where(qUserPermission.userId.eq(userId)),
+                // 用户->角色->权限
+                SQLExpressions.selectFrom(qPermission)
+                        .join(qRolePermission)
+                        .on(qPermission.permissionId.eq(qRolePermission.permissionId))
+                        .join(qUserRole)
+                        .on(qRolePermission.roleId.eq(qUserRole.roleId))
+                        .where(qUserRole.userId.eq(userId))
+        ).fetch();
     }
 
 }
