@@ -11,7 +11,7 @@ import java.util.SimpleTimeZone;
  * 时间字段顺序为：年、月、天、时、分、秒、毫秒、时区：时、时区：分。
  * 支持的格式：yyyy-MM-dd'T'HH:mm:ss.SSSZ、yyyyMMdd'T'HH:mm:ss.SSS'Z'、
  * y-M-d、yyyy-MM-dd、yyyy/MM/dd HH:mm:ss、y.M.d H:m:s Z 等组合。
- * 小时字段之后出现+和-表示时区符号，解析完时区或遇到非法字符后结束。
+ * 小时字段之后出现+和-表示时区符号，非法字符自动跳过，解析完时区结束。
  */
 public class StringDateConverter implements Converter<String, Date> {
 
@@ -59,18 +59,18 @@ public class StringDateConverter implements Converter<String, Date> {
                         continue;
                     }
                 }
-                if ( // 年、月之后分隔符为减号、斜线和点
-                        ((index == 0 || index == 1) && (ch == '-' || ch == '/' || ch == '.'))
+                if ( // 年之后分隔符为减号、斜线和点
+                        (index == 0 && (ch == '-' || ch == '/' || ch == '.' || ch == '年'))
+                                // 月之后分隔符为减号、斜线和点
+                                || (index == 1 && (ch == '-' || ch == '/' || ch == '.' || ch == '月'))
                                 // 天之后分隔符为空格和T
-                                || ((index == 2) && (ch == ' ' || ch == 'T'))
+                                || (index == 2 && (ch == ' ' || ch == 'T' || ch == '日'))
                                 // 时、分之后分隔符为冒号
                                 || ((index == 3 || index == 4) && (ch == ':'))
                                 // 秒、毫秒之后分隔符为点、空格和冒号
-                                || ((index > 4) && (ch == '.' || ch == ' ' || ch == ':'))) {
+                                || (index > 4 && (ch == '.' || ch == ' ' || ch == ':'))) {
                     index++;
                     count = 0;
-                } else {
-                    break; // 遇到非法字符停止解析
                 }
             }
         }
