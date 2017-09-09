@@ -2,9 +2,13 @@ package ewing.common;
 
 import okhttp3.*;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.Map;
 
@@ -123,6 +127,35 @@ public class OkHttpUtils {
     }
 
     /**
+     * 提交普通Form并返回String。
+     *
+     * @param url  请求地址。
+     * @param bean 表单参数。
+     * @return 返回内容。
+     */
+    public static String postForm(String url, Object bean) {
+        FormBody.Builder builder = new FormBody.Builder();
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+            PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : descriptors) {
+                // 需要可用的属性
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod == null || descriptor.getWriteMethod() == null)
+                    continue;
+                Object value = readMethod.invoke(bean);
+                if (value != null)
+                    builder.add(descriptor.getName(), String.valueOf(value));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        RequestBody body = builder.build();
+        Request request = new Request.Builder().url(url).post(body).build();
+        return callForString(request);
+    }
+
+    /**
      * 发起Get请求并返回String。
      *
      * @param url       请求地址。
@@ -132,10 +165,51 @@ public class OkHttpUtils {
     public static String getByParam(String url, String... keyValues) {
         int max = (keyValues.length >> 1) << 1;
         StringBuilder urlBuilder = new StringBuilder(url);
-        urlBuilder.append(urlBuilder.indexOf("?") == -1 ? '?' : '&');
+        boolean hasParam = urlBuilder.indexOf("?") > -1;
         for (int i = 0; i < max; i++) {
-            if (i > 0) urlBuilder.append('&');
+            if (hasParam) {
+                urlBuilder.append('&');
+            } else {
+                urlBuilder.append('?');
+                hasParam = true;
+            }
             urlBuilder.append(keyValues[i++]).append('=').append(encodeUrl(keyValues[i]));
+        }
+        Request request = new Request.Builder().url(urlBuilder.toString()).get().build();
+        return callForString(request);
+    }
+
+    /**
+     * 发起Get请求并返回String。
+     *
+     * @param url  请求地址。
+     * @param bean 带参数属性的Bean。
+     * @return 返回内容。
+     */
+    public static String getByBean(String url, Object bean) {
+        StringBuilder urlBuilder = new StringBuilder(url);
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+            boolean hasParam = urlBuilder.indexOf("?") > -1;
+            PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : descriptors) {
+                // 需要可用的属性
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod == null || descriptor.getWriteMethod() == null)
+                    continue;
+                Object value = readMethod.invoke(bean);
+                if (hasParam) {
+                    urlBuilder.append('&');
+                } else {
+                    urlBuilder.append('?');
+                    hasParam = true;
+                }
+                if (value != null)
+                    urlBuilder.append(descriptor.getName()).append('=')
+                            .append(encodeUrl(String.valueOf(value)));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         Request request = new Request.Builder().url(urlBuilder.toString()).get().build();
         return callForString(request);
