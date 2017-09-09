@@ -18,7 +18,7 @@ import java.io.IOException;
  * 全局异常捕获，优先级高于默认错误页面。
  */
 @Component
-public class GlobalExceptionHandler implements HandlerExceptionResolver {
+public class ExceptionHandler implements HandlerExceptionResolver {
 
     /**
      * RequestBody返回普通文本，否则返回错误视图。
