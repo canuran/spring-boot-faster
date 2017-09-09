@@ -198,15 +198,16 @@ public class OkHttpUtils {
                 if (readMethod == null || descriptor.getWriteMethod() == null)
                     continue;
                 Object value = readMethod.invoke(bean);
+                if (value == null)
+                    continue;
                 if (hasParam) {
                     urlBuilder.append('&');
                 } else {
                     urlBuilder.append('?');
                     hasParam = true;
                 }
-                if (value != null)
-                    urlBuilder.append(descriptor.getName()).append('=')
-                            .append(encodeUrl(String.valueOf(value)));
+                urlBuilder.append(descriptor.getName()).append('=')
+                        .append(encodeUrl(String.valueOf(value)));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
