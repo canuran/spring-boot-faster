@@ -1,6 +1,7 @@
 package ewing.common;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,17 @@ public final class GsonUtils {
     }
 
     /**
-     * 将json字符串转成泛型object。
+     * 将json字符串转成object。
      */
     public static <T> T toObject(String json, Class<T> cls) {
         return gson.fromJson(json, cls);
+    }
+
+    /**
+     * 将json字符串转成泛型object。
+     */
+    public static <T> T toObject(String json, TypeToken typeToken) {
+        return gson.fromJson(json, typeToken.getType());
     }
 
     /**
