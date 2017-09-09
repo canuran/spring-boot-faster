@@ -47,7 +47,7 @@ public final class GsonUtils {
     /**
      * 将json字符串转成泛型object。
      */
-    public static <T> T toObject(String json, TypeToken typeToken) {
+    public static <T> T toObject(String json, TypeToken<T> typeToken) {
         return gson.fromJson(json, typeToken.getType());
     }
 
