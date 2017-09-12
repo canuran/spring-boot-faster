@@ -49,7 +49,8 @@ public class WebErrorController implements ErrorController {
      */
     @RequestMapping(produces = "text/html")
     public void errorPage(HttpServletRequest request, HttpServletResponse response) {
-        response.setStatus(getHttpStatus(request).value());
+        HttpStatus status = getHttpStatus(request);
+        response.setStatus(status.value());
         Map<String, Object> model = getErrorAttributes(request, hasStackTrace(request));
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
@@ -61,15 +62,18 @@ public class WebErrorController implements ErrorController {
         }
         writer.println("<html>\n<head>");
         writer.println("<meta charset='UTF-8'>");
-        writer.println("<title>页面出错了</title>\n</head>");
-        writer.println("<body style='background-color:#eee'>");
-        writer.println("<div style='width:500px;position:absolute;top:5%;left:50%;margin-left:-250px'>");
-        writer.println("<h2>页面出错了</h2>");
-        writer.println("code: " + model.get("status") + "<br/>");
-        writer.println("success: false<br/>");
-        writer.println("message: " + model.get("message") + "<br/>");
-        writer.println("data: " + model.get("error") + "<br/>");
-        writer.println("</div>\n</body>\n</html>");
+        writer.println("<title>网页访问出错</title>\n</head>");
+        writer.println("<body style='text-align:center;background-color:#eee'>");
+        writer.println("<div style='width:420px;margin:5% auto'>");
+        writer.println("<h2>您访问的网页出错了</h2>");
+        writer.println("<button onclick='history.go(-1)' style='margin-right:25px'>返回前页</button>");
+        writer.println("<button onclick='location.href=\"/\"'>回到首页</button>\n<h3></h3>");
+        writer.println("<div style='text-align:left;padding:20px;background-color:#e5e5e5;border-radius:10px'>");
+        writer.println("<pre>状态: " + status + "</pre>");
+        writer.println("<pre>错误: " + model.get("error") + "</pre>");
+        writer.println("<pre>异常: " + model.get("exception") + "</pre>");
+        writer.println("<pre>信息: " + model.get("message") + "</pre>\n</div>");
+        writer.print("</div>\n</body>\n</html>");
         writer.close();
     }
 
@@ -82,7 +86,7 @@ public class WebErrorController implements ErrorController {
         Map<String, Object> model = getErrorAttributes(request, hasStackTrace(request));
         HttpStatus status = getHttpStatus(request);
         Map<String, Object> body = new HashMap<>(4);
-        body.put("code", model.get("status"));
+        body.put("code", status.value());
         body.put("success", false);
         body.put("message", model.get("message"));
         body.put("data", model.get("error"));
