@@ -33,9 +33,6 @@ public class WebErrorController implements ErrorController {
 
     private ServerProperties serverProperties;
 
-    // 需要显示的信息列表
-    private String[] keys = new String[]{"status", "error", "exception", "message"};
-
     /**
      * 初始化WebErrorController
      */
@@ -62,17 +59,17 @@ public class WebErrorController implements ErrorController {
         } catch (IOException e) {
             return;
         }
-        writer.print("<html>\n<head>\n" +
-                "<meta charset='UTF-8'>\n" +
-                "<title>页面出错了</title>\n</head>\n" +
-                "<body style='background-color:#eee'>\n" +
-                "<div style='width:500px;position:absolute;" +
-                "top:5%;left:50%;margin-left:-250px'>\n" +
-                "<h2>页面出错了</h2>");
-        for (String key : keys) {
-            writer.print("\n" + key + " : " + model.get(key) + "<br/>");
-        }
-        writer.print("\n</div>\n</body>\n</html>");
+        writer.println("<html>\n<head>");
+        writer.println("<meta charset='UTF-8'>");
+        writer.println("<title>页面出错了</title>\n</head>");
+        writer.println("<body style='background-color:#eee'>");
+        writer.println("<div style='width:500px;position:absolute;top:5%;left:50%;margin-left:-250px'>");
+        writer.println("<h2>页面出错了</h2>");
+        writer.println("code: " + model.get("status") + "<br/>");
+        writer.println("success: false<br/>");
+        writer.println("message: " + model.get("message") + "<br/>");
+        writer.println("data: " + model.get("error") + "<br/>");
+        writer.println("</div>\n</body>\n</html>");
         writer.close();
     }
 
@@ -84,10 +81,11 @@ public class WebErrorController implements ErrorController {
     public ResponseEntity<Map<String, Object>> errorJson(HttpServletRequest request) {
         Map<String, Object> model = getErrorAttributes(request, hasStackTrace(request));
         HttpStatus status = getHttpStatus(request);
-        Map<String, Object> body = new HashMap<>(keys.length);
-        for (String key : keys) {
-            body.put(key, model.get(key));
-        }
+        Map<String, Object> body = new HashMap<>(4);
+        body.put("code", model.get("status"));
+        body.put("success", false);
+        body.put("message", model.get("message"));
+        body.put("data", model.get("error"));
         return new ResponseEntity<>(body, status);
     }
 
