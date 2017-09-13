@@ -24,11 +24,9 @@ public class QDemoAddress extends com.querydsl.sql.RelationalPathBase<DemoAddres
 
     public final NumberPath<Integer> addressId = createNumber("addressId", Integer.class);
 
-    public final StringPath city = createString("city");
+    public final StringPath name = createString("name");
 
-    public final StringPath county = createString("county");
-
-    public final StringPath province = createString("province");
+    public final NumberPath<Integer> parentId = createNumber("parentId", Integer.class);
 
     public final com.querydsl.sql.PrimaryKey<DemoAddress> primary = createPrimaryKey(addressId);
 
@@ -59,9 +57,8 @@ public class QDemoAddress extends com.querydsl.sql.RelationalPathBase<DemoAddres
 
     public void addMetadata() {
         addMetadata(addressId, ColumnMetadata.named("address_id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(city, ColumnMetadata.named("city").withIndex(3).ofType(Types.VARCHAR).withSize(128));
-        addMetadata(county, ColumnMetadata.named("county").withIndex(4).ofType(Types.VARCHAR).withSize(128));
-        addMetadata(province, ColumnMetadata.named("province").withIndex(2).ofType(Types.VARCHAR).withSize(128));
+        addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(128));
+        addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(3).ofType(Types.INTEGER).withSize(10));
     }
 
 }

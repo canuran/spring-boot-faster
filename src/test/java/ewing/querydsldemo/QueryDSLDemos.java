@@ -3,6 +3,7 @@ package ewing.querydsldemo;
 import com.querydsl.core.QueryFlag;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLBindings;
@@ -12,13 +13,16 @@ import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
+import ewing.common.GsonUtils;
 import ewing.common.JsonConverter;
 import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
+import ewing.querydsldemo.entity.DemoAddress;
 import ewing.querydsldemo.entity.DemoUser;
 import ewing.querydsldemo.query.QDemoAddress;
 import ewing.querydsldemo.query.QDemoUser;
+import ewing.querydsldemo.vo.DemoAddressDetail;
 import ewing.querydsldemo.vo.DemoAddressUser;
 import ewing.querydsldemo.vo.DemoUserDetail;
 import org.junit.Test;
@@ -29,6 +33,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +51,7 @@ public class QueryDSLDemos {
 
     private QDemoUser qDemoUser = QDemoUser.demoUser;
     private QDemoAddress qDemoAddress = QDemoAddress.demoAddress;
+    private QDemoAddress qSubAddress = new QDemoAddress("subAddress");
 
     /**
      * 创建新对象。
@@ -100,7 +106,7 @@ public class QueryDSLDemos {
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .orderBy(qDemoUser.birthday.desc().nullsFirst());
         // where可多次使用，相当于and，注意and优先级高于or
-        query.where(qDemoAddress.city.contains("深圳")
+        query.where(qDemoAddress.name.contains("深圳")
                 .and((
                         qDemoUser.username.contains("元")
                                 .and(qDemoUser.gender.eq(1))
@@ -151,10 +157,10 @@ public class QueryDSLDemos {
         // 统计城市用户数
         List<DemoAddressUser> addressUsers = queryFactory
                 .select(Projections.bean(DemoAddressUser.class,
-                        qDemoAddress.city, qDemoUser.count().as("totalUser")))
+                        qDemoAddress.name, qDemoUser.count().as("totalUser")))
                 .from(qDemoAddress)
                 .leftJoin(qDemoUser).on(qDemoAddress.addressId.eq(qDemoUser.userId))
-                .groupBy(qDemoAddress.city)
+                .groupBy(qDemoAddress.name)
                 .having(qDemoUser.count().gt(0))
                 .fetch();
         System.out.println(JsonConverter.toJson(addressUsers));
@@ -223,7 +229,7 @@ public class QueryDSLDemos {
                         qDemoUser.gender.when(1).then("男")
                                 .when(2).then("女")
                                 .otherwise("保密").as("genderName"),
-                        qDemoAddress.city.as("addressCity")))
+                        qDemoAddress.name.as("addressName")))
                 .from(qDemoUser)
                 .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .fetch();
@@ -242,6 +248,47 @@ public class QueryDSLDemos {
         update.set(qDemoUser.username, qDemoUser.username.append("妹妹"))
                 .where(qDemoUser.gender.eq(2)).addBatch();
         System.out.println(update.execute());
+    }
+
+    /**
+     * 关联查询下级对象集合。
+     */
+    @Test
+    public void querySubObjects() {
+        // 先关联查询并列的对象
+        QBean<DemoAddressDetail> addressDetailQBean = Projections
+                .bean(DemoAddressDetail.class, qDemoAddress.all());
+        QBean<DemoAddress> subAddressQBean = Projections
+                .bean(DemoAddress.class, qSubAddress.all());
+        List<Tuple> tuples = queryFactory.select(
+                addressDetailQBean, subAddressQBean)
+                .from(qDemoAddress)
+                .leftJoin(qSubAddress)
+                .on(qDemoAddress.addressId.eq(qSubAddress.parentId))
+                .fetch();
+        // 将并列的对象转换成上下级
+        List<DemoAddressDetail> addressDetails = new ArrayList<>();
+        for (Tuple tuple : tuples) {
+            // 第一级对象
+            DemoAddressDetail addressDetail = tuple.get(addressDetailQBean);
+            if (addressDetail == null)
+                continue;
+            int index = addressDetails.indexOf(addressDetail);
+            if (index == -1) {
+                addressDetails.add(addressDetail);
+            } else {
+                addressDetail = addressDetails.get(index);
+            }
+            // 第二级对象
+            DemoAddress demoAddress = tuple.get(subAddressQBean);
+            if (demoAddress == null || demoAddress.getAddressId() == null)
+                continue;
+            if (addressDetail.getSubAddresses() == null)
+                addressDetail.setSubAddresses(new ArrayList<>());
+            if (addressDetail.getSubAddresses().indexOf(demoAddress) == -1)
+                addressDetail.getSubAddresses().add(demoAddress);
+        }
+        System.out.println(GsonUtils.toJson(addressDetails));
     }
 
 }

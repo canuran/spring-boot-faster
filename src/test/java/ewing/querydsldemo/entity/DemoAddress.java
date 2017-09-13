@@ -10,11 +10,9 @@ public class DemoAddress {
 
     private Integer addressId;
 
-    private String city;
+    private String name;
 
-    private String county;
-
-    private String province;
+    private Integer parentId;
 
     public Integer getAddressId() {
         return addressId;
@@ -24,28 +22,20 @@ public class DemoAddress {
         this.addressId = addressId;
     }
 
-    public String getCity() {
-        return city;
+    public String getName() {
+        return name;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getCounty() {
-        return county;
+    public Integer getParentId() {
+        return parentId;
     }
 
-    public void setCounty(String county) {
-        this.county = county;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 
 }

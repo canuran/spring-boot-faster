@@ -5,16 +5,16 @@ package ewing.querydsldemo.vo;
  */
 public class DemoAddressUser {
 
-    private String city;
+    private String name;
 
     private Long totalUser;
 
-    public String getCity() {
-        return city;
+    public String getName() {
+        return name;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Long getTotalUser() {

@@ -9,7 +9,7 @@ public class DemoUserDetail extends DemoUser {
 
     private String genderName;
 
-    private String addressCity;
+    private String addressName;
 
     public String getGenderName() {
         return genderName;
@@ -19,12 +19,12 @@ public class DemoUserDetail extends DemoUser {
         this.genderName = genderName;
     }
 
-    public String getAddressCity() {
-        return addressCity;
+    public String getAddressName() {
+        return addressName;
     }
 
-    public void setAddressCity(String addressCity) {
-        this.addressCity = addressCity;
+    public void setAddressName(String addressName) {
+        this.addressName = addressName;
     }
 }
 
