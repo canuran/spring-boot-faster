@@ -252,6 +252,7 @@ public class QueryDSLDemos {
 
     /**
      * 关联查询下级对象集合。
+     * QueryDSL没有直接提供级联查询集合的功能，我们自行实现也是非常简单的。
      */
     @Test
     public void querySubObjects() {
@@ -269,7 +270,7 @@ public class QueryDSLDemos {
         // 将并列的对象转换成上下级
         List<DemoAddressDetail> addressDetails = new ArrayList<>();
         for (Tuple tuple : tuples) {
-            // 第一级对象
+            // 第一级对象，一级集合中存在就取已有的，不存在则添加
             DemoAddressDetail addressDetail = tuple.get(addressDetailQBean);
             if (addressDetail == null)
                 continue;
@@ -279,7 +280,7 @@ public class QueryDSLDemos {
             } else {
                 addressDetail = addressDetails.get(index);
             }
-            // 第二级对象
+            // 第二级对象，二级集合中存在就跳过，不存在则添加
             DemoAddress demoAddress = tuple.get(subAddressQBean);
             if (demoAddress == null || demoAddress.getAddressId() == null)
                 continue;
