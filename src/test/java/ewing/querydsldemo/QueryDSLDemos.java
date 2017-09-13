@@ -251,18 +251,16 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 关联查询下级对象集合。
-     * QueryDSL没有直接提供级联查询集合的功能，我们自行实现也是非常简单的。
+     * 关联查询下级对象集合，把子对象一次性查询出来。
+     * 使用QueryDSL的结果封装功能，我们很容易该功能。
      */
     @Test
     public void querySubObjects() {
-        // 先关联查询并列的对象
+        // 先关联查询封装成并列的对象
         QBean<DemoAddressDetail> addressDetailQBean = Projections
                 .bean(DemoAddressDetail.class, qDemoAddress.all());
-        QBean<DemoAddress> subAddressQBean = Projections
-                .bean(DemoAddress.class, qSubAddress.all());
         List<Tuple> tuples = queryFactory.select(
-                addressDetailQBean, subAddressQBean)
+                addressDetailQBean, qSubAddress)
                 .from(qDemoAddress)
                 .leftJoin(qSubAddress)
                 .on(qDemoAddress.addressId.eq(qSubAddress.parentId))
@@ -281,13 +279,13 @@ public class QueryDSLDemos {
                 addressDetail = addressDetails.get(index);
             }
             // 第二级对象，二级集合中存在就跳过，不存在则添加
-            DemoAddress demoAddress = tuple.get(subAddressQBean);
-            if (demoAddress == null || demoAddress.getAddressId() == null)
+            DemoAddress subAddress = tuple.get(qSubAddress);
+            if (subAddress == null || subAddress.getAddressId() == null)
                 continue;
             if (addressDetail.getSubAddresses() == null)
                 addressDetail.setSubAddresses(new ArrayList<>());
-            if (addressDetail.getSubAddresses().indexOf(demoAddress) == -1)
-                addressDetail.getSubAddresses().add(demoAddress);
+            if (addressDetail.getSubAddresses().indexOf(subAddress) == -1)
+                addressDetail.getSubAddresses().add(subAddress);
         }
         System.out.println(GsonUtils.toJson(addressDetails));
     }
