@@ -120,8 +120,7 @@ public class QueryDSLDemos {
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
         // 分页获取数据
-        Paging paging = new Paging();
-        Page<DemoUser> userPage = QueryHelper.queryPage(paging, query);
+        Page<DemoUser> userPage = QueryHelper.queryPage(new Paging(), query);
         System.out.println(JsonConverter.toJson(userPage));
     }
 
