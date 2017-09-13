@@ -251,11 +251,10 @@ public class QueryDSLDemos {
 
     /**
      * 关联查询下级对象集合，把子对象一次性查询出来。
-     * 使用QueryDSL的结果封装功能，我们很容易该功能。
      */
     @Test
     public void querySubObjects() {
-        // 先关联查询封装成并列的对象
+        // 先关联查询自动封装成并列的对象
         QBean<DemoAddressDetail> addressDetailQBean = Projections
                 .bean(DemoAddressDetail.class, qDemoAddress.all());
         List<Tuple> tuples = queryFactory.select(
@@ -264,7 +263,7 @@ public class QueryDSLDemos {
                 .leftJoin(qSubAddress)
                 .on(qDemoAddress.addressId.eq(qSubAddress.parentId))
                 .fetch();
-        // 将并列的对象转换成上下级
+        // 将并列的对象转换成上下级结构
         List<DemoAddressDetail> addressDetails = new ArrayList<>();
         for (Tuple tuple : tuples) {
             // 第一级对象，一级集合中存在就取已有的，不存在则添加
