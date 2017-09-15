@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * OkHttp请求工具类。
@@ -20,7 +21,9 @@ import java.util.Map;
  */
 public class OkHttpUtils {
 
-    public static final OkHttpClient CLIENT = new OkHttpClient();
+    public static final OkHttpClient CLIENT = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(10, TimeUnit.MINUTES).build();
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
