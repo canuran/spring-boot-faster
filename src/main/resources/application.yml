@@ -2,6 +2,9 @@
 server:
   port: 80
 
+# 启用Swagger文档
+swagger.enable: true
+
 # Https配置
 sslserver:
   port: 443
