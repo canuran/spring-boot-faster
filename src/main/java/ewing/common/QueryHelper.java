@@ -12,7 +12,9 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * 查询帮助类。
@@ -44,35 +46,50 @@ public class QueryHelper {
     }
 
     /**
-     * 使用全部Expression参数查询指定类型的Bean。
+     * 使用全部Expression（包括实体查询对象）参数查询指定类型的Bean。
      */
     public static <T> QBean<T> allToBean(
-            Class<? extends T> type, RelationalPathBase pathBase, Expression... expressions) {
-        if (pathBase == null)
-            return Projections.bean(type, expressions);
-        Path[] paths = pathBase.all();
-        if (expressions.length == 0)
-            return Projections.bean(type, paths);
-        Expression<?>[] allExpress = new Expression[paths.length + expressions.length];
-        System.arraycopy(paths, 0, allExpress, 0, paths.length);
-        System.arraycopy(expressions, 0, allExpress, paths.length, expressions.length);
-        return Projections.bean(type, allExpress);
+            Class<? extends T> type, Expression... expressions) {
+        List<Expression> all = new ArrayList<>();
+        for (Expression expression : expressions) {
+            if (expression instanceof RelationalPathBase) {
+                Expression[] paths = ((RelationalPathBase) expression).all();
+                for (Expression path : paths) {
+                    all.add(path);
+                }
+            } else {
+                all.add(expression);
+            }
+        }
+        return Projections.bean(type, all.toArray(new Expression[all.size()]));
     }
 
     /**
-     * 使用与Bean属性匹配的Expression参数查询Bean。
+     * 使用与Bean属性匹配的Expression（包括实体查询对象）参数查询Bean。
      */
     public static <T> QBean<T> matchToBean(
-            Class<? extends T> type, RelationalPathBase pathBase, Expression... expressions) {
-        ImmutableMap.Builder<String, Expression<?>> mapBuilder = ImmutableMap.builder();
+            Class<? extends T> type, Expression... expressions) {
+        // 获取到Bean的所有属性
+        PropertyDescriptor[] properties;
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
-            PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
-            if (pathBase != null)
-                matchBindings(mapBuilder, properties, pathBase.all());
-            matchBindings(mapBuilder, properties, expressions);
+            properties = beanInfo.getPropertyDescriptors();
         } catch (IntrospectionException e) {
             throw new RuntimeException(e.getMessage(), e);
+        }
+        // 获取参数中能够用的上的表达式
+        ImmutableMap.Builder<String, Expression<?>> mapBuilder = ImmutableMap.builder();
+        for (Expression expression : expressions) {
+            if (expression instanceof RelationalPathBase) {
+                // 逐个匹配实体查询对象中的路径
+                Expression[] paths = ((RelationalPathBase) expression).all();
+                for (Expression path : paths) {
+                    matchBindings(mapBuilder, properties, path);
+                }
+            } else {
+                // 匹配单个路径表达式是否用的上
+                matchBindings(mapBuilder, properties, expression);
+            }
         }
         return Projections.bean(type, mapBuilder.build());
     }
@@ -83,39 +100,37 @@ public class QueryHelper {
      */
     private static void matchBindings(
             ImmutableMap.Builder<String, Expression<?>> mapBuilder,
-            PropertyDescriptor[] properties, Expression<?>[] expressions) {
-        for (Expression<?> expression : expressions) {
-            if (expression instanceof Path<?>) {
-                String name = ((Path<?>) expression).getMetadata().getName();
+            PropertyDescriptor[] properties, Expression expression) {
+        if (expression instanceof Path<?>) {
+            String name = ((Path<?>) expression).getMetadata().getName();
+            for (PropertyDescriptor property : properties) {
+                if (property.getName().equals(name) && property.getWriteMethod() != null) {
+                    mapBuilder.put(name, expression);
+                    break; // 匹配到属性结束内层循环
+                }
+            }
+        } else if (expression instanceof Operation<?>) {
+            Operation<?> operation = (Operation<?>) expression;
+            if (operation.getOperator() == Ops.ALIAS
+                    && operation.getArg(1) instanceof Path<?>) {
+                String name = ((Path<?>) operation.getArg(1)).getMetadata().getName();
                 for (PropertyDescriptor property : properties) {
                     if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                        mapBuilder.put(name, expression);
+                        Expression<?> express = operation.getArg(0);
+                        if (express instanceof FactoryExpression
+                                || express instanceof GroupExpression) {
+                            mapBuilder.put(name, express);
+                        } else {
+                            mapBuilder.put(name, operation);
+                        }
                         break; // 匹配到属性结束内层循环
                     }
-                }
-            } else if (expression instanceof Operation<?>) {
-                Operation<?> operation = (Operation<?>) expression;
-                if (operation.getOperator() == Ops.ALIAS
-                        && operation.getArg(1) instanceof Path<?>) {
-                    String name = ((Path<?>) operation.getArg(1)).getMetadata().getName();
-                    for (PropertyDescriptor property : properties) {
-                        if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                            Expression<?> express = operation.getArg(0);
-                            if (express instanceof FactoryExpression
-                                    || express instanceof GroupExpression) {
-                                mapBuilder.put(name, express);
-                            } else {
-                                mapBuilder.put(name, operation);
-                            }
-                            break; // 匹配到属性结束内层循环
-                        }
-                    }
-                } else {
-                    throw new IllegalArgumentException("Unsupported expression " + expression);
                 }
             } else {
                 throw new IllegalArgumentException("Unsupported expression " + expression);
             }
+        } else {
+            throw new IllegalArgumentException("Unsupported expression " + expression);
         }
     }
 
