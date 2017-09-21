@@ -77,12 +77,18 @@ public class QueryDSLDemos {
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .executeWithKey(qDemoUser.userId));
         System.out.println(demoUser.getUserId());
-        // 更新
+        // 更新实体
         demoUser.setUsername("EWING");
         demoUser.setPassword("ABC123");
         queryFactory.update(qDemoUser)
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .populate(demoUser)
+                .execute();
+        // 更新部分字段（新增也可以这样用）
+        queryFactory.update(qDemoUser)
+                .set(qDemoUser.username, "Ewing")
+                .set(qDemoUser.password, "123ABC")
+                .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
         // 查询
         demoUser = queryFactory.selectFrom(qDemoUser)
