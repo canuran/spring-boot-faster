@@ -59,7 +59,7 @@ public class TimeUtils {
     /**
      * 获取今天开始的时间。
      */
-    public static Date getTodayStart() {
+    public static Date getStartToday() {
         long zero = System.currentTimeMillis() / 86400000 * 86400000
                 - TimeZone.getDefault().getRawOffset();
         return new Date(zero);
