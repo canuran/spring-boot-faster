@@ -72,7 +72,7 @@ public class QueryDSLDemos {
     @Test
     public void simpleCrud() {
         DemoUser demoUser = newDemoUser();
-        // 新增
+        // 新增实体
         demoUser.setUserId(queryFactory.insert(qDemoUser)
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .executeWithKey(qDemoUser.userId));
@@ -84,17 +84,23 @@ public class QueryDSLDemos {
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .populate(demoUser)
                 .execute();
-        // 更新部分字段（新增也可以这样用）
+        // 更新部分属性，新增也可以这样用
         queryFactory.update(qDemoUser)
                 .set(qDemoUser.username, "Ewing")
                 .set(qDemoUser.password, "123ABC")
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
-        // 查询
+        // 查询实体
         demoUser = queryFactory.selectFrom(qDemoUser)
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .fetchOne();
-        // 删除
+        // 查询部分属性，多个属性默认返回为Tuple，可自定义返回类型
+        String username = queryFactory.select(qDemoUser.username)
+                .from(qDemoUser)
+                .where(qDemoUser.userId.eq(demoUser.getUserId()))
+                .fetchOne();
+        System.out.println(username);
+        // 删除实体
         queryFactory.delete(qDemoUser)
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
