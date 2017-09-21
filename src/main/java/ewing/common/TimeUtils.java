@@ -1,11 +1,11 @@
 package ewing.common;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * 日期处理类。
@@ -32,12 +32,7 @@ public class TimeUtils {
      * 把日期类型格式化成字符串。
      */
     public static String convert2String(Date date, String format) {
-        SimpleDateFormat formater = new SimpleDateFormat(format);
-        try {
-            return formater.format(date);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new SimpleDateFormat(format).format(date);
     }
 
     /**
@@ -61,21 +56,13 @@ public class TimeUtils {
         return new SimpleDateFormat(format).format(new Date());
     }
 
-    public static Date getCurrentDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String s = sdf.format(new Date());
-        try {
-            return sdf.parse(s);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
-     * 获取时间戳。
+     * 获取今天开始的时间。
      */
-    public static long getTimestamp() {
-        return System.currentTimeMillis();
+    public static Date getTodayStart() {
+        long zero = System.currentTimeMillis() / 86400000 * 86400000
+                - TimeZone.getDefault().getRawOffset();
+        return new Date(zero);
     }
 
     /**
@@ -367,7 +354,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置23:59:59。
+     * 设置23:59:59.999。
      */
     public static Date setEndDay(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -375,11 +362,12 @@ public class TimeUtils {
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
         return calendar.getTime();
     }
 
     /**
-     * 设置00:00:00。
+     * 设置00:00:00.000。
      */
     public static Date setStartDay(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -387,6 +375,7 @@ public class TimeUtils {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
@@ -401,18 +390,6 @@ public class TimeUtils {
                 calendar.get(Calendar.DATE), Integer.valueOf(time.substring(0, 2)),
                 Integer.valueOf(time.substring(3, 5)), Integer.valueOf(time.substring(6, 8)));
         return calendar.getTime();
-    }
-
-    /**
-     * 获取日期的时分秒并转换成数字（HHmmss）。
-     */
-    public static Integer getTimeInteger(Date date) {
-        try {
-            SimpleDateFormat formater = new SimpleDateFormat("HHmmss");
-            return Integer.valueOf(formater.format(date));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
