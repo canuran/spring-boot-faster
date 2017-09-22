@@ -79,7 +79,7 @@ public class OkHttpUtils {
 
         public RequestBuilder map(Map<String, Object> map) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                param(entry.getKey(), String.valueOf(entry.getValue()));
+                param(entry.getKey(), entry.getValue());
             }
             return this;
         }
