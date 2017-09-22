@@ -115,7 +115,7 @@ public class OkHttpUtils {
     /**
      * Get请求构造器。
      */
-    private static class GetBuilder extends RequestBuilder {
+    public static class GetBuilder extends RequestBuilder {
         private StringBuilder urlBuilder;
         private boolean hasParam;
 
@@ -159,7 +159,7 @@ public class OkHttpUtils {
     /**
      * Post请求构造器。
      */
-    private static class FormPostBuilder extends RequestBuilder {
+    public static class FormPostBuilder extends RequestBuilder {
         private FormBody.Builder formBuilder = new FormBody.Builder();
 
         public FormPostBuilder(String url) {
@@ -194,7 +194,7 @@ public class OkHttpUtils {
     /**
      * 带文件流Post请求构造器。
      */
-    private static class MultiFormBuilder extends RequestBuilder {
+    public static class MultiFormBuilder extends RequestBuilder {
         private MultipartBody.Builder multiBuilder = new MultipartBody.Builder();
 
         public MultiFormBuilder(String url) {
@@ -240,7 +240,7 @@ public class OkHttpUtils {
     /**
      * Body的Post请求构造器。
      */
-    private static class BodyPostBuilder extends RequestBuilder {
+    public static class BodyPostBuilder extends RequestBuilder {
         private JsonElement jsonElement = new JsonObject();
 
         public BodyPostBuilder(String url) {
