@@ -1,10 +1,17 @@
 package ewing.common;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 
 import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +21,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * OkHttp请求工具类。
+ * OkHttp请求工具类，使用链式调用风格，简化OkHttp的调用流程。
+ * OkHttpUtils.call...()：OKHttp原始API简化调用，可直接返回对象。
+ * OkHttpUtils.get()：使用Url参数的GET请求。
+ * OkHttpUtils.formPost()：使用Form参数的POST请求。
+ * OkHttpUtils.multiPost()：带文件上传的Form参数的POST请求。
+ * OkHttpUtils.bodyPost()：使用JSON的Body参数的POST请求。
  *
  * @author Ewing
  * @date 2017/6/15
@@ -34,11 +46,303 @@ public class OkHttpUtils {
     }
 
     /**
+     * 请求构造器。
+     */
+    private abstract static class RequestBuilder {
+        protected Request.Builder builder = new Request.Builder();
+
+        public RequestBuilder header(String name, String value) {
+            builder.header(encodeUrl(name), encodeUrl(value));
+            return this;
+        }
+
+        public abstract RequestBuilder param(String name, Object value);
+
+        public RequestBuilder bean(Object bean) {
+            try {
+                BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+                PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+                for (PropertyDescriptor descriptor : descriptors) {
+                    // 需要可用的属性
+                    Method readMethod = descriptor.getReadMethod();
+                    if (readMethod == null || descriptor.getWriteMethod() == null)
+                        continue;
+                    Object value = readMethod.invoke(bean);
+                    if (value != null)
+                        param(descriptor.getName(), String.valueOf(value));
+                }
+            } catch (IntrospectionException | ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+            return this;
+        }
+
+        public RequestBuilder map(Map<String, Object> map) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                param(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+            return this;
+        }
+
+        protected abstract void beforeCall();
+
+        public Response call() {
+            beforeCall();
+            return OkHttpUtils.callRequest(builder.build());
+        }
+
+        public <T> T callJsonObject(Class<T> type) {
+            beforeCall();
+            return OkHttpUtils.callJsonObject(builder.build(), type);
+        }
+
+        public <T> T callJsonObject(TypeToken<T> token) {
+            beforeCall();
+            return OkHttpUtils.callJsonObject(builder.build(), token);
+        }
+
+        public String callForString() {
+            beforeCall();
+            return OkHttpUtils.callForString(builder.build());
+        }
+
+        public InputStream callForStream() {
+            beforeCall();
+            return OkHttpUtils.callForStream(builder.build());
+        }
+    }
+
+    /**
+     * Get请求构造器。
+     */
+    private static class GetBuilder extends RequestBuilder {
+        private StringBuilder urlBuilder;
+        private boolean hasParam;
+
+        public GetBuilder(String url) {
+            this.builder.get();
+            this.urlBuilder = new StringBuilder(url);
+            this.hasParam = url.contains("?");
+        }
+
+        public GetBuilder header(String name, String value) {
+            super.header(name, value);
+            return this;
+        }
+
+        public GetBuilder bean(Object bean) {
+            super.bean(bean);
+            return this;
+        }
+
+        public GetBuilder map(Map<String, Object> map) {
+            super.map(map);
+            return this;
+        }
+
+        public GetBuilder param(String name, Object value) {
+            if (hasParam) {
+                urlBuilder.append('&');
+            } else {
+                urlBuilder.append('?');
+                hasParam = true;
+            }
+            urlBuilder.append(encodeUrl(name)).append('=').append(encodeUrl(value));
+            return this;
+        }
+
+        protected void beforeCall() {
+            builder.url(urlBuilder.toString());
+        }
+    }
+
+    /**
+     * Post请求构造器。
+     */
+    private static class FormPostBuilder extends RequestBuilder {
+        private FormBody.Builder formBuilder = new FormBody.Builder();
+
+        public FormPostBuilder(String url) {
+            this.builder.url(url);
+        }
+
+        public FormPostBuilder header(String name, String value) {
+            super.header(name, value);
+            return this;
+        }
+
+        public FormPostBuilder bean(Object bean) {
+            super.bean(bean);
+            return this;
+        }
+
+        public FormPostBuilder map(Map<String, Object> map) {
+            super.map(map);
+            return this;
+        }
+
+        public FormPostBuilder param(String name, Object value) {
+            formBuilder.add(String.valueOf(name), String.valueOf(value));
+            return this;
+        }
+
+        protected void beforeCall() {
+            this.builder.post(formBuilder.build());
+        }
+    }
+
+    /**
+     * 带文件流Post请求构造器。
+     */
+    private static class MultiFormBuilder extends RequestBuilder {
+        private MultipartBody.Builder multiBuilder = new MultipartBody.Builder();
+
+        public MultiFormBuilder(String url) {
+            this.builder.url(url);
+        }
+
+        public MultiFormBuilder header(String name, String value) {
+            super.header(name, value);
+            return this;
+        }
+
+        public MultiFormBuilder bean(Object bean) {
+            super.bean(bean);
+            return this;
+        }
+
+        public MultiFormBuilder map(Map<String, Object> map) {
+            super.map(map);
+            return this;
+        }
+
+        public MultiFormBuilder param(String name, Object value) {
+            multiBuilder.addFormDataPart(String.valueOf(name), String.valueOf(value));
+            return this;
+        }
+
+        public MultiFormBuilder file(String name, File file) {
+            multiBuilder.addFormDataPart(String.valueOf(name),
+                    file.getName(), RequestBody.create(null, file));
+            return this;
+        }
+
+        public MultiFormBuilder part(MultipartBody.Part part) {
+            multiBuilder.addPart(part);
+            return this;
+        }
+
+        protected void beforeCall() {
+            this.builder.post(multiBuilder.build());
+        }
+    }
+
+    /**
+     * Body的Post请求构造器。
+     */
+    private static class BodyPostBuilder extends RequestBuilder {
+        private JsonElement jsonElement = new JsonObject();
+
+        public BodyPostBuilder(String url) {
+            this.builder.url(url);
+        }
+
+        public BodyPostBuilder header(String name, String value) {
+            super.header(name, value);
+            return this;
+        }
+
+        public BodyPostBuilder bean(Object bean) {
+            super.bean(bean);
+            return this;
+        }
+
+        public BodyPostBuilder json(String json) {
+            this.jsonElement = GsonUtils.getGson().toJsonTree(json);
+            return this;
+        }
+
+        public BodyPostBuilder map(Map<String, Object> map) {
+            super.map(map);
+            return this;
+        }
+
+        public BodyPostBuilder param(String name, Object value) {
+            if (!jsonElement.isJsonObject())
+                throw new RuntimeException("Only JsonObject can add param.");
+            String nameStr = String.valueOf(name);
+            JsonObject jsonObject = (JsonObject) jsonElement;
+            if (value == null) {
+                jsonObject.add(nameStr, JsonNull.INSTANCE);
+            } else if (value instanceof Number) {
+                jsonObject.addProperty(nameStr, (Number) value);
+            } else if (value instanceof Boolean) {
+                jsonObject.addProperty(nameStr, (Boolean) value);
+            } else if (value instanceof Character) {
+                jsonObject.addProperty(nameStr, (Character) value);
+            } else {
+                jsonObject.addProperty(nameStr, String.valueOf(value));
+            }
+            return this;
+        }
+
+        public BodyPostBuilder add(Object value) {
+            if (!jsonElement.isJsonArray())
+                throw new RuntimeException("Only JsonArray can add element.");
+            JsonArray jsonArray = (JsonArray) jsonElement;
+            if (value == null) {
+                jsonArray.add(JsonNull.INSTANCE);
+            } else if (value instanceof Number) {
+                jsonArray.add((Number) value);
+            } else if (value instanceof Boolean) {
+                jsonArray.add((Boolean) value);
+            } else if (value instanceof Character) {
+                jsonArray.add((Character) value);
+            } else {
+                jsonArray.add(String.valueOf(value));
+            }
+            return this;
+        }
+
+        protected void beforeCall() {
+            this.builder.post(RequestBody.create(JSON, jsonElement.toString()));
+        }
+    }
+
+    /**
+     * 准备创建Url的Get请求。
+     */
+    public static GetBuilder get(String url) {
+        return new GetBuilder(url);
+    }
+
+    /**
+     * 准备创建表单的Post请求。
+     */
+    public static FormPostBuilder formPost(String url) {
+        return new FormPostBuilder(url);
+    }
+
+    /**
+     * 准备创建带文件的Post请求。
+     */
+    public static MultiFormBuilder multiPost(String url) {
+        return new MultiFormBuilder(url);
+    }
+
+    /**
+     * 准备创建Body的Post请求。
+     */
+    public static BodyPostBuilder bodyPost(String url) {
+        return new BodyPostBuilder(url);
+    }
+
+    /**
      * 使用UTF-8进行URL参数编码。
      */
-    public static String encodeUrl(String source) {
+    public static String encodeUrl(Object source) {
         try {
-            return URLEncoder.encode(source, "UTF-8");
+            return URLEncoder.encode(String.valueOf(source), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -46,9 +350,6 @@ public class OkHttpUtils {
 
     /**
      * 执行Request请求。
-     *
-     * @param request Request请求。
-     * @return Response对象。
      */
     public static Response callRequest(Request request) {
         try {
@@ -60,9 +361,6 @@ public class OkHttpUtils {
 
     /**
      * 执行Request请求并返回String值。
-     *
-     * @param request Request请求。
-     * @return Body中的String。
      */
     public static String callForString(Request request) {
         try {
@@ -75,148 +373,25 @@ public class OkHttpUtils {
 
     /**
      * 执行Request请求并返回数据流。
-     *
-     * @param request Request请求。
-     * @return Body中的数据流。
      */
     public static InputStream callForStream(Request request) {
         return callRequest(request).body().byteStream();
     }
 
     /**
-     * 提交JSON并返回String。
-     *
-     * @param url  请求地址。
-     * @param json Json数据。
-     * @return 返回内容。
+     * 执行Request请求并将返回的Json转成对象。
      */
-    public static String postJson(String url, String json) {
-        RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder().url(url).post(body).build();
-        return callForString(request);
+    public static <T> T callJsonObject(Request request, Class<T> type) {
+        String result = OkHttpUtils.callForString(request);
+        return GsonUtils.toObject(result, type);
     }
 
     /**
-     * 提交普通Form并返回String。
-     *
-     * @param url       请求地址。
-     * @param keyValues 表单键值对：key1,values1,key2,values2等。
-     * @return 返回内容。
+     * 执行Request请求并将返回的Json转成对象。
      */
-    public static String postForm(String url, String... keyValues) {
-        int max = (keyValues.length >> 1) << 1;
-        FormBody.Builder builder = new FormBody.Builder();
-        for (int i = 0; i < max; i++)
-            builder.add(keyValues[i++], keyValues[i]);
-        RequestBody body = builder.build();
-        Request request = new Request.Builder().url(url).post(body).build();
-        return callForString(request);
-    }
-
-    /**
-     * 提交普通Form并返回String。
-     *
-     * @param url    请求地址。
-     * @param params 表单参数。
-     * @return 返回内容。
-     */
-    public static String postForm(String url, Map<String, String> params) {
-        FormBody.Builder builder = new FormBody.Builder();
-        for (Map.Entry<String, String> entry : params.entrySet())
-            builder.add(entry.getKey(), entry.getValue());
-        RequestBody body = builder.build();
-        Request request = new Request.Builder().url(url).post(body).build();
-        return callForString(request);
-    }
-
-    /**
-     * 提交普通Form并返回String。
-     *
-     * @param url  请求地址。
-     * @param bean 表单参数。
-     * @return 返回内容。
-     */
-    public static String postForm(String url, Object bean) {
-        FormBody.Builder builder = new FormBody.Builder();
-        try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-            PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
-            for (PropertyDescriptor descriptor : descriptors) {
-                // 需要可用的属性
-                Method readMethod = descriptor.getReadMethod();
-                if (readMethod == null || descriptor.getWriteMethod() == null)
-                    continue;
-                Object value = readMethod.invoke(bean);
-                if (value != null)
-                    builder.add(descriptor.getName(), String.valueOf(value));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        RequestBody body = builder.build();
-        Request request = new Request.Builder().url(url).post(body).build();
-        return callForString(request);
-    }
-
-    /**
-     * 发起Get请求并返回String。
-     *
-     * @param url       请求地址。
-     * @param keyValues 表单键值对：key1,values1,key2,values2等。
-     * @return 返回内容。
-     */
-    public static String getByParam(String url, String... keyValues) {
-        int max = (keyValues.length >> 1) << 1;
-        StringBuilder urlBuilder = new StringBuilder(url);
-        boolean hasParam = urlBuilder.indexOf("?") > -1;
-        for (int i = 0; i < max; i++) {
-            if (hasParam) {
-                urlBuilder.append('&');
-            } else {
-                urlBuilder.append('?');
-                hasParam = true;
-            }
-            urlBuilder.append(keyValues[i++]).append('=').append(encodeUrl(keyValues[i]));
-        }
-        Request request = new Request.Builder().url(urlBuilder.toString()).get().build();
-        return callForString(request);
-    }
-
-    /**
-     * 发起Get请求并返回String。
-     *
-     * @param url  请求地址。
-     * @param bean 带参数属性的Bean。
-     * @return 返回内容。
-     */
-    public static String getByBean(String url, Object bean) {
-        StringBuilder urlBuilder = new StringBuilder(url);
-        try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-            boolean hasParam = urlBuilder.indexOf("?") > -1;
-            PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
-            for (PropertyDescriptor descriptor : descriptors) {
-                // 需要可用的属性
-                Method readMethod = descriptor.getReadMethod();
-                if (readMethod == null || descriptor.getWriteMethod() == null)
-                    continue;
-                Object value = readMethod.invoke(bean);
-                if (value == null)
-                    continue;
-                if (hasParam) {
-                    urlBuilder.append('&');
-                } else {
-                    urlBuilder.append('?');
-                    hasParam = true;
-                }
-                urlBuilder.append(descriptor.getName()).append('=')
-                        .append(encodeUrl(String.valueOf(value)));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        Request request = new Request.Builder().url(urlBuilder.toString()).get().build();
-        return callForString(request);
+    public static <T> T callJsonObject(Request request, TypeToken<T> token) {
+        String result = OkHttpUtils.callForString(request);
+        return GsonUtils.toObject(result, token);
     }
 
 }

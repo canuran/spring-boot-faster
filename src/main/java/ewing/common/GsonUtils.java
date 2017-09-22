@@ -40,8 +40,8 @@ public final class GsonUtils {
     /**
      * 将json字符串转成object。
      */
-    public static <T> T toObject(String json, Class<T> cls) {
-        return gson.fromJson(json, cls);
+    public static <T> T toObject(String json, Class<T> type) {
+        return gson.fromJson(json, type);
     }
 
     /**
@@ -54,11 +54,11 @@ public final class GsonUtils {
     /**
      * 将json字符串转成转成list。
      */
-    public static <T> List<T> toList(String arrayJson, Class<T> cls) {
+    public static <T> List<T> toList(String arrayJson, Class<T> type) {
         List<T> list = new ArrayList<>();
         JsonArray array = new JsonParser().parse(arrayJson).getAsJsonArray();
         for (JsonElement elem : array) {
-            list.add(gson.fromJson(elem, cls));
+            list.add(gson.fromJson(elem, type));
         }
         return list;
     }
