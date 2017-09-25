@@ -84,30 +84,30 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected abstract void beforeCall();
+        protected abstract void prepareRequest();
 
         public Response call() {
-            beforeCall();
+            prepareRequest();
             return OkHttpUtils.callRequest(builder.build());
         }
 
         public <T> T callJsonObject(Class<T> type) {
-            beforeCall();
+            prepareRequest();
             return OkHttpUtils.callJsonObject(builder.build(), type);
         }
 
         public <T> T callJsonObject(TypeToken<T> token) {
-            beforeCall();
+            prepareRequest();
             return OkHttpUtils.callJsonObject(builder.build(), token);
         }
 
         public String callForString() {
-            beforeCall();
+            prepareRequest();
             return OkHttpUtils.callForString(builder.build());
         }
 
         public InputStream callForStream() {
-            beforeCall();
+            prepareRequest();
             return OkHttpUtils.callForStream(builder.build());
         }
     }
@@ -151,7 +151,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void beforeCall() {
+        protected void prepareRequest() {
             builder.url(urlBuilder.toString());
         }
     }
@@ -186,7 +186,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void beforeCall() {
+        protected void prepareRequest() {
             this.builder.post(formBuilder.build());
         }
     }
@@ -232,7 +232,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void beforeCall() {
+        protected void prepareRequest() {
             this.builder.post(multiBuilder.build());
         }
     }
@@ -304,7 +304,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void beforeCall() {
+        protected void prepareRequest() {
             this.builder.post(RequestBody.create(JSON, jsonElement.toString()));
         }
     }
