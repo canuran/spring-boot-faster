@@ -52,7 +52,7 @@ public class OkHttpUtils {
         protected Request.Builder builder = new Request.Builder();
 
         public RequestBuilder header(String name, String value) {
-            builder.header(encodeUrl(name), encodeUrl(value));
+            builder.header(name, value);
             return this;
         }
 
