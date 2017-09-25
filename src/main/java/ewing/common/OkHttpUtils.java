@@ -68,8 +68,7 @@ public class OkHttpUtils {
                     if (readMethod == null || descriptor.getWriteMethod() == null)
                         continue;
                     Object value = readMethod.invoke(bean);
-                    if (value != null)
-                        param(descriptor.getName(), value);
+                    param(descriptor.getName(), value);
                 }
             } catch (IntrospectionException | ReflectiveOperationException e) {
                 throw new RuntimeException(e);
