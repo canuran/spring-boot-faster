@@ -84,31 +84,30 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected abstract void prepareRequest();
+        protected abstract Request buildRequest();
 
         public Response call() {
-            prepareRequest();
-            return OkHttpUtils.callRequest(builder.build());
+            return OkHttpUtils.callRequest(buildRequest());
         }
 
         public <T> T callJsonObject(Class<T> type) {
-            prepareRequest();
-            return OkHttpUtils.callJsonObject(builder.build(), type);
+            return OkHttpUtils.callJsonObject(buildRequest(), type);
         }
 
         public <T> T callJsonObject(TypeToken<T> token) {
-            prepareRequest();
-            return OkHttpUtils.callJsonObject(builder.build(), token);
+            return OkHttpUtils.callJsonObject(buildRequest(), token);
         }
 
         public String callForString() {
-            prepareRequest();
-            return OkHttpUtils.callForString(builder.build());
+            return OkHttpUtils.callForString(buildRequest());
         }
 
         public InputStream callForStream() {
-            prepareRequest();
-            return OkHttpUtils.callForStream(builder.build());
+            return OkHttpUtils.callForStream(buildRequest());
+        }
+
+        public void callback(Callback callback) {
+            OkHttpUtils.callback(buildRequest(), callback);
         }
     }
 
@@ -151,8 +150,8 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void prepareRequest() {
-            builder.url(urlBuilder.toString());
+        protected Request buildRequest() {
+            return builder.url(urlBuilder.toString()).build();
         }
     }
 
@@ -186,8 +185,8 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void prepareRequest() {
-            this.builder.post(formBuilder.build());
+        protected Request buildRequest() {
+            return builder.post(formBuilder.build()).build();
         }
     }
 
@@ -233,8 +232,8 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void prepareRequest() {
-            this.builder.post(multiBuilder.build());
+        protected Request buildRequest() {
+            return builder.post(multiBuilder.build()).build();
         }
     }
 
@@ -305,8 +304,8 @@ public class OkHttpUtils {
             return this;
         }
 
-        protected void prepareRequest() {
-            this.builder.post(RequestBody.create(JSON, jsonElement.toString()));
+        protected Request buildRequest() {
+            return builder.post(RequestBody.create(JSON, jsonElement.toString())).build();
         }
     }
 
@@ -393,6 +392,13 @@ public class OkHttpUtils {
     public static <T> T callJsonObject(Request request, TypeToken<T> token) {
         String result = OkHttpUtils.callForString(request);
         return GsonUtils.toObject(result, token);
+    }
+
+    /**
+     * 执行Request请求并在完成时执行回调方法。
+     */
+    public static void callback(Request request, Callback callback) {
+        CLIENT.newCall(request).enqueue(callback);
     }
 
 }
