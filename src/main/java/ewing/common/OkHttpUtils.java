@@ -37,6 +37,7 @@ public class OkHttpUtils {
             .connectTimeout(1, TimeUnit.MINUTES)
             .readTimeout(10, TimeUnit.MINUTES).build();
 
+    public static final MediaType STREAM = MediaType.parse("application/octet-stream");
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     /**
@@ -194,7 +195,8 @@ public class OkHttpUtils {
      * 带文件流Post请求构造器。
      */
     public static class MultiFormBuilder extends RequestBuilder {
-        private MultipartBody.Builder multiBuilder = new MultipartBody.Builder();
+        private MultipartBody.Builder multiBuilder = new MultipartBody
+                .Builder().setType(MultipartBody.FORM);
 
         public MultiFormBuilder(String url) {
             this.builder.url(url);
@@ -222,7 +224,7 @@ public class OkHttpUtils {
 
         public MultiFormBuilder file(String name, File file) {
             multiBuilder.addFormDataPart(String.valueOf(name),
-                    file.getName(), RequestBody.create(null, file));
+                    file.getName(), RequestBody.create(STREAM, file));
             return this;
         }
 
