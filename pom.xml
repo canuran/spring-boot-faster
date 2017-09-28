@@ -23,6 +23,61 @@
         <java.version>1.8</java.version>
     </properties>
 
+    <build>
+        <finalName>spring-boot-faster</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- 跳过测试用例 -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <!-- 优先使用外部相对位置的静态资源和配置文件 -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Class-Path>resources/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- QueryDSL代码生成工具 -->
+            <plugin>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-maven-plugin</artifactId>
+                <version>4.1.4</version>
+                <configuration>
+                    <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
+                    <jdbcUser>faster</jdbcUser>
+                    <jdbcPassword>faster</jdbcPassword>
+                    <exportForeignKeys>false</exportForeignKeys>
+                    <packageName>ewing.query</packageName>
+                    <targetFolder>${project.basedir}/src/main/java</targetFolder>
+                    <sourceFolder>src/main/resources</sourceFolder>
+                    <exportBeans>true</exportBeans>
+                    <beanPackageName>ewing.entity</beanPackageName>
+                    <tableNamePattern>%</tableNamePattern>
+                </configuration>
+                <dependencies>
+                    <!--数据库对应的驱动包-->
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>5.1.35</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!--Spring Boot 相关依赖-->
         <dependency>
@@ -171,59 +226,5 @@
             <version>2.8.1</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <finalName>spring-boot-faster</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <!-- 跳过测试用例 -->
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-            <!-- 优先使用外部相对位置的静态资源和配置文件 -->
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Class-Path>resources/</Class-Path>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <!-- QueryDSL代码生成工具 -->
-            <plugin>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-maven-plugin</artifactId>
-                <version>4.1.4</version>
-                <configuration>
-                    <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
-                    <jdbcUser>faster</jdbcUser>
-                    <jdbcPassword>faster</jdbcPassword>
-                    <exportForeignKeys>false</exportForeignKeys>
-                    <packageName>ewing.query</packageName>
-                    <targetFolder>${project.basedir}/src/main/java</targetFolder>
-                    <sourceFolder>src/main/resources</sourceFolder>
-                    <exportBeans>true</exportBeans>
-                    <beanPackageName>ewing.entity</beanPackageName>
-                </configuration>
-                <dependencies>
-                    <!--数据库对应的驱动包-->
-                    <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>5.1.35</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
