@@ -21,12 +21,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * OkHttp请求工具类，使用链式调用风格，简化OkHttp的调用流程。
- * OkHttpUtils.call...()：OKHttp原始API简化调用，可直接返回对象。
- * OkHttpUtils.get()：使用Url参数的GET请求。
- * OkHttpUtils.formPost()：使用Form参数的POST请求。
- * OkHttpUtils.multiPost()：带文件上传的Form参数的POST请求。
- * OkHttpUtils.bodyPost()：使用JSON的Body参数的POST请求。
+ * OkHttp请求工具类，支持链式添加多种类型的参数并调用，简化OkHttp的调用流程。
+ * OkHttpUtils.callXxx()：OKHttp原始API简化调用，可直接返回对象。
+ * OkHttpUtils.get().param().callXxx()：使用Url参数的GET请求。
+ * OkHttpUtils.delete().param().callXxx()：使用Url参数的DELETE请求。
+ * OkHttpUtils.formPost().param().callXxx()：使用Form参数的POST请求。
+ * OkHttpUtils.multiPost().param().callXxx()：带文件上传的Form参数的POST请求。
+ * OkHttpUtils.bodyPost().param().callXxx()：使用JSON的Body参数的POST请求。
+ * OkHttpUtils.bodyPut().param().callXxx()：使用JSON的Body参数的PUT请求。
  *
  * @author Ewing
  * @date 2017/6/15
