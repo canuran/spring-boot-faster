@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 全局ID生成器，保持趋势递增，尾数均匀，每秒可获取131072000个全局唯一值。
  * 实测生成千万个用时约12秒，即每秒80多万个，相对于1亿3千万来说是非常安全的。
  * 位值组成：毫秒去掉低6位(精度为64毫秒)+24位机器标识+16位进程标识+24位累加数。
- * 使用31位10进制整数或20位36进制字符串可再用1000多年，到时扩展字段长度即可。
+ * 使用31位10进制整数或20位36进制字符串可使用到3060年，到时扩展字段长度即可。
  *
  * @author Ewing
  */
@@ -51,7 +51,7 @@ public class GlobalIdWorker {
     }
 
     /**
-     * 生成全局唯一ID。
+     * 生成全局唯一的整数ID。
      */
     public static BigInteger nextBigInteger() {
         long timestamp = System.currentTimeMillis() >>> timeTruncate;
@@ -66,7 +66,7 @@ public class GlobalIdWorker {
     }
 
     /**
-     * 获取36进制20位长度的String类型的ID。
+     * 获取36进制的String类型的ID。
      */
     public static String nextString() {
         return nextBigInteger().toString(36);
