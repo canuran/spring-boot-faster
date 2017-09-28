@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class OkHttpUtils {
 
     public static final OkHttpClient CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.MINUTES)
+            .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.MINUTES).build();
 
     public static final MediaType STREAM = MediaType.parse("application/octet-stream");
@@ -158,7 +158,7 @@ public class OkHttpUtils {
      * Post请求构造器。
      */
     public static class FormPostBuilder extends RequestBuilder {
-        private FormBody.Builder formBuilder = new FormBody.Builder();
+        protected FormBody.Builder formBuilder = new FormBody.Builder();
 
         public FormPostBuilder(String url) {
             this.builder.url(url);
@@ -193,7 +193,7 @@ public class OkHttpUtils {
      * 带文件流Post请求构造器。
      */
     public static class MultiFormBuilder extends RequestBuilder {
-        private MultipartBody.Builder multiBuilder = new MultipartBody
+        protected MultipartBody.Builder multiBuilder = new MultipartBody
                 .Builder().setType(MultipartBody.FORM);
 
         public MultiFormBuilder(String url) {
@@ -240,7 +240,7 @@ public class OkHttpUtils {
      * Body的Post请求构造器。
      */
     public static class BodyPostBuilder extends RequestBuilder {
-        protected JsonElement jsonElement = new JsonObject();
+        protected JsonElement jsonBody = new JsonObject();
 
         public BodyPostBuilder(String url) {
             this.builder.url(url);
@@ -257,7 +257,7 @@ public class OkHttpUtils {
         }
 
         public BodyPostBuilder json(String json) {
-            this.jsonElement = GsonUtils.getGson().toJsonTree(json);
+            this.jsonBody = GsonUtils.getGson().toJsonTree(json);
             return this;
         }
 
@@ -267,10 +267,10 @@ public class OkHttpUtils {
         }
 
         public BodyPostBuilder param(String name, Object value) {
-            if (!jsonElement.isJsonObject())
+            if (!jsonBody.isJsonObject())
                 throw new RuntimeException("Only JsonObject can add param.");
             String nameStr = String.valueOf(name);
-            JsonObject jsonObject = (JsonObject) jsonElement;
+            JsonObject jsonObject = (JsonObject) jsonBody;
             if (value == null) {
                 jsonObject.add(nameStr, JsonNull.INSTANCE);
             } else if (value instanceof Number) {
@@ -286,9 +286,9 @@ public class OkHttpUtils {
         }
 
         public BodyPostBuilder add(Object value) {
-            if (!jsonElement.isJsonArray())
+            if (!jsonBody.isJsonArray())
                 throw new RuntimeException("Only JsonArray can add element.");
-            JsonArray jsonArray = (JsonArray) jsonElement;
+            JsonArray jsonArray = (JsonArray) jsonBody;
             if (value == null) {
                 jsonArray.add(JsonNull.INSTANCE);
             } else if (value instanceof Number) {
@@ -304,7 +304,7 @@ public class OkHttpUtils {
         }
 
         protected Request buildRequest() {
-            return builder.post(RequestBody.create(JSON, jsonElement.toString())).build();
+            return builder.post(RequestBody.create(JSON, jsonBody.toString())).build();
         }
     }
 
@@ -318,7 +318,7 @@ public class OkHttpUtils {
         }
 
         protected Request buildRequest() {
-            return builder.put(RequestBody.create(JSON, jsonElement.toString())).build();
+            return builder.put(RequestBody.create(JSON, jsonBody.toString())).build();
         }
     }
 
