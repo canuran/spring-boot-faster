@@ -115,11 +115,10 @@ public class OkHttpUtils {
      * Get请求构造器。
      */
     public static class GetBuilder extends RequestBuilder {
-        private StringBuilder urlBuilder;
+        protected StringBuilder urlBuilder;
         private boolean hasParam;
 
         public GetBuilder(String url) {
-            this.builder.get();
             this.urlBuilder = new StringBuilder(url);
             this.hasParam = url.contains("?");
         }
@@ -151,7 +150,7 @@ public class OkHttpUtils {
         }
 
         protected Request buildRequest() {
-            return builder.url(urlBuilder.toString()).build();
+            return builder.get().url(urlBuilder.toString()).build();
         }
     }
 
@@ -241,7 +240,7 @@ public class OkHttpUtils {
      * Body的Post请求构造器。
      */
     public static class BodyPostBuilder extends RequestBuilder {
-        private JsonElement jsonElement = new JsonObject();
+        protected JsonElement jsonElement = new JsonObject();
 
         public BodyPostBuilder(String url) {
             this.builder.url(url);
@@ -310,6 +309,34 @@ public class OkHttpUtils {
     }
 
     /**
+     * Body的Put请求构造器。
+     */
+    public static class BodyPutBuilder extends BodyPostBuilder {
+
+        public BodyPutBuilder(String url) {
+            super(url);
+        }
+
+        protected Request buildRequest() {
+            return builder.put(RequestBody.create(JSON, jsonElement.toString())).build();
+        }
+    }
+
+    /**
+     * Delete请求构造器。
+     */
+    public static class DeleteBuilder extends GetBuilder {
+
+        public DeleteBuilder(String url) {
+            super(url);
+        }
+
+        protected Request buildRequest() {
+            return builder.delete().url(urlBuilder.toString()).build();
+        }
+    }
+
+    /**
      * 准备创建Url的Get请求。
      */
     public static GetBuilder get(String url) {
@@ -335,6 +362,20 @@ public class OkHttpUtils {
      */
     public static BodyPostBuilder bodyPost(String url) {
         return new BodyPostBuilder(url);
+    }
+
+    /**
+     * 准备创建Body的Put请求。
+     */
+    public static BodyPutBuilder bodyPut(String url) {
+        return new BodyPutBuilder(url);
+    }
+
+    /**
+     * 准备创建Url的Delete请求。
+     */
+    public static DeleteBuilder delete(String url) {
+        return new DeleteBuilder(url);
     }
 
     /**
