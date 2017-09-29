@@ -285,8 +285,10 @@ public class OkHttpUtils {
                 jsonObject.addProperty(nameStr, (Boolean) value);
             } else if (value instanceof Character) {
                 jsonObject.addProperty(nameStr, (Character) value);
+            } else if (value instanceof String) {
+                jsonObject.addProperty(nameStr, (String) value);
             } else {
-                jsonObject.addProperty(nameStr, String.valueOf(value));
+                jsonObject.add(nameStr, GsonUtils.getGson().toJsonTree(value));
             }
             return this;
         }
@@ -303,8 +305,10 @@ public class OkHttpUtils {
                 jsonArray.add((Boolean) value);
             } else if (value instanceof Character) {
                 jsonArray.add((Character) value);
+            } else if (value instanceof String) {
+                jsonArray.add((String) value);
             } else {
-                jsonArray.add(String.valueOf(value));
+                jsonArray.add(GsonUtils.getGson().toJsonTree(value));
             }
             return this;
         }
