@@ -104,6 +104,10 @@ public class OkHttpUtils {
             return OkHttpUtils.callForString(buildRequest());
         }
 
+        public byte[] callForBytes() {
+            return OkHttpUtils.callForBytes(buildRequest());
+        }
+
         public InputStream callForStream() {
             return OkHttpUtils.callForStream(buildRequest());
         }
@@ -409,6 +413,17 @@ public class OkHttpUtils {
         try {
             Response response = CLIENT.newCall(request).execute();
             return response.body().string();
+        } catch (IOException e) {
+            throw new RuntimeException("Request IOException.", e);
+        }
+    }
+
+    /**
+     * 执行Request请求并返回字节数组。
+     */
+    public static byte[] callForBytes(Request request) {
+        try {
+            return callRequest(request).body().bytes();
         } catch (IOException e) {
             throw new RuntimeException("Request IOException.", e);
         }
