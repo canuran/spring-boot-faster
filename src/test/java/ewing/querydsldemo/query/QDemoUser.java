@@ -25,7 +25,7 @@ public class QDemoUser extends com.querydsl.sql.RelationalPathBase<DemoUser> {
 
     public final NumberPath<Integer> addressId = createNumber("addressId", Integer.class);
 
-    public final DateTimePath<java.util.Date> birthday = createDateTime("birthday", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> birthday = createDateTime("birthday", java.sql.Timestamp.class);
 
     public final NumberPath<Integer> gender = createNumber("gender", Integer.class);
 

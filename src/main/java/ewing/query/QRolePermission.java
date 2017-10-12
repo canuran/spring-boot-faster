@@ -22,7 +22,7 @@ public class QRolePermission extends com.querydsl.sql.RelationalPathBase<RolePer
 
     public static final QRolePermission rolePermission = new QRolePermission("role_permission");
 
-    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
 
     public final NumberPath<Long> permissionId = createNumber("permissionId", Long.class);
 

@@ -12,7 +12,7 @@ public class Permission {
 
     private String content;
 
-    private java.util.Date createTime;
+    private java.sql.Timestamp createTime;
 
     private String name;
 
@@ -36,11 +36,11 @@ public class Permission {
         this.content = content;
     }
 
-    public java.util.Date getCreateTime() {
+    public java.sql.Timestamp getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(java.util.Date createTime) {
+    public void setCreateTime(java.sql.Timestamp createTime) {
         this.createTime = createTime;
     }
 

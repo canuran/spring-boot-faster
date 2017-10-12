@@ -23,9 +23,9 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
 
     public static final QUser user = new QUser("user");
 
-    public final DateTimePath<java.util.Date> birthday = createDateTime("birthday", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> birthday = createDateTime("birthday", java.sql.Timestamp.class);
 
-    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
 
     public final StringPath password = createString("password");
 

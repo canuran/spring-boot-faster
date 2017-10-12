@@ -10,7 +10,7 @@ public class DemoUser {
 
     private Integer addressId;
 
-    private java.util.Date birthday;
+    private java.sql.Timestamp birthday;
 
     private Integer gender;
 
@@ -28,11 +28,11 @@ public class DemoUser {
         this.addressId = addressId;
     }
 
-    public java.util.Date getBirthday() {
+    public java.sql.Timestamp getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(java.util.Date birthday) {
+    public void setBirthday(java.sql.Timestamp birthday) {
         this.birthday = birthday;
     }
 

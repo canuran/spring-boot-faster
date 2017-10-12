@@ -10,7 +10,7 @@ public class Role {
 
     private String code;
 
-    private java.util.Date createTime;
+    private java.sql.Timestamp createTime;
 
     private String name;
 
@@ -24,11 +24,11 @@ public class Role {
         this.code = code;
     }
 
-    public java.util.Date getCreateTime() {
+    public java.sql.Timestamp getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(java.util.Date createTime) {
+    public void setCreateTime(java.sql.Timestamp createTime) {
         this.createTime = createTime;
     }
 

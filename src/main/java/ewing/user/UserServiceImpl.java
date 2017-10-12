@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
             throw new AppException("密码不能为空！");
 
         if (user.getBirthday() == null)
-            user.setBirthday(new Date());
+            user.setBirthday(new Timestamp(System.currentTimeMillis()));
 
         user.setUserId(queryFactory.insert(qUser)
                 .populate(user)

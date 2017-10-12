@@ -5,6 +5,8 @@ import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
 import ewing.entity.User;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +34,7 @@ public class UserController {
 
     @PostMapping("addUser")
     @ApiOperation("添加用户")
+    @ApiImplicitParams(@ApiImplicitParam(name = "birthday", paramType = "form", dataType = "string"))
     public ResultMessage<User> addUser(User user) {
         return new ResultMessage<>(userService.addUser(user));
     }

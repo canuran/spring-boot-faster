@@ -8,17 +8,17 @@ import javax.annotation.Generated;
 @Generated("com.querydsl.codegen.BeanSerializer")
 public class RolePermission {
 
-    private java.util.Date createTime;
+    private java.sql.Timestamp createTime;
 
     private Long permissionId;
 
     private Long roleId;
 
-    public java.util.Date getCreateTime() {
+    public java.sql.Timestamp getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(java.util.Date createTime) {
+    public void setCreateTime(java.sql.Timestamp createTime) {
         this.createTime = createTime;
     }
 

@@ -25,7 +25,7 @@ public class QRole extends com.querydsl.sql.RelationalPathBase<Role> {
 
     public final StringPath code = createString("code");
 
-    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
 
     public final StringPath name = createString("name");
 

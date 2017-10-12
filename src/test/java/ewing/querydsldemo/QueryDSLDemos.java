@@ -33,8 +33,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ public class QueryDSLDemos {
         demoUser.setUsername("NAME");
         demoUser.setPassword("123456");
         demoUser.setGender(1);
-        demoUser.setBirthday(new Date());
+        demoUser.setBirthday(new Timestamp(System.currentTimeMillis()));
         demoUser.setAddressId(1);
         return demoUser;
     }

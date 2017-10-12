@@ -27,7 +27,7 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
 
     public final StringPath content = createString("content");
 
-    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
 
     public final StringPath name = createString("name");
 
