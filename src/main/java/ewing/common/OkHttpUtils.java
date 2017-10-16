@@ -68,8 +68,9 @@ public class OkHttpUtils {
                 for (PropertyDescriptor descriptor : descriptors) {
                     // 需要可用的属性
                     Method readMethod = descriptor.getReadMethod();
-                    if (readMethod == null || descriptor.getWriteMethod() == null)
+                    if (readMethod == null || descriptor.getWriteMethod() == null) {
                         continue;
+                    }
                     Object value = readMethod.invoke(bean);
                     param(descriptor.getName(), value);
                 }
@@ -129,21 +130,25 @@ public class OkHttpUtils {
             this.hasParam = url.contains("?");
         }
 
+        @Override
         public GetBuilder header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
+        @Override
         public GetBuilder bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
+        @Override
         public GetBuilder map(Map<String, Object> map) {
             super.map(map);
             return this;
         }
 
+        @Override
         public GetBuilder param(String name, Object value) {
             if (hasParam) {
                 urlBuilder.append('&');
@@ -155,6 +160,7 @@ public class OkHttpUtils {
             return this;
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.get().url(urlBuilder.toString()).build();
         }
@@ -170,26 +176,31 @@ public class OkHttpUtils {
             this.builder.url(url);
         }
 
+        @Override
         public FormPostBuilder header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
+        @Override
         public FormPostBuilder bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
+        @Override
         public FormPostBuilder map(Map<String, Object> map) {
             super.map(map);
             return this;
         }
 
+        @Override
         public FormPostBuilder param(String name, Object value) {
             formBuilder.add(String.valueOf(name), String.valueOf(value));
             return this;
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.post(formBuilder.build()).build();
         }
@@ -206,21 +217,25 @@ public class OkHttpUtils {
             this.builder.url(url);
         }
 
+        @Override
         public MultiFormBuilder header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
+        @Override
         public MultiFormBuilder bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
+        @Override
         public MultiFormBuilder map(Map<String, Object> map) {
             super.map(map);
             return this;
         }
 
+        @Override
         public MultiFormBuilder param(String name, Object value) {
             multiBuilder.addFormDataPart(String.valueOf(name), String.valueOf(value));
             return this;
@@ -237,6 +252,7 @@ public class OkHttpUtils {
             return this;
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.post(multiBuilder.build()).build();
         }
@@ -252,11 +268,13 @@ public class OkHttpUtils {
             this.builder.url(url);
         }
 
+        @Override
         public BodyPostBuilder header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
+        @Override
         public BodyPostBuilder bean(Object bean) {
             super.bean(bean);
             return this;
@@ -267,14 +285,17 @@ public class OkHttpUtils {
             return this;
         }
 
+        @Override
         public BodyPostBuilder map(Map<String, Object> map) {
             super.map(map);
             return this;
         }
 
+        @Override
         public BodyPostBuilder param(String name, Object value) {
-            if (!jsonBody.isJsonObject())
+            if (!jsonBody.isJsonObject()) {
                 throw new RuntimeException("Only JsonObject can add param.");
+            }
             String nameStr = String.valueOf(name);
             JsonObject jsonObject = (JsonObject) jsonBody;
             if (value == null) {
@@ -294,8 +315,9 @@ public class OkHttpUtils {
         }
 
         public BodyPostBuilder add(Object value) {
-            if (!jsonBody.isJsonArray())
+            if (!jsonBody.isJsonArray()) {
                 throw new RuntimeException("Only JsonArray can add element.");
+            }
             JsonArray jsonArray = (JsonArray) jsonBody;
             if (value == null) {
                 jsonArray.add(JsonNull.INSTANCE);
@@ -313,6 +335,7 @@ public class OkHttpUtils {
             return this;
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.post(RequestBody.create(JSON, jsonBody.toString())).build();
         }
@@ -327,6 +350,7 @@ public class OkHttpUtils {
             super(url);
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.put(RequestBody.create(JSON, jsonBody.toString())).build();
         }
@@ -341,6 +365,7 @@ public class OkHttpUtils {
             super(url);
         }
 
+        @Override
         protected Request buildRequest() {
             return builder.delete().url(urlBuilder.toString()).build();
         }

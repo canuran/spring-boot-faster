@@ -17,7 +17,9 @@ public class Page<T> {
     }
 
     public Page(List<T> content) {
-        if (content == null) return;
+        if (content == null) {
+            return;
+        }
         this.content = content;
         this.total = content.size();
     }

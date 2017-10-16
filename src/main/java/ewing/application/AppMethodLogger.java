@@ -65,7 +65,9 @@ public class AppMethodLogger {
     }
 
     private String argsToString(Object[] args) {
-        if (args.length == 0) return "()";
+        if (args.length == 0) {
+            return "()";
+        }
         StringBuilder builder = new StringBuilder().append('(');
         for (Object arg : args) {
             if (builder.length() > 1) {

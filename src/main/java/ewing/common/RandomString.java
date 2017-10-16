@@ -51,8 +51,9 @@ public class RandomString {
      */
     public static String randomChinese(int length) {
         StringBuilder builder = new StringBuilder();
-        while (length-- > 0)
+        while (length-- > 0) {
             builder.append((char) (0x4e00 + new SecureRandom().nextInt(0x9fa5 - 0x4e00 + 1)));
+        }
         return builder.toString();
     }
 

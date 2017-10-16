@@ -38,8 +38,9 @@ public class WebErrorController implements ErrorController {
      */
     @Autowired
     public WebErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties) {
-        if (errorAttributes == null || serverProperties == null)
+        if (errorAttributes == null || serverProperties == null) {
             throw new IllegalArgumentException("错误页面初始化失败：参数为空！");
+        }
         this.errorAttributes = errorAttributes;
         this.serverProperties = serverProperties;
     }

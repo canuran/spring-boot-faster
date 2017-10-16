@@ -24,17 +24,20 @@ public class SecurityUser extends User implements UserDetails {
      * Authority相当于角色，对应hasRole方法。
      */
     public void addRoleAuthorities(List<Role> roles) {
-        for (Role role : roles)
+        for (Role role : roles) {
             this.authorities.add(new SimpleGrantedAuthority(role.getCode()));
+        }
     }
 
     /**
      * 是否有对应的权限编码。
      */
     public boolean hasPermission(String code) {
-        for (Permission permission : permissions)
-            if (permission.getCode().equals(code))
+        for (Permission permission : permissions) {
+            if (permission.getCode().equals(code)) {
                 return true;
+            }
+        }
         return false;
     }
 

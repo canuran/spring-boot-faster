@@ -55,7 +55,9 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
     public static class DateToString implements Converter<Date, String> {
         @Override
         public String convert(Date source) {
-            if (source == null) return null;
+            if (source == null) {
+                return null;
+            }
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(source);
         }
     }

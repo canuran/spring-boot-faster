@@ -22,8 +22,9 @@ public class JWTUtils {
      * @return 生成的Token。
      */
     public static String generateToken(Map<String, Object> claims) {
-        if (!claims.containsKey("exp"))
+        if (!claims.containsKey("exp")) {
             claims.put("exp", monthExp());
+        }
         return Jwts.builder()
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS256, secret)
@@ -41,8 +42,9 @@ public class JWTUtils {
         int total = keyValues.length >> 1;
         Map<String, Object> claims = new HashMap<>(total);
         total <<= 1;
-        for (int i = 0; i < total; i++)
+        for (int i = 0; i < total; i++) {
             claims.put(String.valueOf(keyValues[i++]), keyValues[i]);
+        }
         return generateToken(claims);
     }
 
@@ -57,8 +59,9 @@ public class JWTUtils {
         Claims claims = getClaimsValidate(token);
         // 移位后 若keyValue为奇数 最后一个将被忽略
         int total = (keyValues.length >> 1) << 1;
-        for (int i = 0; i < total; i++)
+        for (int i = 0; i < total; i++) {
             claims.put(String.valueOf(keyValues[i++]), keyValues[i]);
+        }
         return generateToken(claims);
     }
 
@@ -70,8 +73,9 @@ public class JWTUtils {
      */
     public static Claims getTokenClaims(String token) {
         try {
-            if (token.startsWith("Bearer "))
+            if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
+            }
             return Jwts.parser()
                     .setSigningKey(secret)
                     .parseClaimsJws(token)
@@ -90,8 +94,9 @@ public class JWTUtils {
     public static Claims getClaimsValidate(String token) {
         Claims claims = getTokenClaims(token);
         // 存在exp在解析时会自动校验
-        if (claims == null || !claims.containsKey("exp"))
+        if (claims == null || !claims.containsKey("exp")) {
             throw new RuntimeException("无效的Token。");
+        }
         return claims;
     }
 

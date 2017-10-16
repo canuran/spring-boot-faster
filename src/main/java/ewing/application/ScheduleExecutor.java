@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -22,7 +23,7 @@ public class ScheduleExecutor {
      */
     @Scheduled(fixedRate = 600000)
     public void nowTime() {
-        LOGGER.info("现在是北京时间：" + new Date().toLocaleString());
+        LOGGER.info("现在是北京时间：" + new SimpleDateFormat("y-M-d HH:mm:ss").format(new Date()));
     }
 
 }

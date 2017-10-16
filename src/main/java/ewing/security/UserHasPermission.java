@@ -18,8 +18,9 @@ public class UserHasPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Object targetDomainObject, Object permission) {
-        if (!(permission instanceof String))
+        if (!(permission instanceof String)) {
             return false;
+        }
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         return securityUser.hasPermission((String) permission);
     }
@@ -27,8 +28,9 @@ public class UserHasPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Serializable targetId, String targetType, Object permission) {
-        if (!(permission instanceof String))
+        if (!(permission instanceof String)) {
             return false;
+        }
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         return securityUser.hasPermission((String) permission);
     }

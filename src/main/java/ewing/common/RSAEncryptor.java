@@ -91,7 +91,9 @@ public class RSAEncryptor {
      * 将16进制字符串转换为二进制。
      */
     public static byte[] hexStrToByte(String hexStr) {
-        if (hexStr == null) return null;
+        if (hexStr == null) {
+            return null;
+        }
         byte[] result = new byte[hexStr.length() >> 1];
         for (int i = 0; i < result.length; i++) {
             int index = i << 1;
@@ -106,7 +108,9 @@ public class RSAEncryptor {
      * 将二进制转换成16进制。
      */
     public static String byteToHexStr(byte[] bytes) {
-        if (bytes == null) return null;
+        if (bytes == null) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             String hex = Integer.toHexString(bytes[i] & 0xFF);

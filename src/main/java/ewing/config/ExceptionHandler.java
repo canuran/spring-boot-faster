@@ -16,6 +16,8 @@ import java.io.IOException;
 
 /**
  * 全局异常捕获，优先级高于默认错误页面。
+ *
+ * @author Ewing
  */
 @Component
 public class ExceptionHandler implements HandlerExceptionResolver {
@@ -51,8 +53,9 @@ public class ExceptionHandler implements HandlerExceptionResolver {
     }
 
     private boolean hasResponseBody(Object handler) {
-        if (!(handler instanceof HandlerMethod))
+        if (!(handler instanceof HandlerMethod)) {
             return false;
+        }
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         return AnnotationUtils.findAnnotation(handlerMethod.getMethod(), ResponseBody.class) != null
                 || AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), ResponseBody.class) != null;

@@ -56,7 +56,9 @@ public class ProtostuffSerializer {
      */
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(byte[] bytes) {
-        if (bytes == null) return null;
+        if (bytes == null) {
+            return null;
+        }
         Content content = schema.newMessage();
         GraphIOUtil.mergeFrom(bytes, content, schema);
         return (T) content.getObject();

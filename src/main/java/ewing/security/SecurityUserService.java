@@ -22,8 +22,9 @@ public class SecurityUserService implements UserDetailsService {
             throws UsernameNotFoundException {
         // 获取用户信息
         SecurityUser securityUser = userService.getByUsername(username);
-        if (securityUser == null)
+        if (securityUser == null) {
             throw new UsernameNotFoundException("用户名不存在或已删除。");
+        }
 
         // 获取用户角色
         List<Role> roles = userService.getUserRoles(securityUser.getUserId());
