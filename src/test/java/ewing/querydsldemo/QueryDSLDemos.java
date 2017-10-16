@@ -119,14 +119,11 @@ public class QueryDSLDemos {
                 .orderBy(qDemoUser.birthday.desc().nullsFirst());
         // where可多次使用，相当于and，注意and优先级高于or
         query.where(qDemoAddress.name.contains("深圳")
-                .and((
-                        qDemoUser.username.contains("元")
-                                .and(qDemoUser.gender.eq(1))
-                ).or(
-                        qDemoUser.username.contains("宝")
+                .and(qDemoUser.username.contains("元")
+                        .and(qDemoUser.gender.eq(1))
+                        .or(qDemoUser.username.contains("宝")
                                 .and(qDemoUser.gender.eq(0))
-                ))
-        );
+                        )));
         // 查看SQL和参数（默认提供SQL日志）
         SQLBindings sqlBindings = query.getSQL();
         System.out.println(sqlBindings.getSQL());
