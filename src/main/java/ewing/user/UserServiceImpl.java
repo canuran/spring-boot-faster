@@ -44,17 +44,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) {
-        if (!StringUtils.hasText(user.getUsername()))
+        if (!StringUtils.hasText(user.getUsername())) {
             throw new AppException("用户名不能为空！");
+        }
         if (queryFactory.selectFrom(qUser)
                 .where(qUser.username.eq(user.getUsername()))
-                .fetchCount() > 0)
+                .fetchCount() > 0) {
             throw new AppException("用户名已被使用！");
-        if (!StringUtils.hasText(user.getPassword()))
+        }
+        if (!StringUtils.hasText(user.getPassword())) {
             throw new AppException("密码不能为空！");
+        }
 
-        if (user.getBirthday() == null)
+        if (user.getBirthday() == null) {
             user.setBirthday(new Timestamp(System.currentTimeMillis()));
+        }
 
         user.setUserId(queryFactory.insert(qUser)
                 .populate(user)
@@ -65,8 +69,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(unless = "#result==null")
     public User getUser(Long userId) {
-        if (userId == null)
+        if (userId == null) {
             throw new AppException("用户ID不能为空！");
+        }
         return queryFactory.selectFrom(qUser)
                 .where(qUser.userId.eq(userId))
                 .fetchOne();
@@ -75,8 +80,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @CacheEvict(key = "#user.userId")
     public long updateUser(User user) {
-        if (user == null || user.getUserId() == null)
+        if (user == null || user.getUserId() == null) {
             throw new AppException("用户信息不能为空！");
+        }
         return queryFactory.update(qUser)
                 .populate(user)
                 .where(qUser.userId.eq(user.getUserId()))
@@ -86,20 +92,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<User> findUsers(Paging paging, String username, String roleName) {
         SQLQuery<User> query = queryFactory.selectFrom(qUser);
-        if (StringUtils.hasText(username))
+        if (StringUtils.hasText(username)) {
             query.where(qUser.username.contains(username));
-        if (roleName != null)
+        }
+        if (roleName != null) {
             query.leftJoin(qUserRole).on(qUser.userId.eq(qUserRole.userId))
                     .leftJoin(qRole).on(qUserRole.roleId.eq(qRole.roleId))
                     .where(qRole.name.contains(roleName));
+        }
         return QueryHelper.queryPage(paging, query);
     }
 
     @Override
     @CacheEvict
     public long deleteUser(Long userId) {
-        if (userId == null)
+        if (userId == null) {
             throw new AppException("用户ID不能为空！");
+        }
         return queryFactory.delete(qUser)
                 .where(qUser.userId.eq(userId))
                 .execute();
@@ -113,8 +122,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SecurityUser getByUsername(String username) {
-        if (!StringUtils.hasText(username))
+        if (!StringUtils.hasText(username)) {
             throw new AppException("用户名不能为空！");
+        }
         return queryFactory.select(
                 Projections.bean(SecurityUser.class, qUser.all()))
                 .from(qUser)
@@ -124,8 +134,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Role> getUserRoles(Long userId) {
-        if (userId == null)
+        if (userId == null) {
             throw new AppException("用户ID不能为空！");
+        }
         return queryFactory.selectFrom(qRole)
                 .join(qUserRole)
                 .on(qUserRole.roleId.eq(qRole.roleId))
@@ -136,8 +147,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @SuppressWarnings("unchecked")
     public List<Permission> getUserPermissions(Long userId) {
-        if (userId == null)
+        if (userId == null) {
             throw new AppException("用户ID不能为空！");
+        }
         return queryFactory.query().unionAll(
                 // 用户->权限
                 SQLExpressions.selectFrom(qPermission)
