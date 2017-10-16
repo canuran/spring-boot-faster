@@ -22,15 +22,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GlobalIdWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalIdWorker.class);
     // 将时间截掉后6位（相当于除以64）约精确到1/16秒
-    private static final int timeTruncate = 6;
+    private static final int TIME_TRUNCATE = 6;
     // 机器标识24位+进程标识16位
-    private static final String macProcBit;
+    private static final String MAC_PROC_BIT;
     // 计数器 可以溢出可循环使用 实际取后24位
-    private static final AtomicInteger counter = new AtomicInteger(new SecureRandom().nextInt());
+    private static final AtomicInteger COUNTER = new AtomicInteger(new SecureRandom().nextInt());
     // 序号掩码（23个1）也是最大值8388607
-    private static final int counterMask = ~(-1 << 23);
+    private static final int COUNTER_MASK = ~(-1 << 23);
     // 序号标志位 第24位为1 保证序号总长度为24位
-    private static final int counterFlag = 1 << 23;
+    private static final int COUNTER_FLAG = 1 << 23;
 
     /**
      * 私有化构造方法。
@@ -47,20 +47,20 @@ public class GlobalIdWorker {
         int processId = createProcessIdentifier() & 0xffff | (1 << 16);
         String machineIdBit = Integer.toBinaryString(machineId).substring(1);
         String processIdBit = Integer.toBinaryString(processId).substring(1);
-        macProcBit = machineIdBit + processIdBit;
+        MAC_PROC_BIT = machineIdBit + processIdBit;
     }
 
     /**
      * 生成全局唯一的整数ID。
      */
     public static BigInteger nextBigInteger() {
-        long timestamp = System.currentTimeMillis() >>> timeTruncate;
+        long timestamp = System.currentTimeMillis() >>> TIME_TRUNCATE;
 
-        int count = counter.getAndIncrement() & counterMask;
+        int count = COUNTER.getAndIncrement() & COUNTER_MASK;
 
         // 时间位+机器与进程位+计数器位组成最终的ID
-        String idBit = Long.toBinaryString(timestamp) + macProcBit +
-                Integer.toBinaryString(count | counterFlag);
+        String idBit = Long.toBinaryString(timestamp) + MAC_PROC_BIT +
+                Integer.toBinaryString(count | COUNTER_FLAG);
 
         return new BigInteger(idBit, 2);
     }
