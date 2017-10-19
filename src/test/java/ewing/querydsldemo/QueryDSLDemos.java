@@ -176,7 +176,7 @@ public class QueryDSLDemos {
         List addressAndUser = queryFactory
                 .select(Projections.list(qDemoAddress, qDemoUser))
                 .from(qDemoAddress)
-                .leftJoin(qDemoUser).on(qDemoAddress.addressId.eq(qDemoUser.userId))
+                .leftJoin(qDemoUser).on(qDemoAddress.addressId.eq(qDemoUser.addressId))
                 .fetch();
         System.out.println(JsonConverter.toJson(addressAndUser));
     }
