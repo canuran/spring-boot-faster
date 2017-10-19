@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * 解析字符串时间，兼容ISO8601和主流格式，效率是SimpleDateFormat的5倍。
  * 只要时间字段顺序为：年、月、天、时、分、秒、毫秒、时区：时、时区：分即可。
- * 支持任意分隔符或按数位长度分隔，小时字段之后出现+和-号则跳到最后解析时区。
+ * 支持任意分隔符或按数位长度分隔，小时字段之后出现+、-和Z、z号则跳到时区。
  */
 public class StringDateParser {
 
@@ -94,6 +94,9 @@ public class StringDateParser {
                     } else if (ch == '-') { // 负时区
                         index = 7;
                         timeZone = -1;
+                    } else if (ch == 'Z' || ch == 'z') {
+                        index = 9;
+                        timeZone = 1;
                     }
                 }
             }
