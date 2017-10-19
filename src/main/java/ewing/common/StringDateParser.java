@@ -95,8 +95,8 @@ public class StringDateParser {
                         index = 7;
                         timeZone = -1;
                     } else if (ch == 'Z' || ch == 'z') {
-                        index = 9;
                         timeZone = 1;
+                        break;
                     }
                 }
             }
