@@ -2,6 +2,7 @@ package ewing.application;
 
 import org.springframework.util.StringUtils;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -62,6 +63,24 @@ public class AppAsserts {
      */
     public static void notEquals(Object a, Object b, String message) {
         if (Objects.equals(a, b)) {
+            throw new AppException(message);
+        }
+    }
+
+    /**
+     * 断定集合不为空，否则抛出异常。
+     */
+    public static void notEmpty(Collection collection, String message) {
+        if (collection.isEmpty()) {
+            throw new AppException(message);
+        }
+    }
+
+    /**
+     * 断定数组不为空，否则抛出异常。
+     */
+    public static void notEmpty(Object[] array, String message) {
+        if (array == null || array.length == 0) {
             throw new AppException(message);
         }
     }
