@@ -2,6 +2,7 @@ package ewing.application;
 
 import org.springframework.util.StringUtils;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -43,6 +44,24 @@ public class AppAsserts {
      */
     public static void matchPattern(String value, Pattern pattern, String message) {
         if (value == null || !pattern.matcher(value).matches()) {
+            throw new AppException(message);
+        }
+    }
+
+    /**
+     * 断定两个对象相等，否则抛出异常。
+     */
+    public static void equals(Object a, Object b, String message) {
+        if (!Objects.equals(a, b)) {
+            throw new AppException(message);
+        }
+    }
+
+    /**
+     * 断定两个对象不相等，否则抛出异常。
+     */
+    public static void notEquals(Object a, Object b, String message) {
+        if (Objects.equals(a, b)) {
             throw new AppException(message);
         }
     }
