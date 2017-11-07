@@ -1,7 +1,6 @@
 package ewing.common;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -54,7 +53,7 @@ public class AESEncryptor {
         try {
             byte[] bytes = encrypt(source.getBytes("UTF-8"));
             // 使用BASE64转码
-            return new BASE64Encoder().encode(bytes);
+            return Base64Utils.encodeToString(bytes);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -79,7 +78,7 @@ public class AESEncryptor {
     public static String decryptString(String source) {
         try {
             // 先用BASE64解码
-            byte[] bytes = new BASE64Decoder().decodeBuffer(source);
+            byte[] bytes = Base64Utils.decodeFromString(source);
             return new String(decrypt(bytes), "UTF-8");
         } catch (Exception e) {
             throw new RuntimeException(e);

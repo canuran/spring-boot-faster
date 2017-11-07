@@ -9,9 +9,9 @@ import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
 import ewing.entity.Permission;
-import ewing.entity.Role;
 import ewing.entity.User;
 import ewing.query.*;
+import ewing.security.RoleAsAuthority;
 import ewing.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -133,11 +133,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Role> getUserRoles(Long userId) {
+    public List<RoleAsAuthority> getUserRoles(Long userId) {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
         }
-        return queryFactory.selectFrom(qRole)
+        return queryFactory.select(Projections
+                .bean(RoleAsAuthority.class, qRole.all()))
+                .from(qRole)
                 .join(qUserRole)
                 .on(qUserRole.roleId.eq(qRole.roleId))
                 .where(qUserRole.userId.eq(userId))
@@ -150,7 +152,7 @@ public class UserServiceImpl implements UserService {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
         }
-        return queryFactory.query().unionAll(
+        return queryFactory.query().union(
                 // 用户->权限
                 SQLExpressions.selectFrom(qPermission)
                         .join(qUserPermission)

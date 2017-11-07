@@ -16,21 +16,20 @@ import java.util.List;
  */
 public class SecurityUser extends User implements UserDetails {
 
-    private List<GrantedAuthority> authorities = new ArrayList<>();
+    private List<RoleAsAuthority> authorities = new ArrayList<>();
 
     private List<Permission> permissions;
 
+
     /**
-     * Authority相当于角色，对应hasRole方法。
+     * Authority相当于角色。
      */
-    public void addRoleAuthorities(List<Role> roles) {
-        for (Role role : roles) {
-            this.authorities.add(new SimpleGrantedAuthority(role.getCode()));
-        }
+    public void setAuthorities(List<RoleAsAuthority> authorities) {
+        this.authorities = authorities;
     }
 
     /**
-     * 是否有对应的权限编码。
+     * 是否有对应的权限编码，已配置到注解hasPermission表达式。
      */
     public boolean hasPermission(String code) {
         for (Permission permission : permissions) {
@@ -41,8 +40,11 @@ public class SecurityUser extends User implements UserDetails {
         return false;
     }
 
+    /**
+     * 注解中hasRole表达式会调用该方法。
+     */
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public List<RoleAsAuthority> getAuthorities() {
         return authorities;
     }
 
