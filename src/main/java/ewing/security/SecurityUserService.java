@@ -1,6 +1,7 @@
 package ewing.security;
 
 import ewing.entity.Permission;
+import ewing.user.PermissionNode;
 import ewing.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class SecurityUserService implements UserDetailsService {
         securityUser.setAuthorities(authorities);
 
         // 获取用户权限
-        List<Permission> permissions = userService
+        List<PermissionNode> permissions = userService
                 .getUserPermissions(securityUser.getUserId());
         securityUser.setPermissions(permissions);
         return securityUser;

@@ -31,6 +31,8 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
 
     public final StringPath name = createString("name");
 
+    public final NumberPath<Long> parentId = createNumber("parentId", Long.class);
+
     public final NumberPath<Long> permissionId = createNumber("permissionId", Long.class);
 
     public final NumberPath<Integer> type = createNumber("type", Integer.class);
@@ -63,12 +65,13 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
     }
 
     public void addMetadata() {
-        addMetadata(code, ColumnMetadata.named("code").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
-        addMetadata(content, ColumnMetadata.named("content").withIndex(5).ofType(Types.VARCHAR).withSize(1024));
-        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(6).ofType(Types.TIMESTAMP).withSize(19));
-        addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(code, ColumnMetadata.named("code").withIndex(4).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(content, ColumnMetadata.named("content").withIndex(6).ofType(Types.VARCHAR).withSize(1024));
+        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(7).ofType(Types.TIMESTAMP).withSize(19));
+        addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(2).ofType(Types.BIGINT).withSize(19));
         addMetadata(permissionId, ColumnMetadata.named("permission_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
-        addMetadata(type, ColumnMetadata.named("type").withIndex(4).ofType(Types.INTEGER).withSize(10));
+        addMetadata(type, ColumnMetadata.named("type").withIndex(5).ofType(Types.INTEGER).withSize(10));
     }
 
 }

@@ -2,7 +2,7 @@
 Target Server Type    : MYSQL
 Target Server Version : 50718
 File Encoding         : 65001
-Date: 2017-09-13 14:20:26
+Date: 2017-11-07 15:18:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -13,20 +13,23 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE `permission` (
   `permission_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint(20) DEFAULT NULL,
   `name` varchar(64) NOT NULL,
   `code` varchar(64) NOT NULL,
   `type` int(11) DEFAULT NULL,
   `content` varchar(1024) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`permission_id`)
+  PRIMARY KEY (`permission_id`),
+  KEY `permission_parent_id` (`parent_id`),
+  CONSTRAINT `permission_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `permission` (`permission_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of permission
 -- ----------------------------
-INSERT INTO `permission` VALUES ('1', '新增用户', 'USER_ADD', '1', null, '2017-08-24 12:09:10');
-INSERT INTO `permission` VALUES ('2', '删除用户', 'USER_DELETE', '1', null, '2017-08-24 12:09:52');
-INSERT INTO `permission` VALUES ('3', '查看用户', 'USER_VIEW', '1', null, '2017-08-24 12:10:24');
+INSERT INTO `permission` VALUES ('1', null, '新增用户', 'USER_ADD', '1', null, '2017-08-24 12:09:10');
+INSERT INTO `permission` VALUES ('2', null, '删除用户', 'USER_DELETE', '1', null, '2017-08-24 12:09:52');
+INSERT INTO `permission` VALUES ('3', null, '查看用户', 'USER_VIEW', '1', null, '2017-08-24 12:10:24');
 
 -- ----------------------------
 -- Table structure for role

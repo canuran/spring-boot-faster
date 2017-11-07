@@ -16,6 +16,8 @@ public class Permission {
 
     private String name;
 
+    private Long parentId;
+
     private Long permissionId;
 
     private Integer type;
@@ -50,6 +52,14 @@ public class Permission {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public Long getPermissionId() {
