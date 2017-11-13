@@ -2,7 +2,7 @@
 Target Server Type    : MYSQL
 Target Server Version : 50718
 File Encoding         : 65001
-Date: 2017-11-07 15:18:56
+Date: 2017-11-13 16:37:59
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -112,9 +112,10 @@ INSERT INTO `user_permission` VALUES ('2', '3', '2017-08-24 12:12:15');
 -- ----------------------------
 DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE `user_role` (
-  `role_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
+  `role_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`role_id`,`user_id`),
   KEY `FK_role_user` (`role_id`),
   KEY `FK_user_role` (`user_id`),
   CONSTRAINT `FK_role_user` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,

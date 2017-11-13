@@ -1,7 +1,6 @@
 package ewing.config;
 
 import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;

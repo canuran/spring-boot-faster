@@ -28,6 +28,8 @@ public class QUserRole extends com.querydsl.sql.RelationalPathBase<UserRole> {
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
+    public final com.querydsl.sql.PrimaryKey<UserRole> primary = createPrimaryKey(roleId, userId);
+
     public QUserRole(String variable) {
         super(UserRole.class, forVariable(variable), "null", "user_role");
         addMetadata();
@@ -55,8 +57,8 @@ public class QUserRole extends com.querydsl.sql.RelationalPathBase<UserRole> {
 
     public void addMetadata() {
         addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(3).ofType(Types.TIMESTAMP).withSize(19));
-        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.BIGINT).withSize(19));
-        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(2).ofType(Types.BIGINT).withSize(19));
+        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(2).ofType(Types.BIGINT).withSize(19).notNull());
     }
 
 }
