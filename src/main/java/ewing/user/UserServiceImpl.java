@@ -147,21 +147,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PermissionNode> getUserPermissions(Long userId) {
+    public List<PermissionTree> getUserPermissions(Long userId) {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
         }
         return queryFactory.query().union(
                 // 用户->权限
                 SQLExpressions.select(Projections
-                        .bean(PermissionNode.class, qPermission.all()))
+                        .bean(PermissionTree.class, qPermission.all()))
                         .from(qPermission)
                         .join(qUserPermission)
                         .on(qPermission.permissionId.eq(qUserPermission.permissionId))
                         .where(qUserPermission.userId.eq(userId)),
                 // 用户->角色->权限
                 SQLExpressions.select(Projections
-                        .bean(PermissionNode.class, qPermission.all()))
+                        .bean(PermissionTree.class, qPermission.all()))
                         .from(qPermission)
                         .join(qRolePermission)
                         .on(qPermission.permissionId.eq(qRolePermission.permissionId))

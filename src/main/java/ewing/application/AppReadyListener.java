@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * 应用程序事件监听器，此处监听启动完成事件。
+ *
+ * @author Ewing
  */
 @Component
 public class AppReadyListener implements ApplicationListener<ApplicationReadyEvent> {

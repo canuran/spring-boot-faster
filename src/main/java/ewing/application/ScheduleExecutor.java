@@ -12,7 +12,6 @@ import java.util.Date;
  * 定时任务测试。
  *
  * @author Ewing
- * @date 2017/4/24
  */
 @Component
 public class ScheduleExecutor {

@@ -19,6 +19,8 @@ import java.security.KeyStore;
  * 进入 JDK 的 bin 目录运行以下命令生成 keystore
  * keytool -genkey -alias tomcat -keyalg RSA
  * 生成的 .keystore 文件在个人 home 目录下
+ *
+ * @author Ewing
  */
 @Configuration
 @EnableConfigurationProperties(SSLWebConfigurer.SSLConnectorProperties.class)

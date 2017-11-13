@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
  * 微信接入控制器。
  *
  * @author Ewing
- * @since 2017-04-21
  **/
 @RestController
 @RequestMapping("wechat")

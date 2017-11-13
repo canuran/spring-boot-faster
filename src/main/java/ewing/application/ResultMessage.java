@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 统一返回值的格式，方便封装处理，支持链式调用。
  * AppException可自动转换成Result格式返回。
+ *
+ * @author Ewing
  */
 @ApiModel("结果对象")
 public class ResultMessage<E> {

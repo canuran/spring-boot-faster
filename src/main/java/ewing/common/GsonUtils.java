@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * GSON工具类。
+ *
+ * @author Ewing
  */
 public final class GsonUtils {
 

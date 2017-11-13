@@ -4,7 +4,6 @@ package ewing.common.paging;
  * 分页参数。
  *
  * @author Ewing
- * @since 2017-04-22
  **/
 public class Paging {
     private int offset = 0;

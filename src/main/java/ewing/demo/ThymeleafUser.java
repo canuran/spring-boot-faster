@@ -16,7 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
  * Thymeleaf测试控制器。
  *
  * @author Ewing
- * @since 2017-04-21
  **/
 @Controller
 public class ThymeleafUser {

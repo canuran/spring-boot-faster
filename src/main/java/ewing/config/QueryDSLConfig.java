@@ -17,6 +17,8 @@ import java.sql.Connection;
 
 /**
  * QueryDSL 配置类。
+ *
+ * @author Ewing
  */
 @Configuration
 public class QueryDSLConfig {

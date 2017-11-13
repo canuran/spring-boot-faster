@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.text.SimpleDateFormat;
 
+/**
+ * Jackson简单封装。
+ *
+ * @author Ewing
+ */
 public class JsonConverter {
 
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

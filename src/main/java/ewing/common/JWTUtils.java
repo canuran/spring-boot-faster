@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * JWT生成与解析类。
+ *
+ * @author Ewing
  */
 public class JWTUtils {
 

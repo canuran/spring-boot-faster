@@ -6,7 +6,6 @@ import java.util.List;
  * 分页数据。
  *
  * @author Ewing
- * @since 2017-04-22
  **/
 public class Page<T> {
     private long total;

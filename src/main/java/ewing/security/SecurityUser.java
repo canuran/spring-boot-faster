@@ -1,20 +1,21 @@
 package ewing.security;
 
 import ewing.entity.User;
-import ewing.user.PermissionNode;
+import ewing.user.PermissionTree;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Security 用户。
+ *
+ * @author Ewing
  */
 public class SecurityUser extends User implements UserDetails {
 
-    private List<RoleAsAuthority> authorities = new ArrayList<>();
+    private List<RoleAsAuthority> authorities;
 
-    private List<PermissionNode> permissions;
+    private List<PermissionTree> permissions;
 
     /**
      * Authority相当于角色。
@@ -27,7 +28,7 @@ public class SecurityUser extends User implements UserDetails {
      * 是否有对应的权限编码，已配置到注解hasPermission表达式。
      */
     public boolean hasPermission(String code) {
-        for (PermissionNode permission : permissions) {
+        for (PermissionTree permission : permissions) {
             if (permission.getCode().equals(code)) {
                 return true;
             }
@@ -63,11 +64,11 @@ public class SecurityUser extends User implements UserDetails {
         return true;
     }
 
-    public List<PermissionNode> getPermissions() {
+    public List<PermissionTree> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<PermissionNode> permissions) {
+    public void setPermissions(List<PermissionTree> permissions) {
         this.permissions = permissions;
     }
 }

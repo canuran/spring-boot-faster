@@ -29,5 +29,5 @@ public interface UserService {
 
     List<RoleAsAuthority> getUserRoles(Long userId);
 
-    List<PermissionNode> getUserPermissions(Long userId);
+    List<PermissionTree> getUserPermissions(Long userId);
 }

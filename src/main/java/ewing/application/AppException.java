@@ -3,6 +3,8 @@ package ewing.application;
 /**
  * 业务异常对象，方便统一处理，支持链式调用。
  * AppException可自动转换成Result格式返回。
+ *
+ * @author Ewing
  */
 public class AppException extends RuntimeException {
 

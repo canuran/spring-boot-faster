@@ -1,8 +1,6 @@
 package ewing.config;
 
 import ewing.common.StringDateParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -15,10 +13,13 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Spring MVC 全局配置。
+ *
+ * @author Ewing
+ */
 @Configuration
 public class WebAppConfigurer extends WebMvcConfigurerAdapter {
-
-    public static Logger logger = LoggerFactory.getLogger(WebAppConfigurer.class);
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {

@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * AES可逆加密算法，加密后转换成Base64编码。
+ *
+ * @author Ewing
  */
 public class AESEncryptor {
     // AES-128-CBC加密模式密码是16个字节的字符串

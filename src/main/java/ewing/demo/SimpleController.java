@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 简单测试控制器。
  *
  * @author Ewing
- * @since 2017-04-21
  **/
 @Controller
 public class SimpleController {
@@ -25,7 +24,7 @@ public class SimpleController {
     }
 
     @ResponseBody
-    @GetMapping("getType")
+    @GetMapping("/getType")
     public Gender exception(Gender gender) {
         return gender;
     }
@@ -34,12 +33,12 @@ public class SimpleController {
      * 异常捕获测试。
      */
     @ResponseBody
-    @GetMapping("exception")
+    @GetMapping("/exception")
     public void exception() {
         throw new RuntimeException("发生异常");
     }
 
-    @GetMapping("getError")
+    @GetMapping("/getError")
     public void getError() throws Error {
         throw new Error("发生错误");
     }
@@ -48,7 +47,7 @@ public class SimpleController {
      * 国际化测试。
      */
     @ResponseBody
-    @GetMapping("language")
+    @GetMapping("/language")
     public String language() {
         return RequestMessage.getMessage("language");
     }
@@ -56,12 +55,12 @@ public class SimpleController {
     /**
      * 获取JWT测试。
      */
-    @PostMapping("getJWT")
+    @PostMapping("/getJWT")
     public String getJWT(String name) {
         return JWTUtils.generateToken("name", name);
     }
 
-    @PostMapping("checkJWT")
+    @PostMapping("/checkJWT")
     public String checkJWT(@RequestHeader("Authorization") String token) {
         return (String) JWTUtils.getFromToken(token, "name");
     }

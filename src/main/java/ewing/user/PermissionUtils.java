@@ -15,19 +15,19 @@ public class PermissionUtils {
      * 权限列表转换为树形结构。
      * 有父节点的挂在父节点下，未找到父结节的置于顶级。
      */
-    public static List<PermissionNode> toTree(List<PermissionNode> nodes) {
+    public static List<PermissionTree> toTree(List<PermissionTree> nodes) {
         if (nodes == null) {
             return null;
         }
-        List<PermissionNode> tree = new ArrayList<>();
+        List<PermissionTree> tree = new ArrayList<>();
         boolean single;
-        for (PermissionNode node : nodes) {
+        for (PermissionTree node : nodes) {
             // 没有父节点作为根节点
             if (node.getParentId() == null) {
                 tree.add(node);
             } else {
                 single = true;
-                for (PermissionNode parent : nodes) {
+                for (PermissionTree parent : nodes) {
                     // 有父节点ID，添加到它的父节点
                     if (node.getParentId().equals(parent.getPermissionId())) {
                         if (parent.getChildren() == null) {

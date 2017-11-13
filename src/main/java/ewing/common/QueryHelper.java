@@ -1,6 +1,5 @@
 package ewing.common;
 
-import com.google.common.collect.ImmutableMap;
 import com.querydsl.core.group.GroupExpression;
 import com.querydsl.core.types.*;
 import com.querydsl.sql.RelationalPathBase;
@@ -12,12 +11,12 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * 查询帮助类。
+ *
+ * @author Ewing
  */
 public class QueryHelper {
 
@@ -78,20 +77,20 @@ public class QueryHelper {
             throw new RuntimeException(e.getMessage(), e);
         }
         // 获取参数中能够用的上的表达式
-        ImmutableMap.Builder<String, Expression<?>> mapBuilder = ImmutableMap.builder();
+        Map<String, Expression<?>> expressionMap = new HashMap<>();
         for (Expression expression : expressions) {
             if (expression instanceof RelationalPathBase) {
                 // 逐个匹配实体查询对象中的路径
                 Expression[] paths = ((RelationalPathBase) expression).all();
                 for (Expression path : paths) {
-                    matchBindings(mapBuilder, properties, path);
+                    matchBindings(expressionMap, properties, path);
                 }
             } else {
                 // 匹配单个路径表达式是否用的上
-                matchBindings(mapBuilder, properties, expression);
+                matchBindings(expressionMap, properties, expression);
             }
         }
-        return Projections.bean(type, mapBuilder.build());
+        return Projections.bean(type, expressionMap);
     }
 
     /**
@@ -99,13 +98,13 @@ public class QueryHelper {
      * 实现逻辑参考自QBean.createBindings方法。
      */
     private static void matchBindings(
-            ImmutableMap.Builder<String, Expression<?>> mapBuilder,
+            Map<String, Expression<?>> expressionMap,
             PropertyDescriptor[] properties, Expression expression) {
         if (expression instanceof Path<?>) {
             String name = ((Path<?>) expression).getMetadata().getName();
             for (PropertyDescriptor property : properties) {
                 if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                    mapBuilder.put(name, expression);
+                    expressionMap.put(name, expression);
                     break; // 匹配到属性结束内层循环
                 }
             }
@@ -119,9 +118,9 @@ public class QueryHelper {
                         Expression<?> express = operation.getArg(0);
                         if (express instanceof FactoryExpression
                                 || express instanceof GroupExpression) {
-                            mapBuilder.put(name, express);
+                            expressionMap.put(name, express);
                         } else {
-                            mapBuilder.put(name, operation);
+                            expressionMap.put(name, operation);
                         }
                         break; // 匹配到属性结束内层循环
                     }
