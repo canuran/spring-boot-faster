@@ -1,4 +1,4 @@
-package ewing.application;
+package ewing.config;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -28,9 +28,9 @@ public class MyQueryFactory extends SQLQueryFactory {
     /**
      * 根据ID查询实体。
      */
-    public <E> E selectById(RelationalPathBase<E> base, Object value) {
+    public <E> E selectByKey(RelationalPathBase<E> base, Object key) {
         return this.selectFrom(base)
-                .where(pathEquals(getPrimaryPath(base), value))
+                .where(pathEquals(getPrimaryPath(base), key))
                 .fetchOne();
     }
 
@@ -47,9 +47,9 @@ public class MyQueryFactory extends SQLQueryFactory {
     /**
      * 根据ID删除实体。
      */
-    public long deleteById(RelationalPathBase base, Object value) {
+    public long deleteByKey(RelationalPathBase base, Object key) {
         return this.delete(base)
-                .where(pathEquals(getPrimaryPath(base), value))
+                .where(pathEquals(getPrimaryPath(base), key))
                 .execute();
     }
 
@@ -76,7 +76,7 @@ public class MyQueryFactory extends SQLQueryFactory {
     /**
      * 插入一个实体并返回ID值。
      */
-    public Object insertWithId(RelationalPathBase base, Object entity) {
+    public Object insertWithKey(RelationalPathBase base, Object entity) {
         return this.insert(base)
                 .populate(entity)
                 .executeWithKey(getPrimaryPath(base));

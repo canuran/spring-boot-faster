@@ -1,5 +1,6 @@
 package ewing.common;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -122,6 +123,85 @@ public class StringDateParser {
             calendar.set(Calendar.ZONE_OFFSET, timeZone * offset);
         }
         return calendar;
+    }
+
+    /**
+     * 日期及Sql日期序列化为字符串。
+     */
+    public static String dateToString(Date source) {
+        if (source == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(source);
+        StringBuilder builder = new StringBuilder();
+        if (source instanceof java.sql.Date) {
+            builder.append(calendar.get(Calendar.YEAR)).append('-');
+            int month = calendar.get(Calendar.MONTH) + 1;
+            if (month < 10) {
+                builder.append('0').append(month).append('-');
+            } else {
+                builder.append(month).append('-');
+            }
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            if (day < 10) {
+                builder.append('0').append(day);
+            } else {
+                builder.append(day);
+            }
+        } else if (source instanceof Time) {
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            if (hour < 10) {
+                builder.append('0').append(hour).append(':');
+            } else {
+                builder.append(hour).append(':');
+            }
+            int minute = calendar.get(Calendar.MINUTE);
+            if (minute < 10) {
+                builder.append('0').append(minute).append(':');
+            } else {
+                builder.append(minute).append(':');
+            }
+            int second = calendar.get(Calendar.SECOND);
+            if (second < 10) {
+                builder.append('0').append(second);
+            } else {
+                builder.append(second);
+            }
+        } else {
+            builder.append(calendar.get(Calendar.YEAR)).append('-');
+            int month = calendar.get(Calendar.MONTH) + 1;
+            if (month < 10) {
+                builder.append('0').append(month).append('-');
+            } else {
+                builder.append(month).append('-');
+            }
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            if (day < 10) {
+                builder.append('0').append(day).append(' ');
+            } else {
+                builder.append(day).append(' ');
+            }
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            if (hour < 10) {
+                builder.append('0').append(hour).append(':');
+            } else {
+                builder.append(hour).append(':');
+            }
+            int minute = calendar.get(Calendar.MINUTE);
+            if (minute < 10) {
+                builder.append('0').append(minute).append(':');
+            } else {
+                builder.append(minute).append(':');
+            }
+            int second = calendar.get(Calendar.SECOND);
+            if (second < 10) {
+                builder.append('0').append(second);
+            } else {
+                builder.append(second);
+            }
+        }
+        return builder.toString();
     }
 
 }
