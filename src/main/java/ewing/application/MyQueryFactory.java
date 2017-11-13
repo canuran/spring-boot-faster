@@ -101,7 +101,7 @@ public class MyQueryFactory extends SQLQueryFactory {
         }
     }
 
-    private <E> Object readPrimaryKey(E entity, Path path) {
+    private Object readPrimaryKey(Object entity, Path path) {
         Object value;
         try {
             value = ReflectionUtils.getGetterOrNull(entity.getClass(),
