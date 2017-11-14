@@ -76,8 +76,9 @@ public class MyQueryFactory extends SQLQueryFactory {
     /**
      * 插入一个实体并返回ID值。
      */
-    public Object insertWithKey(RelationalPathBase base, Object entity) {
-        return this.insert(base)
+    @SuppressWarnings("unchecked")
+    public <T> T insertWithKey(RelationalPathBase base, Object entity) {
+        return (T) this.insert(base)
                 .populate(entity)
                 .executeWithKey(getPrimaryPath(base));
     }
