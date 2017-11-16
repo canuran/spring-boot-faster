@@ -2,8 +2,7 @@ package ewing.config;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.PrimaryKey;
@@ -114,10 +113,8 @@ public class MyQueryFactory extends SQLQueryFactory {
     }
 
     private BooleanExpression pathEquals(Path path, Object value) {
-        if (path instanceof NumberPath && value instanceof Number) {
-            return ((NumberPath) path).eq(value);
-        } else if (path instanceof StringPath && value instanceof String) {
-            return ((StringPath) path).eq((String) value);
+        if (path instanceof SimpleExpression && value != null) {
+            return ((SimpleExpression) path).eq(value);
         } else {
             throw new IllegalArgumentException("Path or value is unsupported.");
         }
