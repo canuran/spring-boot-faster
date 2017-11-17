@@ -3,11 +3,11 @@ package ewing.user;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
-import com.querydsl.sql.SQLQueryFactory;
 import ewing.application.AppException;
 import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
 import ewing.common.paging.Paging;
+import ewing.config.QueryFactory;
 import ewing.entity.User;
 import ewing.query.*;
 import ewing.security.RoleAsAuthority;
@@ -32,7 +32,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private SQLQueryFactory queryFactory;
+    private QueryFactory queryFactory;
 
     private QUser qUser = QUser.user;
     private QUserRole qUserRole = QUserRole.userRole;
@@ -59,9 +59,7 @@ public class UserServiceImpl implements UserService {
             user.setBirthday(new Timestamp(System.currentTimeMillis()));
         }
 
-        user.setUserId(queryFactory.insert(qUser)
-                .populate(user)
-                .executeWithKey(qUser.userId));
+        user.setUserId(queryFactory.insertWithKey(qUser, user));
         return user;
     }
 
@@ -71,9 +69,7 @@ public class UserServiceImpl implements UserService {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
         }
-        return queryFactory.selectFrom(qUser)
-                .where(qUser.userId.eq(userId))
-                .fetchOne();
+        return queryFactory.selectByKey(qUser, userId);
     }
 
     @Override
@@ -82,10 +78,7 @@ public class UserServiceImpl implements UserService {
         if (user == null || user.getUserId() == null) {
             throw new AppException("用户信息不能为空！");
         }
-        return queryFactory.update(qUser)
-                .populate(user)
-                .where(qUser.userId.eq(user.getUserId()))
-                .execute();
+        return queryFactory.updateByBean(qUser, user);
     }
 
     @Override
@@ -108,9 +101,7 @@ public class UserServiceImpl implements UserService {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
         }
-        return queryFactory.delete(qUser)
-                .where(qUser.userId.eq(userId))
-                .execute();
+        return queryFactory.deleteByKey(qUser, userId);
     }
 
     @Override

@@ -8,24 +8,25 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
+import ewing.common.QueryHelper;
 
 import javax.inject.Provider;
 import java.sql.Connection;
 import java.util.List;
 
 /**
- * 扩展查询工厂，支持通过非联合ID操作实体。
+ * 扩展查询工厂，支持通过快捷操作实体。
  *
  * @author Ewing
  */
-public class MyQueryFactory extends SQLQueryFactory {
+public class QueryFactory extends SQLQueryFactory {
 
-    public MyQueryFactory(Configuration configuration, Provider<Connection> connProvider) {
+    public QueryFactory(Configuration configuration, Provider<Connection> connProvider) {
         super(configuration, connProvider);
     }
 
     /**
-     * 根据ID查询实体。
+     * 根据ID查询实体对象。
      */
     public <E> E selectByKey(RelationalPathBase<E> base, Object key) {
         return this.selectFrom(base)
@@ -34,17 +35,29 @@ public class MyQueryFactory extends SQLQueryFactory {
     }
 
     /**
-     * 根据实体中的ID属性删除实体。
+     * 根据ID查询为指定的实体。
+     * 兼容至少包含一个对应属性的实体对象。
      */
-    public <E> long deleteEntity(RelationalPathBase<E> base, E entity) {
-        Object value = readPrimaryKey(entity, getPrimaryPath(base));
+    public <T> T selectToBean(RelationalPathBase base, Class<T> clazz, Object key) {
+        return this.select(QueryHelper.matchToBean(clazz, base))
+                .from(base)
+                .where(pathEquals(getPrimaryPath(base), key))
+                .fetchOne();
+    }
+
+    /**
+     * 根据实体中的ID属性删除实体。
+     * 兼容带有对应ID属性的实体对象。
+     */
+    public long deleteByBean(RelationalPathBase base, Object bean) {
+        Object value = readPrimaryKey(bean, getPrimaryPath(base));
         return this.delete(base)
                 .where(pathEquals(getPrimaryPath(base), value))
                 .execute();
     }
 
     /**
-     * 根据ID删除实体。
+     * 根据ID从数据库删除实体。
      */
     public long deleteByKey(RelationalPathBase base, Object key) {
         return this.delete(base)
@@ -53,36 +66,39 @@ public class MyQueryFactory extends SQLQueryFactory {
     }
 
     /**
-     * 根据对象中的ID属性更新实体。
+     * 根据对象中的ID属性和非null属性更新实体。
+     * 兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
      */
-    public long updateEntity(RelationalPathBase base, Object entity) {
-        Object value = readPrimaryKey(entity, getPrimaryPath(base));
+    public long updateByBean(RelationalPathBase base, Object bean) {
+        Object value = readPrimaryKey(bean, getPrimaryPath(base));
         return this.update(base)
-                .populate(entity)
+                .populate(bean)
                 .where(pathEquals(getPrimaryPath(base), value))
                 .execute();
     }
 
     /**
-     * 插入一个实体。
+     * 将实体对象非null属性插入到数据库。
+     * 兼容至少包含一个对应的非null属性的实体对象。
      */
-    public <E> long insert(RelationalPathBase<E> base, E entity) {
+    public long insertByBean(RelationalPathBase base, Object bean) {
         return this.insert(base)
-                .populate(entity)
+                .populate(bean)
                 .execute();
     }
 
     /**
-     * 插入一个实体并返回ID值。
+     * 将实体对象属性插入并返回ID值。
+     * 兼容至少包含一个对应的非null属性的实体对象。
      */
     @SuppressWarnings("unchecked")
-    public <T> T insertWithKey(RelationalPathBase base, Object entity) {
+    public <T> T insertWithKey(RelationalPathBase base, Object bean) {
         return (T) this.insert(base)
-                .populate(entity)
+                .populate(bean)
                 .executeWithKey(getPrimaryPath(base));
     }
 
-    private Path<?> getPrimaryPath(RelationalPathBase base) {
+    private Path getPrimaryPath(RelationalPathBase base) {
         if (base == null) {
             throw new IllegalArgumentException("PathBase is null.");
         }
@@ -90,24 +106,24 @@ public class MyQueryFactory extends SQLQueryFactory {
         if (primaryKey == null) {
             throw new IllegalArgumentException("Primary key is null.");
         }
-        List<?> paths = primaryKey.getLocalColumns();
+        List<Path> paths = primaryKey.getLocalColumns();
         if (paths == null) {
-            throw new IllegalArgumentException("Primary paths is null.");
+            throw new IllegalArgumentException("Primary path is null.");
         }
         if (paths.size() == 1) {
-            return (Path) paths.get(0);
+            return paths.get(0);
         } else {
-            throw new RuntimeException("Primary path is not unique.");
+            throw new RuntimeException("Primary path must has unique one.");
         }
     }
 
-    private Object readPrimaryKey(Object entity, Path path) {
+    private Object readPrimaryKey(Object bean, Path path) {
         Object value;
         try {
-            value = ReflectionUtils.getGetterOrNull(entity.getClass(),
-                    path.getMetadata().getName()).invoke(entity);
+            value = ReflectionUtils.getGetterOrNull(bean.getClass(),
+                    path.getMetadata().getName()).invoke(bean);
         } catch (Exception e) {
-            throw new RuntimeException("Read primary key failed.", e);
+            throw new RuntimeException("Read primary key value failed.", e);
         }
         return value;
     }

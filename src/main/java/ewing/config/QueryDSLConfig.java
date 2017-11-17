@@ -31,12 +31,12 @@ public class QueryDSLConfig {
     }
 
     @Bean
-    public MyQueryFactory queryFactory() {
+    public QueryFactory queryFactory() {
         SQLTemplates templates = MySQLTemplates.builder().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
-        return new MyQueryFactory(configuration, provider);
+        return new QueryFactory(configuration, provider);
     }
 
 }
