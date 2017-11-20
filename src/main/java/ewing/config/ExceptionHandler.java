@@ -42,12 +42,6 @@ public class ExceptionHandler implements HandlerExceptionResolver {
             }
             return new ModelAndView(view);
         } else {
-            try {
-                // 转发过去才能拿到异常信息
-                request.getRequestDispatcher("error").forward(request, response);
-            } catch (ServletException | IOException ex) {
-                throw new RuntimeException(ex);
-            }
             return new ModelAndView("error");
         }
     }

@@ -30,7 +30,7 @@ public class SimpleController {
     }
 
     /**
-     * 异常捕获测试。
+     * 异常捕获测试JSON。
      */
     @ResponseBody
     @GetMapping("/exception")
@@ -38,6 +38,17 @@ public class SimpleController {
         throw new RuntimeException("发生异常");
     }
 
+    /**
+     * 异常捕获测试页面。
+     */
+    @GetMapping(value = "/exception", produces = "text/html")
+    public void exceptionHtml() {
+        throw new RuntimeException("发生异常");
+    }
+
+    /**
+     * 错误捕获测试。
+     */
     @GetMapping("/getError")
     public void getError() throws Error {
         throw new Error("发生错误");
