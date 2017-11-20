@@ -76,7 +76,7 @@ public class QueryDSLDemos {
         Integer userId = queryFactory.insert(qDemoUser)
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .executeWithKey(qDemoUser.userId);
-        System.out.println(demoUser.getUserId());
+        System.out.println(userId);
         // 快捷新增实体（不包含null）
         queryFactory.insertWithKey(qDemoUser, demoUser);
 
