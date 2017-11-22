@@ -33,6 +33,9 @@ public class UserHasPermission implements PermissionEvaluator {
         }
     }
 
+    /**
+     * 精确到具体目标ID和类型的权限控制，目标ID或类型为null表示不指定。
+     */
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Serializable targetId, String targetType, Object permissionCode) {
