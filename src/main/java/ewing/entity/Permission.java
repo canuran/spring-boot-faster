@@ -10,8 +10,6 @@ public class Permission {
 
     private String code;
 
-    private String content;
-
     private java.sql.Timestamp createTime;
 
     private String name;
@@ -19,6 +17,8 @@ public class Permission {
     private Long parentId;
 
     private Long permissionId;
+
+    private String target;
 
     private String type;
 
@@ -28,14 +28,6 @@ public class Permission {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public java.sql.Timestamp getCreateTime() {
@@ -68,6 +60,14 @@ public class Permission {
 
     public void setPermissionId(Long permissionId) {
         this.permissionId = permissionId;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public String getType() {

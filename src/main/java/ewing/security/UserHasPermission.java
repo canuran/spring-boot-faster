@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 
 /**
- * 自定义权限求值策略，hasPermission方法的实现。
+ * 自定义权限求值策略，hasPermission注解的实现，支持数据ID级别的权限控制。
  */
 @Component
 public class UserHasPermission implements PermissionEvaluator {
@@ -26,7 +26,7 @@ public class UserHasPermission implements PermissionEvaluator {
                 return securityUser.hasPermission(code);
             } else {
                 Permission permission = securityUser.getPermissionByCode(code);
-                return permission != null && target.toString().equals(permission.getContent());
+                return permission != null && target.toString().equals(permission.getTarget());
             }
         } else {
             return false;
@@ -44,7 +44,7 @@ public class UserHasPermission implements PermissionEvaluator {
             } else {
                 // 至少有一个目标参数不为空，不为空的参数都要被满足。
                 Permission permission = securityUser.getPermissionByCode(code);
-                return (targetId == null || targetId.toString().equals(permission.getContent()))
+                return (targetId == null || targetId.toString().equals(permission.getTarget()))
                         && (targetType == null || targetType.equals(permission.getType()));
             }
         } else {
