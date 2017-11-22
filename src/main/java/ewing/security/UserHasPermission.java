@@ -1,5 +1,6 @@
 package ewing.security;
 
+import ewing.entity.Permission;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -17,21 +18,35 @@ public class UserHasPermission implements PermissionEvaluator {
      */
     @Override
     public boolean hasPermission(Authentication authentication,
-                                 Object targetDomainObject, Object permission) {
-        if (!(permission instanceof String)) {
+                                 Object target, Object permissionCode) {
+        if (!(permissionCode instanceof String)) {
             return false;
         }
+        String code = (String) permissionCode;
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.hasPermission((String) permission);
+        if (target == null) {
+            return securityUser.hasPermission(code);
+        } else {
+            Permission permission = securityUser.getPermissionByCode(code);
+            return permission != null && target.toString().equals(permission.getContent());
+        }
     }
 
     @Override
     public boolean hasPermission(Authentication authentication,
-                                 Serializable targetId, String targetType, Object permission) {
-        if (!(permission instanceof String)) {
+                                 Serializable targetId, String targetType, Object permissionCode) {
+        if (!(permissionCode instanceof String)) {
             return false;
         }
+        String code = (String) permissionCode;
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return securityUser.hasPermission((String) permission);
+        if (targetId == null && targetType == null) {
+            return securityUser.hasPermission(code);
+        } else {
+            // 至少有一个目标参数不为空，不为空的参数都要被满足。
+            Permission permission = securityUser.getPermissionByCode(code);
+            return (targetId == null || targetId.toString().equals(permission.getContent()))
+                    && (targetType == null || targetType.equals(permission.getType()));
+        }
     }
 }

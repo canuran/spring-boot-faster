@@ -16,7 +16,7 @@ CREATE TABLE `permission` (
   `parent_id` bigint(20) DEFAULT NULL,
   `name` varchar(64) NOT NULL,
   `code` varchar(64) NOT NULL,
-  `type` int(11) DEFAULT NULL,
+  `type` varchar(64) DEFAULT NULL,
   `content` varchar(1024) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`permission_id`),

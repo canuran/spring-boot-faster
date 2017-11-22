@@ -35,7 +35,7 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
 
     public final NumberPath<Long> permissionId = createNumber("permissionId", Long.class);
 
-    public final NumberPath<Integer> type = createNumber("type", Integer.class);
+    public final StringPath type = createString("type");
 
     public final com.querydsl.sql.PrimaryKey<Permission> primary = createPrimaryKey(permissionId);
 
@@ -71,7 +71,7 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
         addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
         addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(2).ofType(Types.BIGINT).withSize(19));
         addMetadata(permissionId, ColumnMetadata.named("permission_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
-        addMetadata(type, ColumnMetadata.named("type").withIndex(5).ofType(Types.INTEGER).withSize(10));
+        addMetadata(type, ColumnMetadata.named("type").withIndex(5).ofType(Types.VARCHAR).withSize(64));
     }
 
 }

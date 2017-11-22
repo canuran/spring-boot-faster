@@ -1,5 +1,6 @@
 package ewing.security;
 
+import ewing.entity.Permission;
 import ewing.entity.User;
 import ewing.user.PermissionTree;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,15 +26,22 @@ public class SecurityUser extends User implements UserDetails {
     }
 
     /**
-     * 是否有对应的权限编码，已配置到注解hasPermission表达式。
+     * 判断用户是否有对应的权限编码。
      */
     public boolean hasPermission(String code) {
+        return getPermissionByCode(code) != null;
+    }
+
+    /**
+     * 根据权限编码获取用户权限。
+     */
+    public Permission getPermissionByCode(String code) {
         for (PermissionTree permission : permissions) {
             if (permission.getCode().equals(code)) {
-                return true;
+                return permission;
             }
         }
-        return false;
+        return null;
     }
 
     /**
