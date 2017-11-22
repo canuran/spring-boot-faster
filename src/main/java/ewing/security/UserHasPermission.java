@@ -19,34 +19,36 @@ public class UserHasPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Object target, Object permissionCode) {
-        if (!(permissionCode instanceof String)) {
-            return false;
-        }
-        String code = (String) permissionCode;
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        if (target == null) {
-            return securityUser.hasPermission(code);
+        if (permissionCode instanceof String) {
+            String code = (String) permissionCode;
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            if (target == null) {
+                return securityUser.hasPermission(code);
+            } else {
+                Permission permission = securityUser.getPermissionByCode(code);
+                return permission != null && target.toString().equals(permission.getContent());
+            }
         } else {
-            Permission permission = securityUser.getPermissionByCode(code);
-            return permission != null && target.toString().equals(permission.getContent());
+            return false;
         }
     }
 
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Serializable targetId, String targetType, Object permissionCode) {
-        if (!(permissionCode instanceof String)) {
-            return false;
-        }
-        String code = (String) permissionCode;
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        if (targetId == null && targetType == null) {
-            return securityUser.hasPermission(code);
+        if (permissionCode instanceof String) {
+            String code = (String) permissionCode;
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            if (targetId == null && targetType == null) {
+                return securityUser.hasPermission(code);
+            } else {
+                // 至少有一个目标参数不为空，不为空的参数都要被满足。
+                Permission permission = securityUser.getPermissionByCode(code);
+                return (targetId == null || targetId.toString().equals(permission.getContent()))
+                        && (targetType == null || targetType.equals(permission.getType()));
+            }
         } else {
-            // 至少有一个目标参数不为空，不为空的参数都要被满足。
-            Permission permission = securityUser.getPermissionByCode(code);
-            return (targetId == null || targetId.toString().equals(permission.getContent()))
-                    && (targetType == null || targetType.equals(permission.getType()));
+            return false;
         }
     }
 }
