@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Ewing
  */
-@Transactional
+@Transactional(rollbackFor = Throwable.class)
 public class SecurityUserService implements UserDetailsService {
 
     @Autowired

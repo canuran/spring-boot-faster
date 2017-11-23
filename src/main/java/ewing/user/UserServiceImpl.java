@@ -13,7 +13,6 @@ import ewing.query.*;
 import ewing.security.RoleAsAuthority;
 import ewing.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,7 @@ import java.util.List;
  * 用户服务实现。
  **/
 @Service
-@Transactional
-@CacheConfig(cacheNames = "UserCache")
+@Transactional(rollbackFor = Throwable.class)
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -64,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(unless = "#result==null")
+    @Cacheable(cacheNames = "UserCache", unless = "#result==null")
     public User getUser(Long userId) {
         if (userId == null) {
             throw new AppException("用户ID不能为空！");
@@ -73,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(key = "#user.userId")
+    @CacheEvict(cacheNames = "UserCache", key = "#user.userId")
     public long updateUser(User user) {
         if (user == null || user.getUserId() == null) {
             throw new AppException("用户信息不能为空！");
