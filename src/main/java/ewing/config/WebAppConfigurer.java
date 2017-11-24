@@ -1,14 +1,26 @@
 package ewing.config;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import ewing.common.StringDateParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +32,39 @@ import java.util.Date;
  */
 @Configuration
 public class WebAppConfigurer extends WebMvcConfigurerAdapter {
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter converter;
+
+    /**
+     * BigInteger用字符串表示，避免返回科学计数法。
+     */
+    @PostConstruct
+    public void bigIntegerConverter() {
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(BigInteger.class, new JsonSerializer<BigInteger>() {
+            @Override
+            public void serialize(
+                    BigInteger bigInteger, JsonGenerator jsonGenerator,
+                    SerializerProvider serializerProvider) throws IOException {
+                if (bigInteger == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(bigInteger.toString());
+                }
+            }
+        });
+        simpleModule.addDeserializer(BigInteger.class, new JsonDeserializer<BigInteger>() {
+            @Override
+            public BigInteger deserialize(
+                    JsonParser jsonParser,
+                    DeserializationContext deserializationContext) throws IOException {
+                String value = jsonParser.getValueAsString();
+                return value == null ? null : new BigInteger(value);
+            }
+        });
+        converter.getObjectMapper().registerModule(simpleModule);
+    }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
