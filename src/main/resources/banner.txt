@@ -1,22 +1,22 @@
-${AnsiColor.BRIGHT_YELLOW}
+${AnsiColor.RED}
                     _ooOoo_
-                   o8888888o
+${AnsiColor.BRIGHT_RED}                   o8888888o
                    88" . "88
-                   (| -_- |)
+${AnsiColor.YELLOW}                   (| -_- |)
                    O\  =  /O
-                ____/`---'\____
+${AnsiColor.BRIGHT_GREEN}                ____/`---'\____
               .'  \\|     |//  `.
-             /  \\|||  :  |||//  \
+${AnsiColor.GREEN}             /  \\|||  :  |||//  \
             /  _||||| -:- |||||-  \
-            |   | \\\  -  /// |   |
+${AnsiColor.BRIGHT_GREEN}            |   | \\\  -  /// |   |
             | \_|  ''\---/''  |   |
-            \  .-\__  `-`  ___/-. /
+${AnsiColor.CYAN}            \  .-\__  `-`  ___/-. /
           ___`. .'  /--.--\  `. . __
-       ."" '<  `.___\_<|>_/___.'  >'"".
+${AnsiColor.BRIGHT_CYAN}       ."" '<  `.___\_<|>_/___.'  >'"".
       | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-      \  \ `-.   \_ __\ /__ _/   .-` /  /
+${AnsiColor.BLUE}      \  \ `-.   \_ __\ /__ _/   .-` /  /
    ======`-.____`-.___\_____/___.-`____.-'======
-                    `=---='
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                佛祖保佑 永无BUG
+${AnsiColor.BRIGHT_BLUE}                    `=---='
+${AnsiColor.BRIGHT_MAGENTA}   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+${AnsiColor.MAGENTA}                佛祖保佑 永无BUG
 ${AnsiColor.DEFAULT}
