@@ -24,7 +24,7 @@ public class StringDateParser {
      * 解析字符串时间为日期。
      */
     public static Date stringToDate(String source) {
-        if (source == null) {
+        if (source == null || source.isEmpty()) {
             return null;
         }
         return stringToCalendar(source).getTime();
@@ -34,7 +34,7 @@ public class StringDateParser {
      * 解析字符串时间为SQL日期。
      */
     public static java.sql.Date stringToSqlDate(String source) {
-        if (source == null) {
+        if (source == null || source.isEmpty()) {
             return null;
         }
         return new java.sql.Date(stringToCalendar(source).getTimeInMillis());
@@ -44,7 +44,7 @@ public class StringDateParser {
      * 解析字符串时间为Timestamp。
      */
     public static Timestamp stringToTimestamp(String source) {
-        if (source == null) {
+        if (source == null || source.isEmpty()) {
             return null;
         }
         return new Timestamp(stringToCalendar(source).getTimeInMillis());
@@ -57,7 +57,7 @@ public class StringDateParser {
      * 解析字符串时间为日历。
      */
     public static Calendar stringToCalendar(String source) {
-        if (source == null) {
+        if (source == null || source.isEmpty()) {
             return null;
         }
         // 当前字段的位置
