@@ -50,9 +50,10 @@ public class QueryFactory extends SQLQueryFactory {
      * 兼容带有对应ID属性的实体对象。
      */
     public long deleteByBean(RelationalPathBase base, Object bean) {
-        Object value = readPrimaryKey(bean, getPrimaryPath(base));
+        Path primaryPath = getPrimaryPath(base);
+        Object value = readPrimaryKey(bean, primaryPath);
         return this.delete(base)
-                .where(pathEquals(getPrimaryPath(base), value))
+                .where(pathEquals(primaryPath, value))
                 .execute();
     }
 
@@ -70,10 +71,11 @@ public class QueryFactory extends SQLQueryFactory {
      * 兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
      */
     public long updateByBean(RelationalPathBase base, Object bean) {
-        Object value = readPrimaryKey(bean, getPrimaryPath(base));
+        Path primaryPath = getPrimaryPath(base);
+        Object value = readPrimaryKey(bean, primaryPath);
         return this.update(base)
                 .populate(bean)
-                .where(pathEquals(getPrimaryPath(base), value))
+                .where(pathEquals(primaryPath, value))
                 .execute();
     }
 
