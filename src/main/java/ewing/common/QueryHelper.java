@@ -5,7 +5,7 @@ import com.querydsl.core.types.*;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import ewing.common.paging.Page;
-import ewing.common.paging.Paging;
+import ewing.common.paging.Pager;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -26,20 +26,20 @@ public class QueryHelper {
     /**
      * 使用分页参数和查询对象进行分页查询。
      */
-    public static <T> Page<T> queryPage(Paging paging, SQLQuery<T> query) {
+    public static <T> Page<T> queryPage(Pager pager, SQLQuery<T> query) {
         // 是否统计总数
-        if (paging.isCount()) {
+        if (pager.isCount()) {
             Page<T> page = new Page<>();
             page.setTotal(query.fetchCount());
             if (page.getTotal() < 1) {
                 // 一条也没有则返回空集
                 return page.setContent(Collections.emptyList());
             } else {
-                query.limit(paging.getLimit()).offset(paging.getOffset());
+                query.limit(pager.getLimit()).offset(pager.getOffset());
                 return page.setContent(query.fetch());
             }
         } else {
-            query.limit(paging.getLimit()).offset(paging.getOffset());
+            query.limit(pager.getLimit()).offset(pager.getOffset());
             return new Page<>(query.fetch());
         }
     }

@@ -16,7 +16,7 @@ import ewing.common.GsonUtils;
 import ewing.common.JsonConverter;
 import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
-import ewing.common.paging.Paging;
+import ewing.common.paging.Pager;
 import ewing.config.QueryFactory;
 import ewing.querydsldemo.entity.DemoAddress;
 import ewing.querydsldemo.entity.DemoUser;
@@ -145,7 +145,7 @@ public class QueryDSLDemos {
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
         // 分页获取数据
-        Page<DemoUser> userPage = QueryHelper.queryPage(new Paging(), query);
+        Page<DemoUser> userPage = QueryHelper.queryPage(new Pager(), query);
         System.out.println(JsonConverter.toJson(userPage));
     }
 

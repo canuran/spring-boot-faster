@@ -1,7 +1,7 @@
 package ewing.user;
 
 import ewing.common.paging.Page;
-import ewing.common.paging.Paging;
+import ewing.common.paging.Pager;
 import ewing.entity.User;
 import ewing.security.RoleAsAuthority;
 import ewing.security.SecurityUser;
@@ -19,7 +19,7 @@ public interface UserService {
 
     long updateUser(User user);
 
-    Page<User> findUsers(Paging paging, String username, String roleName);
+    Page<User> findUsers(Pager pager, String username, String roleName);
 
     long deleteUser(Long userId);
 

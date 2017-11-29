@@ -2,7 +2,7 @@ package ewing.user;
 
 import ewing.application.ResultMessage;
 import ewing.common.paging.Page;
-import ewing.common.paging.Paging;
+import ewing.common.paging.Pager;
 import ewing.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,9 +27,9 @@ public class UserController {
 
     @PostMapping("/findUser")
     @ApiOperation("分页查找用户")
-    public ResultMessage<Page<User>> findUsers(Paging paging,
+    public ResultMessage<Page<User>> findUsers(Pager pager,
                                                String username, String roleName) {
-        return new ResultMessage<>(userService.findUsers(paging, username, roleName));
+        return new ResultMessage<>(userService.findUsers(pager, username, roleName));
     }
 
     @PostMapping("/addUser")

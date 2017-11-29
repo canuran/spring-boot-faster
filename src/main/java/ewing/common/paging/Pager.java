@@ -5,20 +5,20 @@ package ewing.common.paging;
  *
  * @author Ewing
  **/
-public class Paging {
+public class Pager {
     private int offset = 0;
     private int limit = 100;
     private boolean count = true;
 
-    public Paging() {
+    public Pager() {
     }
 
-    public Paging(int offset, int limit) {
+    public Pager(int offset, int limit) {
         this.offset = offset;
         this.limit = limit;
     }
 
-    public Paging(int offset, int limit, boolean count) {
+    public Pager(int offset, int limit, boolean count) {
         this.offset = offset;
         this.limit = limit;
         this.count = count;

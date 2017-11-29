@@ -6,7 +6,7 @@ import com.querydsl.sql.SQLQuery;
 import ewing.application.AppException;
 import ewing.common.QueryHelper;
 import ewing.common.paging.Page;
-import ewing.common.paging.Paging;
+import ewing.common.paging.Pager;
 import ewing.config.QueryFactory;
 import ewing.entity.User;
 import ewing.query.*;
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findUsers(Paging paging, String username, String roleName) {
+    public Page<User> findUsers(Pager pager, String username, String roleName) {
         SQLQuery<User> query = queryFactory.selectFrom(qUser);
         if (StringUtils.hasText(username)) {
             query.where(qUser.username.contains(username));
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
                     .leftJoin(qRole).on(qUserRole.roleId.eq(qRole.roleId))
                     .where(qRole.name.contains(roleName));
         }
-        return QueryHelper.queryPage(paging, query);
+        return QueryHelper.queryPage(pager, query);
     }
 
     @Override
