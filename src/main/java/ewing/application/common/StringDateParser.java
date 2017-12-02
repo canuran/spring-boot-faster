@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import java.sql.Time;
 import java.sql.Timestamp;

@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application.config;
 
 import com.querydsl.sql.MySQLTemplates;
 import com.querydsl.sql.SQLQueryFactory;

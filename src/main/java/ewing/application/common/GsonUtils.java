@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

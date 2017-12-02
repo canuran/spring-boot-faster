@@ -1,6 +1,6 @@
 package ewing.user;
 
-import ewing.config.BaseDao;
+import ewing.application.BaseDao;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;

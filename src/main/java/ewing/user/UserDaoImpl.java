@@ -3,7 +3,7 @@ package ewing.user;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
-import ewing.config.BeanDao;
+import ewing.application.BeanDao;
 import ewing.application.QueryHelper;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;

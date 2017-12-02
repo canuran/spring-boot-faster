@@ -1,7 +1,7 @@
 package ewing.demo;
 
 import ewing.application.RequestMessage;
-import ewing.common.JWTUtils;
+import ewing.application.common.JWTUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

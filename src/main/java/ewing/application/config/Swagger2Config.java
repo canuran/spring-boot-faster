@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application.config;
 
 import ewing.StartApp;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

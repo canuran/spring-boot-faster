@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application.config;
 
 import ewing.application.AppException;
 import org.springframework.core.annotation.AnnotationUtils;

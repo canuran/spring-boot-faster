@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;

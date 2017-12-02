@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 

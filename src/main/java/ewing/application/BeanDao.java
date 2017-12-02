@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -9,7 +9,6 @@ import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
-import ewing.application.QueryHelper;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import org.springframework.beans.factory.annotation.Autowired;

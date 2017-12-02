@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

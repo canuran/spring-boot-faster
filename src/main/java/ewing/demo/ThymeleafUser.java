@@ -1,6 +1,6 @@
 package ewing.demo;
 
-import ewing.common.paging.Pager;
+import ewing.application.paging.Pager;
 import ewing.entity.User;
 import ewing.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

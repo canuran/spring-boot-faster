@@ -1,4 +1,4 @@
-package ewing.common.paging;
+package ewing.application.paging;
 
 import java.util.List;
 

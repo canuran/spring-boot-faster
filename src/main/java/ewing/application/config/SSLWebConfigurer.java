@@ -1,4 +1,4 @@
-package ewing.config;
+package ewing.application.config;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.net.SSLHostConfig;

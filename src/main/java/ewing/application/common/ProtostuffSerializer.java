@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import io.protostuff.GraphIOUtil;
 import io.protostuff.LinkedBuffer;

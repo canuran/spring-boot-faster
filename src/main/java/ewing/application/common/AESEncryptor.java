@@ -1,4 +1,4 @@
-package ewing.common;
+package ewing.application.common;
 
 import org.springframework.util.Base64Utils;
 
