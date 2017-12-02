@@ -94,7 +94,6 @@ public class BeanDao implements BaseDao {
         return QueryHelper.queryPage(pager, query);
     }
 
-
     @Override
     public long deleteByBean(Object bean) {
         Object value = readPrimaryKey(bean, keyPath);
