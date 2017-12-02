@@ -1,6 +1,7 @@
 package ewing.config;
 
 import com.querydsl.sql.MySQLTemplates;
+import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
@@ -31,12 +32,12 @@ public class QueryDSLConfig {
     }
 
     @Bean
-    public QueryFactory queryFactory() {
+    public SQLQueryFactory queryFactory() {
         SQLTemplates templates = MySQLTemplates.builder().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
-        return new QueryFactory(configuration, provider);
+        return new SQLQueryFactory(configuration, provider);
     }
 
 }

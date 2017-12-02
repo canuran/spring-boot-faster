@@ -1,8 +1,8 @@
 package ewing.user;
 
 import ewing.application.ResultMessage;
-import ewing.common.paging.Page;
-import ewing.common.paging.Pager;
+import ewing.application.paging.Page;
+import ewing.application.paging.Pager;
 import ewing.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,13 +56,6 @@ public class UserController {
     @ApiOperation("根据ID删除用户")
     public ResultMessage deleteUser(Long userId) {
         userService.deleteUser(userId);
-        return new ResultMessage();
-    }
-
-    @GetMapping("/clearUsers")
-    @ApiOperation("删除所有用户")
-    public ResultMessage clearUsers() {
-        userService.clearUsers();
         return new ResultMessage();
     }
 

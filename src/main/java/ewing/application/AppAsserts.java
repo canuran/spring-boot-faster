@@ -14,6 +14,15 @@ import java.util.regex.Pattern;
 public class AppAsserts {
 
     /**
+     * 断定为真，否则抛出异常。
+     */
+    public static void isTrue(boolean value, String message) {
+        if (!value) {
+            throw new AppException(message);
+        }
+    }
+
+    /**
      * 断定不为空，否则抛出异常。
      */
     public static void notNull(Object value, String message) {

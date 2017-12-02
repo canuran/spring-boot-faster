@@ -9,15 +9,15 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
+import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
-import ewing.common.GsonUtils;
-import ewing.common.JsonConverter;
-import ewing.common.QueryHelper;
-import ewing.common.paging.Page;
-import ewing.common.paging.Pager;
-import ewing.config.QueryFactory;
+import ewing.application.QueryHelper;
+import ewing.application.common.GsonUtils;
+import ewing.application.common.JsonConverter;
+import ewing.application.paging.Page;
+import ewing.application.paging.Pager;
 import ewing.querydsldemo.entity.DemoAddress;
 import ewing.querydsldemo.entity.DemoUser;
 import ewing.querydsldemo.query.QDemoAddress;
@@ -47,7 +47,7 @@ import java.util.List;
 public class QueryDSLDemos {
 
     @Autowired
-    private QueryFactory queryFactory;
+    private SQLQueryFactory queryFactory;
 
     private QDemoUser qDemoUser = QDemoUser.demoUser;
     private QDemoAddress qDemoAddress = QDemoAddress.demoAddress;
@@ -67,7 +67,8 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 简单的CRUD操作。
+     * 原始API进行简单的CRUD操作。
+     * BeanDao中已封装了快捷方法。
      */
     @Test
     public void simpleCrud() {
@@ -77,8 +78,6 @@ public class QueryDSLDemos {
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .executeWithKey(qDemoUser.userId);
         System.out.println(userId);
-        // 快捷新增实体（不包含null）
-        queryFactory.insertWithKey(qDemoUser, demoUser);
 
         // 更新实体
         demoUser.setUserId(userId);
@@ -94,8 +93,6 @@ public class QueryDSLDemos {
                 .set(qDemoUser.password, "123ABC")
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
-        // 快捷更新实体（不包含null）
-        queryFactory.updateByBean(qDemoUser, demoUser);
 
         // 查询实体
         demoUser = queryFactory.selectFrom(qDemoUser)
@@ -107,20 +104,12 @@ public class QueryDSLDemos {
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .fetchOne();
         System.out.println(username);
-        // 快捷根据ID查询实体
-        demoUser = queryFactory.selectByKey(qDemoUser, demoUser.getUserId());
-        DemoUserDetail userDetail = queryFactory.selectToBean(
-                qDemoUser, DemoUserDetail.class, demoUser.getUserId());
-        System.out.println(JsonConverter.toJson(userDetail));
 
         // 删除实体
         queryFactory.delete(qDemoUser)
                 .where(qDemoUser.userId.eq(demoUser.getUserId()))
                 .execute();
         System.out.println(JsonConverter.toJson(demoUser));
-        // 快捷根据ID删除实体
-        queryFactory.deleteByKey(qDemoUser, demoUser.getUserId());
-        queryFactory.deleteByBean(qDemoUser, demoUser);
     }
 
     /**
