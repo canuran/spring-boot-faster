@@ -57,28 +57,33 @@ public class BeanDao implements BaseDao {
         return value;
     }
 
+    protected SQLQuery selectExpressions(Expression[] expressions) {
+        SQLQuery query = queryFactory.from(base);
+        if (expressions.length == 0) {
+            return query.select(base);
+        } else if (expressions.length == 1) {
+            return query.select(expressions[0]);
+        } else {
+            return query.select(expressions);
+        }
+    }
+
     @Override
-    public <E> E selectByKey(Object key) {
-        return (E) queryFactory.selectFrom(base)
-                .where(((SimpleExpression) keyPath).eq(key))
+    public <E> E selectByKey(Object key, Expression... expressions) {
+        SQLQuery<E> query = selectExpressions(expressions);
+        return query.where(((SimpleExpression) keyPath).eq(key))
                 .fetchOne();
     }
 
     @Override
     public <E> List<E> selectWhere(Predicate predicate, Expression... expressions) {
-        SQLQuery<E> query = (SQLQuery<E>) queryFactory.from(base);
-        if (expressions.length == 0) {
-            query.select(base);
-        } else if (expressions.length == 1) {
-            query.select(expressions[0]);
-        } else {
-            query.select(expressions);
-        }
-        return query.where(predicate).fetch();
+        SQLQuery<E> query = selectExpressions(expressions);
+        return query.where(predicate)
+                .fetch();
     }
 
     @Override
-    public long selectCount(Predicate predicate) {
+    public long countWhere(Predicate predicate) {
         return queryFactory.selectFrom(base)
                 .where(predicate)
                 .fetchCount();
@@ -86,14 +91,7 @@ public class BeanDao implements BaseDao {
 
     @Override
     public <E> Page<E> selectPage(Pager pager, Predicate predicate, Expression... expressions) {
-        SQLQuery<E> query = (SQLQuery<E>) queryFactory.from(base);
-        if (expressions.length == 0) {
-            query.select(base);
-        } else if (expressions.length == 1) {
-            query.select(expressions[0]);
-        } else {
-            query.select(expressions);
-        }
+        SQLQuery<E> query = selectExpressions(expressions);
         query.where(predicate);
         return QueryHelper.queryPage(pager, query);
     }

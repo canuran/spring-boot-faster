@@ -14,7 +14,7 @@ public interface BaseDao {
     /**
      * 根据ID查询实体对象。
      */
-    <E> E selectByKey(Object key);
+    <E> E selectByKey(Object key, Expression... expressions);
 
     /**
      * 根据条件表达式查询实体对象。
@@ -24,7 +24,7 @@ public interface BaseDao {
     /**
      * 根据条件表达式查询总数。
      */
-    long selectCount(Predicate predicate);
+    long countWhere(Predicate predicate);
 
     /**
      * 根据条件表达式分页查询实体对象。
