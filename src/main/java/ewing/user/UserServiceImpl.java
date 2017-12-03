@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(cacheNames = "UserCache", unless = "#result==null")
+    @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(Long userId) {
         AppAsserts.notNull(userId, "用户ID不能为空！");
         return userDao.selectByKey(userId);
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict
+    @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(Long userId) {
         AppAsserts.notNull(userId, "用户ID不能为空！");
         return userDao.deleteByKey(userId);

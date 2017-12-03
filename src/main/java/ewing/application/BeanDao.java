@@ -3,16 +3,18 @@ package ewing.application;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.PrimaryKey;
-import com.querydsl.sql.RelationalPath;
+import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -24,37 +26,63 @@ public class BeanDao implements BaseDao {
     @Autowired
     protected SQLQueryFactory queryFactory;
 
-    protected RelationalPath<?> base;
+    protected final RelationalPathBase<?> base;
 
-    protected Path keyPath;
+    protected final List<Path> keyPaths;
 
-    public BeanDao(RelationalPath base) {
+    public BeanDao(RelationalPathBase base) {
         if (base == null) {
-            throw new IllegalArgumentException("PathBase must not null.");
+            throw new IllegalArgumentException("PathBase can not null.");
         }
+        // 获取主键及属性
         PrimaryKey primaryKey = base.getPrimaryKey();
         if (primaryKey != null) {
             List<Path> paths = primaryKey.getLocalColumns();
-            if (paths != null && paths.size() == 1) {
-                this.keyPath = paths.get(0);
+            if (paths == null || paths.isEmpty()) {
+                throw new IllegalArgumentException("Primary paths can not empty.");
             } else {
-                throw new IllegalArgumentException("Primary path must has unique one.");
+                this.keyPaths = paths;
             }
         } else {
-            throw new IllegalArgumentException("PrimaryKey must not null.");
+            throw new IllegalArgumentException("PrimaryKey can not null.");
         }
         this.base = base;
     }
 
-    protected Object readPrimaryKey(Object bean, Path path) {
-        Object value;
-        try {
-            value = ReflectionUtils.getGetterOrNull(bean.getClass(),
-                    path.getMetadata().getName()).invoke(bean);
-        } catch (Exception e) {
-            throw new RuntimeException("Read primary key value failed.", e);
+    /**
+     * 创建主键等于参数的表达式。
+     */
+    protected BooleanExpression keyEquals(Object key) {
+        if (keyPaths.size() == 1) {
+            return ((SimpleExpression) keyPaths.get(0)).eq(key);
+        } else {
+            // 多个主键时使用实体作为主键值创建表达式。
+            return beanKeyEquals(key);
         }
-        return value;
+    }
+
+    /**
+     * 使用实体作为主键值创建表达式。
+     */
+    protected BooleanExpression beanKeyEquals(Object bean) {
+        if (bean == null) {
+            throw new IllegalArgumentException("Argument can not null.");
+        }
+        BooleanExpression expression = null;
+        try {
+            for (Path path : keyPaths) {
+                String name = path.getMetadata().getName();
+                Method getter = ReflectionUtils.getGetterOrNull(bean.getClass(), name);
+                if (getter == null) {
+                    throw new IllegalArgumentException("No key property: " + name);
+                }
+                BooleanExpression equals = ((SimpleExpression) path).eq(getter.invoke(bean));
+                expression = expression == null ? equals : expression.and(equals);
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        return expression;
     }
 
     protected SQLQuery selectExpressions(Expression[] expressions) {
@@ -71,7 +99,7 @@ public class BeanDao implements BaseDao {
     @Override
     public <E> E selectByKey(Object key, Expression... expressions) {
         SQLQuery<E> query = selectExpressions(expressions);
-        return query.where(((SimpleExpression) keyPath).eq(key))
+        return query.where(keyEquals(key))
                 .fetchOne();
     }
 
@@ -98,25 +126,23 @@ public class BeanDao implements BaseDao {
 
     @Override
     public long deleteByBean(Object bean) {
-        Object value = readPrimaryKey(bean, keyPath);
         return queryFactory.delete(base)
-                .where(((SimpleExpression) keyPath).eq(value))
+                .where(beanKeyEquals(bean))
                 .execute();
     }
 
     @Override
     public long deleteByKey(Object key) {
         return queryFactory.delete(base)
-                .where(((SimpleExpression) keyPath).eq(key))
+                .where(keyEquals(key))
                 .execute();
     }
 
     @Override
     public long updateByBean(Object bean) {
-        Object value = readPrimaryKey(bean, keyPath);
         return queryFactory.update(base)
                 .populate(bean)
-                .where(((SimpleExpression) keyPath).eq(value))
+                .where(beanKeyEquals(bean))
                 .execute();
     }
 
@@ -129,9 +155,12 @@ public class BeanDao implements BaseDao {
 
     @Override
     public <T> T insertWithKey(Object bean) {
+        if (keyPaths.size() > 1) {
+            throw new IllegalArgumentException("Multiple primary key is unsupported.");
+        }
         return (T) queryFactory.insert(base)
                 .populate(bean)
-                .executeWithKey(keyPath);
+                .executeWithKey(keyPaths.get(0));
     }
 
 }
