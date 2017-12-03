@@ -67,10 +67,12 @@ public class BeanDao implements BaseDao {
     @Override
     public <E> List<E> selectWhere(Predicate predicate, Expression... expressions) {
         SQLQuery<E> query = (SQLQuery<E>) queryFactory.from(base);
-        if (expressions.length > 0) {
-            query.select(expressions);
-        } else {
+        if (expressions.length == 0) {
             query.select(base);
+        } else if (expressions.length == 1) {
+            query.select(expressions[0]);
+        } else {
+            query.select(expressions);
         }
         return query.where(predicate).fetch();
     }
@@ -85,10 +87,12 @@ public class BeanDao implements BaseDao {
     @Override
     public <E> Page<E> selectPage(Pager pager, Predicate predicate, Expression... expressions) {
         SQLQuery<E> query = (SQLQuery<E>) queryFactory.from(base);
-        if (expressions.length > 0) {
-            query.select(expressions);
-        } else {
+        if (expressions.length == 0) {
             query.select(base);
+        } else if (expressions.length == 1) {
+            query.select(expressions[0]);
+        } else {
+            query.select(expressions);
         }
         query.where(predicate);
         return QueryHelper.queryPage(pager, query);
