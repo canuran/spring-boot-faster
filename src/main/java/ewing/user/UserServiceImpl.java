@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
     public long updateUser(User user) {
         AppAsserts.notNull(user, "用户不能为空！");
         AppAsserts.notNull(user.getUserId(), "用户ID不能为空！");
-        return userDao.updateByBean(user);
+        return userDao.updateBean(user);
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.SQLInsertClause;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,17 +105,17 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public <E> List<E> selectWhere(Predicate predicate, Expression... expressions) {
-        SQLQuery<E> query = selectExpressions(expressions);
-        return query.where(predicate)
-                .fetch();
-    }
-
-    @Override
     public long countWhere(Predicate predicate) {
         return queryFactory.selectFrom(base)
                 .where(predicate)
                 .fetchCount();
+    }
+
+    @Override
+    public <E> List<E> selectWhere(Predicate predicate, Expression... expressions) {
+        SQLQuery<E> query = selectExpressions(expressions);
+        return query.where(predicate)
+                .fetch();
     }
 
     @Override
@@ -125,13 +126,6 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public long deleteByBean(Object bean) {
-        return queryFactory.delete(base)
-                .where(beanKeyEquals(bean))
-                .execute();
-    }
-
-    @Override
     public long deleteByKey(Object key) {
         return queryFactory.delete(base)
                 .where(keyEquals(key))
@@ -139,7 +133,21 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public long updateByBean(Object bean) {
+    public long deleteBean(Object bean) {
+        return queryFactory.delete(base)
+                .where(beanKeyEquals(bean))
+                .execute();
+    }
+
+    @Override
+    public long deleteWhere(Predicate predicate) {
+        return queryFactory.delete(base)
+                .where(predicate)
+                .execute();
+    }
+
+    @Override
+    public long updateBean(Object bean) {
         return queryFactory.update(base)
                 .populate(bean)
                 .where(beanKeyEquals(bean))
@@ -147,10 +155,27 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public long insertByBean(Object bean) {
+    public long updateWhere(Object bean, Predicate predicate) {
+        return queryFactory.update(base)
+                .populate(bean)
+                .where(predicate)
+                .execute();
+    }
+
+    @Override
+    public long insertBean(Object bean) {
         return queryFactory.insert(base)
                 .populate(bean)
                 .execute();
+    }
+
+    @Override
+    public long insertBeans(Object... beans) {
+        SQLInsertClause insert = queryFactory.insert(base);
+        for (Object bean : beans) {
+            insert.populate(bean).addBatch();
+        }
+        return insert.execute();
     }
 
     @Override
