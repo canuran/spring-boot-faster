@@ -175,7 +175,7 @@ public class BeanDao implements BaseDao {
         for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }
-        return insert.execute();
+        return insert.isEmpty() ? 0L : insert.execute();
     }
 
     @Override
