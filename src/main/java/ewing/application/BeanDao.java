@@ -4,6 +4,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.PrimaryKey;
@@ -69,7 +70,7 @@ public class BeanDao implements BaseDao {
         if (bean == null) {
             throw new IllegalArgumentException("Argument can not null.");
         }
-        BooleanExpression expression = null;
+        BooleanExpression equals = Expressions.FALSE;
         try {
             for (Path path : keyPaths) {
                 String name = path.getMetadata().getName();
@@ -77,13 +78,13 @@ public class BeanDao implements BaseDao {
                 if (getter == null) {
                     throw new IllegalArgumentException("No key property: " + name);
                 }
-                BooleanExpression equals = ((SimpleExpression) path).eq(getter.invoke(bean));
-                expression = expression == null ? equals : expression.and(equals);
+                BooleanExpression equal = ((SimpleExpression) path).eq(getter.invoke(bean));
+                equals = (equals == Expressions.FALSE ? equal : equals.and(equal));
             }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
-        return expression;
+        return equals;
     }
 
     protected SQLQuery selectExpressions(Expression[] expressions) {
