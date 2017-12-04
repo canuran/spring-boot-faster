@@ -171,11 +171,17 @@ public class BeanDao implements BaseDao {
 
     @Override
     public long insertBeans(Object... beans) {
-        SQLInsertClause insert = queryFactory.insert(base);
-        for (Object bean : beans) {
-            insert.populate(bean).addBatch();
+        if (beans.length > 1) {
+            SQLInsertClause insert = queryFactory.insert(base);
+            for (Object bean : beans) {
+                insert.populate(bean).addBatch();
+            }
+            return insert.execute();
+        } else if (beans.length == 1) {
+            return insertBean(beans[0]);
+        } else {
+            return 0L;
         }
-        return insert.isEmpty() ? 0L : insert.execute();
     }
 
     @Override
