@@ -38,5 +38,10 @@ public class UserPermission {
         this.userId = userId;
     }
 
+    @Override
+    public String toString() {
+        return "createTime = " + createTime + ", permissionId = " + permissionId + ", userId = " + userId;
+    }
+
 }
 

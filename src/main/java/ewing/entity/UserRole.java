@@ -38,5 +38,10 @@ public class UserRole {
         this.userId = userId;
     }
 
+    @Override
+    public String toString() {
+        return "createTime = " + createTime + ", roleId = " + roleId + ", userId = " + userId;
+    }
+
 }
 

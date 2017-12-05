@@ -63,6 +63,7 @@
                     <targetFolder>${project.basedir}/src/main/java</targetFolder>
                     <sourceFolder>src/main/resources</sourceFolder>
                     <exportBeans>true</exportBeans>
+                    <beanAddToString>true</beanAddToString>
                     <beanPackageName>ewing.entity</beanPackageName>
                     <tableNamePattern>%</tableNamePattern>
                 </configuration>

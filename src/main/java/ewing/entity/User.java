@@ -58,5 +58,10 @@ public class User {
         this.username = username;
     }
 
+    @Override
+    public String toString() {
+        return "birthday = " + birthday + ", createTime = " + createTime + ", password = " + password + ", userId = " + userId + ", username = " + username;
+    }
+
 }
 

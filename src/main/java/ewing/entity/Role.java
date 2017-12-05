@@ -48,5 +48,10 @@ public class Role {
         this.roleId = roleId;
     }
 
+    @Override
+    public String toString() {
+        return "code = " + code + ", createTime = " + createTime + ", name = " + name + ", roleId = " + roleId;
+    }
+
 }
 

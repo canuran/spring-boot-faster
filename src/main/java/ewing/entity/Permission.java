@@ -78,5 +78,10 @@ public class Permission {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "code = " + code + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", permissionId = " + permissionId + ", target = " + target + ", type = " + type;
+    }
+
 }
 

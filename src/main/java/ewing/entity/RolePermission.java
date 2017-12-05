@@ -38,5 +38,10 @@ public class RolePermission {
         this.roleId = roleId;
     }
 
+    @Override
+    public String toString() {
+        return "createTime = " + createTime + ", permissionId = " + permissionId + ", roleId = " + roleId;
+    }
+
 }
 
