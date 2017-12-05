@@ -208,7 +208,7 @@
             <version>3.7.0</version>
         </dependency>
 
-        <!--protostuff序列化-->
+        <!--Protostuff序列化-->
         <dependency>
             <groupId>io.protostuff</groupId>
             <artifactId>protostuff-core</artifactId>
