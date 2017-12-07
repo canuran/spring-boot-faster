@@ -11,7 +11,9 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 查询帮助类。
@@ -45,28 +47,9 @@ public class QueryHelper {
     }
 
     /**
-     * 使用全部Expression（包括实体查询对象）参数查询指定类型的Bean。
-     */
-    public static <T> QBean<T> allToBean(
-            Class<? extends T> type, Expression... expressions) {
-        List<Expression> all = new ArrayList<>();
-        for (Expression expression : expressions) {
-            if (expression instanceof RelationalPathBase) {
-                Expression[] paths = ((RelationalPathBase) expression).all();
-                for (Expression path : paths) {
-                    all.add(path);
-                }
-            } else {
-                all.add(expression);
-            }
-        }
-        return Projections.bean(type, all.toArray(new Expression[all.size()]));
-    }
-
-    /**
      * 使用与Bean属性匹配的Expression（包括实体查询对象）参数查询Bean。
      */
-    public static <T> QBean<T> matchToBean(
+    public static <T> QBean<T> fitBean(
             Class<? extends T> type, Expression... expressions) {
         // 获取到Bean的所有属性
         PropertyDescriptor[] properties;
