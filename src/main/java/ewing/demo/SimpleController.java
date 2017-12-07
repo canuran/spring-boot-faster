@@ -66,11 +66,13 @@ public class SimpleController {
     /**
      * 获取JWT测试。
      */
+    @ResponseBody
     @PostMapping("/getJWT")
     public String getJWT(String name) {
         return JWTUtils.generateToken("name", name);
     }
 
+    @ResponseBody
     @PostMapping("/checkJWT")
     public String checkJWT(@RequestHeader("Authorization") String token) {
         return (String) JWTUtils.getFromToken(token, "name");
