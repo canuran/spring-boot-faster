@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                // 定义登陆页面并允许所有人访问
+                // 定义登录页面并允许所有人访问
                 .and()
                 .formLogin()
                 .loginPage("/login")
