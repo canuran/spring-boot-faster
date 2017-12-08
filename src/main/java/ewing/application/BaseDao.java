@@ -4,22 +4,13 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
-import ewing.query.*;
 
 import java.util.List;
 
 /**
  * 数据访问接口。
  */
-public interface BaseDao {
-
-    // 所有实体类查询对象集中定义管理
-    QUser qUser = QUser.user;
-    QUserRole qUserRole = QUserRole.userRole;
-    QRole qRole = QRole.role;
-    QUserPermission qUserPermission = QUserPermission.userPermission;
-    QRolePermission qRolePermission = QRolePermission.rolePermission;
-    QPermission qPermission = QPermission.permission;
+public interface BaseDao extends AppBeans {
 
     /**
      * 根据ID查询实体对象。
