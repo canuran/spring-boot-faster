@@ -1,5 +1,6 @@
 package ewing.user;
 
+import ewing.application.AppBeans;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * 用户服务接口。
  **/
-public interface UserService {
+public interface UserService extends AppBeans {
 
     User addUser(User user);
 

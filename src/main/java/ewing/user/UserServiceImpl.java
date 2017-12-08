@@ -31,14 +31,13 @@ public class UserServiceImpl implements UserService {
         AppAsserts.notNull(user, "用户不能为空！");
         AppAsserts.hasText(user.getUsername(), "用户名不能为空！");
         AppAsserts.isTrue(userDao.countWhere(
-                QUser.user.username.eq(user.getUsername())) < 1,
+                qUser.username.eq(user.getUsername())) < 1,
                 "用户名已被使用！");
         AppAsserts.hasText(user.getPassword(), "密码不能为空！");
 
         if (user.getBirthday() == null) {
             user.setBirthday(new Timestamp(System.currentTimeMillis()));
         }
-
         user.setUserId(userDao.insertWithKey(user));
         return user;
     }
