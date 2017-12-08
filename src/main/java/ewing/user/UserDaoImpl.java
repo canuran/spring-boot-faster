@@ -8,7 +8,6 @@ import ewing.application.QueryHelper;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
-import ewing.query.*;
 import ewing.security.RoleAsAuthority;
 import ewing.security.SecurityUser;
 import org.springframework.stereotype.Repository;
@@ -22,15 +21,8 @@ import java.util.List;
 @Repository
 public class UserDaoImpl extends BeanDao implements UserDao {
 
-    private QUser qUser = QUser.user;
-    private QUserRole qUserRole = QUserRole.userRole;
-    private QRole qRole = QRole.role;
-    private QRolePermission qRolePermission = QRolePermission.rolePermission;
-    private QUserPermission qUserPermission = QUserPermission.userPermission;
-    private QPermission qPermission = QPermission.permission;
-
     public UserDaoImpl() {
-        super(QUser.user);
+        super(qUser);
     }
 
     @Override
