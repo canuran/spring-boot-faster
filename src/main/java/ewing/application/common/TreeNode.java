@@ -1,5 +1,7 @@
 package ewing.application.common;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.util.List;
 
 /**
@@ -10,13 +12,13 @@ public interface TreeNode<E extends TreeNode, ID> {
     ID getId();
 
     default void setId(ID id) {
-        throw new UnsupportedOperationException("Not implemented.");
+        throw new NotImplementedException();
     }
 
     ID getParentId();
 
     default void setParentId(ID parentId) {
-        throw new UnsupportedOperationException("Not implemented.");
+        throw new NotImplementedException();
     }
 
     List<E> getChildren();

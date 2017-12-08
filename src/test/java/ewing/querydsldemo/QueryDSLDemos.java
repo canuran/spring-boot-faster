@@ -236,8 +236,8 @@ public class QueryDSLDemos {
     @Test
     public void queryDetail() {
         List<DemoUserDetail> demoUsers = queryFactory.select(
-                // 如果取部分属性字段则用matchToBean
-                QueryHelper.allToBean(DemoUserDetail.class,
+                // 使用与Bean属性匹配的表达式
+                QueryHelper.fitBean(DemoUserDetail.class,
                         qDemoUser,
                         qDemoUser.gender.when(1).then("男")
                                 .when(2).then("女")

@@ -1,12 +1,11 @@
 package ewing.application.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import ewing.application.common.AliasName;
 import ewing.application.common.StringDateParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -37,30 +37,40 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
     private MappingJackson2HttpMessageConverter converter;
 
     /**
-     * BigInteger用字符串表示，避免返回科学计数法。
+     * 注册Jackson配置。
      */
     @PostConstruct
-    public void bigIntegerConverter() {
+    public void registerJsonModule() {
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(BigInteger.class, new JsonSerializer<BigInteger>() {
+        // 大数字用字符串表示，避免返回科学计数法
+        simpleModule.addSerializer(Number.class, new JsonSerializer<Number>() {
             @Override
-            public void serialize(
-                    BigInteger bigInteger, JsonGenerator jsonGenerator,
-                    SerializerProvider serializerProvider) throws IOException {
-                if (bigInteger == null) {
+            public void serialize(Number number, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (number instanceof BigInteger || number instanceof BigDecimal) {
+                    jsonGenerator.writeString(number.toString());
+                } else if (number == null) {
                     jsonGenerator.writeNull();
                 } else {
-                    jsonGenerator.writeString(bigInteger.toString());
+                    jsonGenerator.writeNumber(number.toString());
                 }
             }
         });
-        simpleModule.addDeserializer(BigInteger.class, new JsonDeserializer<BigInteger>() {
+        // 把实现了有别名的接口的属性添加别名，用于前端显示
+        simpleModule.addSerializer(AliasName.class, new JsonSerializer<AliasName>() {
             @Override
-            public BigInteger deserialize(
-                    JsonParser jsonParser,
-                    DeserializationContext deserializationContext) throws IOException {
-                String value = jsonParser.getValueAsString();
-                return value == null ? null : new BigInteger(value);
+            public void serialize(AliasName source, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (source == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeObject(source.name());
+                    JsonStreamContext context = jsonGenerator.getOutputContext();
+                    if (context.inObject()) {
+                        String fieldName = context.getCurrentName();
+                        jsonGenerator.writeStringField(fieldName + "Alias", source.alias());
+                    }
+                }
             }
         });
         converter.getObjectMapper().registerModule(simpleModule);

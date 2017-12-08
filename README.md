@@ -1,5 +1,5 @@
 # Spring Boot Faster
-### Spring Boot 整合常用框架组成完整可用的快速开发模板。
+### Spring Boot 整合常用框架组成完整可用的快速开发模板，参考自生产项目，配置到细节。
 更快的项目搭建、更高开发和运行效率、更灵活的应对需求变化、更好的可重构和维护性。  
 
 ## 集成的功能：
@@ -14,7 +14,7 @@ GlobalIdWorker：全局ID生成器，支持多机多实例运行，保持趋势�
 Spring Cache + EhCache：使用声明式缓存，对方法返回值进行缓存，使用EhCache作为本地缓存，resources目录中提供了Redis参考。  
 Protostuff 序列化：Protostuff 序列化可以大幅提高时间及空间性能，适合传输对象，比如存储到Redis等。  
 Spring AOP：使用AOP对方法日志进行统一处理，也可用做收集信息、事务处理、权限校验等。  
-RSA 和 AES：RSA 非对称可逆加密可用于登陆加密等， AES 对称可逆加密可用于内部存储数据。  
+RSA 和 AES：RSA 非对称可逆加密可用于登录加密等， AES 对称可逆加密可用于内部存储数据。  
 MySql数据库：默认使用MySql，驱动和配置参考 pom.xml 和 application.yml 中的数据库连接信息。  
 Swagger2：扫描Controller及标记注解，生成接口文档，访问路径：/swagger-ui.html。  
 JWT：Json Web Token，使用JWT可以把认证信息存储到用户端，并对用户提交的认证信息进行验证。  
