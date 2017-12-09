@@ -10,7 +10,7 @@ public class DemoUser {
 
     private Integer addressId;
 
-    private java.sql.Timestamp birthday;
+    private java.util.Date createTime;
 
     private Integer gender;
 
@@ -28,12 +28,12 @@ public class DemoUser {
         this.addressId = addressId;
     }
 
-    public java.sql.Timestamp getBirthday() {
-        return birthday;
+    public java.util.Date getCreateTime() {
+        return createTime;
     }
 
-    public void setBirthday(java.sql.Timestamp birthday) {
-        this.birthday = birthday;
+    public void setCreateTime(java.util.Date createTime) {
+        this.createTime = createTime;
     }
 
     public Integer getGender() {
@@ -66,6 +66,11 @@ public class DemoUser {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public String toString() {
+         return "addressId = " + addressId + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

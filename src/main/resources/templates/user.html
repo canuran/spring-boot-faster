@@ -80,13 +80,13 @@
            class="table table-hover table-striped">
         <thead>
         <th>名称</th>
-        <th>生日</th>
+        <th>创建时间</th>
         <th sec:authorize="principal.hasPermission('USER_DELETE')">操作</th>
         </thead>
         <tbody>
         <tr th:each="user, curr : ${users}">
             <td><span th:text="${user.username}"/></td>
-            <td><span th:text="${#dates.format(user.birthday,'yyyy-MM-dd')}"/></td>
+            <td><span th:text="${#dates.format(user.createTime,'yyyy-MM-dd')}"/></td>
             <td sec:authorize="principal.hasPermission('USER_DELETE')">
                 <a href="#" th:href="@{/deleteUser(userId=${user.userId})}"
                    class="btn btn-danger btn-sm">删除</a></td>

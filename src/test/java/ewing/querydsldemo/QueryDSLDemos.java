@@ -33,8 +33,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ public class QueryDSLDemos {
         demoUser.setUsername("NAME");
         demoUser.setPassword("123456");
         demoUser.setGender(1);
-        demoUser.setBirthday(new Timestamp(System.currentTimeMillis()));
+        demoUser.setCreateTime(new Date());
         demoUser.setAddressId(1);
         return demoUser;
     }
@@ -121,7 +121,7 @@ public class QueryDSLDemos {
                 .selectFrom(qDemoUser).distinct()
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                .orderBy(qDemoUser.birthday.desc().nullsFirst());
+                .orderBy(qDemoUser.createTime.desc().nullsFirst());
         // where可多次使用，相当于and，注意and优先级高于or
         query.where(qDemoAddress.name.contains("深圳")
                 .and(qDemoUser.username.contains("元")
@@ -193,13 +193,14 @@ public class QueryDSLDemos {
     public void customQuery() {
         SQLQuery<Tuple> query = queryFactory.select(
                 // 常用的表达式构建方法
-                Expressions.asNumber(1).count(),
                 Expressions.asNumber(2).sum(),
+                Expressions.asNumber(1).count(),
                 SQLExpressions.sum(Expressions.constant(3)),
-                Expressions.cases().when(qDemoUser.birthday.max()
-                        .gt(qDemoUser.birthday.min())).then("生日不同")
-                        .otherwise("生日相同"),
-                qDemoUser.gender.avg())
+                Expressions.cases().when(
+                        qDemoUser.gender.max().eq(qDemoUser.gender.min()))
+                        .then("性别相同")
+                        .otherwise("性别不同"),
+                qDemoUser.createTime.milliSecond().avg())
                 .from(qDemoUser);
 
         // 【非必要则不用】使用数据库的 HINTS 优化查询

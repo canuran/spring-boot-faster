@@ -22,7 +22,7 @@ public class QUserPermission extends com.querydsl.sql.RelationalPathBase<UserPer
 
     public static final QUserPermission userPermission = new QUserPermission("user_permission");
 
-    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
+    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
     public final NumberPath<Long> permissionId = createNumber("permissionId", Long.class);
 

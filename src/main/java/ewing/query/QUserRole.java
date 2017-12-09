@@ -22,7 +22,7 @@ public class QUserRole extends com.querydsl.sql.RelationalPathBase<UserRole> {
 
     public static final QUserRole userRole = new QUserRole("user_role");
 
-    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
+    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
     public final NumberPath<Long> roleId = createNumber("roleId", Long.class);
 

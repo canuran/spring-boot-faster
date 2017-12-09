@@ -4,7 +4,6 @@ import ewing.application.AppAsserts;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
-import ewing.query.QUser;
 import ewing.security.RoleAsAuthority;
 import ewing.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,8 +34,8 @@ public class UserServiceImpl implements UserService {
                 "用户名已被使用！");
         AppAsserts.hasText(user.getPassword(), "密码不能为空！");
 
-        if (user.getBirthday() == null) {
-            user.setBirthday(new Timestamp(System.currentTimeMillis()));
+        if (user.getCreateTime() == null) {
+            user.setCreateTime(new Date());
         }
         user.setUserId(userDao.insertWithKey(user));
         return user;

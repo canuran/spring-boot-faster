@@ -8,9 +8,11 @@ import javax.annotation.Generated;
 @Generated("com.querydsl.codegen.BeanSerializer")
 public class User {
 
-    private java.sql.Timestamp birthday;
+    private java.sql.Date birthday;
 
-    private java.sql.Timestamp createTime;
+    private java.util.Date createTime;
+
+    private String gender;
 
     private String password;
 
@@ -18,20 +20,28 @@ public class User {
 
     private String username;
 
-    public java.sql.Timestamp getBirthday() {
+    public java.sql.Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(java.sql.Timestamp birthday) {
+    public void setBirthday(java.sql.Date birthday) {
         this.birthday = birthday;
     }
 
-    public java.sql.Timestamp getCreateTime() {
+    public java.util.Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(java.sql.Timestamp createTime) {
+    public void setCreateTime(java.util.Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getPassword() {
@@ -60,7 +70,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "birthday = " + birthday + ", createTime = " + createTime + ", password = " + password + ", userId = " + userId + ", username = " + username;
+        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

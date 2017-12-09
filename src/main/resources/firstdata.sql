@@ -2,7 +2,6 @@
 Target Server Type    : MYSQL
 Target Server Version : 50718
 File Encoding         : 65001
-Date: 2017-11-13 16:37:59
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -77,7 +76,7 @@ CREATE TABLE `user` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `username` varchar(64) NOT NULL,
   `password` varchar(32) NOT NULL,
-  `birthday` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `birthday` date DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
@@ -85,8 +84,8 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', '元宝', 'yb', '2000-02-10 12:22:30', '2017-08-23 18:43:52');
-INSERT INTO `user` VALUES ('2', '露娜', 'ln', '2002-05-20 12:22:46', '2017-08-24 12:06:02');
+INSERT INTO `user` VALUES ('1', '元宝', 'yb', '2000-02-10', '2017-08-23 18:43:52');
+INSERT INTO `user` VALUES ('2', '露娜', 'ln', '2002-05-20', '2017-08-24 12:06:02');
 
 -- ----------------------------
 -- Table structure for user_permission

@@ -38,5 +38,10 @@ public class DemoAddress {
         this.parentId = parentId;
     }
 
+    @Override
+    public String toString() {
+         return "addressId = " + addressId + ", name = " + name + ", parentId = " + parentId;
+    }
+
 }
 

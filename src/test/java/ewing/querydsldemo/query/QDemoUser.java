@@ -13,6 +13,7 @@ import java.sql.Types;
 
 import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
+
 /**
  * QDemoUser is a Querydsl query type for DemoUser
  */
@@ -25,7 +26,7 @@ public class QDemoUser extends com.querydsl.sql.RelationalPathBase<DemoUser> {
 
     public final NumberPath<Integer> addressId = createNumber("addressId", Integer.class);
 
-    public final DateTimePath<java.sql.Timestamp> birthday = createDateTime("birthday", java.sql.Timestamp.class);
+    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
     public final NumberPath<Integer> gender = createNumber("gender", Integer.class);
 
@@ -63,8 +64,8 @@ public class QDemoUser extends com.querydsl.sql.RelationalPathBase<DemoUser> {
     }
 
     public void addMetadata() {
-        addMetadata(addressId, ColumnMetadata.named("address_id").withIndex(6).ofType(Types.INTEGER).withSize(10));
-        addMetadata(birthday, ColumnMetadata.named("birthday").withIndex(5).ofType(Types.TIMESTAMP).withSize(19));
+        addMetadata(addressId, ColumnMetadata.named("address_id").withIndex(5).ofType(Types.INTEGER).withSize(10));
+        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(6).ofType(Types.TIMESTAMP).withSize(19));
         addMetadata(gender, ColumnMetadata.named("gender").withIndex(4).ofType(Types.INTEGER).withSize(10));
         addMetadata(password, ColumnMetadata.named("password").withIndex(3).ofType(Types.VARCHAR).withSize(128).notNull());
         addMetadata(userId, ColumnMetadata.named("user_id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());

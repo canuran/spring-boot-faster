@@ -25,7 +25,7 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
 
     public final StringPath code = createString("code");
 
-    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
+    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
     public final StringPath name = createString("name");
 
@@ -70,7 +70,7 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
         addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
         addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(2).ofType(Types.BIGINT).withSize(19));
         addMetadata(permissionId, ColumnMetadata.named("permission_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
-        addMetadata(target, ColumnMetadata.named("target").withIndex(6).ofType(Types.VARCHAR).withSize(1024));
+        addMetadata(target, ColumnMetadata.named("target").withIndex(6).ofType(Types.VARCHAR).withSize(512));
         addMetadata(type, ColumnMetadata.named("type").withIndex(5).ofType(Types.VARCHAR).withSize(64));
     }
 

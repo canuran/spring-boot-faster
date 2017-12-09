@@ -66,6 +66,9 @@
                     <beanAddToString>true</beanAddToString>
                     <beanPackageName>ewing.entity</beanPackageName>
                     <tableNamePattern>%</tableNamePattern>
+                    <customTypes>
+                        <customType>com.querydsl.sql.types.UtilDateType</customType>
+                    </customTypes>
                 </configuration>
                 <dependencies>
                     <!--数据库对应的驱动包-->

@@ -2,6 +2,7 @@ package ewing.query;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.dsl.DatePath;
 import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringPath;
@@ -23,9 +24,11 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
 
     public static final QUser user = new QUser("user");
 
-    public final DateTimePath<java.sql.Timestamp> birthday = createDateTime("birthday", java.sql.Timestamp.class);
+    public final DatePath<java.sql.Date> birthday = createDate("birthday", java.sql.Date.class);
 
-    public final DateTimePath<java.sql.Timestamp> createTime = createDateTime("createTime", java.sql.Timestamp.class);
+    public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+
+    public final StringPath gender = createString("gender");
 
     public final StringPath password = createString("password");
 
@@ -61,8 +64,9 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
     }
 
     public void addMetadata() {
-        addMetadata(birthday, ColumnMetadata.named("birthday").withIndex(4).ofType(Types.TIMESTAMP).withSize(19));
-        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(5).ofType(Types.TIMESTAMP).withSize(19));
+        addMetadata(birthday, ColumnMetadata.named("birthday").withIndex(5).ofType(Types.DATE).withSize(10));
+        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(6).ofType(Types.TIMESTAMP).withSize(19).notNull());
+        addMetadata(gender, ColumnMetadata.named("gender").withIndex(4).ofType(Types.VARCHAR).withSize(16));
         addMetadata(password, ColumnMetadata.named("password").withIndex(3).ofType(Types.VARCHAR).withSize(32).notNull());
         addMetadata(userId, ColumnMetadata.named("user_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
         addMetadata(username, ColumnMetadata.named("username").withIndex(2).ofType(Types.VARCHAR).withSize(64).notNull());
