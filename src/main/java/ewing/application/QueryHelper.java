@@ -33,8 +33,8 @@ public class QueryHelper {
         if (pager.isCount()) {
             Page<T> page = new Page<>();
             page.setTotal(query.fetchCount());
-            if (page.getTotal() < 1) {
-                // 一条也没有则返回空集
+            if (page.getTotal() < 1 || page.getTotal() < pager.getOffset()) {
+                // 一条也没有或已经超出总数范围则返回空集
                 return page.setContent(Collections.emptyList());
             } else {
                 query.limit(pager.getLimit()).offset(pager.getOffset());
