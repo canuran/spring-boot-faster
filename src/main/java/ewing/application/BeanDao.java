@@ -188,7 +188,7 @@ public class BeanDao implements BaseDao {
     @Override
     public <T> T insertWithKey(Object bean) {
         if (keyPaths.size() > 1) {
-            throw new IllegalArgumentException("Multiple primary key is unsupported.");
+            throw new UnsupportedOperationException("Multiple primary key.");
         }
         return (T) queryFactory.insert(base)
                 .populate(bean)
