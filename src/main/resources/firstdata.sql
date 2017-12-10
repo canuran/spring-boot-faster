@@ -16,7 +16,7 @@ CREATE TABLE `permission` (
   `name` varchar(64) NOT NULL,
   `code` varchar(64) NOT NULL,
   `type` varchar(64) DEFAULT NULL,
-  `target` varchar(1024) DEFAULT NULL,
+  `target` varchar(512) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`permission_id`),
   KEY `permission_parent_id` (`parent_id`),
@@ -26,9 +26,9 @@ CREATE TABLE `permission` (
 -- ----------------------------
 -- Records of permission
 -- ----------------------------
-INSERT INTO `permission` VALUES ('1', null, '新增用户', 'USER_ADD', '1', null, '2017-08-24 12:09:10');
-INSERT INTO `permission` VALUES ('2', null, '删除用户', 'USER_DELETE', '1', null, '2017-08-24 12:09:52');
-INSERT INTO `permission` VALUES ('3', null, '查看用户', 'USER_VIEW', '1', null, '2017-08-24 12:10:24');
+INSERT INTO `permission` VALUES ('1', null, '新增用户', 'USER_ADD', 'OPERATION', null, '2017-08-24 12:09:10');
+INSERT INTO `permission` VALUES ('2', null, '删除用户', 'USER_DELETE', 'OPERATION', null, '2017-08-24 12:09:52');
+INSERT INTO `permission` VALUES ('3', null, '查看用户', 'USER_VIEW', 'PAGE', null, '2017-08-24 12:10:24');
 
 -- ----------------------------
 -- Table structure for role
@@ -76,16 +76,17 @@ CREATE TABLE `user` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `username` varchar(64) NOT NULL,
   `password` varchar(32) NOT NULL,
+  `gender` varchar(16) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
+  `create_time` datetime NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', '元宝', 'yb', '2000-02-10', '2017-08-23 18:43:52');
-INSERT INTO `user` VALUES ('2', '露娜', 'ln', '2002-05-20', '2017-08-24 12:06:02');
+INSERT INTO `user` VALUES ('1', '元宝', 'yb', 'MALE', '2000-02-10', '2017-08-23 18:43:52');
+INSERT INTO `user` VALUES ('2', '露娜', 'ln', 'FEMALE', '2002-05-20', '2017-08-24 12:06:02');
 
 -- ----------------------------
 -- Table structure for user_permission
