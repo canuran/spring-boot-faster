@@ -1,6 +1,7 @@
 package ewing.application;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
@@ -15,7 +16,7 @@ public interface BaseDao extends AppBeans {
     /**
      * 根据ID查询实体对象。
      */
-    <E> E selectByKey(Object key, Expression... expressions);
+    <E> E selectByKey(Object key);
 
     /**
      * 根据条件表达式查询总数。
@@ -25,12 +26,22 @@ public interface BaseDao extends AppBeans {
     /**
      * 根据条件表达式查询实体对象。
      */
-    <E> List<E> selectWhere(Predicate predicate, Expression... expressions);
+    <E> List<E> selectWhere(Predicate predicate, OrderSpecifier... orders);
+
+    /**
+     * 根据条件表达式查询实体对象。
+     */
+    <E> List<E> selectWhere(Expression<E> expression, Predicate predicate, OrderSpecifier... orders);
 
     /**
      * 根据条件表达式分页查询实体对象。
      */
-    <E> Page<E> selectPage(Pager pager, Predicate predicate, Expression... expressions);
+    <E> Page<E> selectPage(Pager pager, Predicate predicate, OrderSpecifier... orders);
+
+    /**
+     * 根据条件表达式分页查询实体对象。
+     */
+    <E> Page<E> selectPage(Pager pager, Expression<E> expression, Predicate predicate, OrderSpecifier... orders);
 
     /**
      * 根据ID从数据库删除实体。

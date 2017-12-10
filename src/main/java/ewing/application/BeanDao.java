@@ -1,6 +1,7 @@
 package ewing.application;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -87,21 +88,10 @@ public class BeanDao implements BaseDao {
         return equals;
     }
 
-    protected SQLQuery selectExpressions(Expression[] expressions) {
-        SQLQuery query = queryFactory.from(base);
-        if (expressions.length == 0) {
-            return query.select(base);
-        } else if (expressions.length == 1) {
-            return query.select(expressions[0]);
-        } else {
-            return query.select(expressions);
-        }
-    }
-
     @Override
-    public <E> E selectByKey(Object key, Expression... expressions) {
-        SQLQuery<E> query = selectExpressions(expressions);
-        return query.where(keyEquals(key))
+    public <E> E selectByKey(Object key) {
+        return (E) queryFactory.selectFrom(base)
+                .where(keyEquals(key))
                 .fetchOne();
     }
 
@@ -113,16 +103,38 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public <E> List<E> selectWhere(Predicate predicate, Expression... expressions) {
-        SQLQuery<E> query = selectExpressions(expressions);
-        return query.where(predicate)
+    public <E> List<E> selectWhere(Predicate predicate, OrderSpecifier... orders) {
+        return (List<E>) queryFactory.selectFrom(base)
+                .where(predicate)
+                .orderBy(orders)
                 .fetch();
     }
 
     @Override
-    public <E> Page<E> selectPage(Pager pager, Predicate predicate, Expression... expressions) {
-        SQLQuery<E> query = selectExpressions(expressions);
-        query.where(predicate);
+    public <E> List<E> selectWhere(Expression<E> expression, Predicate predicate, OrderSpecifier... orders) {
+        return queryFactory.select(expression)
+                .from(base)
+                .where(predicate)
+                .orderBy(orders)
+                .fetch();
+    }
+
+    @Override
+    public <E> Page<E> selectPage(Pager pager, Predicate predicate, OrderSpecifier... orders) {
+        SQLQuery<E> query = (SQLQuery<E>) queryFactory
+                .selectFrom(base)
+                .where(predicate)
+                .orderBy(orders);
+        return QueryHelper.queryPage(pager, query);
+    }
+
+    @Override
+    public <E> Page<E> selectPage(Pager pager, Expression<E> expression, Predicate predicate, OrderSpecifier... orders) {
+        SQLQuery<E> query = queryFactory
+                .select(expression)
+                .from(base)
+                .where(predicate)
+                .orderBy(orders);
         return QueryHelper.queryPage(pager, query);
     }
 
