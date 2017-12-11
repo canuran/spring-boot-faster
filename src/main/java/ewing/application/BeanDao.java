@@ -96,6 +96,14 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
+    public <E> E selectByKey(Object key, Expression<E> expression) {
+        return queryFactory.select(expression)
+                .from(base)
+                .where(keyEquals(key))
+                .fetchOne();
+    }
+
+    @Override
     public long countWhere(Predicate predicate) {
         return queryFactory.selectFrom(base)
                 .where(predicate)

@@ -19,6 +19,11 @@ public interface BaseDao extends AppBeans {
     <E> E selectByKey(Object key);
 
     /**
+     * 根据ID查询指定结果。
+     */
+    <E> E selectByKey(Object key, Expression<E> expression);
+
+    /**
      * 根据条件表达式查询总数。
      */
     long countWhere(Predicate predicate);
