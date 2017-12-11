@@ -3,6 +3,7 @@ package ewing.application;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 
@@ -71,9 +72,14 @@ public interface BaseDao extends AppBeans {
     long updateBean(Object bean);
 
     /**
-     * 根据条件参数更新实体。
+     * 根据ID参数创建更新器。
      */
-    long updateWhere(Object bean, Predicate predicate);
+    SQLUpdateClause updaterByKey(Object key);
+
+    /**
+     * 根据条件参数创建更新器。
+     */
+    SQLUpdateClause updaterWhere(Predicate predicate);
 
     /**
      * 将实体对象非null属性插入到数据库。

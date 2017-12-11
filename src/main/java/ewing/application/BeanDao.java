@@ -13,6 +13,7 @@ import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,11 +177,15 @@ public class BeanDao implements BaseDao {
     }
 
     @Override
-    public long updateWhere(Object bean, Predicate predicate) {
+    public SQLUpdateClause updaterByKey(Object key) {
         return queryFactory.update(base)
-                .populate(bean)
-                .where(predicate)
-                .execute();
+                .where(keyEquals(key));
+    }
+
+    @Override
+    public SQLUpdateClause updaterWhere(Predicate predicate) {
+        return queryFactory.update(base)
+                .where(predicate);
     }
 
     @Override
