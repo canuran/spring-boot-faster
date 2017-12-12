@@ -21,10 +21,6 @@ public class TreeUtils {
         if (nodes == null) {
             return null;
         }
-        // 清理之前构建的树，只支持节点为单节点
-        for (E node : nodes) {
-            node.setChildren(null);
-        }
         List<E> tree = new ArrayList<>();
         boolean single;
         for (E node : nodes) {
@@ -58,6 +54,9 @@ public class TreeUtils {
      */
     @SuppressWarnings("unchecked")
     public static <E extends TreeNode> void traverseTree(List<E> tree, Consumer<E> consumer) {
+        if (tree == null) {
+            return;
+        }
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
         stack.push(tree.iterator());
@@ -79,6 +78,9 @@ public class TreeUtils {
      */
     @SuppressWarnings("unchecked")
     public static <E extends TreeNode> List<E> toList(List<E> tree) {
+        if (tree == null) {
+            return null;
+        }
         List<E> nodes = new ArrayList<>();
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
@@ -103,6 +105,9 @@ public class TreeUtils {
      */
     @SuppressWarnings("unchecked")
     public static <E extends TreeNode> List<E> filterTree(List<E> tree, Predicate<E> predicate) {
+        if (tree == null) {
+            return null;
+        }
         List<E> nodes = new ArrayList<>();
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
@@ -129,6 +134,9 @@ public class TreeUtils {
      */
     @SuppressWarnings("unchecked")
     public static <E extends TreeNode> E findFirst(List<E> tree, Predicate<E> predicate) {
+        if (tree == null) {
+            return null;
+        }
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
         stack.push(tree.iterator());
