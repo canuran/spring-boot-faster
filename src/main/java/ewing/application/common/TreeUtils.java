@@ -63,6 +63,7 @@ public class TreeUtils {
         while (!stack.isEmpty()) {
             Iterator<E> iterator = stack.pop();
             while (iterator.hasNext()) {
+                // 先遍历自己，然后遍历子节点
                 E node = iterator.next();
                 if (node.getChildren() != null) {
                     stack.push(iterator);
