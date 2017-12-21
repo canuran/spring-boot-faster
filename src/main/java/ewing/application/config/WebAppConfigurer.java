@@ -1,7 +1,11 @@
 package ewing.application.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -54,6 +58,22 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                 } else {
                     jsonGenerator.writeNumber(number.toString());
                 }
+            }
+        });
+        // 支持反序列化多种格式的Date
+        simpleModule.addDeserializer(Date.class, new JsonDeserializer<Date>() {
+            @Override
+            public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+                String value = jsonParser.getValueAsString();
+                return StringDateParser.stringToDate(value);
+            }
+        });
+        // 支持反序列化多种格式的java.sql.Date
+        simpleModule.addDeserializer(java.sql.Date.class, new JsonDeserializer<java.sql.Date>() {
+            @Override
+            public java.sql.Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+                String value = jsonParser.getValueAsString();
+                return StringDateParser.stringToSqlDate(value);
             }
         });
         // 把实现了有别名的接口的属性添加别名，用于前端显示
