@@ -29,7 +29,7 @@ public class UserDaoImpl extends BeanDao implements UserDao {
     public Page<User> findUsers(Pager pager, String username, String roleName) {
         SQLQuery<User> query = queryFactory.selectFrom(qUser);
         if (StringUtils.hasText(username)) {
-            query.where(qUser.username.contains(username));
+            query.where(qUser.name.contains(username));
         }
         if (roleName != null) {
             query.leftJoin(qUserRole).on(qUser.userId.eq(qUserRole.userId))
@@ -44,7 +44,7 @@ public class UserDaoImpl extends BeanDao implements UserDao {
         return queryFactory.select(
                 Projections.bean(SecurityUser.class, qUser.all()))
                 .from(qUser)
-                .where(qUser.username.eq(username))
+                .where(qUser.name.eq(username))
                 .fetchOne();
     }
 

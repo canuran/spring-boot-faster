@@ -18,7 +18,7 @@ public class User {
 
     private Long userId;
 
-    private String username;
+    private String name;
 
     public java.sql.Date getBirthday() {
         return birthday;
@@ -60,17 +60,17 @@ public class User {
         this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", username = " + username;
+        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", name = " + name;
     }
 
 }

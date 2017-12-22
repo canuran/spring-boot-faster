@@ -59,8 +59,8 @@
         <h2>新增用户</h2>
         <form th:object="${user}" th:action="@{/addUser}" action="/addUser" method="post">
             <div class="form-group">
-                <input type="text" class="form-control" th:field="*{username}"
-                       name="username" placeholder="用户名"/>
+                <input type="text" class="form-control" th:field="*{name}"
+                       name="name" placeholder="用户名"/>
             </div>
             <div class="form-group">
                 <input type="password" class="form-control" th:field="*{password}"
@@ -85,7 +85,7 @@
         </thead>
         <tbody>
         <tr th:each="user, curr : ${users}">
-            <td><span th:text="${user.username}"/></td>
+            <td><span th:text="${user.name}"/></td>
             <td><span th:text="${#dates.format(user.createTime,'yyyy-MM-dd')}"/></td>
             <td sec:authorize="principal.hasPermission('USER_DELETE')">
                 <a href="#" th:href="@{/deleteUser(userId=${user.userId})}"

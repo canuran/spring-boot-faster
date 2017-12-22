@@ -74,7 +74,7 @@ INSERT INTO `role_permission` VALUES ('1', '3', '2017-08-24 12:11:50');
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `username` varchar(64) NOT NULL,
+  `name` varchar(64) NOT NULL,
   `password` varchar(32) NOT NULL,
   `gender` varchar(16) DEFAULT NULL,
   `birthday` date DEFAULT NULL,

@@ -36,7 +36,7 @@ public class UserControllerTests {
 
     private User createUser() {
         User user = new User();
-        user.setUsername("123");
+        user.setName("123");
         user.setPassword("123");
         return userService.addUser(user);
     }

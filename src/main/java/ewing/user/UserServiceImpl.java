@@ -28,9 +28,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addUser(User user) {
         AppAsserts.notNull(user, "用户不能为空！");
-        AppAsserts.hasText(user.getUsername(), "用户名不能为空！");
+        AppAsserts.hasText(user.getName(), "用户名不能为空！");
         AppAsserts.isTrue(userDao.countWhere(
-                qUser.username.eq(user.getUsername())) < 1,
+                qUser.name.eq(user.getName())) < 1,
                 "用户名已被使用！");
         AppAsserts.hasText(user.getPassword(), "密码不能为空！");
 
