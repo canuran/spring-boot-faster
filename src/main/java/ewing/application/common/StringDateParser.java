@@ -179,11 +179,10 @@ public class StringDateParser {
      */
     private static StringBuilder appendDateField(StringBuilder builder, int field) {
         if (field < 10) {
-            builder.append('0').append(field);
+            return builder.append('0').append(field);
         } else {
-            builder.append(field);
+            return builder.append(field);
         }
-        return builder;
     }
 
 }
