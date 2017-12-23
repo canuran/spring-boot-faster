@@ -40,11 +40,11 @@ public class JWTUtils {
      * @return 根据参数生成的Token。
      */
     public static String generateToken(Object... keyValues) {
-        // 移位后 若keyValue为奇数 最后一个将被忽略
-        int total = keyValues.length >> 1;
-        Map<String, Object> claims = new HashMap<>(total);
-        total <<= 1;
-        for (int i = 0; i < total; i++) {
+        if (keyValues.length == (keyValues.length | 1)) {
+            throw new IllegalArgumentException("键值必须是偶数个！");
+        }
+        Map<String, Object> claims = new HashMap<>(keyValues.length >> 1);
+        for (int i = 0; i < keyValues.length; i++) {
             claims.put(String.valueOf(keyValues[i++]), keyValues[i]);
         }
         return generateToken(claims);
@@ -59,9 +59,10 @@ public class JWTUtils {
      */
     public static String putClaimsData(String token, Object... keyValues) {
         Claims claims = getClaimsValidate(token);
-        // 移位后 若keyValue为奇数 最后一个将被忽略
-        int total = (keyValues.length >> 1) << 1;
-        for (int i = 0; i < total; i++) {
+        if (keyValues.length == (keyValues.length | 1)) {
+            throw new IllegalArgumentException("键值必须是偶数个！");
+        }
+        for (int i = 0; i < keyValues.length; i++) {
             claims.put(String.valueOf(keyValues[i++]), keyValues[i]);
         }
         return generateToken(claims);

@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Ewing
  **/
 @RestController
-@RequestMapping("wechat")
+@RequestMapping("/wechat")
 public class WechatController {
 
-    @RequestMapping(value = "listen", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/listen", method = {RequestMethod.POST, RequestMethod.GET})
     public String listen(@RequestBody String param) {
         return param;
     }
 
-    @RequestMapping(value = "validate", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/validate", method = {RequestMethod.POST, RequestMethod.GET})
     public String validate(String echostr) {
         return echostr;
     }
