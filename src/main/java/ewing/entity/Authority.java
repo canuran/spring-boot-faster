@@ -12,9 +12,13 @@ public class Authority {
 
     private String code;
 
+    private String content;
+
     private java.util.Date createTime;
 
     private String name;
+
+    private String type;
 
     public Long getAuthorityId() {
         return authorityId;
@@ -30,6 +34,14 @@ public class Authority {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public java.util.Date getCreateTime() {
@@ -48,9 +60,17 @@ public class Authority {
         this.name = name;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
-        return "authorityId = " + authorityId + ", code = " + code + ", createTime = " + createTime + ", name = " + name;
+        return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", type = " + type;
     }
 
 }

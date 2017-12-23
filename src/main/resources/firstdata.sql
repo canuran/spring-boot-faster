@@ -14,6 +14,8 @@ CREATE TABLE `authority` (
   `authority_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `code` varchar(64) NOT NULL,
+  `type` varchar(64) DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`authority_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -21,10 +23,10 @@ CREATE TABLE `authority` (
 -- ----------------------------
 -- Records of authority
 -- ----------------------------
-INSERT INTO `authority` VALUES ('1', '用户管理', 'USER_MANAGE', '2017-12-23 17:48:53');
-INSERT INTO `authority` VALUES ('2', '用户新增', 'USER_ADD', '2017-12-23 17:49:27');
-INSERT INTO `authority` VALUES ('3', '用户修改', 'USER_UPDATE', '2017-12-23 17:50:41');
-INSERT INTO `authority` VALUES ('4', '用户删除', 'USER_DELETE', '2017-12-23 17:51:03');
+INSERT INTO `authority` VALUES ('1', '用户管理', 'USER_MANAGE', 'PAGE', '/user', '2017-12-23 17:48:53');
+INSERT INTO `authority` VALUES ('2', '用户新增', 'USER_ADD', 'ACTION', '/addUser', '2017-12-23 17:49:27');
+INSERT INTO `authority` VALUES ('3', '用户修改', 'USER_UPDATE', 'ACTION', '/updateUser', '2017-12-23 17:50:41');
+INSERT INTO `authority` VALUES ('4', '用户删除', 'USER_DELETE', 'ACTION', '/deleteUser', '2017-12-23 17:51:03');
 
 -- ----------------------------
 -- Table structure for permission
@@ -41,7 +43,7 @@ CREATE TABLE `permission` (
   PRIMARY KEY (`permission_id`),
   KEY `permission_parent_id` (`parent_id`),
   CONSTRAINT `permission_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `permission` (`permission_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of permission
