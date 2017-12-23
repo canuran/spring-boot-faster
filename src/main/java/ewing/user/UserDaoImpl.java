@@ -1,14 +1,13 @@
 package ewing.user;
 
 import com.querydsl.core.types.Projections;
-import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import ewing.application.BeanDao;
 import ewing.application.QueryHelper;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
-import ewing.security.RoleAsAuthority;
+import ewing.security.AuthorityOrRole;
 import ewing.security.SecurityUser;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -49,36 +48,31 @@ public class UserDaoImpl extends BeanDao implements UserDao {
     }
 
     @Override
-    public List<RoleAsAuthority> getUserRoles(Long userId) {
+    public List<AuthorityOrRole> getUserAuthorities(Long userId) {
+        // 用户->角色->权限
         return queryFactory.select(Projections
-                .bean(RoleAsAuthority.class, qRole.all()))
-                .from(qRole)
+                .bean(AuthorityOrRole.class, qAuthority.all()))
+                .from(qAuthority)
+                .join(qRoleAuthority)
+                .on(qAuthority.authorityId.eq(qRoleAuthority.authorityId))
                 .join(qUserRole)
-                .on(qUserRole.roleId.eq(qRole.roleId))
+                .on(qRoleAuthority.roleId.eq(qUserRole.roleId))
                 .where(qUserRole.userId.eq(userId))
                 .fetch();
     }
 
     @Override
     public List<PermissionTree> getUserPermissions(Long userId) {
-        return queryFactory.query().union(
-                // 用户->权限
-                SQLExpressions.select(Projections
-                        .bean(PermissionTree.class, qPermission.all()))
-                        .from(qPermission)
-                        .join(qUserPermission)
-                        .on(qPermission.permissionId.eq(qUserPermission.permissionId))
-                        .where(qUserPermission.userId.eq(userId)),
-                // 用户->角色->权限
-                SQLExpressions.select(Projections
-                        .bean(PermissionTree.class, qPermission.all()))
-                        .from(qPermission)
-                        .join(qRolePermission)
-                        .on(qPermission.permissionId.eq(qRolePermission.permissionId))
-                        .join(qUserRole)
-                        .on(qRolePermission.roleId.eq(qUserRole.roleId))
-                        .where(qUserRole.userId.eq(userId))
-        ).fetch();
+        // 用户->角色->许可
+        return queryFactory.select(Projections
+                .bean(PermissionTree.class, qPermission.all()))
+                .from(qPermission)
+                .join(qRolePermission)
+                .on(qPermission.permissionId.eq(qRolePermission.permissionId))
+                .join(qUserRole)
+                .on(qRolePermission.roleId.eq(qUserRole.roleId))
+                .where(qUserRole.userId.eq(userId))
+                .fetch();
     }
 
 }

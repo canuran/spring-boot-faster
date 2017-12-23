@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 
 /**
- * 自定义权限求值策略，hasPermission注解的实现，支持数据ID级别的权限控制。
+ * 自定义权限求值策略，hasPermission注解的实现数据许可权限控制。
  */
 @Component
 public class UserHasPermission implements PermissionEvaluator {

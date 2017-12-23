@@ -14,14 +14,20 @@ import java.util.List;
  */
 public class SecurityUser extends User implements UserDetails {
 
-    private List<RoleAsAuthority> authorities;
+    /**
+     * 功能点权限。
+     */
+    private List<AuthorityOrRole> authorities;
 
+    /**
+     * 数据许可权限。
+     */
     private List<PermissionTree> permissions;
 
     /**
      * Authority相当于角色。
      */
-    public void setAuthorities(List<RoleAsAuthority> authorities) {
+    public void setAuthorities(List<AuthorityOrRole> authorities) {
         this.authorities = authorities;
     }
 
@@ -48,7 +54,7 @@ public class SecurityUser extends User implements UserDetails {
      * 注解中hasRole表达式会调用该方法。
      */
     @Override
-    public List<RoleAsAuthority> getAuthorities() {
+    public List<AuthorityOrRole> getAuthorities() {
         return authorities;
     }
 

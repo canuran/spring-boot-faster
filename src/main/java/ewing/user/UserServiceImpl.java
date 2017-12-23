@@ -4,7 +4,7 @@ import ewing.application.AppAsserts;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
-import ewing.security.RoleAsAuthority;
+import ewing.security.AuthorityOrRole;
 import ewing.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -75,9 +75,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<RoleAsAuthority> getUserRoles(Long userId) {
+    public List<AuthorityOrRole> getUserAuthorities(Long userId) {
         AppAsserts.notNull(userId, "用户ID不能为空！");
-        return userDao.getUserRoles(userId);
+        return userDao.getUserAuthorities(userId);
     }
 
     @Override

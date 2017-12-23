@@ -1,14 +1,14 @@
 package ewing.security;
 
-import ewing.entity.Role;
+import ewing.entity.Authority;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * 适配Security的角色权限对象。
+ * Spring Security中的Authority或Role。
  *
  * @author Ewing
  */
-public class RoleAsAuthority extends Role implements GrantedAuthority {
+public class AuthorityOrRole extends Authority implements GrantedAuthority {
 
     @Override
     public String getAuthority() {

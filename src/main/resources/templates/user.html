@@ -55,7 +55,7 @@
 </nav>
 
 <div class="container">
-    <div sec:authorize="hasRole('ROLE_USER')">
+    <div sec:authorize="hasAuthority('USER_ADD')">
         <h2>新增用户</h2>
         <form th:object="${user}" th:action="@{/addUser}" action="/addUser" method="post">
             <div class="form-group">
@@ -81,13 +81,13 @@
         <thead>
         <th>名称</th>
         <th>创建时间</th>
-        <th sec:authorize="principal.hasPermission('USER_DELETE')">操作</th>
+        <th sec:authorize="hasAuthority('USER_DELETE')">操作</th>
         </thead>
         <tbody>
         <tr th:each="user, curr : ${users}">
             <td><span th:text="${user.name}"/></td>
             <td><span th:text="${#dates.format(user.createTime,'yyyy-MM-dd')}"/></td>
-            <td sec:authorize="principal.hasPermission('USER_DELETE')">
+            <td sec:authorize="hasAuthority('USER_DELETE')">
                 <a href="#" th:href="@{/deleteUser(userId=${user.userId})}"
                    class="btn btn-danger btn-sm">删除</a></td>
         </tr>

@@ -4,7 +4,7 @@ import ewing.application.AppBeans;
 import ewing.application.paging.Page;
 import ewing.application.paging.Pager;
 import ewing.entity.User;
-import ewing.security.RoleAsAuthority;
+import ewing.security.AuthorityOrRole;
 import ewing.security.SecurityUser;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public interface UserService extends AppBeans {
 
     SecurityUser getByUsername(String username);
 
-    List<RoleAsAuthority> getUserRoles(Long userId);
+    List<AuthorityOrRole> getUserAuthorities(Long userId);
 
     List<PermissionTree> getUserPermissions(Long userId);
 }

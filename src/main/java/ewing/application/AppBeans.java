@@ -10,8 +10,9 @@ public interface AppBeans {
     QUser qUser = QUser.user;
     QUserRole qUserRole = QUserRole.userRole;
     QRole qRole = QRole.role;
-    QUserPermission qUserPermission = QUserPermission.userPermission;
     QRolePermission qRolePermission = QRolePermission.rolePermission;
     QPermission qPermission = QPermission.permission;
+    QAuthority qAuthority = QAuthority.authority;
+    QRoleAuthority qRoleAuthority = QRoleAuthority.roleAuthority;
 
 }

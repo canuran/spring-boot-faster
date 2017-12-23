@@ -23,7 +23,7 @@ public class ThymeleafUser {
     private UserService userService;
 
     @RequestMapping("/user")
-    @PreAuthorize("hasPermission(null,'USER_VIEW')")
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("user");
         modelAndView.addObject("user", new User());
@@ -34,14 +34,14 @@ public class ThymeleafUser {
     }
 
     @PostMapping("addUser")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ModelAndView addUser(@ModelAttribute User user) {
         userService.addUser(user);
         return index();
     }
 
     @GetMapping("deleteUser")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public ModelAndView deleteUser(Long userId) {
         userService.deleteUser(userId);
         return index();

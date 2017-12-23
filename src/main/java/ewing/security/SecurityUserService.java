@@ -30,11 +30,11 @@ public class SecurityUserService implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不存在或已删除。");
         }
 
-        // 获取用户角色
-        List<RoleAsAuthority> authorities = userService.getUserRoles(securityUser.getUserId());
+        // 获取用户功能权限
+        List<AuthorityOrRole> authorities = userService.getUserAuthorities(securityUser.getUserId());
         securityUser.setAuthorities(authorities);
 
-        // 获取用户权限
+        // 获取数据许可权限
         List<PermissionTree> permissions = userService
                 .getUserPermissions(securityUser.getUserId());
         securityUser.setPermissions(permissions);
