@@ -18,6 +18,8 @@ public class Authority {
 
     private String name;
 
+    private Long parentId;
+
     private String type;
 
     public Long getAuthorityId() {
@@ -60,6 +62,14 @@ public class Authority {
         this.name = name;
     }
 
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
     public String getType() {
         return type;
     }
@@ -70,7 +80,7 @@ public class Authority {
 
     @Override
     public String toString() {
-        return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", type = " + type;
+        return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", type = " + type;
     }
 
 }

@@ -14,19 +14,64 @@ CREATE TABLE `authority` (
   `authority_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `code` varchar(64) NOT NULL,
-  `type` varchar(64) DEFAULT NULL,
+  `type` varchar(64) NOT NULL,
   `content` varchar(255) DEFAULT NULL,
+  `parent_id` bigint(20) DEFAULT NULL,
   `create_time` datetime NOT NULL,
-  PRIMARY KEY (`authority_id`)
+  PRIMARY KEY (`authority_id`),
+  KEY `parent_id` (`parent_id`),
+  CONSTRAINT `authority_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `authority` (`authority_id`) ON DELETE SET NULL ON UPDATE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of authority
 -- ----------------------------
-INSERT INTO `authority` VALUES ('1', '用户管理', 'USER_MANAGE', 'PAGE', '/user', '2017-12-23 17:48:53');
-INSERT INTO `authority` VALUES ('2', '用户新增', 'USER_ADD', 'ACTION', '/addUser', '2017-12-23 17:49:27');
-INSERT INTO `authority` VALUES ('3', '用户修改', 'USER_UPDATE', 'ACTION', '/updateUser', '2017-12-23 17:50:41');
-INSERT INTO `authority` VALUES ('4', '用户删除', 'USER_DELETE', 'ACTION', '/deleteUser', '2017-12-23 17:51:03');
+INSERT INTO `authority` VALUES ('1', '用户管理', 'USER_MANAGE', 'PAGE', '/user', null, '2017-12-23 17:48:53');
+INSERT INTO `authority` VALUES ('2', '用户新增', 'USER_ADD', 'ACTION', '/addUser', '1', '2017-12-23 17:49:27');
+INSERT INTO `authority` VALUES ('3', '用户修改', 'USER_UPDATE', 'ACTION', '/updateUser', '1', '2017-12-23 17:50:41');
+INSERT INTO `authority` VALUES ('4', '用户删除', 'USER_DELETE', 'ACTION', '/deleteUser', '1', '2017-12-23 17:51:03');
+
+-- ----------------------------
+-- Table structure for demo_address
+-- ----------------------------
+DROP TABLE IF EXISTS `demo_address`;
+CREATE TABLE `demo_address` (
+  `address_id` int(11) NOT NULL,
+  `name` varchar(128) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`address_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of demo_address
+-- ----------------------------
+INSERT INTO `demo_address` VALUES ('1', '广东省', null);
+INSERT INTO `demo_address` VALUES ('2', '上海市', null);
+INSERT INTO `demo_address` VALUES ('3', '深圳市', '1');
+INSERT INTO `demo_address` VALUES ('4', '广州市', '1');
+INSERT INTO `demo_address` VALUES ('5', '浦东区', '2');
+
+-- ----------------------------
+-- Table structure for demo_user
+-- ----------------------------
+DROP TABLE IF EXISTS `demo_user`;
+CREATE TABLE `demo_user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(128) NOT NULL,
+  `password` varchar(128) NOT NULL,
+  `gender` int(11) DEFAULT NULL,
+  `birthday` datetime DEFAULT NULL,
+  `address_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  KEY `fk_demo_user_address_id` (`address_id`),
+  CONSTRAINT `fk_demo_user_address_id` FOREIGN KEY (`address_id`) REFERENCES `demo_address` (`address_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of demo_user
+-- ----------------------------
+INSERT INTO `demo_user` VALUES ('1', '元宝', 'yb', '1', '2000-01-01 00:00:00', '3');
+INSERT INTO `demo_user` VALUES ('2', '安娜', 'an', '2', '2001-02-03 00:00:00', '2');
 
 -- ----------------------------
 -- Table structure for permission
@@ -43,7 +88,7 @@ CREATE TABLE `permission` (
   PRIMARY KEY (`permission_id`),
   KEY `permission_parent_id` (`parent_id`),
   CONSTRAINT `permission_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `permission` (`permission_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of permission
