@@ -218,20 +218,6 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 聚合UNION查询结果。
-     */
-    @Test
-    @SuppressWarnings("unchecked")
-    public void queryUnion() {
-        List<DemoUser> demoUsers = queryFactory.query().unionAll(
-                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(0)),
-                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(1)),
-                SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(2))
-        ).fetch();
-        System.out.println(JsonConverter.toJson(demoUsers));
-    }
-
-    /**
      * 使用CASE以及查询附加字段。
      */
     @Test
@@ -248,6 +234,51 @@ public class QueryDSLDemos {
                 .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .fetch();
         System.out.println(JsonConverter.toJson(demoUsers));
+    }
+
+    /**
+     * 聚合UNION查询并分页。
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void queryUnion() {
+        // 只需要保证和union后的别名一致即可
+        SQLQuery<DemoUser> query = queryFactory.select(qDemoUser)
+                .from(SQLExpressions.unionAll(
+                        SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(0)),
+                        SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(1)),
+                        SQLExpressions.selectFrom(qDemoUser).where(qDemoUser.gender.eq(2)))
+                        .as(qDemoUser));
+        Page<DemoUser> demoUsers = QueryHelper.queryPage(new Pager(1, 1), query);
+        System.out.println(JsonConverter.toJson(demoUsers));
+
+        // 以下是复杂的union查询
+        QDemoUser qUser = new QDemoUser("result");
+
+        // 外部查询结果
+        QBean<DemoUserDetail> userDetailQBean = QueryHelper.fitBean(
+                DemoUserDetail.class, qUser,
+                Expressions.stringPath("addressName"));
+
+        // 内部查询结果
+        QBean<DemoUserDetail> innerQBean = QueryHelper.fitBean(
+                DemoUserDetail.class, qDemoUser,
+                qDemoAddress.name.as("addressName"));
+
+        SQLQuery<DemoUserDetail> queryDetail = queryFactory.select(userDetailQBean)
+                .from(SQLExpressions.unionAll(
+                        SQLExpressions.select(innerQBean).from(qDemoUser)
+                                .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                                .where(qDemoUser.gender.eq(0)),
+                        SQLExpressions.select(innerQBean).from(qDemoUser)
+                                .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                                .where(qDemoUser.gender.eq(1)),
+                        SQLExpressions.select(innerQBean).from(qDemoUser)
+                                .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                                .where(qDemoUser.gender.eq(2)))
+                        .as("result"));
+        Page<DemoUserDetail> demoUserDetails = QueryHelper.queryPage(new Pager(1, 1), queryDetail);
+        System.out.println(JsonConverter.toJson(demoUserDetails));
     }
 
     /**
