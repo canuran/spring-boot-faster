@@ -49,6 +49,10 @@ public class QueryDSLDemos {
     @Autowired
     private SQLQueryFactory queryFactory;
 
+    /**
+     * 表映射对象、路径、表达式等都是只会被读取（线程安全）的，可定义为全局的。
+     * 它们提供的操作方法都会返回新的对象，原对象不变，所以要使用方法的返回值。
+     */
     private QDemoUser qDemoUser = QDemoUser.demoUser;
     private QDemoAddress qDemoAddress = QDemoAddress.demoAddress;
     private QDemoAddress qSubAddress = new QDemoAddress("subAddress");
@@ -253,23 +257,17 @@ public class QueryDSLDemos {
         System.out.println(JsonConverter.toJson(demoUsers));
 
         // 以下是复杂的union查询
+
+        // 定义别名和内部查询结果
         QDemoUser qUser = new QDemoUser("result");
-
-        // 外部查询结果
-        QBean<DemoUserDetail> userDetailQBean = QueryHelper.fitBean(
-                DemoUserDetail.class, qUser,
-                Expressions.stringPath("addressName"));
-
-        // 内部查询结果
         QBean<DemoUserDetail> innerQBean = QueryHelper.fitBean(
                 DemoUserDetail.class, qDemoUser,
                 qDemoAddress.name.as("addressName"));
 
-        SQLQuery<DemoUserDetail> queryDetail = queryFactory.select(userDetailQBean)
-                .from(SQLExpressions.unionAll(
-                        SQLExpressions.select(innerQBean).from(qDemoUser)
-                                .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                                .where(qDemoUser.gender.eq(0)),
+        SQLQuery<DemoUserDetail> queryDetail = queryFactory.select(QueryHelper.fitBean(
+                DemoUserDetail.class, qUser, // 注意别名
+                Expressions.stringPath("addressName")))
+                .from(SQLExpressions.union(
                         SQLExpressions.select(innerQBean).from(qDemoUser)
                                 .leftJoin(qDemoAddress).on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                                 .where(qDemoUser.gender.eq(1)),
