@@ -4,6 +4,8 @@ server:
 
 # 启用Swagger文档
 swagger.enable: true
+# 方法日志配置
+appMethodLogger.enable: true
 
 # Https配置
 sslserver:

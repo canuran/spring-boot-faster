@@ -8,7 +8,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 
 import java.lang.reflect.Method;
 
@@ -18,7 +19,8 @@ import java.lang.reflect.Method;
  * @author Ewing
  */
 @Aspect
-@Component
+@Configuration
+@ConditionalOnProperty(name = "appMethodLogger.enable", havingValue = "true")
 public class AppMethodLogger {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AppMethodLogger.class.getSimpleName());
