@@ -2,7 +2,6 @@ package ewing.application.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -47,23 +46,33 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
     public void registerJsonModule() {
         SimpleModule simpleModule = new SimpleModule();
         // 大数字用字符串表示，避免返回科学计数法
-        simpleModule.addSerializer(Number.class, new JsonSerializer<Number>() {
+        simpleModule.addSerializer(BigDecimal.class, new JsonSerializer<BigDecimal>() {
             @Override
-            public void serialize(Number number, JsonGenerator jsonGenerator,
+            public void serialize(BigDecimal decimal, JsonGenerator jsonGenerator,
                                   SerializerProvider serializerProvider) throws IOException {
-                if (number instanceof BigInteger || number instanceof BigDecimal) {
-                    jsonGenerator.writeString(number.toString());
-                } else if (number == null) {
+                if (decimal == null) {
                     jsonGenerator.writeNull();
                 } else {
-                    jsonGenerator.writeNumber(number.toString());
+                    jsonGenerator.writeString(decimal.stripTrailingZeros().toPlainString());
+                }
+            }
+        });
+        // 大数字用字符串表示，避免返回科学计数法
+        simpleModule.addSerializer(BigInteger.class, new JsonSerializer<BigInteger>() {
+            @Override
+            public void serialize(BigInteger bigInteger, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (bigInteger == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(bigInteger.toString());
                 }
             }
         });
         // 支持反序列化多种格式的Date
         simpleModule.addDeserializer(Date.class, new JsonDeserializer<Date>() {
             @Override
-            public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
                 String value = jsonParser.getValueAsString();
                 return StringDateParser.stringToDate(value);
             }
@@ -71,7 +80,7 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
         // 支持反序列化多种格式的java.sql.Date
         simpleModule.addDeserializer(java.sql.Date.class, new JsonDeserializer<java.sql.Date>() {
             @Override
-            public java.sql.Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            public java.sql.Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
                 String value = jsonParser.getValueAsString();
                 return StringDateParser.stringToSqlDate(value);
             }

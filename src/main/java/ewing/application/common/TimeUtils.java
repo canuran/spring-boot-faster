@@ -21,7 +21,6 @@ public class TimeUtils {
     public static Date convert2Date(String dateStr, String format) {
         SimpleDateFormat simple = new SimpleDateFormat(format);
         try {
-            // simple.setLenient(false);
             return simple.parse(dateStr);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -261,7 +260,7 @@ public class TimeUtils {
      * 增加天。
      */
     public static Date addDays(Date date, int amount) {
-        return add(date, Calendar.DAY_OF_MONTH, amount);
+        return add(date, Calendar.DATE, amount);
     }
 
     /**
@@ -324,7 +323,7 @@ public class TimeUtils {
      * 天数差。
      */
     public static int diffDay(Date before, Date after) {
-        return Integer.parseInt(String.valueOf(((after.getTime() - before.getTime()) / 86400000)));
+        return (int) ((after.getTime() - before.getTime()) / 86400000);
     }
 
     /**
@@ -356,13 +355,30 @@ public class TimeUtils {
     /**
      * 设置23:59:59.999。
      */
-    public static Date setEndDay(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
+    private static void setEndTimeOfDay(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
+    }
+
+    /**
+     * 设置00:00:00.0。
+     */
+    private static void setStartTimeOfDay(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+    }
+
+    /**
+     * 设置23:59:59.999。
+     */
+    public static Date setEndDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        setEndTimeOfDay(calendar);
         return calendar.getTime();
     }
 
@@ -371,24 +387,29 @@ public class TimeUtils {
      */
     public static Date setStartDay(Date date) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        setStartTimeOfDay(calendar);
         return calendar.getTime();
     }
 
     /**
-     * 通过时间字符串（HH:mm:ss）获取当前日期。
+     * 设置昨天的23:59:59.999。
      */
-    public static Date getDateByTime(String time) {
+    public static Date yestodayEnd(Date today) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        // 设置年月日时分秒
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DATE), Integer.valueOf(time.substring(0, 2)),
-                Integer.valueOf(time.substring(3, 5)), Integer.valueOf(time.substring(6, 8)));
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, -1);
+        setEndTimeOfDay(calendar);
+        return calendar.getTime();
+    }
+
+    /**
+     * 设置明天的00:00:00.0。
+     */
+    public static Date tomorrowStart(Date today) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, 1);
+        setStartTimeOfDay(calendar);
         return calendar.getTime();
     }
 
