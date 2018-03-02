@@ -55,9 +55,9 @@
                 <version>4.1.4</version>
                 <configuration>
                     <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:mysql://localhost:3306/service?useUnicode=true</jdbcUrl>
-                    <jdbcUser>service</jdbcUser>
-                    <jdbcPassword>service</jdbcPassword>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
+                    <jdbcUser>faster</jdbcUser>
+                    <jdbcPassword>faster</jdbcPassword>
                     <exportForeignKeys>false</exportForeignKeys>
                     <sourceFolder>src/main/resources</sourceFolder>
                     <targetFolder>${project.basedir}/src/main/java</targetFolder>
