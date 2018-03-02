@@ -41,8 +41,7 @@ public class AppMethodLogger {
             // 获取方法名、方法上的Swagger注释
             Method method = ((MethodSignature) signature).getMethod();
             String methodName = method.getDeclaringClass()
-                    .getName().substring(START_PACKAGE.length() + 1)
-                    + "." + method.getName();
+                    .getName() + "." + method.getName();
             ApiOperation operation = method.getAnnotation(ApiOperation.class);
             String methodDetail = operation == null ? methodName
                     : operation.value() + "：" + methodName;

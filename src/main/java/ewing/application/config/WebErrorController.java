@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ import java.util.Map;
  * @author Ewing
  */
 @Controller
+@ApiIgnore
 @EnableConfigurationProperties(ServerProperties.class)
 @RequestMapping({"${server.error.path:${error.path:error}}"})
 public class WebErrorController implements ErrorController {
@@ -54,7 +56,6 @@ public class WebErrorController implements ErrorController {
     public void errorPage(HttpServletRequest request, HttpServletResponse response) {
         HttpStatus status = getHttpStatus(request);
         response.setStatus(status.value());
-        Map<String, Object> model = getErrorAttributes(request, hasStackTrace(request));
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer;
@@ -160,9 +161,10 @@ public class WebErrorController implements ErrorController {
             "VQWadzfkOU8jbXS6jwCJ9NvsZshlO4mLt8E94JBF9fn3Sf+ibDRuAsskvQzuAmfQJ/LNR+WXgWApZGZ7SxlPANvsFXqXwT8qbAp8" +
             "XKFs21PApfCRkJnO8WavkVhuAtf4oFXtN2kMfxnK2s98ureAMBUe+HK3erconn/QPGr/CTAAGeY5eMygzYoAAAAASUVORK5CYII='/>\n" +
             "<h2><font color='#555'>网页出问题了</font></h2>\n" +
-            "<button onclick='history.go(-1)' style='color:#555;border:none;border-radius:2px;" +
-            "margin-right:10px'>返回前页</button>\n" +
-            "<button onclick='location.href=\"/\"' style='color:#555;border:none;border-radius:2px'>回到首页</button>\n" +
+            "<button onclick='history.go(-1)' style='color:#555;border:none;border-radius:5px;" +
+            "height:35px;margin-right:10px'>返回前页</button>\n" +
+            "<button onclick='location.href=\"/\"' style='color:#555;border:none;height:35px;" +
+            "border-radius:5px'>回到首页</button>\n" +
             "</body>\n" +
             "</html>";
 

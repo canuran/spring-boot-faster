@@ -4,7 +4,7 @@ server:
 
 # 启用Swagger文档
 swagger.enable: true
-# 方法日志配置
+# 启用全局方法日志
 appMethodLogger.enable: true
 
 # Https配置
@@ -23,10 +23,16 @@ spring:
   jackson: # Jackson配置
     timeZone: GMT+8
     dateFormat: yyyy-MM-dd HH:mm:ss
-  thymeleaf:
-    cache: false
   datasource: # 数据库配置
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/faster?useUnicode=true
-    username: faster
-    password: faster
+    url: jdbc:mysql://localhost:3306/service?useUnicode=true
+    username: service
+    password: service
+
+# Security配置
+security:
+  ignored:
+    - assets/**
+    - vendor/**
+    - favicon.ico
+    - login.html

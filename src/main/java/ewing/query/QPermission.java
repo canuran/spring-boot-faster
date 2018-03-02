@@ -23,19 +23,17 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
 
     public static final QPermission permission = new QPermission("permission");
 
-    public final StringPath code = createString("code");
+    public final StringPath action = createString("action");
 
     public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
-    public final StringPath name = createString("name");
-
-    public final NumberPath<Long> parentId = createNumber("parentId", Long.class);
-
     public final NumberPath<Long> permissionId = createNumber("permissionId", Long.class);
 
-    public final StringPath target = createString("target");
+    public final StringPath targetId = createString("targetId");
 
-    public final StringPath type = createString("type");
+    public final StringPath targetType = createString("targetType");
+
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public final com.querydsl.sql.PrimaryKey<Permission> primary = createPrimaryKey(permissionId);
 
@@ -65,13 +63,12 @@ public class QPermission extends com.querydsl.sql.RelationalPathBase<Permission>
     }
 
     public void addMetadata() {
-        addMetadata(code, ColumnMetadata.named("code").withIndex(4).ofType(Types.VARCHAR).withSize(64).notNull());
-        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(7).ofType(Types.TIMESTAMP).withSize(19));
-        addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
-        addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(2).ofType(Types.BIGINT).withSize(19));
+        addMetadata(action, ColumnMetadata.named("action").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(6).ofType(Types.TIMESTAMP).withSize(19).notNull());
         addMetadata(permissionId, ColumnMetadata.named("permission_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
-        addMetadata(target, ColumnMetadata.named("target").withIndex(6).ofType(Types.VARCHAR).withSize(512));
-        addMetadata(type, ColumnMetadata.named("type").withIndex(5).ofType(Types.VARCHAR).withSize(64));
+        addMetadata(targetId, ColumnMetadata.named("target_id").withIndex(5).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(targetType, ColumnMetadata.named("target_type").withIndex(4).ofType(Types.VARCHAR).withSize(64).notNull());
+        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(2).ofType(Types.BIGINT).withSize(19).notNull());
     }
 
 }

@@ -1,0 +1,67 @@
+/* 全局样式 */
+body {
+  height: 100%;
+  position: relative;
+  font-family: Microsoft YaHei, serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 10px 20px;
+}
+
+img {
+  vertical-align: middle;
+}
+
+a, a:hover, a:active, a:focus {
+  text-decoration: none;
+  -webkit-user-drag: none;
+  outline: none;
+  color: #000;
+}
+
+.add_button {
+  display: inline;
+  padding: 2px 8px;
+  background: #efc;
+  border-radius: 3px;
+  color: mediumseagreen;
+}
+
+.edit_button {
+  display: inline;
+  padding: 2px 8px;
+  background: #cef;
+  border-radius: 3px;
+  color: dodgerblue;
+}
+
+.delete_button {
+  display: inline;
+  padding: 2px 8px;
+  background: #fec;
+  border-radius: 3px;
+  color: #ffb000;
+}
+
+.pointer_hover {
+  cursor: pointer;
+}
+
+form {
+  width: 100%;
+  padding: 20px 30px;
+}
+
+form > label {
+  width: 200px;
+}
+
+/* 表单样式 */
+.form-tree-pan {
+  width: 100%;
+  height: 200px;
+  overflow: auto;
+  margin: 5px 0 20px 0;
+  border: #ccc solid 1px;
+  border-radius: 3px;
+}

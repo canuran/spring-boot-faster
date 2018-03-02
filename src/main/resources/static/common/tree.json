@@ -1,0 +1,37 @@
+[
+  {
+    "name": "叶惠美",
+    "open": true,
+    "checked": true,
+    "children": [
+      {
+        "name": "东风破",
+        "checked": true
+      },
+      {
+        "name": "以父之名"
+      },
+      {
+        "name": "晴天"
+      }
+    ]
+  },
+  {
+    "name": "依然范特西",
+    "children": [
+      {
+        "name": "心雨"
+      },
+      {
+        "name": "夜的第七章"
+      },
+      {
+        "name": "白色风车"
+      }
+    ]
+  },
+  {
+    "name": "十一月的肖邦",
+    "isParent": true
+  }
+]

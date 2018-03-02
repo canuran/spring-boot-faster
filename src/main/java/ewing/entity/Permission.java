@@ -1,33 +1,32 @@
 package ewing.entity;
 
 import javax.annotation.Generated;
+import java.io.Serializable;
 
 /**
  * Permission is a Querydsl bean type
  */
 @Generated("com.querydsl.codegen.BeanSerializer")
-public class Permission {
+public class Permission implements Serializable {
 
-    private String code;
+    private String action;
 
     private java.util.Date createTime;
 
-    private String name;
-
-    private Long parentId;
-
     private Long permissionId;
 
-    private String target;
+    private String targetId;
 
-    private String type;
+    private String targetType;
 
-    public String getCode() {
-        return code;
+    private Long userId;
+
+    public String getAction() {
+        return action;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public java.util.Date getCreateTime() {
@@ -38,22 +37,6 @@ public class Permission {
         this.createTime = createTime;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
     public Long getPermissionId() {
         return permissionId;
     }
@@ -62,25 +45,33 @@ public class Permission {
         this.permissionId = permissionId;
     }
 
-    public String getTarget() {
-        return target;
+    public String getTargetId() {
+        return targetId;
     }
 
-    public void setTarget(String target) {
-        this.target = target;
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
     }
 
-    public String getType() {
-        return type;
+    public String getTargetType() {
+        return targetType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     @Override
     public String toString() {
-        return "code = " + code + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", permissionId = " + permissionId + ", target = " + target + ", type = " + type;
+        return "action = " + action + ", createTime = " + createTime + ", permissionId = " + permissionId + ", targetId = " + targetId + ", targetType = " + targetType + ", userId = " + userId;
     }
 
 }

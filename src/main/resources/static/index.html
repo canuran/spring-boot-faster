@@ -1,67 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html lang="zh-cn">
 <head>
-    <meta charset="UTF-8"/>
-    <title>首页</title>
-    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
-    <style type="text/css">
-        body {
-            margin: 40px;
-            padding-top: 40px;
-            padding-bottom: 40px;
-            background-color: #eee;
-            text-align: center;
-        }
-    </style>
+  <title>服务系统</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="vendor/fullPage/jquery.fullPage.css" rel="stylesheet"/>
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="vendor/waves/waves.min.css" rel="stylesheet"/>
+  <link href="vendor/malihu-scrollbar/jquery.mScrollbar.min.css" rel="stylesheet"/>
+  <link href="assets/index.css" rel="stylesheet"/>
 </head>
-
-<body>
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <img class="navbar-brand" alt="Logo" src="/favicon.ico"/>
-            <a class="navbar-brand" href="#">Spring Boot Faster</a>
+<body id="skin-sky">
+<header id="header">
+  <!-- 顶部导航菜单 -->
+  <ul id="menu">
+    <li id="guide" class="line-trigger">
+      <div class="line-wrap">
+        <div class="line top"></div>
+        <div class="line center"></div>
+        <div class="line bottom"></div>
+      </div>
+    </li>
+    <li id="logo">
+      <a><i class="fa fa-cloud"></i></a>
+      <a id="logo_title" class="hidden-xs">服务系统</a>
+    </li>
+    <li class="pull-right">
+      <ul class="hi-menu">
+        <!-- 主题选择 -->
+        <li class="dropdown">
+          <a class="waves-effect waves-light" data-toggle="dropdown">
+            <i class="him-icon fa fa-magic"></i>
+          </a>
+          <ul class="dropdown-menu dm-icon pull-right">
+            <li class="skin-switch">请选择主题</li>
+            <li class="divider"></li>
+            <li><a class="switch-skins skin-sky" data-skin="skin-sky"></a>
+            </li>
+            <li><a class="switch-skins skin-green" data-skin="skin-green"></a>
+            </li>
+            <li><a class="switch-skins skin-pink" data-skin="skin-pink"></a>
+            </li>
+          </ul>
+        </li>
+        <!-- 全屏切换 -->
+        <li id="fullScreenBtn">
+          <a class="waves-effect waves-light" data-ma-action="fullscreen" onclick="fullPage()">
+            <i id="full-screen" class="fa fa-expand him-icon"></i></a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</header>
+<section id="main">
+  <!-- 左侧导航 -->
+  <aside id="sidebar">
+    <!-- 个人资料 -->
+    <div class="sp-profile">
+      <a class="waves-effect waves-light">
+        <div class="sp-pic">
+          <img src="assets/images/avatar.jpg"/>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="/">首页</a></li>
-                <li><a href="/user">用户管理</a></li>
-                <li><a href="/swagger-ui.html">接口文档</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/login">欢迎</a></li>
-            </ul>
+        <div class="sp-info">
+          <span id="nickname">管理员</span>
+          <i class="fa fa-caret-right"></i>
         </div>
+      </a>
+      <ul class="main-menu">
+        <li>
+          <a class="waves-effect" href="logout">
+            <i class="fa fa-sign-out"></i> 退出登录</a>
+        </li>
+      </ul>
     </div>
-</nav>
-
-<div class="container col-md-8 col-md-offset-2">
-    <h1><strong>Spring Boot Faster</strong></h1>
-    <div style="text-align: left">
-        <h3>Spring Boot 整合常用框架组成完整可用的快速开发模板，参考自生产项目，配置到细节。</h3>
-        <h4>更快的项目搭建、更高开发和运行效率、更灵活的应对需求变化、更好的可重构和维护性。</h4>
-        <h2>集成的功能：</h2>
-        <h4>Spring Framework：Spring基础框架，提供Context、Task Schedule等功能支持。</h4>
-        <h4>Spring Security：Spring安全框架，提供了常规功能和诸多高级特性以满足复杂场景下的安全需求，已实现基于注解的基本权限体系。</h4>
-        <h4>Spring MVC：Web访问接口与控制器，Restful，全局异常，自动转换时间，静态资源访问，动态国际化支持等。</h4>
-        <h4>Thymeleaf：页面视图的模板引擎，页面侵入较少，很适合作为Web应用视图上的业务逻辑控制。</h4>
-        <h4>QueryDSL：通用高效的类型安全的查询框架，它的API语法与SQL几乎一致，配合IDE具有非常高的开发效率、利于重构、适应需求变更，覆盖SQL标准且可跨数据库。</h4>
-        <h4>QueryDSL 案例：Maven生成插件配置、独立的参考案例（位于test目录），覆盖绝大多数应用场景，可快速上手。</h4>
-        <h4>Spring Jdbc：Spring Jdbc事务及异常支持、JdbcTemplate作为特殊情况下的后备支持，确保无后顾之忧。 </h4>
-        <h4>GlobalIdWorker：全局ID生成器，支持多机多实例运行，保持趋势递增，尾数均匀，对分表分库非常友好，也可用于唯一资源命名。</h4>
-        <h4>Spring Cache + EhCache：使用声明式缓存，对方法返回值进行缓存，使用EhCache作为本地缓存，resources目录中提供了Redis参考。</h4>
-        <h4>Protostuff 序列化：Protostuff 序列化可以大幅提高时间及空间性能，适合传输对象，比如存储到Redis等。</h4>
-        <h4>Spring AOP：使用AOP对方法日志进行统一处理，也可用做收集信息、事务处理、权限校验等。</h4>
-        <h4>RSA 和 AES：RSA 非对称可逆加密可用于登录加密等， AES 对称可逆加密可用于内部存储数据。</h4>
-        <h4>MySql数据库：默认使用MySql，驱动和配置参考 pom.xml 和 application.yml 中的数据库连接信息。</h4>
-        <h4>Swagger2：扫描Controller及标记注解，生成接口文档，访问路径：/swagger-ui.html。</h4>
-        <h4>JWT：Json Web Token，使用JWT可以把认证信息存储到用户端，并对用户提交的认证信息进行验证。</h4>
-        <h4>OkHttp3：OkHttp3比其他Http类具有更好的性能和更方便的API，项目中的OkHttpUtils类是对OkHttp3的简单封装。</h4>
-        <h4>Logback：使用Logback记录日志，控制台日志可点击定位，方便调试。</h4>
-        <h4>Spring Boot DevTools：动态加载类等，实时生效，方便编辑调试。</h4>
-        <h4>Spring Test：使用MockMvc进行测试用例编写。</h4>
+    <!-- 功能菜单 -->
+    <ul id="side-menu" class="main-menu">
+      <li>
+        <a class="waves-effect" onclick="addTab('首　页', 'home')">
+          <i class="fa fa-home"></i>首　页
+        </a>
+      </li>
+    </ul>
+  </aside>
+  <!-- 中心面板 -->
+  <section id="content">
+    <div class="content_tab">
+      <div class="tab_left">
+        <a class="waves-effect waves-light">
+          <i class="fa fa-chevron-left"></i></a>
+      </div>
+      <div class="tab_right">
+        <a class="waves-effect waves-light">
+          <i class="fa fa-chevron-right"></i></a>
+      </div>
+      <ul id="tabs" class="tabs">
+        <li id="tab_home" data-index="home" data-closeable="false" class="curiframe">
+          <a class="waves-effect waves-light">首　页</a>
+        </li>
+      </ul>
     </div>
-</div>
-
+    <!-- 首页内容 -->
+    <div class="content_main">
+      <div id="iframe_home" class="iframe curiframe">
+        <div class="jumbotron">
+          <div class="container">
+            <h3>Spring Boot 整合常用框架组成完整可用的快速开发模板。</h3>
+            <p>更快的项目搭建、更高开发和运行效率、更灵活的应对需求变化、更好的可重构和维护性。</p>
+            <p>响应式管理界面改自zhengAdmin，前后端可分离独立开发和部署。</p>
+          </div>
+        </div>
+        <div class="container home-panel">
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Spring Boot</h3>
+              <p>Spring Boot和Spring基础框架，提供容器、定时任务、异步调用和其他常用功能支持。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>Spring Security</h3>
+              <p>Spring安全框架，可满足复杂场景下的安全需求，已实现基于注解的基本权限控制体系。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>Spring MVC</h3>
+              <p>Web访问接口与控制器，Restful，全局异常，自动转换时间，静态资源访问，动态国际化支持等。</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <h3>QueryDSL</h3>
+              <p>通用高效的类型安全的查询框架，使用API覆盖标准SQL且可跨数据库，具有很高的开发和执行效率。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>QueryDSL 案例</h3>
+              <p>Maven生成插件配置、独立的参考案例（位于test目录），覆盖绝大多数应用场景，可快速上手。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>GlobalIdWorker</h3>
+              <p>全局ID生成器，支持多机多实例运行，趋势递增且尾数均匀，对分表分库非常友好，也可用于唯一命名。</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Spring Cache</h3>
+              <p>基于注解的缓存，默认使用EhCache作为本地缓存，resources目录中提供了Redis参考。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>Protostuff</h3>
+              <p>Protostuff 序列化可以大幅提高时间及空间性能，适合传输对象，比如存储到Redis等。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>Spring AOP</h3>
+              <p>使用AOP对方法日志进行统一处理，也可用做收集信息、事务处理、权限校验等。</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Swagger2</h3>
+              <p>扫描Controller及标记注解，生成接口文档，访问路径：/swagger-ui.html。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>Spring Test</h3>
+              <p>Mock测试用例参考，测试驱动开发有助于编写简洁可用和高质量的代码，并加速开发过程。</p>
+            </div>
+            <div class="col-md-4">
+              <h3>其他支持</h3>
+              <p>OkHttpUtils、RSA和AES加密、JWT、Spring Boot DevTools、Logback配置。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
 </body>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="vendor/waves/waves.min.js"></script>
+<script src="vendor/malihu-scrollbar/jquery.mScrollbar.min.js"></script>
+<script src="vendor/BootstrapMenu.min.js"></script>
+<script src="vendor/jquery.jdirk.min.js"></script>
+<script src="vendor/device.min.js"></script>
+<script src="assets/index.js"></script>
 </html>

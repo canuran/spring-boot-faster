@@ -1,0 +1,106 @@
+﻿<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <title>模板案例</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../vendor/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+  <link href="../vendor/zTree3/css/bootstrapStyle/bootstrapStyle.css" rel="stylesheet">
+  <link href="../vendor/layui/css/layui.css" rel="stylesheet"/>
+  <link href="demo.css" rel="stylesheet"/>
+</head>
+<body>
+<div>
+  <div id="tableToolbar">
+    <div class="layui-inline">
+      <input id="searchInput" class="layui-input" placeholder="搜索内容"/>
+    </div>
+    <div class="layui-btn-group">
+      <button class="layui-btn layui-btn-normal" onclick="searchAction()">
+        <i class="glyphicon glyphicon-search"></i> 搜索
+      </button>
+      <button class="layui-btn layui-btn-normal" onclick="createAction()">
+        <i class="glyphicon glyphicon-plus"></i> 新增
+      </button>
+    </div>
+  </div>
+  <table id="mainTable"></table>
+</div>
+
+<!--表单窗口-->
+<div id="formWin" hidden="hidden">
+  <form id="editForm" class="layui-form">
+    <div class="layui-form-item">
+      <label class="layui-form-label">名称</label>
+      <div class="layui-input-block">
+        <input type="text" name="name" class="layui-input"
+               placeholder="请输入名称" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">职业</label>
+      <div class="layui-input-block">
+        <input type="radio" name="career" value="歌手" title="歌手">
+        <input type="radio" name="career" value="演员" title="演员" checked>
+        <input type="radio" name="career" value="导演" title="导演">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">时间</label>
+      <div class="layui-input-block">
+        <input id="dateTime" name="dateTime" class="layui-input"
+               placeholder="请选择时间" lay-verify="required" readonly/>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">风格</label>
+      <div class="layui-input-block">
+        <select title="风格" name="style">
+          <option value="" selected>请选择风格</option>
+          <option value="流行">流行</option>
+          <option value="经典">经典</option>
+          <option value="摇滚">摇滚</option>
+          <option value="嘻哈">嘻哈</option>
+          <option value="复古">复古</option>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label for="zTreeDiv" class="layui-form-label">标签</label>
+      <div class="layui-input-block">
+        <div id="zTreeDiv" class="ztree form-tree-pan"></div>
+      </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+      <label class="layui-form-label">备注</label>
+      <div class="layui-input-block">
+        <textarea name="remark" placeholder="请输入内容" class="layui-textarea"></textarea>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <div class="layui-input-block">
+        <button type="button" class="layui-btn layui-btn-primary" onclick="resetEditForm()">
+          <i class="glyphicon glyphicon-refresh"></i> 重置
+        </button>
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit>
+          <i class="glyphicon glyphicon-ok"></i> 确定
+        </button>
+        <button type="button" class="layui-btn layui-btn-warm" onclick="closeFormWin()">
+          <i class="glyphicon glyphicon-remove"></i> 取消
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+<script src="../vendor/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../vendor/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+<script src="../vendor/zTree3/js/jquery.ztree.all.min.js"></script>
+<script src="../vendor/layui/layui.all.js"></script>
+<script src="../assets/utils.js"></script>
+<script src="demo.js"></script>
+</html>

@@ -22,13 +22,29 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * OkHttp请求工具类，支持链式添加多种类型的参数并调用，简化OkHttp的调用流程。
- * OkHttpUtils.callXxx()：OKHttp原始API简化调用，可直接返回对象。
- * OkHttpUtils.get().param().callXxx()：使用Url参数的GET请求。
- * OkHttpUtils.delete().param().callXxx()：使用Url参数的DELETE请求。
- * OkHttpUtils.formPost().param().callXxx()：使用Form参数的POST请求。
- * OkHttpUtils.multiPost().param().callXxx()：带文件上传的Form参数的POST请求。
- * OkHttpUtils.bodyPost().param().callXxx()：使用JSON的Body参数的POST请求。
- * OkHttpUtils.bodyPut().param().callXxx()：使用JSON的Body参数的PUT请求。
+ * 支持多种参数源，大多数情况都不需要手动重组参数，直接从你的上下文给参数即可。
+ * <p>
+ * OKHttp原始API简化调用，可返回多种结果或回调:
+ * OkHttpUtils.callSuccess()/callForResponse()/callForString()
+ * /callForBytes()/callForStream()/callForObject()/callback()
+ * <p>
+ * 使用Url参数的GET请求：
+ * OkHttpUtils.get().header().param().map().bean().callXxx()
+ * <p>
+ * 使用Url参数的DELETE请求：
+ * OkHttpUtils.delete().header().param().map().bean().callXxx()
+ * <p>
+ * 使用Form参数的POST请求：
+ * OkHttpUtils.formPost().header().param().map().bean().callXxx()
+ * <p>
+ * 带文件上传的Form参数的POST请求：
+ * OkHttpUtils.multiPost().header().param().file().part().map().bean().callXxx()
+ * <p>
+ * 使用JSON的Body参数的POST请求：
+ * OkHttpUtils.bodyPost().header().json().add().param().map().bean().callXxx()
+ * <p>
+ * 使用JSON的Body参数的PUT请求：
+ * OkHttpUtils.bodyPut().header().json().add().param().map().bean().callXxx()
  *
  * @author Ewing
  * @date 2017/6/15
@@ -89,16 +105,20 @@ public class OkHttpUtils {
 
         protected abstract Request buildRequest();
 
-        public Response call() {
-            return OkHttpUtils.callRequest(buildRequest());
+        public void callSuccess() {
+            OkHttpUtils.callSuccess(buildRequest());
         }
 
-        public <T> T callJsonObject(Class<T> type) {
-            return OkHttpUtils.callJsonObject(buildRequest(), type);
+        public Response callForResponse() {
+            return OkHttpUtils.callForResponse(buildRequest());
         }
 
-        public <T> T callJsonObject(TypeToken<T> token) {
-            return OkHttpUtils.callJsonObject(buildRequest(), token);
+        public <T> T callForObject(Class<T> type) {
+            return OkHttpUtils.callForObject(buildRequest(), type);
+        }
+
+        public <T> T callForObject(TypeToken<T> token) {
+            return OkHttpUtils.callForObject(buildRequest(), token);
         }
 
         public String callForString() {
@@ -262,7 +282,7 @@ public class OkHttpUtils {
      * Body的Post请求构造器。
      */
     public static class BodyPostBuilder extends RequestBuilder {
-        protected JsonElement jsonBody = new JsonObject();
+        protected JsonElement jsonBody = JsonNull.INSTANCE;
 
         public BodyPostBuilder(String url) {
             this.builder.url(url);
@@ -285,6 +305,11 @@ public class OkHttpUtils {
             return this;
         }
 
+        public BodyPostBuilder gson(JsonElement json) {
+            this.jsonBody = json == null ? JsonNull.INSTANCE : json;
+            return this;
+        }
+
         @Override
         public BodyPostBuilder map(Map<String, Object> map) {
             super.map(map);
@@ -293,7 +318,9 @@ public class OkHttpUtils {
 
         @Override
         public BodyPostBuilder param(String name, Object value) {
-            if (!jsonBody.isJsonObject()) {
+            if (jsonBody.isJsonNull()) {
+                jsonBody = new JsonObject();
+            } else if (!jsonBody.isJsonObject()) {
                 throw new RuntimeException("Only JsonObject can add param.");
             }
             String nameStr = String.valueOf(name);
@@ -315,7 +342,9 @@ public class OkHttpUtils {
         }
 
         public BodyPostBuilder add(Object value) {
-            if (!jsonBody.isJsonArray()) {
+            if (jsonBody.isJsonNull()) {
+                jsonBody = new JsonArray();
+            } else if (!jsonBody.isJsonArray()) {
                 throw new RuntimeException("Only JsonArray can add element.");
             }
             JsonArray jsonArray = (JsonArray) jsonBody;
@@ -425,9 +454,25 @@ public class OkHttpUtils {
     }
 
     /**
-     * 执行Request请求。
+     * 执行请求要求成功并忽略结果。
      */
-    public static Response callRequest(Request request) {
+    public static void callSuccess(Request request) {
+        try {
+            Response response = CLIENT.newCall(request).execute();
+            response.close(); // 内部静默关闭
+            if (!response.isSuccessful()) {
+                throw new RuntimeException("Request Failure, Code: "
+                        + response.code() + " Message: " + response.message());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Request IOException.", e);
+        }
+    }
+
+    /**
+     * 执行Request请求并返回Response。
+     */
+    public static Response callForResponse(Request request) {
         try {
             return CLIENT.newCall(request).execute();
         } catch (IOException e) {
@@ -441,7 +486,9 @@ public class OkHttpUtils {
     public static String callForString(Request request) {
         try {
             Response response = CLIENT.newCall(request).execute();
-            return response.body().string();
+            String result = response.body().string();
+            response.close(); // 内部静默关闭
+            return result;
         } catch (IOException e) {
             throw new RuntimeException("Request IOException.", e);
         }
@@ -452,7 +499,10 @@ public class OkHttpUtils {
      */
     public static byte[] callForBytes(Request request) {
         try {
-            return callRequest(request).body().bytes();
+            Response response = CLIENT.newCall(request).execute();
+            byte[] result = response.body().bytes();
+            response.close(); // 内部静默关闭
+            return result;
         } catch (IOException e) {
             throw new RuntimeException("Request IOException.", e);
         }
@@ -462,13 +512,13 @@ public class OkHttpUtils {
      * 执行Request请求并返回数据流。
      */
     public static InputStream callForStream(Request request) {
-        return callRequest(request).body().byteStream();
+        return callForResponse(request).body().byteStream();
     }
 
     /**
      * 执行Request请求并将返回的Json转成对象。
      */
-    public static <T> T callJsonObject(Request request, Class<T> type) {
+    public static <T> T callForObject(Request request, Class<T> type) {
         String result = OkHttpUtils.callForString(request);
         return GsonUtils.toObject(result, type);
     }
@@ -476,7 +526,7 @@ public class OkHttpUtils {
     /**
      * 执行Request请求并将返回的Json转成对象。
      */
-    public static <T> T callJsonObject(Request request, TypeToken<T> token) {
+    public static <T> T callForObject(Request request, TypeToken<T> token) {
         String result = OkHttpUtils.callForString(request);
         return GsonUtils.toObject(result, token);
     }

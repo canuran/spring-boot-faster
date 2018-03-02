@@ -106,8 +106,8 @@ public class JWTUtils {
     /**
      * 从Token中获取负载中的值，适用于只取一个值的情况。
      */
-    public static Object getFromToken(String token, String key) {
-        return getClaimsValidate(token).get(key);
+    public static <T> T getFromToken(String token, String key) {
+        return (T) getClaimsValidate(token).get(key);
     }
 
     public static long secondsExp(int seconds) {

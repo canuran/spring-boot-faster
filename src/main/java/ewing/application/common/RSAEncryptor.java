@@ -3,6 +3,7 @@ package ewing.application.common;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -40,7 +41,7 @@ public class RSAEncryptor {
             KeyPair keyPair = keyPairGen.generateKeyPair();
             publicKey = (RSAPublicKey) keyPair.getPublic();
             privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new RuntimeException("初始化加密工具失败！");
         }
     }
@@ -63,7 +64,11 @@ public class RSAEncryptor {
      * 用公钥加密字符串。
      */
     public static String encryptString(String text) {
-        return byteToHexStr(encrypt(text.getBytes()));
+        try {
+            return byteToHexStr(encrypt(text.getBytes("UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -84,7 +89,11 @@ public class RSAEncryptor {
      * 使用私钥解密字符串。
      */
     public static String decryptString(String str) {
-        return new String(decrypt(hexStrToByte(str)));
+        try {
+            return new String(decrypt(hexStrToByte(str)), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -180,12 +189,12 @@ public class RSAEncryptor {
                 System.out.println("原始：" + originalText);
 
                 // 加密
-                byte[] cipherText = encrypt(originalText.getBytes());
+                byte[] cipherText = encrypt(originalText.getBytes("UTF-8"));
                 String hex = byteToHexStr(cipherText);
                 System.out.println("加密：" + hex);
 
                 // 解密
-                String plainText = new String(decrypt(hexStrToByte(hex)));
+                String plainText = new String(decrypt(hexStrToByte(hex)), "UTF-8");
                 System.out.println("解密：" + plainText + "\n");
             }
         } catch (Exception e) {

@@ -33,7 +33,7 @@ public class QueryDSLConfig {
 
     @Bean
     public SQLQueryFactory queryFactory() {
-        SQLTemplates templates = MySQLTemplates.builder().build();
+        SQLTemplates templates = MySQLTemplates.builder().quote().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);

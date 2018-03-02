@@ -1,0 +1,71 @@
+﻿<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <title>角色管理</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../vendor/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+  <link href="../vendor/zTree3/css/bootstrapStyle/bootstrapStyle.css" rel="stylesheet">
+  <link href="../vendor/layui/css/layui.css" rel="stylesheet"/>
+  <link href="role.css" rel="stylesheet"/>
+</head>
+<body>
+<div>
+  <div id="tableToolbar">
+    <div class="layui-inline">
+      <input id="searchInput" class="layui-input" placeholder="角色名"/>
+    </div>
+    <div class="layui-btn-group">
+      <button class="layui-btn layui-btn-normal" onclick="searchAction()">
+        <i class="glyphicon glyphicon-search"></i> 搜索
+      </button>
+      <button class="layui-btn layui-btn-normal" onclick="createAction()">
+        <i class="glyphicon glyphicon-plus"></i> 新增
+      </button>
+    </div>
+  </div>
+  <table id="mainTable"></table>
+</div>
+
+<!--表单窗口-->
+<div id="formWin" hidden="hidden">
+  <form id="editForm" class="layui-form">
+    <div class="layui-form-item">
+      <label class="layui-form-label">名称</label>
+      <div class="layui-input-block">
+        <input type="text" name="name" class="layui-input"
+               placeholder="请输入名称" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label for="zTreeAuths" class="layui-form-label">权限</label>
+      <div class="layui-input-block">
+        <div id="zTreeAuths" class="ztree form-tree-pan"></div>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <div class="layui-input-block">
+        <button type="button" class="layui-btn layui-btn-primary" onclick="resetEditForm()">
+          <i class="glyphicon glyphicon-refresh"></i> 重置
+        </button>
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit>
+          <i class="glyphicon glyphicon-ok"></i> 确定
+        </button>
+        <button type="button" class="layui-btn layui-btn-warm" onclick="closeFormWin()">
+          <i class="glyphicon glyphicon-remove"></i> 取消
+        </button>
+      </div>
+  </form>
+</div>
+</body>
+<script src="../vendor/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../vendor/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+<script src="../vendor/zTree3/js/jquery.ztree.all.min.js"></script>
+<script src="../vendor/layui/layui.all.js"></script>
+<script src="../assets/utils.js"></script>
+<script src="role.js"></script>
+</html>

@@ -2,18 +2,15 @@ package ewing.application.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import ewing.application.common.AliasName;
 import ewing.application.common.StringDateParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.Ordered;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -25,7 +22,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -85,29 +81,13 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                 return StringDateParser.stringToSqlDate(value);
             }
         });
-        // 把实现了有别名的接口的属性添加别名，用于前端显示
-        simpleModule.addSerializer(AliasName.class, new JsonSerializer<AliasName>() {
-            @Override
-            public void serialize(AliasName source, JsonGenerator jsonGenerator,
-                                  SerializerProvider serializerProvider) throws IOException {
-                if (source == null) {
-                    jsonGenerator.writeNull();
-                } else {
-                    jsonGenerator.writeObject(source.name());
-                    JsonStreamContext context = jsonGenerator.getOutputContext();
-                    if (context.inObject()) {
-                        String fieldName = context.getCurrentName();
-                        jsonGenerator.writeStringField(fieldName + "Alias", source.alias());
-                    }
-                }
-            }
-        });
         converter.getObjectMapper().registerModule(simpleModule);
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
+        registry.addViewController("/").setViewName("/login.html");
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
         super.addViewControllers(registry);
     }
 
@@ -143,20 +123,8 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
             if (source == null) {
                 return null;
             }
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(source);
+            return StringDateParser.dateToString(source);
         }
-    }
-
-    /**
-     * 国际化资源绑定到容器和请求上下文，使用Header中的Accept-Language。
-     */
-    @Bean
-    public ResourceBundleMessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setUseCodeAsDefaultMessage(true);
-        messageSource.setBasename("messages/message");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
     }
 
 }

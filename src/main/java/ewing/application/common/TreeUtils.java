@@ -1,41 +1,54 @@
 package ewing.application.common;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 /**
  * 树工具类。
  */
+@SuppressWarnings("unchecked")
 public class TreeUtils {
 
     /**
-     * 树节点集合转换为树形结构。
+     * 树节点集合转换为树形结构，使用函数式接口操作树节点。
      * 有父节点的挂在父节点下，未找到父结节的置于顶级。
+     * <p>
+     * 例如把 List<Node> nodes 转成树：
+     * TreeUtils.toTree(nodes, ArrayList::new,
+     * Node::getNodeKey, Node::getParentKey,
+     * Node::getChildren, Node::setChildren);
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends TreeNode> List<E> toTree(List<E> nodes) {
+    public static <E, C extends Collection<E>> C toTree(
+            C nodes, Supplier<C> treeCreator,
+            Function<E, Serializable> keyGetter,
+            Function<E, Serializable> parentKeyGetter,
+            Function<E, C> childrenGetter,
+            BiConsumer<E, C> childrenSetter) {
         if (nodes == null) {
             return null;
         }
-        List<E> tree = new ArrayList<>();
+        if (keyGetter == null || treeCreator == null || parentKeyGetter == null
+                || childrenGetter == null || childrenSetter == null) {
+            throw new IllegalArgumentException("Operate methods missing.");
+        }
+        C tree = treeCreator.get();
         boolean single;
         for (E node : nodes) {
             // 没有父节点作为根节点
-            if (node.getParentId() == null) {
+            if (parentKeyGetter.apply(node) == null) {
                 tree.add(node);
             } else {
                 single = true;
                 for (E parent : nodes) {
                     // 有父节点ID，添加到它的父节点
-                    if (node.getParentId().equals(parent.getId())) {
-                        if (parent.getChildren() == null) {
-                            parent.setChildren(new ArrayList<>());
+                    if (parentKeyGetter.apply(node).equals(keyGetter.apply(parent))) {
+                        if (childrenGetter.apply(parent) == null) {
+                            childrenSetter.accept(parent, treeCreator.get());
                         }
-                        parent.getChildren().add(node);
+                        childrenGetter.apply(parent).add(node);
                         single = false;
                         break;
                     }
@@ -52,9 +65,9 @@ public class TreeUtils {
     /**
      * 先根遍历原子节点，无递归，支持大树。
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends TreeNode> void traverseTree(List<E> tree, Consumer<E> consumer) {
-        if (tree == null) {
+    public static <E, C extends Collection<E>> void traverseTree(
+            C tree, Function<E, C> childrenGetter, Consumer<E> consumer) {
+        if (tree == null || tree.isEmpty()) {
             return;
         }
         // 使用迭代器和栈记录所有遍历状态
@@ -65,9 +78,9 @@ public class TreeUtils {
             while (iterator.hasNext()) {
                 // 先遍历自己，然后遍历子节点
                 E node = iterator.next();
-                if (node.getChildren() != null) {
+                if (childrenGetter.apply(node) != null) {
                     stack.push(iterator);
-                    iterator = node.getChildren().iterator();
+                    iterator = childrenGetter.apply(node).iterator();
                 }
                 consumer.accept(node);
             }
@@ -75,14 +88,14 @@ public class TreeUtils {
     }
 
     /**
-     * 把树的所有节点放入列表，无递归，支持大树。
+     * 把树的所有节点展开到集合，无递归，支持大树。
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends TreeNode> List<E> toList(List<E> tree) {
+    public static <E, C extends Collection<E>> C flat(
+            C tree, Supplier<C> collectionCreator, Function<E, C> childrenGetter) {
         if (tree == null) {
             return null;
         }
-        List<E> nodes = new ArrayList<>();
+        C nodes = collectionCreator.get();
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
         stack.push(tree.iterator());
@@ -91,9 +104,9 @@ public class TreeUtils {
             while (iterator.hasNext()) {
                 // 先遍历自己，然后遍历子节点
                 E node = iterator.next();
-                if (node.getChildren() != null) {
+                if (childrenGetter.apply(node) != null) {
                     stack.push(iterator);
-                    iterator = node.getChildren().iterator();
+                    iterator = childrenGetter.apply(node).iterator();
                 }
                 nodes.add(node);
             }
@@ -104,12 +117,13 @@ public class TreeUtils {
     /**
      * 从树的所有节点中查找原子节点，无递归，支持大树。
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends TreeNode> List<E> filterTree(List<E> tree, Predicate<E> predicate) {
+    public static <E, C extends Collection<E>> C filterTree(
+            C tree, Supplier<C> collectionCreator,
+            Function<E, C> childrenGetter, Predicate<E> predicate) {
         if (tree == null) {
             return null;
         }
-        List<E> nodes = new ArrayList<>();
+        C nodes = collectionCreator.get();
         // 使用迭代器和栈记录所有遍历状态
         Stack<Iterator<E>> stack = new Stack<>();
         stack.push(tree.iterator());
@@ -118,9 +132,9 @@ public class TreeUtils {
             while (iterator.hasNext()) {
                 // 先遍历自己，然后遍历子节点
                 E node = iterator.next();
-                if (node.getChildren() != null) {
+                if (childrenGetter.apply(node) != null) {
                     stack.push(iterator);
-                    iterator = node.getChildren().iterator();
+                    iterator = childrenGetter.apply(node).iterator();
                 }
                 if (predicate.test(node)) {
                     nodes.add(node);
@@ -133,8 +147,8 @@ public class TreeUtils {
     /**
      * 从树的所有节点中查找第一个原子节点，无递归，支持大树。
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends TreeNode> E findFirst(List<E> tree, Predicate<E> predicate) {
+    public static <E, C extends Collection<E>> E findFirst(
+            C tree, Function<E, C> childrenGetter, Predicate<E> predicate) {
         if (tree == null) {
             return null;
         }
@@ -149,9 +163,9 @@ public class TreeUtils {
                 if (predicate.test(node)) {
                     return node;
                 }
-                if (node.getChildren() != null) {
+                if (childrenGetter.apply(node) != null) {
                     stack.push(iterator);
-                    iterator = node.getChildren().iterator();
+                    iterator = childrenGetter.apply(node).iterator();
                 }
             }
         }

@@ -1,0 +1,45 @@
+﻿<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <title>用户登录</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="vendor/waves/waves.min.css" rel="stylesheet"/>
+  <link href="assets/login.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="login-title">
+  <i class="fa fa-cloud"></i>
+  <span>服务系统</span>
+</div>
+<div id="login-window">
+  <h3>用户登录</h3>
+  <div class="input-group margin-input">
+    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+    <div class="fg-line">
+      <input id="username" type="text" class="form-control"
+             name="username" placeholder="用户名" required autofocus value="Ewing">
+    </div>
+  </div>
+  <div class="input-group margin-input">
+    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+    <div class="fg-line">
+      <input id="password" type="password" class="form-control"
+             name="password" placeholder="密　码" required value="yb">
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <button id="login-button" class="waves-effect waves-button waves-float">
+    <i class="fa fa-sign-in"></i>
+  </button>
+</div>
+<div id="login-alert" class="alert alert-danger" role="alert" hidden>登录失败！</div>
+</body>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="vendor/waves/waves.min.js"></script>
+<script src="assets/login.js"></script>
+</html>

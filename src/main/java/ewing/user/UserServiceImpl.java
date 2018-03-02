@@ -1,17 +1,25 @@
 package ewing.user;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.AppAsserts;
-import ewing.application.paging.Page;
-import ewing.application.paging.Pager;
+import ewing.application.query.Page;
+import ewing.entity.Role;
 import ewing.entity.User;
-import ewing.security.AuthorityOrRole;
-import ewing.security.SecurityUser;
+import ewing.entity.UserRole;
+import ewing.user.dao.UserDao;
+import ewing.user.dao.UserRoleDao;
+import ewing.user.vo.FindUserParam;
+import ewing.user.vo.UserWithRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,21 +32,39 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private UserRoleDao userRoleDao;
 
     @Override
-    public User addUser(User user) {
-        AppAsserts.notNull(user, "用户不能为空！");
-        AppAsserts.hasText(user.getName(), "用户名不能为空！");
-        AppAsserts.isTrue(userDao.countWhere(
-                qUser.name.eq(user.getName())) < 1,
+    public Long addUserWithRole(UserWithRole userWithRole) {
+        AppAsserts.notNull(userWithRole, "用户不能为空！");
+        AppAsserts.hasText(userWithRole.getUsername(), "用户名不能为空！");
+        AppAsserts.hasText(userWithRole.getNickname(), "昵称不能为空！");
+        AppAsserts.hasText(userWithRole.getPassword(), "密码不能为空！");
+        AppAsserts.hasText(userWithRole.getGender(), "性别不能为空！");
+        AppAsserts.yes(userDao.countWhere(
+                qUser.username.eq(userWithRole.getUsername())) < 1,
                 "用户名已被使用！");
-        AppAsserts.hasText(user.getPassword(), "密码不能为空！");
 
-        if (user.getCreateTime() == null) {
-            user.setCreateTime(new Date());
+        userWithRole.setCreateTime(new Date());
+        userDao.insertWithKey(userWithRole);
+        addUserRoles(userWithRole);
+        return userWithRole.getUserId();
+    }
+
+    private void addUserRoles(UserWithRole userWithRole) {
+        List<Role> roles = userWithRole.getRoles();
+        if (roles != null && !roles.isEmpty()) {
+            List<UserRole> userRoles = new ArrayList<>(roles.size());
+            for (Role role : roles) {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(userWithRole.getUserId());
+                userRole.setRoleId(role.getRoleId());
+                userRole.setCreateTime(new Date());
+                userRoles.add(userRole);
+            }
+            userRoleDao.insertBeans(userRoles.toArray());
         }
-        user.setUserId(userDao.insertWithKey(user));
-        return user;
     }
 
     @Override
@@ -49,16 +75,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "UserCache", key = "#user.userId")
-    public long updateUser(User user) {
-        AppAsserts.notNull(user, "用户不能为空！");
-        AppAsserts.notNull(user.getUserId(), "用户ID不能为空！");
-        return userDao.updateBean(user);
+    @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
+    public long updateUserWithRole(UserWithRole userWithRole) {
+        AppAsserts.notNull(userWithRole, "用户不能为空！");
+        AppAsserts.notNull(userWithRole.getUserId(), "用户ID不能为空！");
+
+        // 更新用户的角色列表
+        userRoleDao.deleteWhere(qUserRole.userId.eq(userWithRole.getUserId()));
+        addUserRoles(userWithRole);
+
+        // 更新用户
+        SQLUpdateClause update = userDao.updaterByKey(userWithRole.getUserId());
+        if (StringUtils.hasText(userWithRole.getNickname())) {
+            update.set(qUser.nickname, userWithRole.getNickname());
+        }
+        if (StringUtils.hasText(userWithRole.getPassword())) {
+            update.set(qUser.password, userWithRole.getPassword());
+        }
+        if (StringUtils.hasText(userWithRole.getGender())) {
+            update.set(qUser.gender, userWithRole.getGender());
+        }
+        if (userWithRole.getBirthday() != null) {
+            update.set(qUser.birthday, userWithRole.getBirthday());
+        }
+        return update.execute();
     }
 
     @Override
-    public Page<User> findUsers(Pager pager, String username, String roleName) {
-        return userDao.findUsers(pager, username, roleName);
+    public Page<UserWithRole> findUserWithRole(FindUserParam findUserParam) {
+        BooleanExpression expression = Expressions.TRUE;
+        // 用户名
+        expression = expression.and(StringUtils.hasText(findUserParam.getUsername())
+                ? qUser.username.contains(findUserParam.getUsername()) : null);
+        // 昵称
+        expression = expression.and(StringUtils.hasText(findUserParam.getNickname())
+                ? qUser.nickname.contains(findUserParam.getNickname()) : null);
+        return userDao.findUserWithRole(findUserParam, expression);
     }
 
     @Override
@@ -66,24 +118,6 @@ public class UserServiceImpl implements UserService {
     public long deleteUser(Long userId) {
         AppAsserts.notNull(userId, "用户ID不能为空！");
         return userDao.deleteByKey(userId);
-    }
-
-    @Override
-    public SecurityUser getByUsername(String username) {
-        AppAsserts.hasText(username, "用户名不能为空！");
-        return userDao.getByUsername(username);
-    }
-
-    @Override
-    public List<AuthorityOrRole> getUserAuthorities(Long userId) {
-        AppAsserts.notNull(userId, "用户ID不能为空！");
-        return userDao.getUserAuthorities(userId);
-    }
-
-    @Override
-    public List<PermissionTree> getUserPermissions(Long userId) {
-        AppAsserts.notNull(userId, "用户ID不能为空！");
-        return userDao.getUserPermissions(userId);
     }
 
 }

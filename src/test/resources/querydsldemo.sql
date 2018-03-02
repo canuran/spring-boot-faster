@@ -1,7 +1,11 @@
 /*
+Navicat MySQL Data Transfer
+
 Target Server Type    : MYSQL
 Target Server Version : 50718
 File Encoding         : 65001
+
+Date: 2018-02-06 23:52:26
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -12,7 +16,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `demo_address`;
 CREATE TABLE `demo_address` (
   `address_id` int(11) NOT NULL,
-  `name` varchar(128) DEFAULT NULL,
+  `name` varchar(128) NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`address_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -36,7 +40,7 @@ CREATE TABLE `demo_user` (
   `password` varchar(128) NOT NULL,
   `gender` int(11) DEFAULT NULL,
   `address_id` int(11) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
+  `create_time` datetime NOT NULL,
   PRIMARY KEY (`user_id`),
   KEY `fk_demo_user_address_id` (`address_id`),
   CONSTRAINT `fk_demo_user_address_id` FOREIGN KEY (`address_id`) REFERENCES `demo_address` (`address_id`) ON DELETE CASCADE ON UPDATE CASCADE

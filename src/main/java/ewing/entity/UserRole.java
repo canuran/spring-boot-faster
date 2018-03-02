@@ -1,12 +1,13 @@
 package ewing.entity;
 
 import javax.annotation.Generated;
+import java.io.Serializable;
 
 /**
  * UserRole is a Querydsl bean type
  */
 @Generated("com.querydsl.codegen.BeanSerializer")
-public class UserRole {
+public class UserRole implements Serializable {
 
     private java.util.Date createTime;
 

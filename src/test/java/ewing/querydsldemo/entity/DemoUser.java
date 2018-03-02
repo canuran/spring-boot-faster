@@ -70,7 +70,7 @@ public class DemoUser {
 
     @Override
     public String toString() {
-         return "addressId = " + addressId + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", username = " + username;
+        return "addressId = " + addressId + ", createTime = " + createTime + ", gender = " + gender + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

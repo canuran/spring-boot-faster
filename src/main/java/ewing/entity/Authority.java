@@ -1,12 +1,13 @@
 package ewing.entity;
 
 import javax.annotation.Generated;
+import java.io.Serializable;
 
 /**
  * Authority is a Querydsl bean type
  */
 @Generated("com.querydsl.codegen.BeanSerializer")
-public class Authority {
+public class Authority implements Serializable {
 
     private Long authorityId;
 

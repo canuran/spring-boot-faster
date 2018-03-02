@@ -1,12 +1,13 @@
 package ewing.entity;
 
 import javax.annotation.Generated;
+import java.io.Serializable;
 
 /**
  * User is a Querydsl bean type
  */
 @Generated("com.querydsl.codegen.BeanSerializer")
-public class User {
+public class User implements Serializable {
 
     private java.sql.Date birthday;
 
@@ -14,11 +15,13 @@ public class User {
 
     private String gender;
 
-    private String name;
+    private String nickname;
 
     private String password;
 
     private Long userId;
+
+    private String username;
 
     public java.sql.Date getBirthday() {
         return birthday;
@@ -44,12 +47,12 @@ public class User {
         this.gender = gender;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getPassword() {
@@ -68,9 +71,17 @@ public class User {
         this.userId = userId;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public String toString() {
-        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", name = " + name + ", password = " + password + ", userId = " + userId;
+        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", nickname = " + nickname + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

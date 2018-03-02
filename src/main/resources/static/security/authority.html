@@ -1,0 +1,85 @@
+﻿<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <title>权限管理</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../vendor/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+  <link href="../vendor/bootstrap-table/extensions/tree-column/bootstrap-table-tree-column.css" rel="stylesheet"/>
+  <link href="../vendor/layui/css/layui.css" rel="stylesheet"/>
+  <link href="authority.css" rel="stylesheet"/>
+</head>
+<body>
+<div>
+  <div id="tableToolbar">
+    <div class="layui-btn-group">
+      <button class="layui-btn layui-btn-normal" onclick="createAction()">
+        <i class="glyphicon glyphicon-plus"></i> 新增
+      </button>
+      <a class="layui-btn layui-btn-warm" href="../security/exportAuthorityCodes">
+        <i class="glyphicon glyphicon-download-alt"></i> 编码常量类
+      </a>
+    </div>
+  </div>
+  <table id="mainTable"></table>
+</div>
+
+<!--表单窗口-->
+<div id="formWin" hidden="hidden">
+  <form id="editForm" class="layui-form">
+    <div class="layui-form-item">
+      <label class="layui-form-label">名称</label>
+      <div class="layui-input-block">
+        <input type="text" name="name" class="layui-input"
+               placeholder="请输入名称" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">编码</label>
+      <div class="layui-input-block">
+        <input type="text" name="code" class="layui-input"
+               placeholder="请输入编码" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">类别</label>
+      <div class="layui-input-block">
+        <input type="radio" name="type" value="ACTION" title="操作" checked>
+        <input type="radio" name="type" value="MENU" title="菜单">
+        <input type="radio" name="type" value="PAGE" title="页面">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">内容</label>
+      <div class="layui-input-block">
+        <textarea type="text" name="content" class="layui-textarea"
+                  placeholder="请参考已有的权限内容"></textarea>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <div class="layui-input-block">
+        <button type="button" class="layui-btn layui-btn-primary" onclick="resetEditForm()">
+          <i class="glyphicon glyphicon-refresh"></i> 重置
+        </button>
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit>
+          <i class="glyphicon glyphicon-ok"></i> 确定
+        </button>
+        <button type="button" class="layui-btn layui-btn-warm" onclick="closeFormWin()">
+          <i class="glyphicon glyphicon-remove"></i> 取消
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+<script src="../vendor/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../vendor/bootstrap-table/extensions/tree-column/bootstrap-table-tree-column.min.js"></script>
+<script src="../vendor/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+<script src="../vendor/layui/layui.all.js"></script>
+<script src="../assets/utils.js"></script>
+<script src="authority.js"></script>
+</html>

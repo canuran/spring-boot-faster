@@ -5,7 +5,7 @@
 
     <groupId>ewing</groupId>
     <artifactId>spring-boot-faster</artifactId>
-    <version>1.2.0</version>
+    <version>2.3.0</version>
     <packaging>jar</packaging>
     <name>Spring Boot Faster</name>
     <description>Spring Boot Faster</description>
@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.8.RELEASE</version>
+        <version>1.5.10.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -55,17 +55,20 @@
                 <version>4.1.4</version>
                 <configuration>
                     <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
-                    <jdbcUser>faster</jdbcUser>
-                    <jdbcPassword>faster</jdbcPassword>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/service?useUnicode=true</jdbcUrl>
+                    <jdbcUser>service</jdbcUser>
+                    <jdbcPassword>service</jdbcPassword>
                     <exportForeignKeys>false</exportForeignKeys>
-                    <packageName>ewing.query</packageName>
-                    <targetFolder>${project.basedir}/src/main/java</targetFolder>
                     <sourceFolder>src/main/resources</sourceFolder>
+                    <targetFolder>${project.basedir}/src/main/java</targetFolder>
                     <exportBeans>true</exportBeans>
-                    <beanAddToString>true</beanAddToString>
+                    <packageName>ewing.query</packageName>
                     <beanPackageName>ewing.entity</beanPackageName>
+                    <beanAddToString>true</beanAddToString>
                     <tableNamePattern>%</tableNamePattern>
+                    <beanInterfaces>
+                        <beanInterface>java.io.Serializable</beanInterface>
+                    </beanInterfaces>
                     <customTypes>
                         <customType>com.querydsl.sql.types.UtilDateType</customType>
                     </customTypes>
@@ -100,6 +103,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>4.2.3.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
@@ -114,17 +124,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- Thymeleaf 模板框架 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity4</artifactId>
         </dependency>
 
         <!-- Spring 数据库支持 -->

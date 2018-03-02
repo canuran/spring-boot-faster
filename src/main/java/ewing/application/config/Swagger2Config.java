@@ -27,8 +27,7 @@ public class Swagger2Config {
     @Bean
     public Docket createRestApi() {
         ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("Swagger2构建的接口文档")
-                .description("Swagger2构建的接口文档")
+                .title("服务接口文档")
                 .version("release")
                 .build();
         return new Docket(DocumentationType.SWAGGER_2)

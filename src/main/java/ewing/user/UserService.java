@@ -1,32 +1,23 @@
 package ewing.user;
 
-import ewing.application.AppBeans;
-import ewing.application.paging.Page;
-import ewing.application.paging.Pager;
+import ewing.application.query.Page;
 import ewing.entity.User;
-import ewing.security.AuthorityOrRole;
-import ewing.security.SecurityUser;
-
-import java.util.List;
+import ewing.user.vo.FindUserParam;
+import ewing.user.vo.UserWithRole;
 
 /**
  * 用户服务接口。
  **/
-public interface UserService extends AppBeans {
-
-    User addUser(User user);
+public interface UserService extends UserBeans {
 
     User getUser(Long userId);
 
-    long updateUser(User user);
+    Long addUserWithRole(UserWithRole userWithRole);
 
-    Page<User> findUsers(Pager pager, String username, String roleName);
+    long updateUserWithRole(UserWithRole userWithRole);
+
+    Page<UserWithRole> findUserWithRole(FindUserParam findUserParam);
 
     long deleteUser(Long userId);
 
-    SecurityUser getByUsername(String username);
-
-    List<AuthorityOrRole> getUserAuthorities(Long userId);
-
-    List<PermissionTree> getUserPermissions(Long userId);
 }

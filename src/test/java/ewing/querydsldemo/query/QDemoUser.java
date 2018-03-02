@@ -13,7 +13,6 @@ import java.sql.Types;
 
 import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
-
 /**
  * QDemoUser is a Querydsl query type for DemoUser
  */

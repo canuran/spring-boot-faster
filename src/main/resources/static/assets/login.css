@@ -1,0 +1,140 @@
+/* 全局样式 */
+body {
+  height: 100%;
+  font-family: Microsoft YaHei, serif;
+  font-size: 18px;
+  font-weight: 400;
+  overflow: auto;
+  background: #ECECEC;
+}
+
+img {
+  vertical-align: middle;
+}
+
+a, a:hover, a:active, a:focus {
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+
+body:before {
+  height: 50%;
+  width: 100%;
+  min-width: 600px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #17b0ec;
+  content: "";
+  z-index: 0
+}
+
+.login-title {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 500px;
+  margin-left: -230px;
+  z-index: 10;
+  text-align: center;
+  color: white;
+  font-size: 35px;
+  vertical-align: middle;
+}
+
+#login-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 250px;
+  margin-left: -230px;
+  margin-top: -125px;
+  padding: 25px;
+  z-index: 10;
+  background: #fff;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, .3);
+  border-radius: 2px;
+  text-align: center;
+}
+
+#login-alert {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  width: 500px;
+  margin-left: -230px;
+  z-index: 10;
+  text-align: center;
+}
+
+.margin-input {
+  margin: 20px 40px 20px 20px;
+}
+
+#login-button {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  top: 50%;
+  margin-top: -32px;
+  right: -32px;
+  background: #FF4F0F;
+}
+
+#login-button i {
+  font-size: 30px;
+  vertical-align: middle;
+  color: #fff;
+}
+
+.input-group-addon {
+  border: none;
+  background: none;
+  font-size: 18px;
+}
+
+.form-control {
+  position: relative;
+  font-size: 18px;
+  border: 0 solid #e0e0e0;
+  border-bottom-width: 1px;
+  padding: 0;
+  background: #fff;
+  height: 35px;
+  line-height: 35px;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  box-shadow: none;
+}
+
+.form-control:active, .form-control:focus {
+  box-shadow: none;
+}
+
+.fg-line {
+  position: relative;
+  vertical-align: top;
+  display: inline-block;
+  width: 100%;
+}
+
+.fg-line:after {
+  position: absolute;
+  z-index: 3;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  content: "";
+  -webkit-transition: all;
+  -o-transition: all;
+  transition: all;
+  -webkit-transition-duration: .3s;
+  transition-duration: .3s;
+  background: #FF4F0F;
+}
+
+.fg-line.fg-toggled:after {
+  width: 100%
+}

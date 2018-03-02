@@ -1,0 +1,106 @@
+﻿<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <title>用户管理</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../vendor/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+  <link href="../vendor/select2/css/select2.min.css" rel="stylesheet">
+  <link href="../vendor/layui/css/layui.css" rel="stylesheet"/>
+  <link href="user.css" rel="stylesheet"/>
+</head>
+<body>
+<div>
+  <div id="tableToolbar">
+    <div class="layui-inline">
+      <input id="usernameSearch" class="layui-input" placeholder="用户名"/>
+    </div>
+    <div class="layui-inline">
+      <input id="nicknameSearch" class="layui-input" placeholder="昵称"/>
+    </div>
+    <div class="layui-btn-group">
+      <button class="layui-btn layui-btn-normal" onclick="searchAction()">
+        <i class="glyphicon glyphicon-search"></i> 搜索
+      </button>
+      <button class="layui-btn layui-btn-normal" onclick="createAction()">
+        <i class="glyphicon glyphicon-plus"></i> 新增
+      </button>
+    </div>
+  </div>
+  <table id="mainTable"></table>
+</div>
+
+<!--表单窗口-->
+<div id="formWin" hidden="hidden">
+  <form id="editForm" class="layui-form">
+    <div class="layui-form-item">
+      <label class="layui-form-label">用户名</label>
+      <div class="layui-input-block">
+        <input type="text" name="username" class="layui-input"
+               placeholder="请输入用户名" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">昵称</label>
+      <div class="layui-input-block">
+        <input type="text" name="nickname" class="layui-input"
+               placeholder="请输入昵称" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">密码</label>
+      <div class="layui-input-block">
+        <input type="password" name="password" class="layui-input"
+               placeholder="请输入密码" lay-verify="required">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">性别</label>
+      <div class="layui-input-block">
+        <input type="radio" name="gender" value="SECRET" title="保密" checked>
+        <input type="radio" name="gender" value="MALE" title="男">
+        <input type="radio" name="gender" value="FEMALE" title="女">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">出生日期</label>
+      <div class="layui-input-block">
+        <input id="dateInput" name="birthday" class="layui-input"
+               placeholder="请选择出生日期" lay-verify="required" readonly/>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">角色</label>
+      <div class="layui-input-block">
+        <select lay-ignore id="rolesSelect" name="roles" multiple readonly>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item" style="margin-bottom: 0">
+      <div class="layui-input-block">
+        <button type="button" class="layui-btn layui-btn-primary" onclick="resetEditForm()">
+          <i class="glyphicon glyphicon-refresh"></i> 重置
+        </button>
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit>
+          <i class="glyphicon glyphicon-ok"></i> 确定
+        </button>
+        <button type="button" class="layui-btn layui-btn-warm" onclick="closeFormWin()">
+          <i class="glyphicon glyphicon-remove"></i> 取消
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+<script src="../vendor/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendor/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../vendor/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+<script src="../vendor/select2/js/select2.full.min.js"></script>
+<script src="../vendor/select2/js/i18n/zh-CN.js"></script>
+<script src="../vendor/layui/layui.all.js"></script>
+<script src="../assets/utils.js"></script>
+<script src="user.js"></script>
+</html>
