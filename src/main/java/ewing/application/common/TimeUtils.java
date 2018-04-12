@@ -400,9 +400,20 @@ public class TimeUtils {
     }
 
     /**
+     * 设置昨天的00:00:00.0。
+     */
+    public static Date yesterdayStart(Date today) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, -1);
+        setDayStart(calendar);
+        return calendar.getTime();
+    }
+
+    /**
      * 设置昨天的23:59:59.999。
      */
-    public static Date yestodayEnd(Date today) {
+    public static Date yesterdayEnd(Date today) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.add(Calendar.DATE, -1);
@@ -418,6 +429,17 @@ public class TimeUtils {
         calendar.setTime(today);
         calendar.add(Calendar.DATE, 1);
         setDayStart(calendar);
+        return calendar.getTime();
+    }
+
+    /**
+     * 设置明天的23:59:59.999。
+     */
+    public static Date tomorrowEnd(Date today) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DATE, 1);
+        setDayEnd(calendar);
         return calendar.getTime();
     }
 
