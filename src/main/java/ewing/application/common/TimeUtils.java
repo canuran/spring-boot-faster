@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 /**
  * 日期处理类。
@@ -18,7 +17,7 @@ public class TimeUtils {
     /**
      * 把日期字符串格式化成日期类型。
      */
-    public static Date convert2Date(String dateStr, String format) {
+    public static Date parseDate(String dateStr, String format) {
         SimpleDateFormat simple = new SimpleDateFormat(format);
         try {
             return simple.parse(dateStr);
@@ -30,38 +29,47 @@ public class TimeUtils {
     /**
      * 把日期类型格式化成字符串。
      */
-    public static String convert2String(Date date, String format) {
+    public static String formatDate(Date date, String format) {
         return new SimpleDateFormat(format).format(date);
     }
 
     /**
      * 转sql的time格式。
      */
-    public static Timestamp convertSqlTime(Date date) {
+    public static Timestamp toTimestamp(Date date) {
         return new Timestamp(date.getTime());
     }
 
     /**
      * 转sql的日期格式。
      */
-    public static Date convertSqlDate(Date date) {
+    public static Date toSqlDate(Date date) {
         return new Date(date.getTime());
     }
 
     /**
      * 获取当前日期。
      */
-    public static String getCurrentDate(String format) {
+    public static String currentDate(String format) {
         return new SimpleDateFormat(format).format(new Date());
     }
 
     /**
      * 获取今天开始的时间。
      */
-    public static Date getStartToday() {
-        long zero = System.currentTimeMillis() / 86400000 * 86400000
-                - TimeZone.getDefault().getRawOffset();
-        return new Date(zero);
+    public static Date getTodayStart() {
+        Calendar calendar = Calendar.getInstance();
+        setDayStart(calendar);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取今天开始的时间。
+     */
+    public static Date getTodayEnd() {
+        Calendar calendar = Calendar.getInstance();
+        setDayEnd(calendar);
+        return calendar.getTime();
     }
 
     /**
@@ -355,7 +363,7 @@ public class TimeUtils {
     /**
      * 设置23:59:59.999。
      */
-    private static void setEndTimeOfDay(Calendar calendar) {
+    private static void setDayEnd(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
@@ -365,7 +373,7 @@ public class TimeUtils {
     /**
      * 设置00:00:00.0。
      */
-    private static void setStartTimeOfDay(Calendar calendar) {
+    private static void setDayStart(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -375,19 +383,19 @@ public class TimeUtils {
     /**
      * 设置23:59:59.999。
      */
-    public static Date setEndDay(Date date) {
+    public static Date setDayEnd(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        setEndTimeOfDay(calendar);
+        setDayEnd(calendar);
         return calendar.getTime();
     }
 
     /**
      * 设置00:00:00.000。
      */
-    public static Date setStartDay(Date date) {
+    public static Date setDayStart(Date date) {
         Calendar calendar = Calendar.getInstance();
-        setStartTimeOfDay(calendar);
+        setDayStart(calendar);
         return calendar.getTime();
     }
 
@@ -398,7 +406,7 @@ public class TimeUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.add(Calendar.DATE, -1);
-        setEndTimeOfDay(calendar);
+        setDayEnd(calendar);
         return calendar.getTime();
     }
 
@@ -409,7 +417,7 @@ public class TimeUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.add(Calendar.DATE, 1);
-        setStartTimeOfDay(calendar);
+        setDayStart(calendar);
         return calendar.getTime();
     }
 
