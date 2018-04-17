@@ -96,8 +96,8 @@ public class OkHttpUtils {
             return this;
         }
 
-        public RequestBuilder map(Map<String, Object> map) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+        public RequestBuilder map(Map<String, ?> map) {
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
                 param(entry.getKey(), entry.getValue());
             }
             return this;
@@ -163,7 +163,7 @@ public class OkHttpUtils {
         }
 
         @Override
-        public GetBuilder map(Map<String, Object> map) {
+        public GetBuilder map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
@@ -209,7 +209,7 @@ public class OkHttpUtils {
         }
 
         @Override
-        public FormPostBuilder map(Map<String, Object> map) {
+        public FormPostBuilder map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
@@ -250,7 +250,7 @@ public class OkHttpUtils {
         }
 
         @Override
-        public MultiFormBuilder map(Map<String, Object> map) {
+        public MultiFormBuilder map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
@@ -311,7 +311,7 @@ public class OkHttpUtils {
         }
 
         @Override
-        public BodyPostBuilder map(Map<String, Object> map) {
+        public BodyPostBuilder map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
