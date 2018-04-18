@@ -52,8 +52,6 @@ public class StringDateParser {
 
     // 字段长度依次是年、月、日、时、分、秒、毫秒、时区时、时区分
     private static final int[] LENGTHS = new int[]{4, 2, 2, 2, 2, 2, 3, 2, 2};
-    // 分隔符最大长度
-    private static final int MAX_SEPARATOR_LENGTH = 3;
 
     /**
      * 解析字符串时间为日历。
@@ -69,47 +67,41 @@ public class StringDateParser {
         // 当前字段的位数
         int length = 0;
         // 时区符号 1为正 -1为负
-        int timeZoneSign = 0;
-        // 分隔符计数器
-        int separator = 0;
+        int tzSign = 0;
         for (int i = 0; i < source.length() && index < fields.length; i++) {
             char ch = source.charAt(i);
             // 数字是有效时间值
             if (ch >= '0' && ch <= '9') {
-                separator = 0;
                 length++;
                 // 当前字段值有新数字则添加到末位
                 fields[index] = fields[index] * 10 + ch - '0';
+                // 解析时区字段时，默认为正时区
+                if (index == 7 && tzSign == 0) {
+                    tzSign = 1;
+                }
                 // 当前字段已满，切换下一个日期字段
                 if (length == LENGTHS[index]) {
                     index++;
                     length = 0;
                 }
             } else {
-                // 小时字段之后，检测时区标志符+-
+                // 小时字段之后，检测时区标志符
                 if (index > 2) {
-                    if (ch == 'Z') {
-                        // 标准时区
-                        timeZoneSign = 1;
+                    if (ch == 'Z') { // 标准时区
+                        tzSign = 1;
                         break;
-                    } else if (ch == '+') {
-                        // 正时区
+                    } else if (ch == '+') { // 正时区
                         index = 7;
-                        timeZoneSign = 1;
+                        tzSign = 1;
                         continue;
-                    } else if (ch == '-') {
-                        // 负时区
+                    } else if (ch == '-') { // 负时区
                         index = 7;
-                        timeZoneSign = -1;
+                        tzSign = -1;
                         continue;
                     }
                 }
-                // 遇到非数字视为分隔符
-                separator++;
-                if (separator > MAX_SEPARATOR_LENGTH) {
-                    throw new IllegalArgumentException(source);
-                } else if (length > 0) {
-                    // 切换下一个日期字段
+                // 遇到非数字视为分隔符，切换下一个日期字段
+                if (length > 0) {
                     index++;
                     length = 0;
                 }
@@ -129,9 +121,9 @@ public class StringDateParser {
         calendar.set(Calendar.SECOND, fields[5]);
         calendar.set(Calendar.MILLISECOND, fields[6]);
         // 处理时区小时差和分差
-        if (timeZoneSign != 0) {
+        if (tzSign != 0) {
             int offset = fields[7] * 3600000 + fields[8] * 60000;
-            calendar.set(Calendar.ZONE_OFFSET, timeZoneSign * offset);
+            calendar.set(Calendar.ZONE_OFFSET, tzSign * offset);
         }
         return calendar;
     }
