@@ -69,7 +69,7 @@ public class StringDateParser {
         // 当前字段的位数
         int length = 0;
         // 时区符号 1为正 -1为负
-        int timeZoneSign = 1;
+        int timeZoneSign = 0;
         // 分隔符计数器
         int separator = 0;
         for (int i = 0; i < source.length() && index < fields.length; i++) {
@@ -129,7 +129,7 @@ public class StringDateParser {
         calendar.set(Calendar.SECOND, fields[5]);
         calendar.set(Calendar.MILLISECOND, fields[6]);
         // 处理时区小时差和分差
-        if (index > 6) {
+        if (timeZoneSign != 0) {
             int offset = fields[7] * 3600000 + fields[8] * 60000;
             calendar.set(Calendar.ZONE_OFFSET, timeZoneSign * offset);
         }
