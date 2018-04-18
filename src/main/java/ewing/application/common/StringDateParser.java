@@ -90,11 +90,12 @@ public class StringDateParser {
                 if (index > 2) {
                     if (ch == 'Z') {
                         // 标准时区
-                        index = fields.length;
+                        timeZoneSign = 1;
                         break;
                     } else if (ch == '+') {
                         // 正时区
                         index = 7;
+                        timeZoneSign = 1;
                         continue;
                     } else if (ch == '-') {
                         // 负时区
