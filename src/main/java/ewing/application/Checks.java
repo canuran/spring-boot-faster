@@ -11,120 +11,146 @@ import java.util.function.Supplier;
  *
  * @author Ewing
  */
-public class Asserts {
+public class Checks {
 
-    private Asserts() {
+    private Checks() {
     }
 
-    public static <T> ObjectAssert<T> of(T value) {
-        return new ObjectAssert<>(value);
+    public static <T> ObjectCheck<T> of(T value) {
+        return new ObjectCheck<>(value);
     }
 
-    public static <T extends CharSequence> CharsAssert<T> of(T value) {
-        return new CharsAssert<>(value);
+    public static <T extends CharSequence> CharsCheck<T> of(T value) {
+        return new CharsCheck<>(value);
     }
 
-    public static StringAssert of(String value) {
-        return new StringAssert(value);
+    public static StringCheck of(String value) {
+        return new StringCheck(value);
     }
 
-    public static <T extends Number> NumberAssert<T> of(T value) {
-        return new NumberAssert<>(value);
+    public static <T extends Number> NumberCheck<T> of(T value) {
+        return new NumberCheck<>(value);
     }
 
-    public static <T> ArrayAssert<T> of(T[] value) {
-        return new ArrayAssert<>(value);
+    public static <T> ArrayCheck<T> of(T[] value) {
+        return new ArrayCheck<>(value);
     }
 
-    public static <T extends Collection<?>> CollectionAssert<T> of(T value) {
-        return new CollectionAssert<>(value);
+    public static <T extends Collection<?>> CollectionCheck<T> of(T value) {
+        return new CollectionCheck<>(value);
     }
 
     /**
      * 用于判断对象参数。
      */
-    public static class ObjectAssert<T> {
+    public static class ObjectCheck<T> {
         protected T value;
 
-        public ObjectAssert(T value) {
+        public ObjectCheck(T value) {
             this.value = value;
         }
 
-        public ObjectAssert<T> equalsDo(Object other, Consumer<T> consumer) {
+        public T get() {
+            return value;
+        }
+
+        public ObjectCheck<T> use(Consumer<T> consumer) {
+            consumer.accept(value);
+            return this;
+        }
+
+        public ObjectCheck<T> equalsDo(Object other, Consumer<T> consumer) {
             if (Objects.equals(value, other)) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public ObjectAssert<T> nullDo(Runnable execute) {
+        public ObjectCheck<T> nullDo(Runnable execute) {
             if (value == null) {
                 execute.run();
             }
             return this;
         }
 
-        public ObjectAssert<T> notNull(Consumer<T> consumer) {
+        public ObjectCheck<T> notNull(Consumer<T> consumer) {
             if (value != null) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public T nullTo(T other) {
-            return value == null ? other : value;
+        public ObjectCheck<T> nullTo(T other) {
+            if (value == null) {
+                value = other;
+            }
+            return this;
         }
 
-        public T nullGet(Supplier<T> supplier) {
-            return value == null ? supplier.get() : value;
+        public ObjectCheck<T> nullGet(Supplier<T> supplier) {
+            if (value == null) {
+                value = supplier.get();
+            }
+            return this;
         }
 
-        public ObjectAssert<T> trueDo(Predicate<T> tester, Consumer<T> consumer) {
+        public ObjectCheck<T> trueDo(Predicate<T> tester, Consumer<T> consumer) {
             if (tester.test(value)) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public T trueTo(Predicate<T> tester, T other) {
-            return tester.test(value) ? other : value;
+        public ObjectCheck<T> trueTo(Predicate<T> tester, T other) {
+            if (tester.test(value)) {
+                value = other;
+            }
+            return this;
         }
 
-        public T trueGet(Predicate<T> tester, Supplier<T> supplier) {
-            return tester.test(value) ? supplier.get() : value;
+        public ObjectCheck<T> trueGet(Predicate<T> tester, Supplier<T> supplier) {
+            if (tester.test(value)) {
+                value = supplier.get();
+            }
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "{" + "value=" + value + '}';
         }
     }
 
     /**
      * 用于判断字符序列参数。
      */
-    public static class CharsAssert<T extends CharSequence> extends ObjectAssert<T> {
-        public CharsAssert(T value) {
+    public static class CharsCheck<T extends CharSequence> extends ObjectCheck<T> {
+        public CharsCheck(T value) {
             super(value);
         }
 
-        public CharsAssert<T> lengthGt(int length, Consumer<T> consumer) {
+        public CharsCheck<T> lengthGt(int length, Consumer<T> consumer) {
             if (value != null && value.length() > length) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CharsAssert<T> lengthLt(int length, Consumer<T> consumer) {
+        public CharsCheck<T> lengthLt(int length, Consumer<T> consumer) {
             if (value == null || value.length() < length) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CharsAssert<T> lengthIn(int min, int max, Consumer<T> consumer) {
+        public CharsCheck<T> lengthIn(int min, int max, Consumer<T> consumer) {
             if (value != null && value.length() >= min && value.length() <= max) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CharsAssert<T> lengthNotIn(int min, int max, Consumer<T> consumer) {
+        public CharsCheck<T> lengthNotIn(int min, int max, Consumer<T> consumer) {
             if (value == null || value.length() < min || value.length() > max) {
                 consumer.accept(value);
             }
@@ -135,19 +161,19 @@ public class Asserts {
     /**
      * 用于判断字符串参数。
      */
-    public static class StringAssert extends CharsAssert<String> {
-        public StringAssert(String value) {
+    public static class StringCheck extends CharsCheck<String> {
+        public StringCheck(String value) {
             super(value);
         }
 
-        public <T extends CharSequence> StringAssert contains(T target, Consumer<String> consumer) {
+        public <T extends CharSequence> StringCheck contains(T target, Consumer<String> consumer) {
             if (value != null && value.contains(target)) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public StringAssert matches(String target, Consumer<String> consumer) {
+        public StringCheck matches(String target, Consumer<String> consumer) {
             if (value != null && value.matches(target)) {
                 consumer.accept(value);
             }
@@ -158,61 +184,61 @@ public class Asserts {
     /**
      * 用于判断数值参数。
      */
-    public static class NumberAssert<T extends Number> extends ObjectAssert<T> {
-        public NumberAssert(T value) {
+    public static class NumberCheck<T extends Number> extends ObjectCheck<T> {
+        public NumberCheck(T value) {
             super(value);
         }
 
-        public NumberAssert<T> eqZero(Runnable execute) {
+        public NumberCheck<T> eqZero(Runnable execute) {
             if (value != null && value.doubleValue() == 0.0) {
                 execute.run();
             }
             return this;
         }
 
-        public NumberAssert<T> gtZero(Consumer<T> consumer) {
+        public NumberCheck<T> gtZero(Consumer<T> consumer) {
             if (value != null && value.doubleValue() > 0.0) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> ltZero(Consumer<T> consumer) {
+        public NumberCheck<T> ltZero(Consumer<T> consumer) {
             if (value != null && value.doubleValue() < 0.0) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> gt(Number number, Consumer<T> consumer) {
+        public NumberCheck<T> gt(Number number, Consumer<T> consumer) {
             if (value != null && value.doubleValue() > number.doubleValue()) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> goe(Number number, Consumer<T> consumer) {
+        public NumberCheck<T> goe(Number number, Consumer<T> consumer) {
             if (value != null && value.doubleValue() >= number.doubleValue()) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> lt(Number number, Consumer<T> consumer) {
+        public NumberCheck<T> lt(Number number, Consumer<T> consumer) {
             if (value != null && value.doubleValue() < number.doubleValue()) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> loe(Number number, Consumer<T> consumer) {
+        public NumberCheck<T> loe(Number number, Consumer<T> consumer) {
             if (value != null && value.doubleValue() <= number.doubleValue()) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public NumberAssert<T> in(Number min, Number max, Consumer<T> consumer) {
+        public NumberCheck<T> in(Number min, Number max, Consumer<T> consumer) {
             if (value != null && value.doubleValue() >= min.doubleValue() &&
                     value.doubleValue() <= max.doubleValue()) {
                 consumer.accept(value);
@@ -220,7 +246,7 @@ public class Asserts {
             return this;
         }
 
-        public NumberAssert<T> notIn(Number min, Number max, Consumer<T> consumer) {
+        public NumberCheck<T> notIn(Number min, Number max, Consumer<T> consumer) {
             if (value == null || value.doubleValue() < min.doubleValue() ||
                     value.doubleValue() > max.doubleValue()) {
                 consumer.accept(value);
@@ -232,13 +258,13 @@ public class Asserts {
     /**
      * 用于判断数组参数。
      */
-    public static class ArrayAssert<T> extends ObjectAssert<T[]> {
-        public ArrayAssert(T[] value) {
+    public static class ArrayCheck<T> extends ObjectCheck<T[]> {
+        public ArrayCheck(T[] value) {
             super(value);
         }
 
         @Override
-        public ArrayAssert<T> equalsDo(Object other, Consumer<T[]> consumer) {
+        public ArrayCheck<T> equalsDo(Object other, Consumer<T[]> consumer) {
             if (value == other) {
                 consumer.accept(value);
             } else if (value != null && other != null &&
@@ -263,35 +289,35 @@ public class Asserts {
             return this;
         }
 
-        public ArrayAssert<T> lengthGt(int length, Consumer<T[]> consumer) {
+        public ArrayCheck<T> lengthGt(int length, Consumer<T[]> consumer) {
             if (value != null && value.length > length) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public ArrayAssert<T> lengthLt(int length, Consumer<T[]> consumer) {
+        public ArrayCheck<T> lengthLt(int length, Consumer<T[]> consumer) {
             if (value == null || value.length < length) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public ArrayAssert<T> lengthIn(int min, int max, Consumer<T[]> consumer) {
+        public ArrayCheck<T> lengthIn(int min, int max, Consumer<T[]> consumer) {
             if (value != null && value.length >= min && value.length <= max) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public ArrayAssert<T> lengthNotIn(int min, int max, Consumer<T[]> consumer) {
+        public ArrayCheck<T> lengthNotIn(int min, int max, Consumer<T[]> consumer) {
             if (value == null || value.length < min || value.length > max) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public ArrayAssert<T> contains(T target, Consumer<T[]> consumer) {
+        public ArrayCheck<T> contains(T target, Consumer<T[]> consumer) {
             if (value != null && value.length > 0) {
                 for (T one : value) {
                     if (Objects.equals(one, target)) {
@@ -303,7 +329,7 @@ public class Asserts {
             return this;
         }
 
-        public ArrayAssert<T> containsAny(T[] targets, Consumer<T[]> consumer) {
+        public ArrayCheck<T> containsAny(T[] targets, Consumer<T[]> consumer) {
             if (value != null && targets != null) {
                 if (targets.length == 0) {
                     consumer.accept(value);
@@ -321,7 +347,7 @@ public class Asserts {
             return this;
         }
 
-        public ArrayAssert<T> containsAll(T[] targets, Consumer<T[]> consumer) {
+        public ArrayCheck<T> containsAll(T[] targets, Consumer<T[]> consumer) {
             if (value != null && targets != null
                     && value.length >= targets.length) {
                 if (targets.length == 0) {
@@ -349,13 +375,13 @@ public class Asserts {
     /**
      * 用于判断集合参数。
      */
-    public static class CollectionAssert<T extends Collection<?>> extends ObjectAssert<T> {
-        public CollectionAssert(T value) {
+    public static class CollectionCheck<T extends Collection<?>> extends ObjectCheck<T> {
+        public CollectionCheck(T value) {
             super(value);
         }
 
         @Override
-        public CollectionAssert<T> equalsDo(Object other, Consumer<T> consumer) {
+        public CollectionCheck<T> equalsDo(Object other, Consumer<T> consumer) {
             if (value == other) {
                 consumer.accept(value);
             } else if (value != null && other != null &&
@@ -380,35 +406,35 @@ public class Asserts {
             return this;
         }
 
-        public CollectionAssert<T> sizeGt(int size, Consumer<T> consumer) {
+        public CollectionCheck<T> sizeGt(int size, Consumer<T> consumer) {
             if (value != null && value.size() > size) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CollectionAssert<T> sizeLt(int size, Consumer<T> consumer) {
+        public CollectionCheck<T> sizeLt(int size, Consumer<T> consumer) {
             if (value == null || value.size() < size) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CollectionAssert<T> sizeIn(int min, int max, Consumer<T> consumer) {
+        public CollectionCheck<T> sizeIn(int min, int max, Consumer<T> consumer) {
             if (value != null && value.size() >= min && value.size() <= max) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CollectionAssert<T> sizeNotIn(int min, int max, Consumer<T> consumer) {
+        public CollectionCheck<T> sizeNotIn(int min, int max, Consumer<T> consumer) {
             if (value == null || value.size() < min || value.size() > max) {
                 consumer.accept(value);
             }
             return this;
         }
 
-        public CollectionAssert<T> contains(Object target, Consumer<T> consumer) {
+        public CollectionCheck<T> contains(Object target, Consumer<T> consumer) {
             if (value != null && value.size() > 0) {
                 for (Object one : value) {
                     if (Objects.equals(one, target)) {
@@ -420,7 +446,7 @@ public class Asserts {
             return this;
         }
 
-        public CollectionAssert<T> containsAny(T targets, Consumer<T> consumer) {
+        public CollectionCheck<T> containsAny(T targets, Consumer<T> consumer) {
             if (value != null && targets != null) {
                 if (targets.size() == 0) {
                     consumer.accept(value);
@@ -438,7 +464,7 @@ public class Asserts {
             return this;
         }
 
-        public CollectionAssert<T> containsAll(T targets, Consumer<T> consumer) {
+        public CollectionCheck<T> containsAll(T targets, Consumer<T> consumer) {
             if (value != null && targets != null
                     && value.size() >= targets.size()) {
                 for (Object target : targets) {
