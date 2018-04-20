@@ -46,7 +46,7 @@ public class Checks {
     public static class ObjectCheck<T> {
         protected T value;
 
-        public ObjectCheck(T value) {
+        ObjectCheck(T value) {
             this.value = value;
         }
 
@@ -125,7 +125,7 @@ public class Checks {
      * 用于判断字符序列参数。
      */
     public static class CharsCheck<T extends CharSequence> extends ObjectCheck<T> {
-        public CharsCheck(T value) {
+        CharsCheck(T value) {
             super(value);
         }
 
@@ -162,7 +162,7 @@ public class Checks {
      * 用于判断字符串参数。
      */
     public static class StringCheck extends CharsCheck<String> {
-        public StringCheck(String value) {
+        StringCheck(String value) {
             super(value);
         }
 
@@ -185,7 +185,7 @@ public class Checks {
      * 用于判断数值参数。
      */
     public static class NumberCheck<T extends Number> extends ObjectCheck<T> {
-        public NumberCheck(T value) {
+        NumberCheck(T value) {
             super(value);
         }
 
@@ -259,7 +259,7 @@ public class Checks {
      * 用于判断数组参数。
      */
     public static class ArrayCheck<T> extends ObjectCheck<T[]> {
-        public ArrayCheck(T[] value) {
+        ArrayCheck(T[] value) {
             super(value);
         }
 
@@ -376,7 +376,7 @@ public class Checks {
      * 用于判断集合参数。
      */
     public static class CollectionCheck<T extends Collection<?>> extends ObjectCheck<T> {
-        public CollectionCheck(T value) {
+        CollectionCheck(T value) {
             super(value);
         }
 
