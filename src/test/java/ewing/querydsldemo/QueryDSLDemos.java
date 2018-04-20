@@ -93,7 +93,7 @@ public class QueryDSLDemos {
         demoUserDao.updaterByKey(userId)
                 .set(qDemoUser.username, "Ewing")
                 .set(qDemoUser.password, "123ABC")
-                // 使用字段表达式更新
+                // 使用字段表达式更新（可防止更新被覆盖）
                 .set(qDemoUser.gender, qDemoUser.gender.add(1))
                 .execute();
 
