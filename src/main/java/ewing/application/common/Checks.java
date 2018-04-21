@@ -130,6 +130,17 @@ public class Checks {
             super(value);
         }
 
+        public C hasText(Consumer<T> consumer) {
+            if (value != null && value.length() > 0) {
+                for (int i = 0; i < value.length(); ++i) {
+                    if (!Character.isWhitespace(value.charAt(i))) {
+                        consumer.accept(value);
+                    }
+                }
+            }
+            return (C) this;
+        }
+
         public C lengthGt(int length, Consumer<T> consumer) {
             if (value != null && value.length() > length) {
                 consumer.accept(value);
