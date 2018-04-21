@@ -113,7 +113,8 @@ public class DictionaryServiceImpl implements DictionaryService {
         AppAsserts.notNull(dictionaryId, "字典ID不能为空！");
         AppAsserts.notNull(dictionaryDao.selectByKey(dictionaryId),
                 "该字典不存在或已删除！");
-        AppAsserts.yes(dictionaryDao.countWhere(qDictionary.parentId.eq(dictionaryId)) < 1,
+        AppAsserts.yes(dictionaryDao.countWhere(
+                qDictionary.parentId.eq(dictionaryId)) < 1,
                 "请先删除该字典的所有子项！");
 
         dictionaryDao.deleteByKey(dictionaryId);
@@ -122,7 +123,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public List<DictionaryNode> findDictionaryTrees(String[] rootValues) {
         AppAsserts.notNull(rootValues, "查询参数不能为空！");
-        List<DictionaryNode> dictionaries = dictionaryDao.findRootSubDictionaries(rootValues);
+        List<DictionaryNode> dictionaries = dictionaryDao
+                .findRootSubDictionaries(rootValues);
         return TreeUtils.toTree(dictionaries,
                 ArrayList::new,
                 DictionaryNode::getDictionaryId,

@@ -80,9 +80,9 @@ public class Checks {
             return (C) this;
         }
 
-        public C nullTo(T other) {
+        public C nullTo(T target) {
             if (value == null) {
-                value = other;
+                value = target;
             }
             return (C) this;
         }
@@ -101,9 +101,9 @@ public class Checks {
             return (C) this;
         }
 
-        public C trueTo(Predicate<T> tester, T other) {
+        public C trueTo(Predicate<T> tester, T target) {
             if (tester.test(value)) {
-                value = other;
+                value = target;
             }
             return (C) this;
         }
@@ -128,6 +128,20 @@ public class Checks {
     public static class CharsCheck<C extends CharsCheck<C, T>, T extends CharSequence> extends ObjectCheck<C, T> {
         CharsCheck(T value) {
             super(value);
+        }
+
+        public C blank(Consumer<T> consumer) {
+            if (value == null || value.length() == 0) {
+                consumer.accept(value);
+            } else {
+                for (int i = 0; i < value.length(); ++i) {
+                    if (!Character.isWhitespace(value.charAt(i))) {
+                        return (C) this;
+                    }
+                }
+                consumer.accept(value);
+            }
+            return (C) this;
         }
 
         public C hasText(Consumer<T> consumer) {
@@ -304,6 +318,20 @@ public class Checks {
             return (C) this;
         }
 
+        public C empty(Runnable execute) {
+            if (value == null || value.length == 0) {
+                execute.run();
+            }
+            return (C) this;
+        }
+
+        public C notEmpty(Consumer<T[]> consumer) {
+            if (value != null && value.length > 0) {
+                consumer.accept(value);
+            }
+            return (C) this;
+        }
+
         public C lengthGt(int length, Consumer<T[]> consumer) {
             if (value != null && value.length > length) {
                 consumer.accept(value);
@@ -418,6 +446,20 @@ public class Checks {
                     }
                     consumer.accept(value);
                 }
+            }
+            return (C) this;
+        }
+
+        public C empty(Runnable execute) {
+            if (value == null || value.size() == 0) {
+                execute.run();
+            }
+            return (C) this;
+        }
+
+        public C notEmpty(Consumer<T> consumer) {
+            if (value != null && value.size() > 0) {
+                consumer.accept(value);
             }
             return (C) this;
         }

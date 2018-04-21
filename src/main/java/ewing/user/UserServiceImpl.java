@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.AppAsserts;
+import ewing.application.common.Checks;
 import ewing.application.query.Page;
 import ewing.entity.Role;
 import ewing.entity.User;
@@ -87,18 +88,19 @@ public class UserServiceImpl implements UserService {
 
         // 更新用户
         SQLUpdateClause update = userDao.updaterByKey(userWithRole.getUserId());
-        if (StringUtils.hasText(userWithRole.getNickname())) {
-            update.set(qUser.nickname, userWithRole.getNickname());
-        }
-        if (StringUtils.hasText(userWithRole.getPassword())) {
-            update.set(qUser.password, userWithRole.getPassword());
-        }
-        if (StringUtils.hasText(userWithRole.getGender())) {
-            update.set(qUser.gender, userWithRole.getGender());
-        }
-        if (userWithRole.getBirthday() != null) {
-            update.set(qUser.birthday, userWithRole.getBirthday());
-        }
+
+        Checks.of(userWithRole.getNickname()).hasText(
+                (value) -> update.set(qUser.nickname, value));
+
+        Checks.of(userWithRole.getPassword()).hasText(
+                (value) -> update.set(qUser.password, value));
+
+        Checks.of(userWithRole.getGender()).hasText(
+                (value) -> update.set(qUser.gender, value));
+
+        Checks.of(userWithRole.getBirthday()).notNull(
+                (value) -> update.set(qUser.birthday, value));
+
         return update.execute();
     }
 
