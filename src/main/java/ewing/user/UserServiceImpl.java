@@ -81,7 +81,8 @@ public class UserServiceImpl implements UserService {
         AppAsserts.notNull(userWithRole.getUserId(), "用户ID不能为空！");
 
         // 更新用户的角色列表
-        userRoleDao.deleteWhere(qUserRole.userId.eq(userWithRole.getUserId()));
+        userRoleDao.deleteWhere(qUserRole
+                .userId.eq(userWithRole.getUserId()));
         addUserRoles(userWithRole);
 
         // 更新用户
@@ -105,11 +106,13 @@ public class UserServiceImpl implements UserService {
     public Page<UserWithRole> findUserWithRole(FindUserParam findUserParam) {
         BooleanExpression expression = Expressions.TRUE;
         // 用户名
-        expression = expression.and(StringUtils.hasText(findUserParam.getUsername())
-                ? qUser.username.contains(findUserParam.getUsername()) : null);
+        expression = expression.and(StringUtils.hasText(
+                findUserParam.getUsername()) ? qUser.username
+                .contains(findUserParam.getUsername()) : null);
         // 昵称
-        expression = expression.and(StringUtils.hasText(findUserParam.getNickname())
-                ? qUser.nickname.contains(findUserParam.getNickname()) : null);
+        expression = expression.and(StringUtils.hasText(
+                findUserParam.getNickname()) ? qUser.nickname
+                .contains(findUserParam.getNickname()) : null);
         return userDao.findUserWithRole(findUserParam, expression);
     }
 
