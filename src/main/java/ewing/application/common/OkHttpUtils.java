@@ -68,17 +68,17 @@ public class OkHttpUtils {
     /**
      * 请求器。
      */
-    private abstract static class Requestter {
+    private abstract static class Requestter<R extends Requestter> {
         protected Request.Builder builder = new Request.Builder();
 
-        public Requestter header(String name, String value) {
+        public R header(String name, String value) {
             builder.header(name, value);
-            return this;
+            return (R) this;
         }
 
-        public abstract Requestter param(String name, Object value);
+        public abstract R param(String name, Object value);
 
-        public Requestter bean(Object bean) {
+        public R bean(Object bean) {
             try {
                 BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
                 PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
@@ -94,14 +94,14 @@ public class OkHttpUtils {
             } catch (IntrospectionException | ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
-            return this;
+            return (R) this;
         }
 
-        public Requestter map(Map<String, ?> map) {
+        public R map(Map<String, ?> map) {
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                 param(entry.getKey(), entry.getValue());
             }
-            return this;
+            return (R) this;
         }
 
         protected abstract Request buildRequest();
@@ -142,31 +142,13 @@ public class OkHttpUtils {
     /**
      * Get请求器。
      */
-    public static class Getter extends Requestter {
+    public static class Getter extends Requestter<Getter> {
         protected StringBuilder urlBuilder;
         private boolean hasParam;
 
         public Getter(String url) {
             this.urlBuilder = new StringBuilder(url);
             this.hasParam = url.contains("?");
-        }
-
-        @Override
-        public Getter header(String name, String value) {
-            super.header(name, value);
-            return this;
-        }
-
-        @Override
-        public Getter bean(Object bean) {
-            super.bean(bean);
-            return this;
-        }
-
-        @Override
-        public Getter map(Map<String, ?> map) {
-            super.map(map);
-            return this;
         }
 
         @Override
@@ -216,29 +198,11 @@ public class OkHttpUtils {
     /**
      * Post请求器。
      */
-    public static class FormPostter extends Requestter {
+    public static class FormPostter extends Requestter<FormPostter> {
         protected FormBody.Builder formBuilder = new FormBody.Builder();
 
         public FormPostter(String url) {
             this.builder.url(url);
-        }
-
-        @Override
-        public FormPostter header(String name, String value) {
-            super.header(name, value);
-            return this;
-        }
-
-        @Override
-        public FormPostter bean(Object bean) {
-            super.bean(bean);
-            return this;
-        }
-
-        @Override
-        public FormPostter map(Map<String, ?> map) {
-            super.map(map);
-            return this;
         }
 
         @Override
@@ -256,30 +220,12 @@ public class OkHttpUtils {
     /**
      * 带文件流Post请求器。
      */
-    public static class MultiPostter extends Requestter {
+    public static class MultiPostter extends Requestter<MultiPostter> {
         protected MultipartBody.Builder multiBuilder = new MultipartBody
                 .Builder().setType(MultipartBody.FORM);
 
         public MultiPostter(String url) {
             this.builder.url(url);
-        }
-
-        @Override
-        public MultiPostter header(String name, String value) {
-            super.header(name, value);
-            return this;
-        }
-
-        @Override
-        public MultiPostter bean(Object bean) {
-            super.bean(bean);
-            return this;
-        }
-
-        @Override
-        public MultiPostter map(Map<String, ?> map) {
-            super.map(map);
-            return this;
         }
 
         @Override
@@ -308,23 +254,11 @@ public class OkHttpUtils {
     /**
      * Body的Post请求器。
      */
-    public static class BodyPostter extends Requestter {
+    public static class BodyPostter extends Requestter<BodyPostter> {
         protected JsonElement jsonBody = JsonNull.INSTANCE;
 
         public BodyPostter(String url) {
             this.builder.url(url);
-        }
-
-        @Override
-        public BodyPostter header(String name, String value) {
-            super.header(name, value);
-            return this;
-        }
-
-        @Override
-        public BodyPostter bean(Object bean) {
-            super.bean(bean);
-            return this;
         }
 
         public BodyPostter json(String json) {
@@ -334,12 +268,6 @@ public class OkHttpUtils {
 
         public BodyPostter gson(JsonElement json) {
             this.jsonBody = json == null ? JsonNull.INSTANCE : json;
-            return this;
-        }
-
-        @Override
-        public BodyPostter map(Map<String, ?> map) {
-            super.map(map);
             return this;
         }
 
