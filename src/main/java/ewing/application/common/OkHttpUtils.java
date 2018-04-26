@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -65,19 +66,19 @@ public class OkHttpUtils {
     }
 
     /**
-     * 请求构造器。
+     * 请求器。
      */
-    private abstract static class RequestBuilder {
+    private abstract static class Requestter {
         protected Request.Builder builder = new Request.Builder();
 
-        public RequestBuilder header(String name, String value) {
+        public Requestter header(String name, String value) {
             builder.header(name, value);
             return this;
         }
 
-        public abstract RequestBuilder param(String name, Object value);
+        public abstract Requestter param(String name, Object value);
 
-        public RequestBuilder bean(Object bean) {
+        public Requestter bean(Object bean) {
             try {
                 BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
                 PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
@@ -96,7 +97,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        public RequestBuilder map(Map<String, ?> map) {
+        public Requestter map(Map<String, ?> map) {
             for (Map.Entry<String, ?> entry : map.entrySet()) {
                 param(entry.getKey(), entry.getValue());
             }
@@ -139,37 +140,37 @@ public class OkHttpUtils {
     }
 
     /**
-     * Get请求构造器。
+     * Get请求器。
      */
-    public static class GetBuilder extends RequestBuilder {
+    public static class Getter extends Requestter {
         protected StringBuilder urlBuilder;
         private boolean hasParam;
 
-        public GetBuilder(String url) {
+        public Getter(String url) {
             this.urlBuilder = new StringBuilder(url);
             this.hasParam = url.contains("?");
         }
 
         @Override
-        public GetBuilder header(String name, String value) {
+        public Getter header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
         @Override
-        public GetBuilder bean(Object bean) {
+        public Getter bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
         @Override
-        public GetBuilder map(Map<String, ?> map) {
+        public Getter map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
 
         @Override
-        public GetBuilder param(String name, Object value) {
+        public Getter param(String name, Object value) {
             if (hasParam) {
                 urlBuilder.append('&');
             } else {
@@ -180,6 +181,32 @@ public class OkHttpUtils {
             return this;
         }
 
+        public <C extends Collection<?>> Getter collection(String name, C params) {
+            StringBuilder builder = new StringBuilder();
+            if (params != null && params.size() > 0) {
+                for (Object param : params) {
+                    if (builder.length() > 0) {
+                        builder.append(',');
+                    }
+                    builder.append(param);
+                }
+            }
+            return param(name, builder.toString());
+        }
+
+        public Getter array(String name, Object... params) {
+            StringBuilder builder = new StringBuilder();
+            if (params != null && params.length > 0) {
+                for (Object param : params) {
+                    if (builder.length() > 0) {
+                        builder.append(',');
+                    }
+                    builder.append(param);
+                }
+            }
+            return param(name, builder.toString());
+        }
+
         @Override
         protected Request buildRequest() {
             return builder.get().url(urlBuilder.toString()).build();
@@ -187,35 +214,35 @@ public class OkHttpUtils {
     }
 
     /**
-     * Post请求构造器。
+     * Post请求器。
      */
-    public static class FormPostBuilder extends RequestBuilder {
+    public static class FormPostter extends Requestter {
         protected FormBody.Builder formBuilder = new FormBody.Builder();
 
-        public FormPostBuilder(String url) {
+        public FormPostter(String url) {
             this.builder.url(url);
         }
 
         @Override
-        public FormPostBuilder header(String name, String value) {
+        public FormPostter header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
         @Override
-        public FormPostBuilder bean(Object bean) {
+        public FormPostter bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
         @Override
-        public FormPostBuilder map(Map<String, ?> map) {
+        public FormPostter map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
 
         @Override
-        public FormPostBuilder param(String name, Object value) {
+        public FormPostter param(String name, Object value) {
             formBuilder.add(String.valueOf(name), String.valueOf(value));
             return this;
         }
@@ -227,47 +254,47 @@ public class OkHttpUtils {
     }
 
     /**
-     * 带文件流Post请求构造器。
+     * 带文件流Post请求器。
      */
-    public static class MultiFormBuilder extends RequestBuilder {
+    public static class MultiPostter extends Requestter {
         protected MultipartBody.Builder multiBuilder = new MultipartBody
                 .Builder().setType(MultipartBody.FORM);
 
-        public MultiFormBuilder(String url) {
+        public MultiPostter(String url) {
             this.builder.url(url);
         }
 
         @Override
-        public MultiFormBuilder header(String name, String value) {
+        public MultiPostter header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
         @Override
-        public MultiFormBuilder bean(Object bean) {
+        public MultiPostter bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
         @Override
-        public MultiFormBuilder map(Map<String, ?> map) {
+        public MultiPostter map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
 
         @Override
-        public MultiFormBuilder param(String name, Object value) {
+        public MultiPostter param(String name, Object value) {
             multiBuilder.addFormDataPart(String.valueOf(name), String.valueOf(value));
             return this;
         }
 
-        public MultiFormBuilder file(String name, File file) {
+        public MultiPostter file(String name, File file) {
             multiBuilder.addFormDataPart(String.valueOf(name),
                     file.getName(), RequestBody.create(STREAM, file));
             return this;
         }
 
-        public MultiFormBuilder part(MultipartBody.Part part) {
+        public MultiPostter part(MultipartBody.Part part) {
             multiBuilder.addPart(part);
             return this;
         }
@@ -279,45 +306,45 @@ public class OkHttpUtils {
     }
 
     /**
-     * Body的Post请求构造器。
+     * Body的Post请求器。
      */
-    public static class BodyPostBuilder extends RequestBuilder {
+    public static class BodyPostter extends Requestter {
         protected JsonElement jsonBody = JsonNull.INSTANCE;
 
-        public BodyPostBuilder(String url) {
+        public BodyPostter(String url) {
             this.builder.url(url);
         }
 
         @Override
-        public BodyPostBuilder header(String name, String value) {
+        public BodyPostter header(String name, String value) {
             super.header(name, value);
             return this;
         }
 
         @Override
-        public BodyPostBuilder bean(Object bean) {
+        public BodyPostter bean(Object bean) {
             super.bean(bean);
             return this;
         }
 
-        public BodyPostBuilder json(String json) {
+        public BodyPostter json(String json) {
             this.jsonBody = GsonUtils.getGson().toJsonTree(json);
             return this;
         }
 
-        public BodyPostBuilder gson(JsonElement json) {
+        public BodyPostter gson(JsonElement json) {
             this.jsonBody = json == null ? JsonNull.INSTANCE : json;
             return this;
         }
 
         @Override
-        public BodyPostBuilder map(Map<String, ?> map) {
+        public BodyPostter map(Map<String, ?> map) {
             super.map(map);
             return this;
         }
 
         @Override
-        public BodyPostBuilder param(String name, Object value) {
+        public BodyPostter param(String name, Object value) {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonObject();
             } else if (!jsonBody.isJsonObject()) {
@@ -341,7 +368,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        public BodyPostBuilder add(Object value) {
+        public BodyPostter add(Object value) {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonArray();
             } else if (!jsonBody.isJsonArray()) {
@@ -371,11 +398,11 @@ public class OkHttpUtils {
     }
 
     /**
-     * Body的Put请求构造器。
+     * Body的Put请求器。
      */
-    public static class BodyPutBuilder extends BodyPostBuilder {
+    public static class BodyPutter extends BodyPostter {
 
-        public BodyPutBuilder(String url) {
+        public BodyPutter(String url) {
             super(url);
         }
 
@@ -386,9 +413,9 @@ public class OkHttpUtils {
     }
 
     /**
-     * Delete请求构造器。
+     * Delete请求器。
      */
-    public static class DeleteBuilder extends GetBuilder {
+    public static class DeleteBuilder extends Getter {
 
         public DeleteBuilder(String url) {
             super(url);
@@ -403,36 +430,36 @@ public class OkHttpUtils {
     /**
      * 准备创建Url的Get请求。
      */
-    public static GetBuilder get(String url) {
-        return new GetBuilder(url);
+    public static Getter get(String url) {
+        return new Getter(url);
     }
 
     /**
      * 准备创建表单的Post请求。
      */
-    public static FormPostBuilder formPost(String url) {
-        return new FormPostBuilder(url);
+    public static FormPostter formPost(String url) {
+        return new FormPostter(url);
     }
 
     /**
      * 准备创建带文件的Post请求。
      */
-    public static MultiFormBuilder multiPost(String url) {
-        return new MultiFormBuilder(url);
+    public static MultiPostter multiPost(String url) {
+        return new MultiPostter(url);
     }
 
     /**
      * 准备创建Body的Post请求。
      */
-    public static BodyPostBuilder bodyPost(String url) {
-        return new BodyPostBuilder(url);
+    public static BodyPostter bodyPost(String url) {
+        return new BodyPostter(url);
     }
 
     /**
      * 准备创建Body的Put请求。
      */
-    public static BodyPutBuilder bodyPut(String url) {
-        return new BodyPutBuilder(url);
+    public static BodyPutter bodyPut(String url) {
+        return new BodyPutter(url);
     }
 
     /**
