@@ -1,5 +1,6 @@
 package ewing.application.query;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -14,19 +15,17 @@ public class Page<T> {
     private List<T> rows;
 
     public Page() {
+        this.rows = Collections.emptyList();
     }
 
     public Page(List<T> rows) {
-        if (rows == null) {
-            return;
-        }
-        this.rows = rows;
-        this.total = rows.size();
+        this.rows = rows == null ? Collections.emptyList() : rows;
+        this.total = this.rows.size();
     }
 
     public Page(long total, List<T> rows) {
         this.total = total;
-        this.rows = rows;
+        this.rows = rows == null ? Collections.emptyList() : rows;
     }
 
     public long getTotal() {
@@ -43,14 +42,12 @@ public class Page<T> {
     }
 
     public Page<T> setRows(List<T> rows) {
-        this.rows = rows;
+        this.rows = rows == null ? Collections.emptyList() : rows;
         return this;
     }
 
     public Page<T> forEach(Consumer<T> consumer) {
-        if (rows != null && rows.size() > 0) {
-            this.rows.forEach(consumer);
-        }
+        this.rows.forEach(consumer);
         return this;
     }
 }
