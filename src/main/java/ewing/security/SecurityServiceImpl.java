@@ -1,6 +1,5 @@
 package ewing.security;
 
-import com.querydsl.core.types.Projections;
 import ewing.application.AppAsserts;
 import ewing.application.common.TreeUtils;
 import ewing.application.query.Page;
@@ -49,8 +48,8 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public SecurityUser getSecurityUser(String username) {
         AppAsserts.hasText(username, "用户名不能为空！");
-        return userDao.selectOne(qUser.username.eq(username),
-                Projections.bean(SecurityUser.class, qUser.all()));
+        return userDao.selector(SecurityUser.class)
+                .where(qUser.username.eq(username)).fetchOne();
     }
 
     @Override
@@ -124,8 +123,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<AuthorityNode> getAuthorityTree() {
-        return TreeUtils.toTree(authorityDao.selectAll(
-                Projections.bean(AuthorityNode.class, qAuthority.all())),
+        return TreeUtils.toTree(authorityDao.selector(AuthorityNode.class).fetch(),
                 ArrayList::new,
                 AuthorityNode::getAuthorityId,
                 AuthorityNode::getParentId,

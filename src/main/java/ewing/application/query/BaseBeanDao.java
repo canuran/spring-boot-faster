@@ -1,8 +1,10 @@
 package ewing.application.query;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
@@ -57,15 +59,23 @@ public abstract class BaseBeanDao<BASE extends RelationalPathBase<BEAN>, BEAN> i
     }
 
     @Override
-    public List<BEAN> selectAll() {
-        return queryFactory.selectFrom(pathBase)
-                .fetch();
+    public <TYPE> BeanSelector<TYPE> selector(Class<TYPE> beanClass) {
+        return new BeanSelector<>(queryFactory, pathBase, beanClass);
     }
 
     @Override
-    public <TYPE> List<TYPE> selectAll(Expression<TYPE> expression) {
-        return queryFactory.select(expression)
-                .from(pathBase)
+    public <TYPE> BeanSelector<TYPE> selector(Expression<TYPE> expression) {
+        return new BeanSelector<>(queryFactory, pathBase, expression);
+    }
+
+    @Override
+    public BeanSelector<Tuple> selector(Expression<?>... expressions) {
+        return new BeanSelector<>(queryFactory, pathBase, Projections.tuple(expressions));
+    }
+
+    @Override
+    public List<BEAN> selectAll() {
+        return queryFactory.selectFrom(pathBase)
                 .fetch();
     }
 
@@ -77,24 +87,8 @@ public abstract class BaseBeanDao<BASE extends RelationalPathBase<BEAN>, BEAN> i
     }
 
     @Override
-    public <TYPE> TYPE selectByKey(Object key, Expression<TYPE> expression) {
-        return queryFactory.select(expression)
-                .from(pathBase)
-                .where(QueryUtils.baseKeyEquals(pathBase, key))
-                .fetchOne();
-    }
-
-    @Override
     public BEAN selectOne(Predicate predicate) {
         return queryFactory.selectFrom(pathBase)
-                .where(predicate)
-                .fetchOne();
-    }
-
-    @Override
-    public <TYPE> TYPE selectOne(Predicate predicate, Expression<TYPE> expression) {
-        return queryFactory.select(expression)
-                .from(pathBase)
                 .where(predicate)
                 .fetchOne();
     }

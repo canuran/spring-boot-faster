@@ -1,6 +1,5 @@
 package ewing.application.query;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -16,9 +15,21 @@ import java.util.List;
 public class BeanSelector<BEAN> {
 
     private SQLQuery<BEAN> query;
+    private RelationalPathBase<?> pathBase;
 
     BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<BEAN> pathBase) {
+        this.pathBase = pathBase;
         this.query = queryFactory.selectFrom(pathBase);
+    }
+
+    BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
+        this.pathBase = pathBase;
+        this.query = queryFactory.select(QueryUtils.fitBean(beanClass, pathBase)).from(pathBase);
+    }
+
+    BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
+        this.pathBase = pathBase;
+        this.query = queryFactory.select(expression).from(pathBase);
     }
 
     /**
@@ -27,24 +38,6 @@ public class BeanSelector<BEAN> {
     public BeanSelector<BEAN> distinct() {
         query.distinct();
         return this;
-    }
-
-    /**
-     * 想要得到自定义结果类型。
-     */
-    @SuppressWarnings("unchecked")
-    public <TYPE> BeanSelector<TYPE> want(Expression<TYPE> expression) {
-        query.select(expression);
-        return (BeanSelector<TYPE>) this;
-    }
-
-    /**
-     * 想要得到表达式元组结果类型。
-     */
-    @SuppressWarnings("unchecked")
-    public BeanSelector<Tuple> want(Expression<?>... expressions) {
-        query.select(expressions);
-        return (BeanSelector<Tuple>) this;
     }
 
     /**
@@ -109,6 +102,14 @@ public class BeanSelector<BEAN> {
     public BeanSelector<BEAN> orderBy(OrderSpecifier... orders) {
         query.orderBy(orders);
         return this;
+    }
+
+    /**
+     * 根据主键获取结果。
+     */
+    public BEAN fetchByKey(Object key) {
+        return this.query.where(QueryUtils.baseKeyEquals(pathBase, key))
+                .fetchOne();
     }
 
     /**

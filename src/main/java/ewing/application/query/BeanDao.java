@@ -1,5 +1,6 @@
 package ewing.application.query;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.dml.SQLUpdateClause;
@@ -17,14 +18,24 @@ public interface BeanDao<BEAN> {
     BeanSelector<BEAN> selector();
 
     /**
+     * 自定义结果类型的查询器。
+     */
+    <TYPE> BeanSelector<TYPE> selector(Class<TYPE> beanClass);
+
+    /**
+     * 自定义结果类型的查询器。
+     */
+    <TYPE> BeanSelector<TYPE> selector(Expression<TYPE> expression);
+
+    /**
+     * 元组结果类型的查询器。
+     */
+    BeanSelector<Tuple> selector(Expression<?>... expressions);
+
+    /**
      * 查询所有的实体对象。
      */
     List<BEAN> selectAll();
-
-    /**
-     * 查询所有的实体表并转换成自定义结果类型。
-     */
-    <TYPE> List<TYPE> selectAll(Expression<TYPE> expression);
 
     /**
      * 根据ID查询实体对象。
@@ -32,19 +43,9 @@ public interface BeanDao<BEAN> {
     BEAN selectByKey(Object key);
 
     /**
-     * 根据ID查询实体表并转换成自定义结果类型。
-     */
-    <TYPE> TYPE selectByKey(Object key, Expression<TYPE> expression);
-
-    /**
      * 根据ID查询唯一的实体对象。
      */
     BEAN selectOne(Predicate predicate);
-
-    /**
-     * 根据ID查询实体表并转换成唯一的自定义结果类型。
-     */
-    <TYPE> TYPE selectOne(Predicate predicate, Expression<TYPE> expression);
 
     /**
      * 查询实体的总数。

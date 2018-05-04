@@ -101,7 +101,7 @@ public class QueryDSLDemos {
         demoUser = demoUserDao.selectByKey(userId);
 
         // 查询部分属性，可自定义返回类型
-        String username = demoUserDao.selectByKey(userId, qDemoUser.username);
+        String username = demoUserDao.selector(qDemoUser.username).fetchByKey(userId);
         System.out.println(username);
 
         // 删除实体
