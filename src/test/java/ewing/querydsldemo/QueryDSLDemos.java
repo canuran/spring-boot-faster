@@ -186,10 +186,10 @@ public class QueryDSLDemos {
     }
 
     /**
-     * 自定义SQL查询。
+     * 自定义SQL查询【非必要则不用】。
      */
     @Test
-    public void customQuery() {
+    public void customSql() {
         SQLQuery<Tuple> query = queryFactory.select(
                 // 常用的表达式构建方法
                 Expressions.asNumber(2).sum(),
@@ -207,13 +207,22 @@ public class QueryDSLDemos {
 
         // 【非必要则不用】自定义表达式、可调用数据库函数等
         query.where(Expressions.booleanTemplate(
-                "NOW() < {0} OR NOW() > {0}",
-                DateExpression.currentDate()));
+                "NOW() < {0} OR NOW() > {0}", DateExpression.currentDate()));
         try {
             System.out.println(query.fetchFirst());
         } catch (BadSqlGrammarException e) {
             System.out.println("数据库不支持该SQL！");
         }
+
+        // 【非必要则不用】甚至Mysql独有的新增/更新语句
+        queryFactory.insert(qDemoUser).populate(newDemoUser())
+                .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ")
+                .addFlag(QueryFlag.Position.END, qDemoUser.username.eq("元宝"))
+                .addFlag(QueryFlag.Position.END, ", ")
+                .addFlag(QueryFlag.Position.END, qDemoUser.gender.eq(qDemoUser.gender.add(1)))
+                .addFlag(QueryFlag.Position.END, Expressions.booleanTemplate(
+                        ", {0} = DATE_ADD(VALUES({0}), INTERVAL 1 DAY)", qDemoUser.createTime))
+                .execute();
     }
 
     /**
