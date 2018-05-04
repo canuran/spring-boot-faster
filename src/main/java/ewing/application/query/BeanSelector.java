@@ -105,6 +105,22 @@ public class BeanSelector<BEAN> {
     }
 
     /**
+     * 跳过多少条。
+     */
+    public BeanSelector<BEAN> offset(long offset) {
+        query.offset(offset);
+        return this;
+    }
+
+    /**
+     * 返回多少条。
+     */
+    public BeanSelector<BEAN> limit(long limit) {
+        query.limit(limit);
+        return this;
+    }
+
+    /**
      * 根据主键获取结果。
      */
     public BEAN fetchByKey(Object key) {
