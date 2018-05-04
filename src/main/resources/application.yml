@@ -25,7 +25,7 @@ spring:
     dateFormat: yyyy-MM-dd HH:mm:ss
   datasource: # 数据库配置
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/faster?useUnicode=true
+    url: jdbc:mysql://localhost:3306/faster?useUnicode=true&characterEncoding=UTF-8
     username: faster
     password: faster
 

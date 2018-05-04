@@ -55,7 +55,7 @@
                 <version>4.1.4</version>
                 <configuration>
                     <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
-                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true</jdbcUrl>
+                    <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true&amp;characterEncoding=UTF-8</jdbcUrl>
                     <jdbcUser>faster</jdbcUser>
                     <jdbcPassword>faster</jdbcPassword>
                     <exportForeignKeys>false</exportForeignKeys>
