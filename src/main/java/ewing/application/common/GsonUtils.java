@@ -64,4 +64,28 @@ public final class GsonUtils {
         return list;
     }
 
+    /**
+     * 生成用于延迟日志打印的对象。
+     */
+    public static Wrapper wrap(Object source) {
+        return new Wrapper(source);
+    }
+
+    /**
+     * 用于延迟到需要打印日志时才转成JSON。
+     */
+    public static class Wrapper {
+
+        private Object source;
+
+        Wrapper(Object source) {
+            this.source = source;
+        }
+
+        @Override
+        public String toString() {
+            return gson.toJson(source);
+        }
+    }
+
 }
