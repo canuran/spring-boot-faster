@@ -69,9 +69,32 @@
                     <beanInterfaces>
                         <beanInterface>java.io.Serializable</beanInterface>
                     </beanInterfaces>
+                    <!-- 使用更习惯的类型 -->
                     <customTypes>
                         <customType>com.querydsl.sql.types.UtilDateType</customType>
                     </customTypes>
+                    <numericMappings>
+                        <numericMapping>
+                            <total>1</total>
+                            <decimal>0</decimal>
+                            <javaType>java.lang.Integer</javaType>
+                        </numericMapping>
+                        <numericMapping>
+                            <total>2</total>
+                            <decimal>0</decimal>
+                            <javaType>java.lang.Integer</javaType>
+                        </numericMapping>
+                        <numericMapping>
+                            <total>3</total>
+                            <decimal>0</decimal>
+                            <javaType>java.lang.Integer</javaType>
+                        </numericMapping>
+                        <numericMapping>
+                            <total>4</total>
+                            <decimal>0</decimal>
+                            <javaType>java.lang.Integer</javaType>
+                        </numericMapping>
+                    </numericMappings>
                 </configuration>
                 <dependencies>
                     <!--数据库对应的驱动包-->
