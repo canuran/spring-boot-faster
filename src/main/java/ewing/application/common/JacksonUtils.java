@@ -1,12 +1,16 @@
 package ewing.application.common;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Jackson简单封装。
@@ -15,13 +19,52 @@ import java.text.SimpleDateFormat;
  */
 public class JacksonUtils {
 
-    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        OBJECT_MAPPER.configure(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN, true);
-        OBJECT_MAPPER.setDateFormat(new SimpleDateFormat(DATE_TIME_FORMAT));
+        SimpleModule simpleModule = new SimpleModule();
+        // 大数字用字符串表示，避免返回科学计数法
+        simpleModule.addSerializer(BigDecimal.class, new JsonSerializer<BigDecimal>() {
+            @Override
+            public void serialize(BigDecimal decimal, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (decimal == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(decimal.stripTrailingZeros().toPlainString());
+                }
+            }
+        });
+        // 大数字用字符串表示，避免返回科学计数法
+        simpleModule.addSerializer(BigInteger.class, new JsonSerializer<BigInteger>() {
+            @Override
+            public void serialize(BigInteger bigInteger, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (bigInteger == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(bigInteger.toString());
+                }
+            }
+        });
+        // 支持反序列化多种格式的Date
+        simpleModule.addDeserializer(Date.class, new JsonDeserializer<Date>() {
+            @Override
+            public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+                String value = jsonParser.getValueAsString();
+                return StringDateParser.stringToDate(value);
+            }
+        });
+        // 支持反序列化多种格式的java.sql.Date
+        simpleModule.addDeserializer(java.sql.Date.class, new JsonDeserializer<java.sql.Date>() {
+            @Override
+            public java.sql.Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+                String value = jsonParser.getValueAsString();
+                return StringDateParser.stringToSqlDate(value);
+            }
+        });
+        OBJECT_MAPPER.registerModule(simpleModule);
     }
 
     /**
@@ -65,6 +108,34 @@ public class JacksonUtils {
             return OBJECT_MAPPER.readValue(json, type);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 生成用于延迟日志打印的对象。
+     */
+    public static Wrapper wrap(Object source) {
+        return new Wrapper(source);
+    }
+
+    /**
+     * 用于延迟到需要打印日志时才转成JSON。
+     */
+    public static class Wrapper {
+
+        private Object source;
+
+        Wrapper(Object source) {
+            this.source = source;
+        }
+
+        @Override
+        public String toString() {
+            try {
+                return OBJECT_MAPPER.writeValueAsString(source);
+            } catch (JsonProcessingException e) {
+                return String.valueOf(source);
+            }
         }
     }
 
