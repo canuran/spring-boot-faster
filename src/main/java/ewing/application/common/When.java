@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 /**
  * 简化条件判断语句的工具类。
  *
- * @author caiyouyuan
+ * @author Ewing
  * @since 2018年04月16日
  */
 public final class When {
@@ -33,49 +33,115 @@ public final class When {
         }
     }
 
-    public static <T> void notNull(T value, Consumer<T> consumer) {
+    public static <T> void notNullDo(T value, Consumer<T> consumer) {
         if (value != null) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends Collection> void empty(T value, Runnable execute) {
+    public static <T extends Collection> void emptyDo(T value, Runnable execute) {
         if (value == null || value.size() == 0) {
             execute.run();
         }
     }
 
-    public static <T extends Collection> void notEmpty(T value, Consumer<T> consumer) {
+    public static <T extends Collection> void notEmptyDo(T value, Consumer<T> consumer) {
         if (value != null && value.size() > 0) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends Map> void empty(T value, Runnable execute) {
+    public static <T extends Collection> void ltSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value == null || value.size() < size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Collection> void gtSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value != null && value.size() > size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Collection> void eqSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value != null && value.size() == size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T> void emptyDo(T[] value, Runnable execute) {
+        if (value == null || value.length == 0) {
+            execute.run();
+        }
+    }
+
+    public static <T> void notEmptyDo(T[] value, Consumer<T[]> consumer) {
+        if (value != null && value.length > 0) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T> void ltLengthDo(T[] value, int size, Consumer<T[]> consumer) {
+        if (value == null || value.length < size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T> void gtLengthDo(T[] value, int size, Consumer<T[]> consumer) {
+        if (value != null && value.length > size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T> void eqLengthDo(T[] value, int size, Consumer<T[]> consumer) {
+        if (value != null && value.length == size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Map> void emptyDo(T value, Runnable execute) {
         if (value == null || value.size() == 0) {
             execute.run();
         }
     }
 
-    public static <T extends Map> void notEmpty(T value, Consumer<T> consumer) {
+    public static <T extends Map> void notEmptyDo(T value, Consumer<T> consumer) {
         if (value != null && value.size() > 0) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends CharSequence> void empty(T value, Runnable execute) {
+    public static <T extends Map> void ltSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value == null || value.size() < size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Map> void gtSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value != null && value.size() > size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Map> void eqSizeDo(T value, int size, Consumer<T> consumer) {
+        if (value != null && value.size() == size) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends CharSequence> void emptyDo(T value, Runnable execute) {
         if (value == null || value.length() == 0) {
             execute.run();
         }
     }
 
-    public static <T extends CharSequence> void notEmpty(T value, Consumer<T> consumer) {
+    public static <T extends CharSequence> void notEmptyDo(T value, Consumer<T> consumer) {
         if (value != null && value.length() > 0) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends CharSequence> void hasText(T value, Consumer<T> consumer) {
+    public static <T extends CharSequence> void hasTextDo(T value, Consumer<T> consumer) {
         if (value != null && value.length() > 0) {
             for (int i = 0; i < value.length(); ++i) {
                 if (!Character.isWhitespace(value.charAt(i))) {
@@ -86,7 +152,7 @@ public final class When {
         }
     }
 
-    public static <T extends CharSequence> void blank(T value, Runnable execute) {
+    public static <T extends CharSequence> void blankDo(T value, Runnable execute) {
         if (value == null || value.length() == 0) {
             execute.run();
         } else {
@@ -99,33 +165,312 @@ public final class When {
         }
     }
 
-    public static <T extends CharSequence> void ltLength(T value, int length, Consumer<T> consumer) {
+    public static <T extends CharSequence> void ltLengthDo(T value, int length, Consumer<T> consumer) {
         if (value == null || value.length() < length) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends CharSequence> void gtLength(T value, int length, Consumer<T> consumer) {
+    public static <T extends CharSequence> void gtLengthDo(T value, int length, Consumer<T> consumer) {
         if (value != null && value.length() > length) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends Number> void gtZero(T value, Consumer<T> consumer) {
+    public static <T extends CharSequence> void eqLengthDo(T value, int length, Consumer<T> consumer) {
+        if (value != null && value.length() == length) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T extends Number> void gtZeroDo(T value, Consumer<T> consumer) {
         if (value != null && value.doubleValue() > 0.0) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends Number> void ltZero(T value, Consumer<T> consumer) {
+    public static <T extends Number> void ltZeroDo(T value, Consumer<T> consumer) {
         if (value != null && value.doubleValue() < 0.0) {
             consumer.accept(value);
         }
     }
 
-    public static <T extends Number> void eqZero(T value, Consumer<T> consumer) {
+    public static <T extends Number> void eqZeroDo(T value, Consumer<T> consumer) {
         if (value != null && value.doubleValue() == 0.0) {
             consumer.accept(value);
         }
     }
+
+    /**
+     * 以下方法可把值转换为自定义的参数yes，否则返回参数no
+     **/
+
+    public static <E> E trueTo(boolean value, E yes, E no) {
+        return value ? yes : no;
+    }
+
+    public static <E> E falseTo(boolean value, E yes, E no) {
+        return value ? no : yes;
+    }
+
+    public static <T, E> E nullTo(T value, E yes, E no) {
+        return value == null ? yes : no;
+    }
+
+    public static <T, E> E notNullTo(T value, E yes, E no) {
+        return value == null ? no : yes;
+    }
+
+    public static <T extends Collection, E> E emptyTo(T value, E yes, E no) {
+        return value == null || value.size() == 0 ? yes : no;
+    }
+
+    public static <T extends Collection, E> E notEmptyTo(T value, E yes, E no) {
+        return value != null && value.size() > 0 ? yes : no;
+    }
+
+    public static <T extends Collection, E> E ltSizeTo(T value, int size, E yes, E no) {
+        return value == null || value.size() < size ? yes : no;
+    }
+
+    public static <T extends Collection, E> E gtSizeTo(T value, int size, E yes, E no) {
+        return value != null && value.size() > size ? yes : no;
+    }
+
+    public static <T extends Collection, E> E eqSizeTo(T value, int size, E yes, E no) {
+        return value != null && value.size() == size ? yes : no;
+    }
+
+    public static <T, E> E emptyTo(T[] value, E yes, E no) {
+        return value == null || value.length == 0 ? yes : no;
+    }
+
+    public static <T, E> E notEmptyTo(T[] value, E yes, E no) {
+        return value != null && value.length > 0 ? yes : no;
+    }
+
+    public static <T, E> E ltLengthTo(T[] value, int size, E yes, E no) {
+        return value == null || value.length < size ? yes : no;
+    }
+
+    public static <T, E> E gtLengthTo(T[] value, int size, E yes, E no) {
+        return value != null && value.length > size ? yes : no;
+    }
+
+    public static <T, E> E eqLengthTo(T[] value, int size, E yes, E no) {
+        return value != null && value.length == size ? yes : no;
+    }
+
+    public static <T extends Map, E> E emptyTo(T value, E yes, E no) {
+        return value == null || value.size() == 0 ? yes : no;
+    }
+
+    public static <T extends Map, E> E notEmptyTo(T value, E yes, E no) {
+        return value != null && value.size() > 0 ? yes : no;
+    }
+
+    public static <T extends Map, E> E ltSizeTo(T value, int size, E yes, E no) {
+        return value == null || value.size() < size ? yes : no;
+    }
+
+    public static <T extends Map, E> E gtSizeTo(T value, int size, E yes, E no) {
+        return value != null && value.size() > size ? yes : no;
+    }
+
+    public static <T extends Map, E> E eqSizeTo(T value, int size, E yes, E no) {
+        return value != null && value.size() == size ? yes : no;
+    }
+
+    public static <T extends CharSequence, E> E emptyTo(T value, E yes, E no) {
+        return value == null || value.length() == 0 ? yes : no;
+    }
+
+    public static <T extends CharSequence, E> E notEmptyTo(T value, E yes, E no) {
+        return value != null && value.length() > 0 ? yes : no;
+    }
+
+    public static <T extends CharSequence, E> E hasTextTo(T value, E yes, E no) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return yes;
+                }
+            }
+        }
+        return no;
+    }
+
+    public static <T extends CharSequence, E> E blankTo(T value, E yes, E no) {
+        if (value == null || value.length() == 0) {
+            return yes;
+        } else {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return no;
+                }
+            }
+            return yes;
+        }
+    }
+
+    public static <T extends CharSequence, E> E ltLengthTo(T value, int length, E yes, E no) {
+        return value == null || value.length() < length ? yes : no;
+    }
+
+    public static <T extends CharSequence, E> E gtLengthTo(T value, int length, E yes, E no) {
+        return value != null && value.length() > length ? yes : no;
+    }
+
+    public static <T extends CharSequence, E> E eqLengthTo(T value, int length, E yes, E no) {
+        return value != null && value.length() == length ? yes : no;
+    }
+
+    public static <T extends Number, E> E gtZeroTo(T value, E yes, E no) {
+        return value != null && value.doubleValue() > 0.0 ? yes : no;
+    }
+
+    public static <T extends Number, E> E ltZeroTo(T value, E yes, E no) {
+        return value != null && value.doubleValue() < 0.0 ? yes : no;
+    }
+
+    public static <T extends Number, E> E eqZeroTo(T value, E yes, E no) {
+        return value != null && value.doubleValue() == 0.0 ? yes : no;
+    }
+
+    /**
+     * 以下方法可把值转换为自定义的参数yes，否则返回null
+     **/
+
+    public static <E> E trueTo(boolean value, E yes) {
+        return value ? yes : null;
+    }
+
+    public static <E> E falseTo(boolean value, E yes) {
+        return value ? null : yes;
+    }
+
+    public static <T, E> E nullTo(T value, E yes) {
+        return value == null ? yes : null;
+    }
+
+    public static <T, E> E notNullTo(T value, E yes) {
+        return value == null ? null : yes;
+    }
+
+    public static <T extends Collection, E> E emptyTo(T value, E yes) {
+        return value == null || value.size() == 0 ? yes : null;
+    }
+
+    public static <T extends Collection, E> E notEmptyTo(T value, E yes) {
+        return value != null && value.size() > 0 ? yes : null;
+    }
+
+    public static <T extends Collection, E> E ltSizeTo(T value, int size, E yes) {
+        return value == null || value.size() < size ? yes : null;
+    }
+
+    public static <T extends Collection, E> E gtSizeTo(T value, int size, E yes) {
+        return value != null && value.size() > size ? yes : null;
+    }
+
+    public static <T extends Collection, E> E eqSizeTo(T value, int size, E yes) {
+        return value != null && value.size() == size ? yes : null;
+    }
+
+    public static <T, E> E emptyTo(T[] value, E yes) {
+        return value == null || value.length == 0 ? yes : null;
+    }
+
+    public static <T, E> E notEmptyTo(T[] value, E yes) {
+        return value != null && value.length > 0 ? yes : null;
+    }
+
+    public static <T, E> E ltLengthTo(T[] value, int size, E yes) {
+        return value == null || value.length < size ? yes : null;
+    }
+
+    public static <T, E> E gtLengthTo(T[] value, int size, E yes) {
+        return value != null && value.length > size ? yes : null;
+    }
+
+    public static <T, E> E eqLengthTo(T[] value, int size, E yes) {
+        return value != null && value.length == size ? yes : null;
+    }
+
+    public static <T extends Map, E> E emptyTo(T value, E yes) {
+        return value == null || value.size() == 0 ? yes : null;
+    }
+
+    public static <T extends Map, E> E notEmptyTo(T value, E yes) {
+        return value != null && value.size() > 0 ? yes : null;
+    }
+
+    public static <T extends Map, E> E ltSizeTo(T value, int size, E yes) {
+        return value == null || value.size() < size ? yes : null;
+    }
+
+    public static <T extends Map, E> E gtSizeTo(T value, int size, E yes) {
+        return value != null && value.size() > size ? yes : null;
+    }
+
+    public static <T extends Map, E> E eqSizeTo(T value, int size, E yes) {
+        return value != null && value.size() == size ? yes : null;
+    }
+
+    public static <T extends CharSequence, E> E emptyTo(T value, E yes) {
+        return value == null || value.length() == 0 ? yes : null;
+    }
+
+    public static <T extends CharSequence, E> E notEmptyTo(T value, E yes) {
+        return value != null && value.length() > 0 ? yes : null;
+    }
+
+    public static <T extends CharSequence, E> E hasTextTo(T value, E yes) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return yes;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static <T extends CharSequence, E> E blankTo(T value, E yes) {
+        if (value == null || value.length() == 0) {
+            return yes;
+        } else {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return null;
+                }
+            }
+            return yes;
+        }
+    }
+
+    public static <T extends CharSequence, E> E ltLengthTo(T value, int length, E yes) {
+        return value == null || value.length() < length ? yes : null;
+    }
+
+    public static <T extends CharSequence, E> E gtLengthTo(T value, int length, E yes) {
+        return value != null && value.length() > length ? yes : null;
+    }
+
+    public static <T extends CharSequence, E> E eqLengthTo(T value, int length, E yes) {
+        return value != null && value.length() == length ? yes : null;
+    }
+
+    public static <T extends Number, E> E gtZeroTo(T value, E yes) {
+        return value != null && value.doubleValue() > 0.0 ? yes : null;
+    }
+
+    public static <T extends Number, E> E ltZeroTo(T value, E yes) {
+        return value != null && value.doubleValue() < 0.0 ? yes : null;
+    }
+
+    public static <T extends Number, E> E eqZeroTo(T value, E yes) {
+        return value != null && value.doubleValue() == 0.0 ? yes : null;
+    }
+
 }

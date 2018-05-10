@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 /**
  * 检查参数并进行处理。
  *
- * @author caiyouyuan
+ * @author Ewing
  */
 public class Checks {
     private Checks() {
