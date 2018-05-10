@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 /**
  * 检查参数并进行处理。
  *
- * @author Ewing
+ * @author caiyouyuan
  */
 public class Checks {
     private Checks() {
@@ -149,6 +149,7 @@ public class Checks {
                 for (int i = 0; i < value.length(); ++i) {
                     if (!Character.isWhitespace(value.charAt(i))) {
                         consumer.accept(value);
+                        return (C) this;
                     }
                 }
             }
