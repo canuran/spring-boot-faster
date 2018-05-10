@@ -2,6 +2,7 @@ package ewing.application.common;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -69,6 +70,53 @@ public final class When {
         }
     }
 
+    public <T extends Collection<E>, E> void containsDo(T value, E other, Consumer<T> consumer) {
+        if (value != null && value.size() > 0) {
+            for (Object one : value) {
+                if (Objects.equals(one, other)) {
+                    consumer.accept(value);
+                    return;
+                }
+            }
+        }
+    }
+
+    public <T extends Collection<?>> void containsAnyDo(T value, T others, Consumer<T> consumer) {
+        if (value != null && others != null) {
+            if (others.size() == 0) {
+                consumer.accept(value);
+            } else {
+                for (Object other : others) {
+                    for (Object one : value) {
+                        if (Objects.equals(one, other)) {
+                            consumer.accept(value);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public <T extends Collection<?>> void containsAllDo(T value, T others, Consumer<T> consumer) {
+        if (value != null && others != null
+                && value.size() >= others.size()) {
+            for (Object other : others) {
+                boolean contains = false;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    return;
+                }
+            }
+            consumer.accept(value);
+        }
+    }
+
     public static <T> void emptyDo(T[] value, Runnable execute) {
         if (value == null || value.length == 0) {
             execute.run();
@@ -95,6 +143,53 @@ public final class When {
 
     public static <T> void eqLengthDo(T[] value, int size, Consumer<T[]> consumer) {
         if (value != null && value.length == size) {
+            consumer.accept(value);
+        }
+    }
+
+    public <T> void containsDo(T[] value, T other, Consumer<T[]> consumer) {
+        if (value != null && value.length > 0) {
+            for (Object one : value) {
+                if (Objects.equals(one, other)) {
+                    consumer.accept(value);
+                    return;
+                }
+            }
+        }
+    }
+
+    public <T> void containsAnyDo(T[] value, T[] others, Consumer<T[]> consumer) {
+        if (value != null && others != null) {
+            if (others.length == 0) {
+                consumer.accept(value);
+            } else {
+                for (Object other : others) {
+                    for (Object one : value) {
+                        if (Objects.equals(one, other)) {
+                            consumer.accept(value);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public <T> void containsAllDo(T[] value, T[] others, Consumer<T[]> consumer) {
+        if (value != null && others != null
+                && value.length >= others.length) {
+            for (Object other : others) {
+                boolean contains = false;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    return;
+                }
+            }
             consumer.accept(value);
         }
     }
@@ -241,6 +336,54 @@ public final class When {
         return value != null && value.size() == size ? yes : no;
     }
 
+    public <T extends Collection<O>, O, E> E containsTo(T value, O other, E yes, E no) {
+        if (value != null && value.size() > 0) {
+            for (Object one : value) {
+                if (Objects.equals(one, other)) {
+                    return yes;
+                }
+            }
+        }
+        return no;
+    }
+
+    public <T extends Collection<?>, E> E containsAnyTo(T value, T others, E yes, E no) {
+        if (value != null && others != null) {
+            if (others.size() == 0) {
+                return yes;
+            } else {
+                for (Object other : others) {
+                    for (Object one : value) {
+                        if (Objects.equals(one, other)) {
+                            return yes;
+                        }
+                    }
+                }
+            }
+        }
+        return no;
+    }
+
+    public <T extends Collection<?>, E> E containsAllTo(T value, T others, E yes, E no) {
+        if (value != null && others != null
+                && value.size() >= others.size()) {
+            for (Object other : others) {
+                boolean contains = false;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    return no;
+                }
+            }
+            return yes;
+        }
+        return no;
+    }
+
     public static <T, E> E emptyTo(T[] value, E yes, E no) {
         return value == null || value.length == 0 ? yes : no;
     }
@@ -259,6 +402,54 @@ public final class When {
 
     public static <T, E> E eqLengthTo(T[] value, int size, E yes, E no) {
         return value != null && value.length == size ? yes : no;
+    }
+
+    public <T, E> E containsTo(T[] value, T other, E yes, E no) {
+        if (value != null && value.length > 0) {
+            for (Object one : value) {
+                if (Objects.equals(one, other)) {
+                    return yes;
+                }
+            }
+        }
+        return no;
+    }
+
+    public <T, E> E containsAnyTo(T[] value, T[] others, E yes, E no) {
+        if (value != null && others != null) {
+            if (others.length == 0) {
+                return yes;
+            } else {
+                for (Object other : others) {
+                    for (Object one : value) {
+                        if (Objects.equals(one, other)) {
+                            return yes;
+                        }
+                    }
+                }
+            }
+        }
+        return no;
+    }
+
+    public <T, E> E containsAllTo(T[] value, T[] others, E yes, E no) {
+        if (value != null && others != null
+                && value.length >= others.length) {
+            for (Object other : others) {
+                boolean contains = false;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    return no;
+                }
+            }
+            return yes;
+        }
+        return no;
     }
 
     public static <T extends Map, E> E emptyTo(T value, E yes, E no) {
