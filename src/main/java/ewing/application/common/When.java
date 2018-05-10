@@ -3,6 +3,8 @@ package ewing.application.common;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 简化条件判断语句的工具类。
@@ -338,139 +340,139 @@ public final class When {
     }
 
     /**
-     * 以下方法可把值转换为自定义的参数yes，否则返回null
+     * 以下方法可把值转换为自定义的方法返回值，否则返回null
      **/
 
-    public static <E> E trueTo(boolean value, E yes) {
-        return value ? yes : null;
+    public static <E> E trueTo(boolean value, Supplier<E> supplier) {
+        return value ? supplier.get() : null;
     }
 
-    public static <E> E falseTo(boolean value, E yes) {
-        return value ? null : yes;
+    public static <E> E falseTo(boolean value, Supplier<E> supplier) {
+        return value ? null : supplier.get();
     }
 
-    public static <T, E> E nullTo(T value, E yes) {
-        return value == null ? yes : null;
+    public static <T, E> E nullTo(T value, Supplier<E> supplier) {
+        return value == null ? supplier.get() : null;
     }
 
-    public static <T, E> E notNullTo(T value, E yes) {
-        return value == null ? null : yes;
+    public static <T, E> E notNullTo(T value, Function<T, E> converter) {
+        return value == null ? null : converter.apply(value);
     }
 
-    public static <T extends Collection, E> E emptyTo(T value, E yes) {
-        return value == null || value.size() == 0 ? yes : null;
+    public static <T extends Collection, E> E emptyTo(T value, Supplier<E> supplier) {
+        return value == null || value.size() == 0 ? supplier.get() : null;
     }
 
-    public static <T extends Collection, E> E notEmptyTo(T value, E yes) {
-        return value != null && value.size() > 0 ? yes : null;
+    public static <T extends Collection, E> E notEmptyTo(T value, Function<T, E> converter) {
+        return value != null && value.size() > 0 ? converter.apply(value) : null;
     }
 
-    public static <T extends Collection, E> E ltSizeTo(T value, int size, E yes) {
-        return value == null || value.size() < size ? yes : null;
+    public static <T extends Collection, E> E ltSizeTo(T value, int size, Function<T, E> converter) {
+        return value == null || value.size() < size ? converter.apply(value) : null;
     }
 
-    public static <T extends Collection, E> E gtSizeTo(T value, int size, E yes) {
-        return value != null && value.size() > size ? yes : null;
+    public static <T extends Collection, E> E gtSizeTo(T value, int size, Function<T, E> converter) {
+        return value != null && value.size() > size ? converter.apply(value) : null;
     }
 
-    public static <T extends Collection, E> E eqSizeTo(T value, int size, E yes) {
-        return value != null && value.size() == size ? yes : null;
+    public static <T extends Collection, E> E eqSizeTo(T value, int size, Function<T, E> converter) {
+        return value != null && value.size() == size ? converter.apply(value) : null;
     }
 
-    public static <T, E> E emptyTo(T[] value, E yes) {
-        return value == null || value.length == 0 ? yes : null;
+    public static <T, E> E emptyTo(T[] value, Supplier<E> supplier) {
+        return value == null || value.length == 0 ? supplier.get() : null;
     }
 
-    public static <T, E> E notEmptyTo(T[] value, E yes) {
-        return value != null && value.length > 0 ? yes : null;
+    public static <T, E> E notEmptyTo(T[] value, Function<T[], E> converter) {
+        return value != null && value.length > 0 ? converter.apply(value) : null;
     }
 
-    public static <T, E> E ltLengthTo(T[] value, int size, E yes) {
-        return value == null || value.length < size ? yes : null;
+    public static <T, E> E ltLengthTo(T[] value, int size, Function<T[], E> converter) {
+        return value == null || value.length < size ? converter.apply(value) : null;
     }
 
-    public static <T, E> E gtLengthTo(T[] value, int size, E yes) {
-        return value != null && value.length > size ? yes : null;
+    public static <T, E> E gtLengthTo(T[] value, int size, Function<T[], E> converter) {
+        return value != null && value.length > size ? converter.apply(value) : null;
     }
 
-    public static <T, E> E eqLengthTo(T[] value, int size, E yes) {
-        return value != null && value.length == size ? yes : null;
+    public static <T, E> E eqLengthTo(T[] value, int size, Function<T[], E> converter) {
+        return value != null && value.length == size ? converter.apply(value) : null;
     }
 
-    public static <T extends Map, E> E emptyTo(T value, E yes) {
-        return value == null || value.size() == 0 ? yes : null;
+    public static <T extends Map, E> E emptyTo(T value, Supplier<E> supplier) {
+        return value == null || value.size() == 0 ? supplier.get() : null;
     }
 
-    public static <T extends Map, E> E notEmptyTo(T value, E yes) {
-        return value != null && value.size() > 0 ? yes : null;
+    public static <T extends Map, E> E notEmptyTo(T value, Function<T, E> converter) {
+        return value != null && value.size() > 0 ? converter.apply(value) : null;
     }
 
-    public static <T extends Map, E> E ltSizeTo(T value, int size, E yes) {
-        return value == null || value.size() < size ? yes : null;
+    public static <T extends Map, E> E ltSizeTo(T value, int size, Function<T, E> converter) {
+        return value == null || value.size() < size ? converter.apply(value) : null;
     }
 
-    public static <T extends Map, E> E gtSizeTo(T value, int size, E yes) {
-        return value != null && value.size() > size ? yes : null;
+    public static <T extends Map, E> E gtSizeTo(T value, int size, Function<T, E> converter) {
+        return value != null && value.size() > size ? converter.apply(value) : null;
     }
 
-    public static <T extends Map, E> E eqSizeTo(T value, int size, E yes) {
-        return value != null && value.size() == size ? yes : null;
+    public static <T extends Map, E> E eqSizeTo(T value, int size, Function<T, E> converter) {
+        return value != null && value.size() == size ? converter.apply(value) : null;
     }
 
-    public static <T extends CharSequence, E> E emptyTo(T value, E yes) {
-        return value == null || value.length() == 0 ? yes : null;
+    public static <T extends CharSequence, E> E emptyTo(T value, Supplier<E> supplier) {
+        return value == null || value.length() == 0 ? supplier.get() : null;
     }
 
-    public static <T extends CharSequence, E> E notEmptyTo(T value, E yes) {
-        return value != null && value.length() > 0 ? yes : null;
+    public static <T extends CharSequence, E> E notEmptyTo(T value, Function<T, E> converter) {
+        return value != null && value.length() > 0 ? converter.apply(value) : null;
     }
 
-    public static <T extends CharSequence, E> E hasTextTo(T value, E yes) {
+    public static <T extends CharSequence, E> E hasTextTo(T value, Function<T, E> converter) {
         if (value != null && value.length() > 0) {
             for (int i = 0; i < value.length(); ++i) {
                 if (!Character.isWhitespace(value.charAt(i))) {
-                    return yes;
+                    return converter.apply(value);
                 }
             }
         }
         return null;
     }
 
-    public static <T extends CharSequence, E> E blankTo(T value, E yes) {
+    public static <T extends CharSequence, E> E blankTo(T value, Supplier<E> supplier) {
         if (value == null || value.length() == 0) {
-            return yes;
+            return supplier.get();
         } else {
             for (int i = 0; i < value.length(); ++i) {
                 if (!Character.isWhitespace(value.charAt(i))) {
                     return null;
                 }
             }
-            return yes;
+            return supplier.get();
         }
     }
 
-    public static <T extends CharSequence, E> E ltLengthTo(T value, int length, E yes) {
-        return value == null || value.length() < length ? yes : null;
+    public static <T extends CharSequence, E> E ltLengthTo(T value, int length, Function<T, E> converter) {
+        return value == null || value.length() < length ? converter.apply(value) : null;
     }
 
-    public static <T extends CharSequence, E> E gtLengthTo(T value, int length, E yes) {
-        return value != null && value.length() > length ? yes : null;
+    public static <T extends CharSequence, E> E gtLengthTo(T value, int length, Function<T, E> converter) {
+        return value != null && value.length() > length ? converter.apply(value) : null;
     }
 
-    public static <T extends CharSequence, E> E eqLengthTo(T value, int length, E yes) {
-        return value != null && value.length() == length ? yes : null;
+    public static <T extends CharSequence, E> E eqLengthTo(T value, int length, Function<T, E> converter) {
+        return value != null && value.length() == length ? converter.apply(value) : null;
     }
 
-    public static <T extends Number, E> E gtZeroTo(T value, E yes) {
-        return value != null && value.doubleValue() > 0.0 ? yes : null;
+    public static <T extends Number, E> E gtZeroTo(T value, Function<T, E> converter) {
+        return value != null && value.doubleValue() > 0.0 ? converter.apply(value) : null;
     }
 
-    public static <T extends Number, E> E ltZeroTo(T value, E yes) {
-        return value != null && value.doubleValue() < 0.0 ? yes : null;
+    public static <T extends Number, E> E ltZeroTo(T value, Function<T, E> converter) {
+        return value != null && value.doubleValue() < 0.0 ? converter.apply(value) : null;
     }
 
-    public static <T extends Number, E> E eqZeroTo(T value, E yes) {
-        return value != null && value.doubleValue() == 0.0 ? yes : null;
+    public static <T extends Number, E> E eqZeroTo(T value, Supplier<E> supplier) {
+        return value != null && value.doubleValue() == 0.0 ? supplier.get() : null;
     }
 
 }
