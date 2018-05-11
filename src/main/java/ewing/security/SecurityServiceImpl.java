@@ -3,6 +3,7 @@ package ewing.security;
 import ewing.application.AppAsserts;
 import ewing.application.common.TreeUtils;
 import ewing.application.query.Page;
+import ewing.application.query.Where;
 import ewing.entity.Authority;
 import ewing.entity.Role;
 import ewing.entity.RoleAuthority;
@@ -145,8 +146,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public Page<RoleWithAuthority> findRoleWithAuthority(FindRoleParam findRoleParam) {
         return roleDao.findRoleWithAuthority(findRoleParam,
-                StringUtils.hasText(findRoleParam.getSearch()) ?
-                        qRole.name.contains(findRoleParam.getSearch()) : null);
+                Where.hasText(findRoleParam.getSearch(), qRole.name::contains));
     }
 
     @Override
@@ -224,8 +224,7 @@ public class SecurityServiceImpl implements SecurityService {
                 .where(qPermission.userId.eq(userId))
                 .where(qPermission.action.eq(action))
                 .where(qPermission.targetId.eq(targetId))
-                .where(StringUtils.hasText(targetType) ?
-                        qPermission.targetType.eq(targetType) : null)
+                .where(Where.hasText(targetType, qPermission.targetType::eq))
                 .fetchCount() > 0;
     }
 

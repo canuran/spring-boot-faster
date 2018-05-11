@@ -5,6 +5,7 @@ import com.querydsl.sql.SQLQueryFactory;
 import ewing.application.query.BaseBeanDao;
 import ewing.application.query.Page;
 import ewing.application.query.QueryUtils;
+import ewing.application.query.Where;
 import ewing.common.vo.DictionaryNode;
 import ewing.common.vo.FindDictionaryParam;
 import ewing.entity.Dictionary;
@@ -35,10 +36,8 @@ public class DictionaryDaoImpl extends BaseBeanDao<QDictionary, Dictionary> impl
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(qDictionary.dictionaryId.eq(qDictionary.rootId))
                 // 搜索条件，支持子字典名称搜索
-                .where(StringUtils.hasText(findDictionaryParam.getName()) ?
-                        qAllDictionary.name.contains(findDictionaryParam.getName()) : null)
-                .where(StringUtils.hasText(findDictionaryParam.getValue()) ?
-                        qAllDictionary.value.contains(findDictionaryParam.getValue()) : null);
+                .where(Where.hasText(findDictionaryParam.getName(), qAllDictionary.name::contains))
+                .where(Where.hasText(findDictionaryParam.getValue(), qAllDictionary.value::contains));
         // 先查询根字典的总数
         long total = rootQuery.fetchCount();
 
