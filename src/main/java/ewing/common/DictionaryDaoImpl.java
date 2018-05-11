@@ -12,7 +12,6 @@ import ewing.entity.Dictionary;
 import ewing.query.QDictionary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
