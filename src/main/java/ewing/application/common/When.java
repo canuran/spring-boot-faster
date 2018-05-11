@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  * 简化条件判断语句的工具类。
  *
  * @author Ewing
- * @since 2018年04月16日
+ * @since 2018年05月10日
  */
 public final class When {
 
@@ -36,6 +36,12 @@ public final class When {
 
     public static <T> void notNullDo(T value, Consumer<T> consumer) {
         if (value != null) {
+            consumer.accept(value);
+        }
+    }
+
+    public static <T> void equalsDo(T value, T other, Consumer<T> consumer) {
+        if (Objects.equals(value, other)) {
             consumer.accept(value);
         }
     }
@@ -117,6 +123,25 @@ public final class When {
         }
     }
 
+    public <T extends Collection<?>> void equalsAllDo(T value, T others, Consumer<T> consumer) {
+        if (value != null && others != null
+                && value.size() == others.size()) {
+            for (Object other : others) {
+                boolean notIn = true;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        notIn = false;
+                        break;
+                    }
+                }
+                if (notIn) {
+                    return;
+                }
+            }
+            consumer.accept(value);
+        }
+    }
+
     public static <T> void emptyDo(T[] value, Runnable execute) {
         if (value == null || value.length == 0) {
             execute.run();
@@ -178,6 +203,25 @@ public final class When {
     public <T> void containsAllDo(T[] value, T[] others, Consumer<T[]> consumer) {
         if (value != null && others != null
                 && value.length >= others.length) {
+            for (Object other : others) {
+                boolean notIn = true;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        notIn = false;
+                        break;
+                    }
+                }
+                if (notIn) {
+                    return;
+                }
+            }
+            consumer.accept(value);
+        }
+    }
+
+    public <T> void equalsAllDo(T[] value, T[] others, Consumer<T[]> consumer) {
+        if (value != null && others != null
+                && value.length == others.length) {
             for (Object other : others) {
                 boolean notIn = true;
                 for (Object one : value) {
@@ -314,6 +358,10 @@ public final class When {
         return value == null ? no : yes;
     }
 
+    public static <T, E> E equalsTo(T value, T other, E yes, E no) {
+        return Objects.equals(value, other) ? yes : no;
+    }
+
     public static <T extends Collection, E> E emptyTo(T value, E yes, E no) {
         return value == null || value.size() == 0 ? yes : no;
     }
@@ -382,6 +430,26 @@ public final class When {
         return no;
     }
 
+    public <T extends Collection<?>, E> E equalsAllTo(T value, T others, E yes, E no) {
+        if (value != null && others != null
+                && value.size() == others.size()) {
+            for (Object other : others) {
+                boolean notIn = true;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        notIn = false;
+                        break;
+                    }
+                }
+                if (notIn) {
+                    return no;
+                }
+            }
+            return yes;
+        }
+        return no;
+    }
+
     public static <T, E> E emptyTo(T[] value, E yes, E no) {
         return value == null || value.length == 0 ? yes : no;
     }
@@ -433,6 +501,26 @@ public final class When {
     public <T, E> E containsAllTo(T[] value, T[] others, E yes, E no) {
         if (value != null && others != null
                 && value.length >= others.length) {
+            for (Object other : others) {
+                boolean notIn = true;
+                for (Object one : value) {
+                    if (Objects.equals(one, other)) {
+                        notIn = false;
+                        break;
+                    }
+                }
+                if (notIn) {
+                    return no;
+                }
+            }
+            return yes;
+        }
+        return no;
+    }
+
+    public <T, E> E equalsAllTo(T[] value, T[] others, E yes, E no) {
+        if (value != null && others != null
+                && value.length == others.length) {
             for (Object other : others) {
                 boolean notIn = true;
                 for (Object one : value) {
