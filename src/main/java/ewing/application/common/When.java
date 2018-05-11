@@ -102,14 +102,14 @@ public final class When {
         if (value != null && others != null
                 && value.size() >= others.size()) {
             for (Object other : others) {
-                boolean contains = false;
+                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        contains = true;
+                        notIn = false;
                         break;
                     }
                 }
-                if (!contains) {
+                if (notIn) {
                     return;
                 }
             }
@@ -179,14 +179,14 @@ public final class When {
         if (value != null && others != null
                 && value.length >= others.length) {
             for (Object other : others) {
-                boolean contains = false;
+                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        contains = true;
+                        notIn = false;
                         break;
                     }
                 }
-                if (!contains) {
+                if (notIn) {
                     return;
                 }
             }
@@ -248,16 +248,14 @@ public final class When {
     }
 
     public static <T extends CharSequence> void blankDo(T value, Runnable execute) {
-        if (value == null || value.length() == 0) {
-            execute.run();
-        } else {
+        if (value != null && value.length() > 0) {
             for (int i = 0; i < value.length(); ++i) {
                 if (!Character.isWhitespace(value.charAt(i))) {
                     return;
                 }
             }
-            execute.run();
         }
+        execute.run();
     }
 
     public static <T extends CharSequence> void ltLengthDo(T value, int length, Consumer<T> consumer) {
@@ -368,14 +366,14 @@ public final class When {
         if (value != null && others != null
                 && value.size() >= others.size()) {
             for (Object other : others) {
-                boolean contains = false;
+                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        contains = true;
+                        notIn = false;
                         break;
                     }
                 }
-                if (!contains) {
+                if (notIn) {
                     return no;
                 }
             }
@@ -436,14 +434,14 @@ public final class When {
         if (value != null && others != null
                 && value.length >= others.length) {
             for (Object other : others) {
-                boolean contains = false;
+                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        contains = true;
+                        notIn = false;
                         break;
                     }
                 }
-                if (!contains) {
+                if (notIn) {
                     return no;
                 }
             }
@@ -492,16 +490,14 @@ public final class When {
     }
 
     public static <T extends CharSequence, E> E blankTo(T value, E yes, E no) {
-        if (value == null || value.length() == 0) {
-            return yes;
-        } else {
+        if (value != null && value.length() > 0) {
             for (int i = 0; i < value.length(); ++i) {
                 if (!Character.isWhitespace(value.charAt(i))) {
                     return no;
                 }
             }
-            return yes;
         }
+        return yes;
     }
 
     public static <T extends CharSequence, E> E ltLengthTo(T value, int length, E yes, E no) {
