@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 查询帮助类。
@@ -32,6 +34,8 @@ public class QueryUtils {
 
     private QueryUtils() {
     }
+
+    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_]+)\\s+?(asc|desc)?");
 
     /**
      * 使用分页参数和查询对象进行分页查询。
@@ -52,6 +56,24 @@ public class QueryUtils {
             query.limit(pager.getLimit()).offset(pager.getOffset());
             return new Page<>(query.fetch());
         }
+    }
+
+    /**
+     * 获取排序指定符，例如：name asc。
+     */
+    public static OrderSpecifier<?> orderSpecifier(RelationalPathBase<?> base, String orderClause) {
+        Assert.hasText(orderClause, "Order clause missing.");
+        orderClause = orderClause.trim().toLowerCase();
+        Matcher matcher = ORDER_PATTERN.matcher(orderClause);
+        Assert.isTrue(matcher.matches(), "Illegal order clause.");
+        String name = matcher.group(1);
+        Order order = matcher.group(2).equals("desc") ? Order.DESC : Order.ASC;
+        for (Path path : base.all()) {
+            if (path.getMetadata().getName().equalsIgnoreCase(name)) {
+                return new OrderSpecifier<Comparable>(order, path);
+            }
+        }
+        return new OrderSpecifier<Comparable>(order, Expressions.comparablePath(Comparable.class, name));
     }
 
     /**

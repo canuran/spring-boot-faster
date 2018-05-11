@@ -6,6 +6,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -101,6 +102,16 @@ public class BeanSelector<BEAN> {
      */
     public BeanSelector<BEAN> orderBy(OrderSpecifier... orders) {
         query.orderBy(orders);
+        return this;
+    }
+
+    /**
+     * 添加排序字段。
+     */
+    public BeanSelector<BEAN> orderBy(String orderClause) {
+        if (StringUtils.hasText(orderClause)) {
+            query.orderBy(QueryUtils.orderSpecifier(pathBase, orderClause));
+        }
         return this;
     }
 
