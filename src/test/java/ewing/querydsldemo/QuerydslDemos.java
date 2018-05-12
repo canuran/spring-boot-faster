@@ -214,14 +214,10 @@ public class QuerydslDemos {
             System.out.println("数据库不支持该SQL！");
         }
 
-        // 【非必要则不用】甚至Mysql独有的新增/更新语句
+        // 【非必要则不用】甚至 Mysql 独有的插入语句，另见 MysqlBasisDao 类
         queryFactory.insert(qDemoUser).populate(newDemoUser())
                 .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ")
                 .addFlag(QueryFlag.Position.END, qDemoUser.username.eq("元宝"))
-                .addFlag(QueryFlag.Position.END, ", ")
-                .addFlag(QueryFlag.Position.END, qDemoUser.gender.eq(qDemoUser.gender.add(1)))
-                .addFlag(QueryFlag.Position.END, Expressions.booleanTemplate(
-                        ", {0} = DATE_ADD(VALUES({0}), INTERVAL 1 DAY)", qDemoUser.createTime))
                 .execute();
     }
 
