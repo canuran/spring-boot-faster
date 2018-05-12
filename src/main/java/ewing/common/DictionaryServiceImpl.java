@@ -43,8 +43,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         // 处理父字典和根字典的关系
         if (dictionary.getParentId() != null) {
-            Dictionary parent = dictionaryDao.selectOne(
-                    qDictionary.dictionaryId.eq(dictionary.getParentId()));
+            Dictionary parent = dictionaryDao.selector()
+                    .where(qDictionary.dictionaryId.eq(dictionary.getParentId()))
+                    .fetchOne();
             if (parent == null) {
                 throw new AppRunException("父字典项不存在！");
             } else {
