@@ -89,13 +89,6 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public BEAN selectOne(Predicate predicate) {
-        return queryFactory.selectFrom(pathBase)
-                .where(predicate)
-                .fetchOne();
-    }
-
-    @Override
     public long countAll() {
         return queryFactory.selectFrom(pathBase)
                 .fetchCount();

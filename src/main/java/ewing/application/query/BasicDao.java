@@ -44,11 +44,6 @@ public interface BasicDao<BEAN> {
     BEAN selectByKey(Object key);
 
     /**
-     * 根据ID查询唯一的实体对象。
-     */
-    BEAN selectOne(Predicate predicate);
-
-    /**
      * 查询实体的总数。
      */
     long countAll();
