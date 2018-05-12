@@ -89,13 +89,13 @@ public class UserServiceImpl implements UserService {
         // 更新用户
         SQLUpdateClause update = userDao.updaterByKey(userWithRole.getUserId());
 
-        When.hasTextDo(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
+        When.hasText(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
 
-        When.hasTextDo(userWithRole.getPassword(), value -> update.set(qUser.password, value));
+        When.hasText(userWithRole.getPassword(), value -> update.set(qUser.password, value));
 
-        When.hasTextDo(userWithRole.getGender(), value -> update.set(qUser.gender, value));
+        When.hasText(userWithRole.getGender(), value -> update.set(qUser.gender, value));
 
-        When.notNullDo(userWithRole.getBirthday(), value -> update.set(qUser.birthday, value));
+        When.notNull(userWithRole.getBirthday(), value -> update.set(qUser.birthday, value));
 
         return update.execute();
     }
