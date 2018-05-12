@@ -209,7 +209,7 @@ public class SecurityServiceImpl implements SecurityService {
                 roleAuthority.setCreateTime(new Date());
                 roleAuthorities.add(roleAuthority);
             }
-            roleAuthorityDao.insertBeans(roleAuthorities.toArray());
+            roleAuthorityDao.insertBeans(roleAuthorities);
         }
     }
 

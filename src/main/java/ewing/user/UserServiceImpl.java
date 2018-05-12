@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 userRole.setCreateTime(new Date());
                 userRoles.add(userRole);
             }
-            userRoleDao.insertBeans(userRoles.toArray());
+            userRoleDao.insertBeans(userRoles);
         }
     }
 
