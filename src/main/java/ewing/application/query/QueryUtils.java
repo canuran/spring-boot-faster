@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupExpression;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.BeanUtils;
@@ -63,24 +64,40 @@ public class QueryUtils {
         }
     }
 
-    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_]+)\\s+?(asc|desc)?");
-
     /**
-     * 获取排序指定符，例如：name asc。
+     * 获取排序指定符，例如：name、name asc、name desc。
      */
     public static OrderSpecifier<?> getOrderSpecifier(RelationalPathBase<?> base, String orderClause) {
+        Matcher matcher = getOrderMatcher(orderClause);
+        String name = matcher.group(1);
+        for (Path path : base.all()) {
+            if (path instanceof ComparableExpressionBase && path.getMetadata().getName().equalsIgnoreCase(name)) {
+                ComparableExpressionBase expression = (ComparableExpressionBase) path;
+                return "desc".equals(matcher.group(2)) ? expression.desc() : expression.asc();
+            }
+        }
+        return new OrderSpecifier<Comparable>("desc".equals(matcher.group(2)) ?
+                Order.DESC : Order.ASC, Expressions.comparablePath(Comparable.class, name));
+    }
+
+    /**
+     * 获取排序指定符，例如：name、name asc、name desc。
+     */
+    public static OrderSpecifier<?> getOrderSpecifier(String orderClause) {
+        Matcher matcher = getOrderMatcher(orderClause);
+        String name = matcher.group(1);
+        return new OrderSpecifier<Comparable>("desc".equals(matcher.group(2)) ?
+                Order.DESC : Order.ASC, Expressions.comparablePath(Comparable.class, name));
+    }
+
+    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_0-9]+)\\s*?(asc|desc)?");
+
+    private static Matcher getOrderMatcher(String orderClause) {
         Assert.hasText(orderClause, "Order clause missing.");
         orderClause = orderClause.trim().toLowerCase();
         Matcher matcher = ORDER_PATTERN.matcher(orderClause);
         Assert.isTrue(matcher.matches(), "Illegal order clause.");
-        String name = matcher.group(1);
-        Order order = matcher.group(2).equals("desc") ? Order.DESC : Order.ASC;
-        for (Path path : base.all()) {
-            if (path.getMetadata().getName().equalsIgnoreCase(name)) {
-                return new OrderSpecifier<Comparable>(order, path);
-            }
-        }
-        return new OrderSpecifier<Comparable>(order, Expressions.comparablePath(Comparable.class, name));
+        return matcher;
     }
 
     /**
