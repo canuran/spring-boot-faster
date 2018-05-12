@@ -60,7 +60,7 @@ public interface BasicDao<BEAN> {
 
     /**
      * 根据实体中的ID属性删除实体。
-     * 兼容带有对应ID属性的实体对象。
+     * 参数兼容带有对应ID属性的实体对象。
      */
     long deleteBean(Object bean);
 
@@ -71,13 +71,13 @@ public interface BasicDao<BEAN> {
 
     /**
      * 根据对象中的ID属性和非null属性更新实体。
-     * 兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
+     * 参数兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
      */
     long updateBean(Object bean);
 
     /**
      * 批量根据对象中的ID属性和非null属性更新实体。
-     * 兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
+     * 参数兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
      */
     long updateBeans(Collection<?> beans);
 
@@ -93,25 +93,25 @@ public interface BasicDao<BEAN> {
 
     /**
      * 将实体对象非null属性插入到数据库。
-     * 兼容至少包含一个对应的非null属性的实体对象。
+     * 参数兼容至少包含一个对应的非null属性的实体对象。
      */
     long insertBean(Object bean);
 
     /**
      * 批量将实体对象非null属性插入到数据库。
-     * 兼容至少包含一个对应的非null属性的实体对象。
+     * 参数兼容至少包含一个对应的非null属性的实体对象。
      */
     long insertBeans(Collection<?> beans);
 
     /**
      * 将实体对象属性插入并返回ID值，同时ID也会设置到实体对象中。
-     * 兼容至少包含一个对应的非null属性的实体对象。
+     * 参数兼容至少包含一个对应的非null属性的实体对象。
      */
     <KEY> KEY insertWithKey(Object bean);
 
     /**
      * 批量将实体对象属性插入并返回ID值，同时ID也会设置到实体对象中。
-     * 兼容至少包含一个对应的非null属性的实体对象。
+     * 参数兼容至少包含一个对应的非null属性的实体对象。
      */
     <KEY> List<KEY> insertWithKeys(Collection<?> beans);
 
