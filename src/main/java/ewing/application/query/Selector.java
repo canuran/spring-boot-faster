@@ -13,22 +13,22 @@ import java.util.List;
 /**
  * 简单的实体Bean查询类，仅同包下可创建该类的实例。
  */
-public class BeanSelector<BEAN> {
+public class Selector<BEAN> {
 
     private SQLQuery<BEAN> query;
     private RelationalPathBase<?> pathBase;
 
-    BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<BEAN> pathBase) {
+    Selector(SQLQueryFactory queryFactory, RelationalPathBase<BEAN> pathBase) {
         this.pathBase = pathBase;
         this.query = queryFactory.selectFrom(pathBase);
     }
 
-    BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
+    Selector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
         this.pathBase = pathBase;
         this.query = queryFactory.select(QueryUtils.fitBean(beanClass, pathBase)).from(pathBase);
     }
 
-    BeanSelector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
+    Selector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
         this.pathBase = pathBase;
         this.query = queryFactory.select(expression).from(pathBase);
     }
@@ -36,7 +36,7 @@ public class BeanSelector<BEAN> {
     /**
      * 查询结果去重。
      */
-    public BeanSelector<BEAN> distinct() {
+    public Selector<BEAN> distinct() {
         query.distinct();
         return this;
     }
@@ -44,7 +44,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加查询条件。
      */
-    public BeanSelector<BEAN> where(Predicate predicate) {
+    public Selector<BEAN> where(Predicate predicate) {
         query.where(predicate);
         return this;
     }
@@ -52,7 +52,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加多个查询条件。
      */
-    public BeanSelector<BEAN> where(Predicate... predicates) {
+    public Selector<BEAN> where(Predicate... predicates) {
         query.where(predicates);
         return this;
     }
@@ -60,7 +60,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加分组字段。
      */
-    public BeanSelector<BEAN> groupBy(Expression expression) {
+    public Selector<BEAN> groupBy(Expression expression) {
         query.groupBy(expression);
         return this;
     }
@@ -68,7 +68,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加多个分组字段。
      */
-    public BeanSelector<BEAN> groupBy(Expression... expressions) {
+    public Selector<BEAN> groupBy(Expression... expressions) {
         query.groupBy(expressions);
         return this;
     }
@@ -76,7 +76,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加分组条件。
      */
-    public BeanSelector<BEAN> having(Predicate predicate) {
+    public Selector<BEAN> having(Predicate predicate) {
         query.having(predicate);
         return this;
     }
@@ -84,7 +84,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加多个分组条件。
      */
-    public BeanSelector<BEAN> having(Predicate... predicates) {
+    public Selector<BEAN> having(Predicate... predicates) {
         query.having(predicates);
         return this;
     }
@@ -92,7 +92,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加排序字段。
      */
-    public BeanSelector<BEAN> orderBy(OrderSpecifier order) {
+    public Selector<BEAN> orderBy(OrderSpecifier order) {
         query.orderBy(order);
         return this;
     }
@@ -100,7 +100,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加多个排序字段。
      */
-    public BeanSelector<BEAN> orderBy(OrderSpecifier... orders) {
+    public Selector<BEAN> orderBy(OrderSpecifier... orders) {
         query.orderBy(orders);
         return this;
     }
@@ -108,7 +108,7 @@ public class BeanSelector<BEAN> {
     /**
      * 添加排序字段。
      */
-    public BeanSelector<BEAN> orderBy(String orderClause) {
+    public Selector<BEAN> orderBy(String orderClause) {
         if (StringUtils.hasText(orderClause)) {
             query.orderBy(QueryUtils.orderSpecifier(pathBase, orderClause));
         }
@@ -118,7 +118,7 @@ public class BeanSelector<BEAN> {
     /**
      * 跳过多少条。
      */
-    public BeanSelector<BEAN> offset(long offset) {
+    public Selector<BEAN> offset(long offset) {
         query.offset(offset);
         return this;
     }
@@ -126,7 +126,7 @@ public class BeanSelector<BEAN> {
     /**
      * 返回多少条。
      */
-    public BeanSelector<BEAN> limit(long limit) {
+    public Selector<BEAN> limit(long limit) {
         query.limit(limit);
         return this;
     }

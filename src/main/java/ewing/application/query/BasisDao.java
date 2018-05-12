@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * 根据泛型操作实体的接口，查询对象pathBase和queryFactory可在子类中使用。
  */
-public abstract class BaseBeanDao<BASE extends RelationalPathBase<BEAN>, BEAN> implements BeanDao<BEAN> {
+public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> implements BasicDao<BEAN> {
 
     protected BASE pathBase;
 
@@ -32,7 +32,7 @@ public abstract class BaseBeanDao<BASE extends RelationalPathBase<BEAN>, BEAN> i
      * 初始化构造方法。
      */
     @SuppressWarnings("unchecked")
-    public BaseBeanDao() {
+    public BasisDao() {
         // 获取泛型真实的Class
         Type superclass = getClass().getGenericSuperclass();
         Assert.isTrue(superclass instanceof ParameterizedType, "Generic parameter missing.");
@@ -54,23 +54,23 @@ public abstract class BaseBeanDao<BASE extends RelationalPathBase<BEAN>, BEAN> i
     }
 
     @Override
-    public BeanSelector<BEAN> selector() {
-        return new BeanSelector<>(queryFactory, pathBase);
+    public Selector<BEAN> selector() {
+        return new Selector<>(queryFactory, pathBase);
     }
 
     @Override
-    public <TYPE> BeanSelector<TYPE> selector(Class<TYPE> beanClass) {
-        return new BeanSelector<>(queryFactory, pathBase, beanClass);
+    public <TYPE> Selector<TYPE> selector(Class<TYPE> beanClass) {
+        return new Selector<>(queryFactory, pathBase, beanClass);
     }
 
     @Override
-    public <TYPE> BeanSelector<TYPE> selector(Expression<TYPE> expression) {
-        return new BeanSelector<>(queryFactory, pathBase, expression);
+    public <TYPE> Selector<TYPE> selector(Expression<TYPE> expression) {
+        return new Selector<>(queryFactory, pathBase, expression);
     }
 
     @Override
-    public BeanSelector<Tuple> selector(Expression<?>... expressions) {
-        return new BeanSelector<>(queryFactory, pathBase, Projections.tuple(expressions));
+    public Selector<Tuple> selector(Expression<?>... expressions) {
+        return new Selector<>(queryFactory, pathBase, Projections.tuple(expressions));
     }
 
     @Override

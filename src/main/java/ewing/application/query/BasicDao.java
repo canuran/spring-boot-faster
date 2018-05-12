@@ -10,27 +10,27 @@ import java.util.List;
 /**
  * 根据泛型操作实体的接口。
  */
-public interface BeanDao<BEAN> {
+public interface BasicDao<BEAN> {
 
     /**
      * 简单的实体Bean查询器。
      */
-    BeanSelector<BEAN> selector();
+    Selector<BEAN> selector();
 
     /**
      * 自定义结果类型的查询器。
      */
-    <TYPE> BeanSelector<TYPE> selector(Class<TYPE> beanClass);
+    <TYPE> Selector<TYPE> selector(Class<TYPE> beanClass);
 
     /**
      * 自定义结果类型的查询器。
      */
-    <TYPE> BeanSelector<TYPE> selector(Expression<TYPE> expression);
+    <TYPE> Selector<TYPE> selector(Expression<TYPE> expression);
 
     /**
      * 元组结果类型的查询器。
      */
-    BeanSelector<Tuple> selector(Expression<?>... expressions);
+    Selector<Tuple> selector(Expression<?>... expressions);
 
     /**
      * 查询所有的实体对象。

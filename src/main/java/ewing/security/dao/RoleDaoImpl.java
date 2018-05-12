@@ -5,7 +5,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.sql.SQLQuery;
-import ewing.application.query.BaseBeanDao;
+import ewing.application.query.BasisDao;
 import ewing.application.query.Page;
 import ewing.application.query.Pager;
 import ewing.application.query.QueryUtils;
@@ -21,7 +21,7 @@ import java.util.List;
  * 角色数据访问实现。
  */
 @Repository
-public class RoleDaoImpl extends BaseBeanDao<QRole, Role> implements RoleDao {
+public class RoleDaoImpl extends BasisDao<QRole, Role> implements RoleDao {
 
     private QBean<RoleWithAuthority> qRoleWithAuthority = Projections
             .bean(RoleWithAuthority.class, qRole.all());

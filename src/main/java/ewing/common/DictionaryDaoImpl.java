@@ -2,7 +2,7 @@ package ewing.common;
 
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
-import ewing.application.query.BaseBeanDao;
+import ewing.application.query.BasisDao;
 import ewing.application.query.Page;
 import ewing.application.query.QueryUtils;
 import ewing.application.query.Where;
@@ -19,7 +19,7 @@ import java.util.List;
  * 数据字典数据访问实现。
  */
 @Repository
-public class DictionaryDaoImpl extends BaseBeanDao<QDictionary, Dictionary> implements DictionaryDao {
+public class DictionaryDaoImpl extends BasisDao<QDictionary, Dictionary> implements DictionaryDao {
 
     @Autowired
     private SQLQueryFactory queryFactory;

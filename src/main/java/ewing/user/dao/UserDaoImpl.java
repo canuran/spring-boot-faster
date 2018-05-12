@@ -6,7 +6,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
-import ewing.application.query.BaseBeanDao;
+import ewing.application.query.BasisDao;
 import ewing.application.query.Page;
 import ewing.application.query.Pager;
 import ewing.application.query.QueryUtils;
@@ -23,7 +23,7 @@ import java.util.List;
  * 用户数据访问实现。
  */
 @Repository
-public class UserDaoImpl extends BaseBeanDao<QUser, User> implements UserDao {
+public class UserDaoImpl extends BasisDao<QUser, User> implements UserDao {
 
     @Autowired
     private SQLQueryFactory queryFactory;

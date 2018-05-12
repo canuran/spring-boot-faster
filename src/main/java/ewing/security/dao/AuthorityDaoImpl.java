@@ -1,7 +1,7 @@
 package ewing.security.dao;
 
 import com.querydsl.core.types.Projections;
-import ewing.application.query.BaseBeanDao;
+import ewing.application.query.BasisDao;
 import ewing.entity.Authority;
 import ewing.query.QAuthority;
 import ewing.security.vo.AuthorityNode;
@@ -13,7 +13,7 @@ import java.util.List;
  * 权限数据访问实现。
  */
 @Repository
-public class AuthorityDaoImpl extends BaseBeanDao<QAuthority, Authority> implements AuthorityDao {
+public class AuthorityDaoImpl extends BasisDao<QAuthority, Authority> implements AuthorityDao {
 
     @Override
     public List<AuthorityNode> getUserAuthorities(Long userId) {

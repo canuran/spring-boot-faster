@@ -6,14 +6,14 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLInsertClause;
-import ewing.application.query.BaseBeanDao;
+import ewing.application.query.BasisDao;
 
 import java.util.Map;
 
 /**
  * 适用于Myql的根据泛型操作实体的实现。
  */
-public abstract class MysqlBaseDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BaseBeanDao<BASE, BEAN> implements MysqlBeanDao<BEAN> {
+public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 
     @Override
     public long insertOnDuplicateKeyUpdate(Object bean) {
