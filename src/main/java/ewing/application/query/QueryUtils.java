@@ -68,7 +68,7 @@ public class QueryUtils {
     /**
      * 获取排序指定符，例如：name asc。
      */
-    public static OrderSpecifier<?> orderSpecifier(RelationalPathBase<?> base, String orderClause) {
+    public static OrderSpecifier<?> getOrderSpecifier(RelationalPathBase<?> base, String orderClause) {
         Assert.hasText(orderClause, "Order clause missing.");
         orderClause = orderClause.trim().toLowerCase();
         Matcher matcher = ORDER_PATTERN.matcher(orderClause);
@@ -123,6 +123,7 @@ public class QueryUtils {
     /**
      * 使用实体作为主键值创建表达式。
      */
+    @SuppressWarnings("unchecked")
     public static BooleanExpression beanKeyEquals(List<? extends Path<?>> keyPaths, Object bean) {
         Assert.notNull(bean, "Bean param missing.");
         Assert.notEmpty(keyPaths, "Key paths missing.");

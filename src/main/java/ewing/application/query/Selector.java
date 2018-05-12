@@ -110,7 +110,7 @@ public class Selector<BEAN> {
      */
     public Selector<BEAN> orderBy(String orderClause) {
         if (StringUtils.hasText(orderClause)) {
-            query.orderBy(QueryUtils.orderSpecifier(pathBase, orderClause));
+            query.orderBy(QueryUtils.getOrderSpecifier(pathBase, orderClause));
         }
         return this;
     }
