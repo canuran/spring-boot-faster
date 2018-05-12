@@ -15,7 +15,9 @@ import org.springframework.util.Assert;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -115,7 +117,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     @Override
     public long deleteBean(Object bean) {
-        List<Path> keyPaths = QueryUtils.getKeyPaths(pathBase);
+        List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return queryFactory.delete(pathBase)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
                 .execute();
@@ -130,7 +132,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     @Override
     public long updateBean(Object bean) {
-        List<Path> keyPaths = QueryUtils.getKeyPaths(pathBase);
+        List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return queryFactory.update(pathBase)
                 .populate(bean)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
@@ -138,8 +140,8 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long updateBeans(Object... beans) {
-        List<Path> keyPaths = QueryUtils.getKeyPaths(pathBase);
+    public long updateBeans(Collection<?> beans) {
+        List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         SQLUpdateClause update = queryFactory.update(pathBase);
         for (Object bean : beans) {
             update.populate(bean)
@@ -169,7 +171,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long insertBeans(Object... beans) {
+    public long insertBeans(Collection<?> beans) {
         SQLInsertClause insert = queryFactory.insert(pathBase);
         for (Object bean : beans) {
             insert.populate(bean).addBatch();
@@ -178,35 +180,31 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <KEY> KEY insertWithKey(Object bean) {
-        List<Path> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        Assert.notEmpty(keyPaths, "Key paths missing.");
-        Assert.isTrue(keyPaths.size() == 1, "Multiple primary key.");
-        Path keyPath = keyPaths.get(0);
-        Object value = queryFactory.insert(pathBase)
+        Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
+        KEY value = queryFactory.insert(pathBase)
                 .populate(bean)
                 .executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
-        return (KEY) value;
+        return value;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <KEY> List<KEY> insertWithKeys(Object... beans) {
-        List<Path> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        Assert.notEmpty(keyPaths, "Key paths missing.");
-        Assert.isTrue(keyPaths.size() == 1, "Multiple primary key.");
-        Path keyPath = keyPaths.get(0);
+    public <KEY> List<KEY> insertWithKeys(Collection<?> beans) {
+        Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
+        if (beans.isEmpty()) {
+            return Collections.emptyList();
+        }
         SQLInsertClause insert = queryFactory.insert(pathBase);
         for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }
-        List<KEY> values = insert.isEmpty() ? Collections.emptyList()
-                : insert.executeWithKeys(keyPath);
+        List<KEY> values = insert.executeWithKeys(keyPath);
         String name = keyPath.getMetadata().getName();
-        for (int i = 0; i < beans.length && i < values.size(); i++) {
-            QueryUtils.setBeanProperty(beans[i], name, values.get(i));
+        Iterator itBeans = beans.iterator();
+        Iterator itKeys = values.iterator();
+        while (itBeans.hasNext() && itKeys.hasNext()) {
+            QueryUtils.setBeanProperty(itBeans.next(), name, itKeys.next());
         }
         return values;
     }

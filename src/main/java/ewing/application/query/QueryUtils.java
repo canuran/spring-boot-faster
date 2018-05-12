@@ -35,7 +35,12 @@ public class QueryUtils {
     private QueryUtils() {
     }
 
-    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_]+)\\s+?(asc|desc)?");
+    /**
+     * 常量转换成表达式。
+     */
+    public static <T> Expression<T> constant(T value) {
+        return value == null ? Expressions.nullExpression() : Expressions.constant(value);
+    }
 
     /**
      * 使用分页参数和查询对象进行分页查询。
@@ -57,6 +62,8 @@ public class QueryUtils {
             return new Page<>(query.fetch());
         }
     }
+
+    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_]+)\\s+?(asc|desc)?");
 
     /**
      * 获取排序指定符，例如：name asc。
@@ -80,11 +87,22 @@ public class QueryUtils {
      * 获取主键中的字段属性。
      */
     @SuppressWarnings("unchecked")
-    public static List<Path> getKeyPaths(RelationalPathBase pathBase) {
+    public static List<? extends Path<?>> getKeyPaths(RelationalPathBase pathBase) {
         Assert.notNull(pathBase, "PathBase missing.");
         PrimaryKey primaryKey = pathBase.getPrimaryKey();
         Assert.notNull(primaryKey, "PrimaryKey missing.");
-        return (List<Path>) primaryKey.getLocalColumns();
+        return primaryKey.getLocalColumns();
+    }
+
+    /**
+     * 获取实体中的单字段主键。
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> Path<E> getSinglePrimaryKey(RelationalPathBase pathBase) {
+        List<? extends Path<?>> keyPaths = getKeyPaths(pathBase);
+        Assert.notNull(keyPaths, "Key paths missing.");
+        Assert.isTrue(keyPaths.size() == 1, "Multiple primary key.");
+        return (Path<E>) keyPaths.get(0);
     }
 
     /**
@@ -92,7 +110,7 @@ public class QueryUtils {
      */
     @SuppressWarnings("unchecked")
     public static BooleanExpression baseKeyEquals(RelationalPathBase pathBase, Object key) {
-        List<Path> keyPaths = getKeyPaths(pathBase);
+        List<? extends Path<?>> keyPaths = getKeyPaths(pathBase);
         Assert.notEmpty(keyPaths, "Key paths missing.");
         if (keyPaths.size() == 1) {
             return ((SimpleExpression) keyPaths.get(0)).eq(key);
@@ -105,7 +123,7 @@ public class QueryUtils {
     /**
      * 使用实体作为主键值创建表达式。
      */
-    public static BooleanExpression beanKeyEquals(List<Path> keyPaths, Object bean) {
+    public static BooleanExpression beanKeyEquals(List<? extends Path<?>> keyPaths, Object bean) {
         Assert.notNull(bean, "Bean param missing.");
         Assert.notEmpty(keyPaths, "Key paths missing.");
         BooleanExpression equals = Expressions.FALSE;

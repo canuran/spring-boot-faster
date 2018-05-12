@@ -5,6 +5,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.dml.SQLUpdateClause;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -83,7 +84,7 @@ public interface BasicDao<BEAN> {
      * 批量根据对象中的ID属性和非null属性更新实体。
      * 兼容带有对应ID属性且至少有一个要更新的属性的实体对象。
      */
-    long updateBeans(Object... bean);
+    long updateBeans(Collection<?> beans);
 
     /**
      * 根据ID参数创建更新器。
@@ -105,18 +106,18 @@ public interface BasicDao<BEAN> {
      * 批量将实体对象非null属性插入到数据库。
      * 兼容至少包含一个对应的非null属性的实体对象。
      */
-    long insertBeans(Object... beans);
+    long insertBeans(Collection<?> beans);
 
     /**
-     * 将实体对象属性插入并返回ID值。
+     * 将实体对象属性插入并返回ID值，同时ID也会设置到实体对象中。
      * 兼容至少包含一个对应的非null属性的实体对象。
      */
     <KEY> KEY insertWithKey(Object bean);
 
     /**
-     * 批量将实体对象属性插入并返回ID值。
+     * 批量将实体对象属性插入并返回ID值，同时ID也会设置到实体对象中。
      * 兼容至少包含一个对应的非null属性的实体对象。
      */
-    <KEY> List<KEY> insertWithKeys(Object... beans);
+    <KEY> List<KEY> insertWithKeys(Collection<?> beans);
 
 }
