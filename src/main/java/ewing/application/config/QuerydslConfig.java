@@ -17,12 +17,12 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 
 /**
- * QueryDSL 配置类。
+ * Querydsl 配置类。
  *
  * @author Ewing
  */
 @Configuration
-public class QueryDSLConfig {
+public class QuerydslConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("com.querydsl.sql");
 

@@ -15,9 +15,9 @@ Spring Security：Spring安全框架，可满足复杂场景下的安全需求�
   
 Spring MVC：Web访问接口与控制器，Restful，全局异常，自动转换时间，静态资源访问，动态国际化支持等。  
   
-QueryDSL：通用高效的类型安全的查询框架，使用API覆盖标准SQL且可跨数据库，具有很高的开发和执行效率。  
+Querydsl：通用高效的类型安全的查询框架，使用API覆盖标准SQL且可跨数据库，具有很高的开发和执行效率。  
   
-QueryDSL 案例：Maven生成插件配置、独立的参考案例（位于test目录），覆盖绝大多数应用场景，可快速上手。  
+Querydsl 案例：Maven生成插件配置、独立的参考案例（位于test目录），覆盖绝大多数应用场景，可快速上手。  
   
 Spring Jdbc：Spring Jdbc事务及异常支持、JdbcTemplate作为特殊情况下的后备支持，确保无后顾之忧。  
   
@@ -47,7 +47,7 @@ Spring Security中的Role和Authority是同一个概念，但hasRole默认带前
   
 项目中已实现基于注解的功能权限控制（hasAuthority）和资源许可授权控制（hasPermission，若不需要删除Permission相关代码即可）。  
 
-### QueryDSL-SQL使用体验：
+### Querydsl-SQL使用体验：
 使用该框架的主要目的在于快速迭代开发（快速出产品，项目有价值才会进一步开发），随着需求的增加需要不断完善和重构，所以项目要能灵活应对各种需求变更。  
   
 DSL使用自动生成的表模型映射对象代替SQL中的表对象，具有很好的可维护性，利用编译时检查和集成开发工具的重构功能，再也不用担心修改表模型而代码中不能完全同步修改了。  

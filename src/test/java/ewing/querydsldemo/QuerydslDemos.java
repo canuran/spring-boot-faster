@@ -37,14 +37,14 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 独立的QueryDSL查询案例可作为参考。
+ * 独立的Querydsl查询案例可作为参考。
  * 执行前请先执行src/test/resources/querydsldemo.sql。
  * 注意：测试事务会自动回滚。
  */
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = StartApp.class)
-public class QueryDSLDemos {
+public class QuerydslDemos {
 
     @Autowired
     private SQLQueryFactory queryFactory;

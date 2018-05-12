@@ -48,7 +48,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            <!-- QueryDSL代码生成工具 -->
+            <!-- Querydsl代码生成工具 -->
             <plugin>
                 <groupId>com.querydsl</groupId>
                 <artifactId>querydsl-maven-plugin</artifactId>
@@ -166,7 +166,7 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
 
-        <!--QueryDSL 相关依赖-->
+        <!--Querydsl 相关依赖-->
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-spring</artifactId>
