@@ -33,7 +33,6 @@ public interface NameValue {
         public Serializable getValue() {
             return value;
         }
-
     }
 
 }
