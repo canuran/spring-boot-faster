@@ -18,15 +18,15 @@ public class Where {
     private Where() {
     }
 
-    public static Predicate trueTo(boolean value, Supplier<Predicate> supplier) {
+    public static Predicate isTrue(boolean value, Supplier<Predicate> supplier) {
         return value ? supplier.get() : null;
     }
 
-    public static Predicate falseTo(boolean value, Supplier<Predicate> supplier) {
+    public static Predicate isFalse(boolean value, Supplier<Predicate> supplier) {
         return value ? null : supplier.get();
     }
 
-    public static <T> Predicate nullTo(T value, Supplier<Predicate> supplier) {
+    public static <T> Predicate isNull(T value, Supplier<Predicate> supplier) {
         return value == null ? supplier.get() : null;
     }
 
