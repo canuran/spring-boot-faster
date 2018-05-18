@@ -24,7 +24,8 @@ import java.sql.Connection;
 @Configuration
 public class QuerydslConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("com.querydsl.sql");
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            SQLQueryFactory.class.getPackage().getName() + ".SQLParameters");
 
     @Autowired
     private DataSource dataSource;
@@ -42,7 +43,7 @@ public class QuerydslConfig {
         configuration.addListener(new SQLBaseListener() {
             @Override
             public void preExecute(SQLListenerContext context) {
-                LOGGER.debug("Set sql params: {}", MDC.get("querydsl.parameters"));
+                LOGGER.debug(MDC.get("querydsl.parameters"));
             }
         });
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
