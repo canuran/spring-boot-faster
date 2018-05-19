@@ -1,6 +1,6 @@
 package ewing.common;
 
-import ewing.query.QDictionary;
+import ewing.dao.query.QDictionary;
 
 /**
  * 数据字典中所有的实体Bean。

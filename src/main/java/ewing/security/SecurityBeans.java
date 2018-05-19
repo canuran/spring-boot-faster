@@ -1,6 +1,6 @@
 package ewing.security;
 
-import ewing.query.*;
+import ewing.dao.query.*;
 
 /**
  * 安全模块中所有的实体Bean。

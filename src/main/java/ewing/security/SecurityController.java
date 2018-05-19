@@ -5,7 +5,7 @@ import ewing.application.ResultMessage;
 import ewing.application.common.OkHttpUtils;
 import ewing.application.exception.AppRunException;
 import ewing.application.query.Page;
-import ewing.entity.Authority;
+import ewing.dao.entity.Authority;
 import ewing.security.vo.AuthorityNode;
 import ewing.security.vo.FindRoleParam;
 import ewing.security.vo.RoleWithAuthority;

@@ -4,7 +4,7 @@ import ewing.application.ResultMessage;
 import ewing.application.query.Page;
 import ewing.common.vo.DictionaryNode;
 import ewing.common.vo.FindDictionaryParam;
-import ewing.entity.Dictionary;
+import ewing.dao.entity.Dictionary;
 import ewing.security.AuthorityCodes;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

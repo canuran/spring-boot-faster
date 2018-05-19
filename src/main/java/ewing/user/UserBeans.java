@@ -1,8 +1,8 @@
 package ewing.user;
 
-import ewing.query.QRole;
-import ewing.query.QUser;
-import ewing.query.QUserRole;
+import ewing.dao.query.QRole;
+import ewing.dao.query.QUser;
+import ewing.dao.query.QUserRole;
 
 /**
  * 用户模块中所有的实体Bean。

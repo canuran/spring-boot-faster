@@ -62,8 +62,8 @@
                     <sourceFolder>src/main/resources</sourceFolder>
                     <targetFolder>${project.basedir}/src/main/java</targetFolder>
                     <exportBeans>true</exportBeans>
-                    <packageName>ewing.query</packageName>
-                    <beanPackageName>ewing.entity</beanPackageName>
+                    <packageName>ewing.dao.query</packageName>
+                    <beanPackageName>ewing.dao.entity</beanPackageName>
                     <beanAddToString>true</beanAddToString>
                     <tableNamePattern>%</tableNamePattern>
                     <beanInterfaces>

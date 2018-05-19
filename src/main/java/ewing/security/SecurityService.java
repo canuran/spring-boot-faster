@@ -1,8 +1,8 @@
 package ewing.security;
 
 import ewing.application.query.Page;
-import ewing.entity.Authority;
-import ewing.entity.Role;
+import ewing.dao.entity.Authority;
+import ewing.dao.entity.Role;
 import ewing.security.vo.AuthorityNode;
 import ewing.security.vo.FindRoleParam;
 import ewing.security.vo.RoleWithAuthority;

@@ -1,7 +1,7 @@
 package ewing.user.vo;
 
-import ewing.entity.Role;
-import ewing.entity.User;
+import ewing.dao.entity.Role;
+import ewing.dao.entity.User;
 
 import java.util.List;
 
