@@ -2,6 +2,7 @@ package ewing.application.query;
 
 import com.querydsl.sql.RelationalPathBase;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -45,31 +46,35 @@ public class DaoGenerator {
         }
     }
 
-
     private int getGeneratedCode(String template, Class<?> queryBeanClass, Class beanClass) {
+        String beanSimpleName = beanClass.getSimpleName();
+        String beanRealName = StringUtils.hasText(this.beanRemoveSuffix) && beanSimpleName.endsWith(this.beanRemoveSuffix) ?
+                beanSimpleName.substring(0, beanSimpleName.lastIndexOf(this.beanRemoveSuffix)) : beanSimpleName;
+
         String code = template.replace("{daoPackage}", this.daoPackage)
                 .replace("{daoSuperClass}", this.daoSuperClass.getName())
-                .replace("{daoSuperClassName}", this.daoSuperClass.getSimpleName())
+                .replace("{daoSuperSimpleName}", this.daoSuperClass.getSimpleName())
                 .replace("{daoSuperInterface}", daoSuperInterface.getName())
                 .replace("{daoSuperInterfaceName}", daoSuperInterface.getSimpleName())
                 .replace("{beanClass}", beanClass.getName())
-                .replace("{beanClassName}", beanClass.getSimpleName())
+                .replace("{beanSimpleName}", beanSimpleName)
+                .replace("{beanRealName}", beanRealName)
                 .replace("{queryBeanClass}", queryBeanClass.getName())
-                .replace("{queryBeanClassName}", queryBeanClass.getSimpleName());
+                .replace("{queryBeanSimpleName}", queryBeanClass.getSimpleName());
         String codeFilePath = getPackageDirectory(this.daoPackage).getAbsolutePath();
         if (template.equals(INTERFACE_TEMPLATE)) {
             File directory = new File(codeFilePath);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
-            codeFilePath += FILE_SEPARATOR + beanClass.getSimpleName() + "Dao.java";
+            codeFilePath += FILE_SEPARATOR + beanRealName + "Dao.java";
         } else {
             codeFilePath += FILE_SEPARATOR + "impl";
             File directory = new File(codeFilePath);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
-            codeFilePath += FILE_SEPARATOR + beanClass.getSimpleName() + "DaoImpl.java";
+            codeFilePath += FILE_SEPARATOR + beanRealName + "DaoImpl.java";
         }
         try {
             File file = new File(codeFilePath);
@@ -103,14 +108,14 @@ public class DaoGenerator {
             if (queryBeanFile.getName().endsWith(".java")) {
                 try {
                     String absolutePath = queryBeanFile.getAbsolutePath();
-                    String queryBeanClassName = absolutePath.substring(
+                    String queryBeanSimpleName = absolutePath.substring(
                             absoluteJavaCodePath.length() + 1, absolutePath.length() - 5)
                             .replace(FILE_SEPARATOR, ".");
 
-                    Class<?> clazz = Class.forName(queryBeanClassName);
+                    Class<?> clazz = Class.forName(queryBeanSimpleName);
                     if (RelationalPathBase.class.equals(clazz.getSuperclass())) {
                         classes.add(clazz);
-                        System.out.println("Found QBean: " + queryBeanClassName);
+                        System.out.println("Found QBean: " + queryBeanSimpleName);
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     throw new RuntimeException(e);
@@ -136,7 +141,7 @@ public class DaoGenerator {
             "import {daoSuperInterface};\n" +
             "import {beanClass};\n" +
             "\n" +
-            "public interface {beanClassName}Dao extends {daoSuperInterfaceName}<{beanClassName}> {\n" +
+            "public interface {beanRealName}Dao extends {daoSuperInterfaceName}<{beanSimpleName}> {\n" +
             "\n" +
             "}";
 
@@ -145,19 +150,20 @@ public class DaoGenerator {
             "import {daoSuperClass};\n" +
             "import {beanClass};\n" +
             "import {queryBeanClass};\n" +
-            "import {daoPackage}.{beanClassName}Dao;\n" +
+            "import {daoPackage}.{beanRealName}Dao;\n" +
             "import org.springframework.stereotype.Repository;\n" +
             "\n" +
             "@Repository\n" +
-            "public class {beanClassName}DaoImpl extends {daoSuperClassName}<{queryBeanClassName}, {beanClassName}> implements {beanClassName}Dao {\n" +
+            "public class {beanRealName}DaoImpl extends {daoSuperSimpleName}<{queryBeanSimpleName}, {beanSimpleName}> implements {beanRealName}Dao {\n" +
             "\n" +
             "}";
 
     private String javaCodePath = "src" + FILE_SEPARATOR + "main" + FILE_SEPARATOR + "java";
     private String queryBeanPackage = "query";
+    private String beanRemoveSuffix = "";
     private boolean overwrite = false;
     private String daoPackage = "dao";
-    private Class<?> daoSuperClass = BasisDao.class;
+    private Class<?> daoSuperClass = BasicDao.class;
     private Class<?> daoSuperInterface = BasicDao.class;
 
     public DaoGenerator javaCodePath(String javaCodePath) {
@@ -172,6 +178,11 @@ public class DaoGenerator {
         return this;
     }
 
+    public DaoGenerator beanRemoveSuffix(String beanRemoveSuffix) {
+        Assert.notNull(beanRemoveSuffix, "Bean remove suffix should not null.");
+        this.beanRemoveSuffix = beanRemoveSuffix;
+        return this;
+    }
 
     public DaoGenerator overwrrite(boolean overwrrite) {
         this.overwrite = overwrrite;
