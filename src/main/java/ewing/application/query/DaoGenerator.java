@@ -24,21 +24,29 @@ public class DaoGenerator {
     public void generate() {
         List<Class<?>> classes = getQueryBeanClasses();
 
-        System.out.println("\nStart generating...\n");
+        if (classes.isEmpty()) {
+            return;
+        } else {
+            System.out.println("\nStart generating...\n");
+        }
 
+        int count = 0;
         for (Class<?> queryBeanClass : classes) {
             Type superclass = queryBeanClass.getGenericSuperclass();
             Type[] types = ((ParameterizedType) superclass).getActualTypeArguments();
             Class beanClass = (Class) types[0];
-            getGeneratedCode(INTERFACE_TEMPLATE, queryBeanClass, beanClass);
-            getGeneratedCode(IMPLEMENTS_TEMPLATE, queryBeanClass, beanClass);
+            count += getGeneratedCode(INTERFACE_TEMPLATE, queryBeanClass, beanClass);
+            count += getGeneratedCode(IMPLEMENTS_TEMPLATE, queryBeanClass, beanClass);
         }
-
-        System.out.println("\nGenerating completed.");
+        if (count > 0) {
+            System.out.println("\nGenerated files: " + count);
+        } else {
+            System.out.println("Generated no file, may exists and not overwrite.");
+        }
     }
 
 
-    private void getGeneratedCode(String template, Class<?> queryBeanClass, Class beanClass) {
+    private int getGeneratedCode(String template, Class<?> queryBeanClass, Class beanClass) {
         String code = template.replace("{daoPackage}", this.daoPackage)
                 .replace("{daoSuperClass}", this.daoSuperClass.getName())
                 .replace("{daoSuperClassName}", this.daoSuperClass.getSimpleName())
@@ -67,8 +75,8 @@ public class DaoGenerator {
             File file = new File(codeFilePath);
             if (!file.exists()) {
                 file.createNewFile();
-            } else if (!overwrrite) {
-                return;
+            } else if (!overwrite) {
+                return 0;
             }
             FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -76,6 +84,7 @@ public class DaoGenerator {
             bufferedWriter.close();
             fileWriter.close();
             System.out.println("Generated: " + file.getName());
+            return 1;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -86,7 +95,7 @@ public class DaoGenerator {
         System.out.println("Absolute java code path: " + absoluteJavaCodePath + "\n");
 
         File queryBeanDirectory = getPackageDirectory(this.queryBeanPackage);
-        Assert.isTrue(queryBeanDirectory.isDirectory(), "Invalid query bean path: " + queryBeanDirectory);
+        Assert.isTrue(queryBeanDirectory.isDirectory(), "Directory not exists of package: " + queryBeanPackage);
         System.out.println("QBean directory: " + queryBeanDirectory.getAbsolutePath() + "\n");
 
         List<Class<?>> classes = new ArrayList<>();
@@ -107,6 +116,9 @@ public class DaoGenerator {
                     throw new RuntimeException(e);
                 }
             }
+        }
+        if (classes.isEmpty()) {
+            System.out.println("Found no QBean in package: " + this.queryBeanPackage);
         }
         return classes;
     }
@@ -143,11 +155,10 @@ public class DaoGenerator {
 
     private String javaCodePath = "src" + FILE_SEPARATOR + "main" + FILE_SEPARATOR + "java";
     private String queryBeanPackage = "query";
-    private boolean overwrrite = false;
+    private boolean overwrite = false;
     private String daoPackage = "dao";
     private Class<?> daoSuperClass = BasisDao.class;
     private Class<?> daoSuperInterface = BasicDao.class;
-
 
     public DaoGenerator javaCodePath(String javaCodePath) {
         Assert.hasText(javaCodePath, "Java code path should has text.");
@@ -163,7 +174,7 @@ public class DaoGenerator {
 
 
     public DaoGenerator overwrrite(boolean overwrrite) {
-        this.overwrrite = overwrrite;
+        this.overwrite = overwrrite;
         return this;
     }
 
