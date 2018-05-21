@@ -91,7 +91,8 @@ public class DaoGenerator {
             System.out.println("Generated: " + file.getName());
             return 1;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Generate skipped because: " + e.getMessage());
+            return 0;
         }
     }
 
