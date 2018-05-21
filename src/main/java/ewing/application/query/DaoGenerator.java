@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 使用QBean生成Dao接口和实现类。
+ * 使用QBean生成Dao接口和实现类，先用Maven插件export后再执行Dao生成。
  */
 public class DaoGenerator {
 
