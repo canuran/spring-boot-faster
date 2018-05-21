@@ -185,8 +185,8 @@ public class DaoGenerator {
         return this;
     }
 
-    public DaoGenerator overwrrite(boolean overwrrite) {
-        this.overwrite = overwrrite;
+    public DaoGenerator overwrite(boolean overwrite) {
+        this.overwrite = overwrite;
         return this;
     }
 
