@@ -5,7 +5,7 @@
 
     <groupId>ewing</groupId>
     <artifactId>spring-boot-faster</artifactId>
-    <version>2.3.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
     <name>Spring Boot Faster</name>
     <description>Spring Boot Faster</description>
@@ -59,7 +59,7 @@
                     <jdbcUser>faster</jdbcUser>
                     <jdbcPassword>faster</jdbcPassword>
                     <exportForeignKeys>false</exportForeignKeys>
-                    <sourceFolder>src/main/resources</sourceFolder>
+                    <sourceFolder>${project.basedir}/src/main/resources</sourceFolder>
                     <targetFolder>${project.basedir}/src/main/java</targetFolder>
                     <exportBeans>true</exportBeans>
                     <packageName>ewing.dao.query</packageName>
