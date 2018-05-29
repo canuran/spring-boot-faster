@@ -1,5 +1,6 @@
 package ewing.application.config;
 
+import com.querydsl.core.support.QueryBase;
 import com.querydsl.sql.*;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
@@ -43,7 +44,7 @@ public class QuerydslConfig {
         configuration.addListener(new SQLBaseListener() {
             @Override
             public void preExecute(SQLListenerContext context) {
-                LOGGER.debug(MDC.get("querydsl.parameters"));
+                LOGGER.debug(MDC.get(QueryBase.MDC_PARAMETERS));
             }
         });
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
