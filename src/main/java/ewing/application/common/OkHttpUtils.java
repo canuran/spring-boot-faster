@@ -262,7 +262,7 @@ public class OkHttpUtils {
         }
 
         public BodyPostter json(String json) {
-            this.jsonBody = GsonUtils.getGson().toJsonTree(json);
+            this.jsonBody = GsonUtils.getGson().fromJson(json, JsonElement.class);
             return this;
         }
 
