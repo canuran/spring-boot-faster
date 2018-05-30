@@ -1,5 +1,6 @@
 package ewing.application;
 
+import ewing.StartApp;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class AppReadyListener implements ApplicationListener<ApplicationReadyEve
 
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
-        System.out.println("应用启动成功！！！");
+        System.out.println("应用启动成功！启动用时：" + (System.currentTimeMillis() - StartApp.START_TIME) + " 毫秒。");
     }
 
 }
