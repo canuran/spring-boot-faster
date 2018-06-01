@@ -11,6 +11,8 @@ public class DemoUserDetail extends DemoUser {
 
     private String addressName;
 
+    private String sameGender;
+
     public String getGenderName() {
         return genderName;
     }
@@ -25,6 +27,14 @@ public class DemoUserDetail extends DemoUser {
 
     public void setAddressName(String addressName) {
         this.addressName = addressName;
+    }
+
+    public String getSameGender() {
+        return sameGender;
+    }
+
+    public void setSameGender(String sameGender) {
+        this.sameGender = sameGender;
     }
 }
 

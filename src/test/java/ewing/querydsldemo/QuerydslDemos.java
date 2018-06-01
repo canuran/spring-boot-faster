@@ -14,10 +14,10 @@ import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
 import ewing.application.common.GsonUtils;
-import ewing.application.common.JacksonUtils;
 import ewing.application.query.Page;
 import ewing.application.query.Pager;
 import ewing.application.query.QueryUtils;
+import ewing.application.query.Where;
 import ewing.querydsldemo.dao.DemoUserDao;
 import ewing.querydsldemo.entity.DemoAddress;
 import ewing.querydsldemo.entity.DemoUser;
@@ -34,6 +34,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -85,15 +86,19 @@ public class QuerydslDemos {
                 .populate(demoUser)
                 .executeWithKey(qDemoUser.userId);
 
+        System.out.println(userId);
+
         // 新增实体，包括null属性
-        queryFactory.insert(qDemoUser)
+        long rows = queryFactory.insert(qDemoUser)
                 .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
                 .execute();
+
+        System.out.println(rows);
 
         // 2.更新实体，使用实体对象
         demoUser.setUsername("元宝");
         demoUser.setPassword("ABC123");
-        long rows = queryFactory.update(qDemoUser)
+        rows = queryFactory.update(qDemoUser)
                 .where(qDemoUser.addressId.eq(userId))
                 .populate(demoUser)
                 .execute();
@@ -101,7 +106,7 @@ public class QuerydslDemos {
         System.out.println(rows);
 
         // 更新实体，使用上下文参数
-        queryFactory.update(qDemoUser)
+        rows = queryFactory.update(qDemoUser)
                 .where(qDemoUser.addressId.eq(userId))
                 .set(qDemoUser.username, "元宝")
                 .set(qDemoUser.password, "123ABC")
@@ -109,65 +114,126 @@ public class QuerydslDemos {
                 .set(qDemoUser.gender, qDemoUser.gender.add(1))
                 .execute();
 
+        System.out.println(rows);
+
         // 3.查询实体，根据ID查询
         demoUser = queryFactory.selectFrom(qDemoUser)
                 .where(qDemoUser.userId.eq(userId))
                 .fetchOne();
+
+        System.out.println(demoUser);
 
         // 查询实体，条件模糊查询
         List<DemoUser> users = queryFactory.selectFrom(qDemoUser)
                 .where(qDemoUser.username.contains("元宝"))
                 .fetch();
 
+        System.out.println(users);
+
         // 4.删除实体，根据ID删除
         rows = queryFactory.delete(qDemoUser)
                 .where(qDemoUser.userId.eq(userId))
                 .execute();
 
+        System.out.println(rows);
+
         // 删除实体，根据条件删除
         rows = queryFactory.delete(qDemoUser)
                 .where(qDemoUser.username.contains("元宝"))
                 .execute();
+
+        System.out.println(rows);
     }
 
     /**
-     * 原始API进行简单的CRUD操作。
-     * 点击Dao的方法查看原始实现。
+     * 使用简单封装的API进行CRUD操作。
+     * 点击Dao的方法查看更多API及实现，覆盖几乎所有单表操作。
      */
     @Test
-    public void simpleCrud() {
+    public void warpedOperation() {
         DemoUser demoUser = newDemoUser();
-        // 新增实体
+        // 1.新增实体，并返回主键，主键也会被设置到Bean中
         Integer userId = demoUserDao.insertWithKey(demoUser);
-        System.out.println(demoUser.getUserId());
 
-        // 更新实体
-        demoUser.setUsername("EWING");
+        System.out.println(userId);
+        System.out.println(demoUser);
+
+        // 批量新增实体
+        List<DemoUser> newUsers = Arrays.asList(newDemoUser(), newDemoUser());
+        List<Integer> userIds = demoUserDao.insertWithKeys(newUsers);
+
+        System.out.println(userIds);
+
+        // 2.更新实体，使用实体对象
+        demoUser.setUsername("元宝");
         demoUser.setPassword("ABC123");
-        demoUserDao.updateBean(demoUser);
+        long rows = demoUserDao.updateBean(demoUser);
 
-        // 更新部分属性，新增也可以这样用
-        demoUserDao.updaterByKey(userId)
-                .set(qDemoUser.username, "Ewing")
+        System.out.println(rows);
+
+        // 更新实体，使用上下文参数
+        rows = demoUserDao.updaterByKey(userId)
+                .set(qDemoUser.username, "元宝")
                 .set(qDemoUser.password, "123ABC")
-                // 使用字段表达式更新（可防止更新被覆盖）
+                // 使用字段表达式更新（在数据库事务下可保证一致性）
                 .set(qDemoUser.gender, qDemoUser.gender.add(1))
                 .execute();
 
-        // 查询实体
+        System.out.println(rows);
+
+        // 3.查询实体，根据ID查询
         demoUser = demoUserDao.selectByKey(userId);
 
-        // 查询部分属性，可自定义返回类型
-        String username = demoUserDao.selector(qDemoUser.username).fetchByKey(userId);
-        System.out.println(username);
+        System.out.println(demoUser);
 
-        // 删除实体
-        demoUserDao.deleteBean(demoUser);
-        System.out.println(JacksonUtils.toJson(demoUser));
+        // 查询实体，条件模糊查询
+        List<DemoUser> users = demoUserDao.selector()
+                .where(qDemoUser.username.contains("元宝"))
+                .fetch();
+
+        System.out.println(users);
+
+        // 4.删除实体，根据ID删除
+        rows = demoUserDao.deleteByKey(userId);
+
+        System.out.println(rows);
+
+        // 删除实体，根据条件删除
+        rows = demoUserDao.deleteWhere(qDemoUser.username.contains("元宝"));
+
+        System.out.println(rows);
     }
 
     /**
-     * 复杂条件组合。
+     * 动态条件和分页查询。
+     */
+    @Test
+    public void dynamicWhere() {
+        DemoUser demoUser = newDemoUser();
+
+        // 原始API动态条件、分页获取数据
+        SQLQuery<DemoUser> query = queryFactory.selectFrom(qDemoUser)
+                .distinct()
+                // 利用where(null)会被忽略的特性构建单行动态条件
+                .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
+                .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
+                .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq));
+
+        Page<DemoUser> userPage = QueryUtils.queryPage(new Pager(), query);
+        System.out.println(GsonUtils.toJson(userPage));
+
+        // 简单封装动态条件、分页获取数据
+        userPage = demoUserDao.selector()
+                // 利用where(null)会被忽略的特性构建单行动态条件
+                .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
+                .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
+                .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq))
+                .fetchPage(new Pager());
+        System.out.println(GsonUtils.toJson(userPage));
+    }
+
+    /**
+     * 复杂条件组合以及SQL和参数。
      */
     @Test
     public void queryWhere() {
@@ -176,19 +242,20 @@ public class QuerydslDemos {
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .orderBy(qDemoUser.createTime.desc().nullsFirst());
+
         // where可多次使用，相当于and，注意and优先级高于or
         query.where(qDemoUser.username.contains("元")
                 .and(qDemoUser.gender.eq(1))
                 .or(qDemoUser.username.contains("宝")
                         .and(qDemoUser.gender.eq(0))
                 ));
+
         // 查看SQL和参数（默认提供SQL日志）
         SQLBindings sqlBindings = query.getSQL();
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
-        // 分页获取数据
-        Page<DemoUser> userPage = QueryUtils.queryPage(new Pager(), query);
-        System.out.println(JacksonUtils.toJson(userPage));
+
+        System.out.println(GsonUtils.toJson(query.fetch()));
     }
 
     /**
@@ -196,23 +263,23 @@ public class QuerydslDemos {
      */
     @Test
     public void selectSubQuery() {
-        QDemoUser qAUser = new QDemoUser("A");
+        QDemoUser qUserChild = new QDemoUser("child");
         List<String> names = queryFactory
                 // 结果中使用子查询
                 .select(SQLExpressions.select(qDemoUser.username)
                         .from(qDemoUser)
-                        .where(qDemoUser.userId.eq(qAUser.userId)))
+                        .where(qDemoUser.userId.eq(qUserChild.userId)))
                 // 嵌套子查询
                 .from(SQLExpressions.selectFrom(qDemoUser)
                         .where(qDemoUser.userId.eq(1))
-                        .as(qAUser))
+                        .as(qUserChild))
                 // 条件中使用子查询、EXISTS
                 .where(SQLExpressions.selectOne()
                         .from(qDemoUser)
-                        .where(qDemoUser.userId.eq(qAUser.userId))
+                        .where(qDemoUser.userId.eq(qUserChild.userId))
                         .exists())
                 .fetch();
-        System.out.println(JacksonUtils.toJson(names));
+        System.out.println(GsonUtils.toJson(names));
     }
 
     /**
@@ -231,7 +298,8 @@ public class QuerydslDemos {
                 .groupBy(qDemoAddress.name)
                 .having(qDemoUser.count().gt(0))
                 .fetch();
-        System.out.println(JacksonUtils.toJson(addressUsers));
+        System.out.println(GsonUtils.toJson(addressUsers));
+
         // 关联查询取两个表的全部属性
         List<?> addressAndUser = queryFactory
                 .select(Projections.list(qDemoAddress, qDemoUser))
@@ -239,7 +307,7 @@ public class QuerydslDemos {
                 .leftJoin(qDemoUser)
                 .on(qDemoAddress.addressId.eq(qDemoUser.addressId))
                 .fetch();
-        System.out.println(JacksonUtils.toJson(addressAndUser));
+        System.out.println(GsonUtils.toJson(addressAndUser));
     }
 
     /**
@@ -252,17 +320,18 @@ public class QuerydslDemos {
                 Expressions.asNumber(2).sum(),
                 Expressions.asNumber(1).count(),
                 SQLExpressions.sum(Expressions.constant(3)),
-                Expressions.cases().when(
-                        qDemoUser.gender.max().eq(qDemoUser.gender.min()))
-                        .then("性别相同")
-                        .otherwise("性别不同"),
+                // 自定义结果列名
+                Expressions.stringPath("demo_user.username"),
+                // 自定义表达式
+                Expressions.stringTemplate("group_concat({0})", qDemoUser.username),
                 qDemoUser.createTime.milliSecond().avg())
-                .from(qDemoUser);
+                .from(qDemoUser)
+                .groupBy(qDemoUser.userId);
 
-        // 【非必要则不用】使用数据库的 HINTS 优化查询
+        // 使用数据库的 HINTS 优化查询
         query.addFlag(QueryFlag.Position.AFTER_SELECT, "SQL_NO_CACHE ");
 
-        // 【非必要则不用】自定义表达式、可调用数据库函数等
+        // 自定义条件表达式
         query.where(Expressions.booleanTemplate(
                 "NOW() < {0} OR NOW() > {0}", DateExpression.currentDate()));
         try {
@@ -271,7 +340,7 @@ public class QuerydslDemos {
             System.out.println("数据库不支持该SQL！");
         }
 
-        // 【非必要则不用】甚至 Mysql 独有的插入语句，另见 MysqlBasisDao 类
+        // 甚至 Mysql 独有的插入语句，另见 MysqlBasisDao 类
         queryFactory.insert(qDemoUser).populate(newDemoUser())
                 .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ")
                 .addFlag(QueryFlag.Position.END, qDemoUser.username.eq("元宝"))
@@ -291,12 +360,17 @@ public class QuerydslDemos {
                                 .when(2).then("女")
                                 .otherwise("保密")
                                 .as("genderName"),
-                        qDemoAddress.name.as("addressName")))
+                        qDemoAddress.name.as("addressName"),
+                        Expressions.cases().when(
+                                qDemoUser.gender.max().eq(qDemoUser.gender.min()))
+                                .then("性别相同")
+                                .otherwise("性别不同")
+                                .as("sameGender")))
                 .from(qDemoUser)
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .fetch();
-        System.out.println(JacksonUtils.toJson(demoUsers));
+        System.out.println(GsonUtils.toJson(demoUsers));
     }
 
     /**
@@ -315,7 +389,7 @@ public class QuerydslDemos {
                         SQLExpressions.selectFrom(qDemoUser)
                                 .where(qDemoUser.gender.eq(2))
                 ).as(qDemoUser));
-        System.out.println(JacksonUtils.toJson(QueryUtils
+        System.out.println(GsonUtils.toJson(QueryUtils
                 .queryPage(new Pager(1, 1), query)));
 
         // 复杂UNION，定义别名并使结果列和别名一致
@@ -337,8 +411,8 @@ public class QuerydslDemos {
                         .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                         .where(qDemoUser.gender.eq(2))
         ).as("alias"));
-        System.out.println(JacksonUtils.toJson(QueryUtils
-                .queryPage(new Pager(1, 1), queryDetail)));
+        System.out.println(GsonUtils.toJson(
+                QueryUtils.queryPage(new Pager(1, 1), queryDetail)));
     }
 
     /**
@@ -346,12 +420,15 @@ public class QuerydslDemos {
      */
     @Test
     public void executeBatch() {
-        // 批量更新 插入和删除操作类似
+        // 批量更新，插入和删除操作类似，设置参数后调用addBatch即可
         SQLUpdateClause update = queryFactory.update(qDemoUser);
+
         update.set(qDemoUser.username, qDemoUser.username.append("哥哥"))
                 .where(qDemoUser.gender.eq(1)).addBatch();
+
         update.set(qDemoUser.username, qDemoUser.username.append("妹妹"))
                 .where(qDemoUser.gender.eq(2)).addBatch();
+
         System.out.println(update.execute());
     }
 
@@ -370,6 +447,7 @@ public class QuerydslDemos {
                 .on(qDemoAddress.addressId.eq(qSubAddress.parentId))
                 .where(qDemoAddress.parentId.isNull())
                 .fetch();
+
         // 将并列的对象转换成一对多层级对象
         List<DemoAddressDetail> addressDetails = QueryUtils.oneToMany(
                 rows, qAddressDetail, qSubAddress,
@@ -377,6 +455,7 @@ public class QuerydslDemos {
                 DemoAddress::getAddressId,
                 DemoAddressDetail::getSubAddresses,
                 DemoAddressDetail::setSubAddresses);
+
         System.out.println(GsonUtils.toJson(addressDetails));
     }
 
