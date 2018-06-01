@@ -23,7 +23,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 远程调试工具。
+ * 调试工具，可调用项目中的任意方法。
+ * <p>
+ * 注意：方法重载的参数只提供Json级别的识别。
  *
  * @author Ewing
  * @since 2018年6月1日
@@ -39,7 +41,7 @@ public class RemoteDebugger {
 
     @PostMapping("/execute")
     @ApiOperation(value = "根据Bean名称或类全名调用方法", notes = "例如：userServiceImpl.findUserWithRole({limit:2})" +
-            " 或：ewing.application.common.TimeUtils.getDaysOfMonth(2018,5)")
+            " 或：ewing.application.common.TimeUtils.getDaysOfMonth(2018,5) 注意：方法重载的参数只提供Json级别的识别")
     public ResultMessage execute(@RequestBody String expression) {
         AppAsserts.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
