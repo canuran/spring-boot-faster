@@ -51,6 +51,24 @@ public class AppAsserts {
     }
 
     /**
+     * 断定为空，否则抛出异常。
+     */
+    public static void isNull(Object value, String elseMessage) {
+        if (value != null) {
+            throw new AppRunException(elseMessage);
+        }
+    }
+
+    /**
+     * 断定为空，否则抛出异常。
+     */
+    public static void isNull(Object value, ResultMessage elseMessage) {
+        if (value != null) {
+            throw new AppRunException(elseMessage);
+        }
+    }
+
+    /**
      * 断定不为空，否则抛出异常。
      */
     public static void notNull(Object value, String elseMessage) {

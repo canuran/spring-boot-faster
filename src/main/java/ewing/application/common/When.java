@@ -76,7 +76,7 @@ public final class When {
         }
     }
 
-    public <T extends Collection<E>, E> void contains(T value, E other, Consumer<T> consumer) {
+    public static <T extends Collection<E>, E> void contains(T value, E other, Consumer<T> consumer) {
         if (value != null && value.size() > 0) {
             for (Object one : value) {
                 if (Objects.equals(one, other)) {
@@ -87,7 +87,7 @@ public final class When {
         }
     }
 
-    public <T extends Collection<?>> void containsAny(T value, T others, Consumer<T> consumer) {
+    public static <T extends Collection<?>> void containsAny(T value, T others, Consumer<T> consumer) {
         if (value != null && others != null) {
             if (others.size() == 0) {
                 consumer.accept(value);
@@ -104,39 +104,33 @@ public final class When {
         }
     }
 
-    public <T extends Collection<?>> void containsAll(T value, T others, Consumer<T> consumer) {
+    public static <T extends Collection<?>> void containsAll(T value, T others, Consumer<T> consumer) {
         if (value != null && others != null
                 && value.size() >= others.size()) {
+            equals:
             for (Object other : others) {
-                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        notIn = false;
-                        break;
+                        continue equals;
                     }
                 }
-                if (notIn) {
-                    return;
-                }
+                return;
             }
             consumer.accept(value);
         }
     }
 
-    public <T extends Collection<?>> void equalsAll(T value, T others, Consumer<T> consumer) {
+    public static <T extends Collection<?>> void equalsAll(T value, T others, Consumer<T> consumer) {
         if (value != null && others != null
                 && value.size() == others.size()) {
+            equals:
             for (Object other : others) {
-                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        notIn = false;
-                        break;
+                        continue equals;
                     }
                 }
-                if (notIn) {
-                    return;
-                }
+                return;
             }
             consumer.accept(value);
         }
@@ -183,7 +177,7 @@ public final class When {
         }
     }
 
-    public <T> void containsAny(T[] value, T[] others, Consumer<T[]> consumer) {
+    public static <T> void containsAny(T[] value, T[] others, Consumer<T[]> consumer) {
         if (value != null && others != null) {
             if (others.length == 0) {
                 consumer.accept(value);
@@ -200,39 +194,33 @@ public final class When {
         }
     }
 
-    public <T> void containsAll(T[] value, T[] others, Consumer<T[]> consumer) {
+    public static <T> void containsAll(T[] value, T[] others, Consumer<T[]> consumer) {
         if (value != null && others != null
                 && value.length >= others.length) {
+            equals:
             for (Object other : others) {
-                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        notIn = false;
-                        break;
+                        continue equals;
                     }
                 }
-                if (notIn) {
-                    return;
-                }
+                return;
             }
             consumer.accept(value);
         }
     }
 
-    public <T> void equalsAll(T[] value, T[] others, Consumer<T[]> consumer) {
+    public static <T> void equalsAll(T[] value, T[] others, Consumer<T[]> consumer) {
         if (value != null && others != null
                 && value.length == others.length) {
+            equals:
             for (Object other : others) {
-                boolean notIn = true;
                 for (Object one : value) {
                     if (Objects.equals(one, other)) {
-                        notIn = false;
-                        break;
+                        continue equals;
                     }
                 }
-                if (notIn) {
-                    return;
-                }
+                return;
             }
             consumer.accept(value);
         }

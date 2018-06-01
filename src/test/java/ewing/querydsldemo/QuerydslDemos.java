@@ -10,6 +10,7 @@ import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.StartApp;
 import ewing.application.common.GsonUtils;
@@ -71,6 +72,62 @@ public class QuerydslDemos {
         demoUser.setCreateTime(new Date());
         demoUser.setAddressId(1);
         return demoUser;
+    }
+
+    /**
+     * 原始API进行简单的CRUD操作。
+     */
+    @Test
+    public void basicOperation() {
+        DemoUser demoUser = newDemoUser();
+        // 1.新增实体，并返回主键
+        Integer userId = queryFactory.insert(qDemoUser)
+                .populate(demoUser)
+                .executeWithKey(qDemoUser.userId);
+
+        // 新增实体，包括null属性
+        queryFactory.insert(qDemoUser)
+                .populate(demoUser, DefaultMapper.WITH_NULL_BINDINGS)
+                .execute();
+
+        // 2.更新实体，使用实体对象
+        demoUser.setUsername("元宝");
+        demoUser.setPassword("ABC123");
+        long rows = queryFactory.update(qDemoUser)
+                .where(qDemoUser.addressId.eq(userId))
+                .populate(demoUser)
+                .execute();
+
+        System.out.println(rows);
+
+        // 更新实体，使用上下文参数
+        queryFactory.update(qDemoUser)
+                .where(qDemoUser.addressId.eq(userId))
+                .set(qDemoUser.username, "元宝")
+                .set(qDemoUser.password, "123ABC")
+                // 使用字段表达式更新（在数据库事务下可保证一致性）
+                .set(qDemoUser.gender, qDemoUser.gender.add(1))
+                .execute();
+
+        // 3.查询实体，根据ID查询
+        demoUser = queryFactory.selectFrom(qDemoUser)
+                .where(qDemoUser.userId.eq(userId))
+                .fetchOne();
+
+        // 查询实体，条件模糊查询
+        List<DemoUser> users = queryFactory.selectFrom(qDemoUser)
+                .where(qDemoUser.username.contains("元宝"))
+                .fetch();
+
+        // 4.删除实体，根据ID删除
+        rows = queryFactory.delete(qDemoUser)
+                .where(qDemoUser.userId.eq(userId))
+                .execute();
+
+        // 删除实体，根据条件删除
+        rows = queryFactory.delete(qDemoUser)
+                .where(qDemoUser.username.contains("元宝"))
+                .execute();
     }
 
     /**
