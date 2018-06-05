@@ -57,7 +57,7 @@ public class DictionaryDaoImpl extends BasisDao<QDictionary, Dictionary> impleme
         return queryFactory.selectDistinct(
                 QueryUtils.fitBean(DictionaryNode.class, qAllDictionary))
                 .from(qDictionary)
-                .leftJoin(qAllDictionary)
+                .join(qAllDictionary)
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(qDictionary.value.in(rootValues))
                 .fetch();
