@@ -6,6 +6,7 @@ import ewing.application.common.GsonUtils;
 import ewing.application.exception.AppRunException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,21 +39,22 @@ public class RemoteDebugger {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)\\.([a-zA-Z0-9_$]+)\\((.*)\\)");
+    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)\\.([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
 
-    @PostMapping("/execute")
+    @PostMapping("/methodExecute")
     @ApiOperation(value = "根据Bean名称或类全名调用方法", notes = "例如：userServiceImpl.findUserWithRole({limit:2})" +
             " 或：ewing.application.common.TimeUtils.getDaysOfMonth(2018,5) 注意：方法重载的参数只提供Json级别的识别")
-    public ResultMessage execute(@RequestBody String expression) {
+    public ResultMessage methodExecute(@RequestBody String expression) {
         AppAsserts.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
         AppAsserts.yes(matcher.find(), "表达式格式不正确！");
 
         // 根据名称获取Bean
-        Object bean = getBean(matcher.group(1));
+        String classOrBeanName = matcher.group(1);
+        Object bean = getBean(classOrBeanName);
         Class clazz;
         try {
-            clazz = bean == null ? Class.forName(matcher.group(1)) : bean.getClass();
+            clazz = bean == null ? Class.forName(classOrBeanName) : AopProxyUtils.ultimateTargetClass(bean);
         } catch (Exception e) {
             throw new AppRunException("初始化类失败！", e);
         }
@@ -69,19 +72,23 @@ public class RemoteDebugger {
         // 根据参数锁定方法
         List<Object> args = new ArrayList<>();
         Method foundMethod = null;
-        findMethod:
         for (Method method : mayMethods) {
             if (!args.isEmpty()) {
                 args.clear();
             }
+            Type[] types = method.getGenericParameterTypes();
+            if (types.length != params.size()) {
+                continue;
+            }
+            // 参数转换，无异常表示匹配
             Iterator<JsonElement> paramIterator = params.iterator();
-            for (Class<?> type : method.getParameterTypes()) {
-                try {
+            try {
+                for (Type type : types) {
                     Object arg = GsonUtils.getGson().fromJson(paramIterator.next(), type);
                     args.add(arg);
-                } catch (Exception e) {
-                    continue findMethod;
                 }
+            } catch (Exception e) {
+                continue;
             }
             AppAsserts.isNull(foundMethod, "方法调用重复：" + foundMethod + " 和 " + method);
             foundMethod = method;
@@ -110,7 +117,7 @@ public class RemoteDebugger {
     }
 
     private List<Method> getMethods(Class clazz, String methodName) {
-        List<Method> mayMethods = Stream.of(clazz.getMethods())
+        List<Method> mayMethods = Stream.of(clazz.getDeclaredMethods())
                 .filter(m -> methodName.equals(m.getName()))
                 .collect(Collectors.toList());
         AppAsserts.notEmpty(mayMethods, "未找到方法：" + methodName);

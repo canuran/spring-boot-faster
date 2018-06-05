@@ -7,11 +7,11 @@ import ewing.application.AppAsserts;
 import ewing.application.common.When;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
+import ewing.dao.UserDao;
+import ewing.dao.UserRoleDao;
 import ewing.dao.entity.Role;
 import ewing.dao.entity.User;
 import ewing.dao.entity.UserRole;
-import ewing.dao.UserDao;
-import ewing.dao.UserRoleDao;
 import ewing.user.vo.FindUserParam;
 import ewing.user.vo.UserWithRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -104,9 +103,9 @@ public class UserServiceImpl implements UserService {
     public Page<UserWithRole> findUserWithRole(FindUserParam findUserParam) {
         BooleanExpression expression = Expressions.TRUE;
         // 用户名
-        expression = expression.and(Where.hasText(findUserParam.getUsername(),qUser.username::contains));
+        expression = expression.and(Where.hasText(findUserParam.getUsername(), qUser.username::contains));
         // 昵称
-        expression = expression.and(Where.hasText(findUserParam.getNickname(),qUser.nickname::contains));
+        expression = expression.and(Where.hasText(findUserParam.getNickname(), qUser.nickname::contains));
         return userDao.findUserWithRole(findUserParam, expression);
     }
 
