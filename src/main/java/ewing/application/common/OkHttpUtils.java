@@ -68,7 +68,7 @@ public class OkHttpUtils {
     /**
      * 请求器。
      */
-    private abstract static class Requestter<R extends Requestter> {
+    private abstract static class Requester<R extends Requester> {
         protected Request.Builder builder = new Request.Builder();
 
         public R header(String name, String value) {
@@ -142,7 +142,7 @@ public class OkHttpUtils {
     /**
      * Get请求器。
      */
-    public static class Getter extends Requestter<Getter> {
+    public static class Getter extends Requester<Getter> {
         protected StringBuilder urlBuilder;
         private boolean hasParam;
 
@@ -198,7 +198,7 @@ public class OkHttpUtils {
     /**
      * Post请求器。
      */
-    public static class FormPoster extends Requestter<FormPoster> {
+    public static class FormPoster extends Requester<FormPoster> {
         protected FormBody.Builder formBuilder = new FormBody.Builder();
 
         public FormPoster(String url) {
@@ -220,7 +220,7 @@ public class OkHttpUtils {
     /**
      * 带文件流Post请求器。
      */
-    public static class MultiPoster extends Requestter<MultiPoster> {
+    public static class MultiPoster extends Requester<MultiPoster> {
         protected MultipartBody.Builder multiBuilder = new MultipartBody
                 .Builder().setType(MultipartBody.FORM);
 
@@ -254,7 +254,7 @@ public class OkHttpUtils {
     /**
      * Body的Post请求器。
      */
-    public static class BodyPoster extends Requestter<BodyPoster> {
+    public static class BodyPoster extends Requester<BodyPoster> {
         protected JsonElement jsonBody = JsonNull.INSTANCE;
 
         public BodyPoster(String url) {
