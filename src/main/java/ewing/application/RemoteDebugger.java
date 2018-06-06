@@ -43,7 +43,7 @@ public class RemoteDebugger {
 
     @PostMapping("/methodExecute")
     @ApiOperation(value = "根据Bean名称或类全名调用方法", notes = "例如：userServiceImpl.findUserWithRole({limit:2})" +
-            " 或：ewing.application.common.TimeUtils.getDaysOfMonth(2018,5) 注意：方法重载的参数只提供Json级别的识别")
+            " 或：ewing.application.common.TimeUtils.getDaysOfMonth(2018,5) 注意：无法区分重载且参数的Json相互兼容的方法")
     public ResultMessage methodExecute(@RequestBody String expression) {
         AppAsserts.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
