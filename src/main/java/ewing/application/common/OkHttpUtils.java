@@ -198,15 +198,15 @@ public class OkHttpUtils {
     /**
      * Post请求器。
      */
-    public static class FormPostter extends Requestter<FormPostter> {
+    public static class FormPoster extends Requestter<FormPoster> {
         protected FormBody.Builder formBuilder = new FormBody.Builder();
 
-        public FormPostter(String url) {
+        public FormPoster(String url) {
             this.builder.url(url);
         }
 
         @Override
-        public FormPostter param(String name, Object value) {
+        public FormPoster param(String name, Object value) {
             formBuilder.add(String.valueOf(name), String.valueOf(value));
             return this;
         }
@@ -220,27 +220,27 @@ public class OkHttpUtils {
     /**
      * 带文件流Post请求器。
      */
-    public static class MultiPostter extends Requestter<MultiPostter> {
+    public static class MultiPoster extends Requestter<MultiPoster> {
         protected MultipartBody.Builder multiBuilder = new MultipartBody
                 .Builder().setType(MultipartBody.FORM);
 
-        public MultiPostter(String url) {
+        public MultiPoster(String url) {
             this.builder.url(url);
         }
 
         @Override
-        public MultiPostter param(String name, Object value) {
+        public MultiPoster param(String name, Object value) {
             multiBuilder.addFormDataPart(String.valueOf(name), String.valueOf(value));
             return this;
         }
 
-        public MultiPostter file(String name, File file) {
+        public MultiPoster file(String name, File file) {
             multiBuilder.addFormDataPart(String.valueOf(name),
                     file.getName(), RequestBody.create(STREAM, file));
             return this;
         }
 
-        public MultiPostter part(MultipartBody.Part part) {
+        public MultiPoster part(MultipartBody.Part part) {
             multiBuilder.addPart(part);
             return this;
         }
@@ -254,25 +254,25 @@ public class OkHttpUtils {
     /**
      * Body的Post请求器。
      */
-    public static class BodyPostter extends Requestter<BodyPostter> {
+    public static class BodyPoster extends Requestter<BodyPoster> {
         protected JsonElement jsonBody = JsonNull.INSTANCE;
 
-        public BodyPostter(String url) {
+        public BodyPoster(String url) {
             this.builder.url(url);
         }
 
-        public BodyPostter json(String json) {
+        public BodyPoster json(String json) {
             this.jsonBody = GsonUtils.getGson().fromJson(json, JsonElement.class);
             return this;
         }
 
-        public BodyPostter gson(JsonElement json) {
+        public BodyPoster gson(JsonElement json) {
             this.jsonBody = json == null ? JsonNull.INSTANCE : json;
             return this;
         }
 
         @Override
-        public BodyPostter param(String name, Object value) {
+        public BodyPoster param(String name, Object value) {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonObject();
             } else if (!jsonBody.isJsonObject()) {
@@ -296,7 +296,7 @@ public class OkHttpUtils {
             return this;
         }
 
-        public BodyPostter add(Object value) {
+        public BodyPoster add(Object value) {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonArray();
             } else if (!jsonBody.isJsonArray()) {
@@ -328,7 +328,7 @@ public class OkHttpUtils {
     /**
      * Body的Put请求器。
      */
-    public static class BodyPutter extends BodyPostter {
+    public static class BodyPutter extends BodyPoster {
 
         public BodyPutter(String url) {
             super(url);
@@ -365,22 +365,22 @@ public class OkHttpUtils {
     /**
      * 准备创建表单的Post请求。
      */
-    public static FormPostter formPost(String url) {
-        return new FormPostter(url);
+    public static FormPoster formPost(String url) {
+        return new FormPoster(url);
     }
 
     /**
      * 准备创建带文件的Post请求。
      */
-    public static MultiPostter multiPost(String url) {
-        return new MultiPostter(url);
+    public static MultiPoster multiPost(String url) {
+        return new MultiPoster(url);
     }
 
     /**
      * 准备创建Body的Post请求。
      */
-    public static BodyPostter bodyPost(String url) {
-        return new BodyPostter(url);
+    public static BodyPoster bodyPost(String url) {
+        return new BodyPoster(url);
     }
 
     /**
