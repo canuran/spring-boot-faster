@@ -186,6 +186,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-maven-plugin</artifactId>
+            <version>4.1.4</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!--数据库对应的驱动包-->
         <dependency>
             <groupId>mysql</groupId>
