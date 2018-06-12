@@ -41,6 +41,7 @@ public class GenerateDao {
         Field beanAddToString = AbstractMetaDataExportMojo.class.getDeclaredField("beanAddToString");
         beanAddToString.setAccessible(true);
         beanAddToString.set(exporter, true);
+        exporter.setCustomTypes(new String[]{com.querydsl.sql.types.UtilDateType.class.getName()});
         exporter.setNumericMappings(getNumericMappings());
         exporter.setTableNamePattern("%");
         exporter.execute();
