@@ -55,7 +55,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Authority> getAllAuthority() {
-        return authorityDao.selectAll();
+        return authorityDao.selectWhere(null);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Role> getAllRoles() {
-        return roleDao.selectAll();
+        return roleDao.selectWhere(null);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.sql.SQLQuery;
-import ewing.application.query.BasisDao;
+import ewing.application.config.SBFBasisDao;
 import ewing.application.query.Page;
 import ewing.application.query.Pager;
 import ewing.application.query.QueryUtils;
@@ -22,7 +22,7 @@ import java.util.List;
  * 角色数据访问实现。
  */
 @Repository
-public class RoleDaoImpl extends BasisDao<QRole, Role> implements RoleDao {
+public class RoleDaoImpl extends SBFBasisDao<QRole, Role> implements RoleDao {
 
     private QBean<RoleWithAuthority> qRoleWithAuthority = Projections
             .bean(RoleWithAuthority.class, qRole.all());
@@ -30,13 +30,13 @@ public class RoleDaoImpl extends BasisDao<QRole, Role> implements RoleDao {
     @Override
     public Page<RoleWithAuthority> findRoleWithAuthority(Pager pager, Predicate predicate) {
         // 查询角色总数
-        SQLQuery<Role> roleQuery = queryFactory.selectFrom(qRole)
+        SQLQuery<Role> roleQuery = getQueryFactory().selectFrom(qRole)
                 .where(predicate);
         long total = roleQuery.fetchCount();
 
         // 分页查询并附带权限
         roleQuery.limit(pager.getLimit()).offset(pager.getOffset());
-        List<Tuple> rows = queryFactory.select(qRoleWithAuthority, qAuthority)
+        List<Tuple> rows = getQueryFactory().select(qRoleWithAuthority, qAuthority)
                 .from(roleQuery.as(qRole))
                 .leftJoin(qRoleAuthority).on(qRole.roleId.eq(qRoleAuthority.roleId))
                 .leftJoin(qAuthority).on(qRoleAuthority.authorityId.eq(qAuthority.authorityId))
@@ -53,7 +53,7 @@ public class RoleDaoImpl extends BasisDao<QRole, Role> implements RoleDao {
     @Override
     public List<Role> getRolesByUser(Long userId) {
         // 用户->角色
-        return queryFactory.selectDistinct(qRole)
+        return getQueryFactory().selectDistinct(qRole)
                 .from(qRole)
                 .join(qUserRole)
                 .on(qRole.roleId.eq(qUserRole.roleId))

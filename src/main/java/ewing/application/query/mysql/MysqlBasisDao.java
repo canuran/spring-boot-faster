@@ -16,16 +16,16 @@ import java.util.Map;
 public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 
     @Override
-    public long insertOnDuplicateKeyUpdate(Object bean) {
-        SQLInsertClause insert = queryFactory.insert(pathBase)
+    public long insertDuplicateUpdate(Object bean) {
+        SQLInsertClause insert = getQueryFactory().insert(pathBase)
                 .populate(bean);
         onDuplicateKeyUpdate(insert, bean);
         return insert.execute();
     }
 
     @Override
-    public long insertOnDuplicateKeyUpdates(Object... beans) {
-        SQLInsertClause insert = queryFactory.insert(pathBase);
+    public long insertDuplicateUpdates(Object... beans) {
+        SQLInsertClause insert = getQueryFactory().insert(pathBase);
         for (Object bean : beans) {
             insert.populate(bean);
             onDuplicateKeyUpdate(insert, bean);

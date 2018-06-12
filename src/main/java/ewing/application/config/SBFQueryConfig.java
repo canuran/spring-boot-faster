@@ -23,7 +23,7 @@ import java.sql.Connection;
  * @author Ewing
  */
 @Configuration
-public class QuerydslConfig {
+public class SBFQueryConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             SQLQueryFactory.class.getPackage().getName() + ".SQLParameters");

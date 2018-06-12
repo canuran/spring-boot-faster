@@ -9,7 +9,6 @@ import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Field;
@@ -21,14 +20,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 根据泛型操作实体的接口，查询对象pathBase和queryFactory可在子类中使用。
+ * 根据泛型操作实体的接口，查询对象pathBase可在子类中使用。
  */
 public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> implements BasicDao<BEAN> {
 
     protected BASE pathBase;
 
-    @Autowired
-    protected SQLQueryFactory queryFactory;
+    protected abstract SQLQueryFactory getQueryFactory();
 
     /**
      * 初始化构造方法。
@@ -57,53 +55,48 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     @Override
     public Selector<BEAN> selector() {
-        return new Selector<>(queryFactory, pathBase);
+        return new Selector<>(getQueryFactory(), pathBase);
     }
 
     @Override
     public <TYPE> Selector<TYPE> selector(Class<TYPE> beanClass) {
-        return new Selector<>(queryFactory, pathBase, beanClass);
+        return new Selector<>(getQueryFactory(), pathBase, beanClass);
     }
 
     @Override
     public <TYPE> Selector<TYPE> selector(Expression<TYPE> expression) {
-        return new Selector<>(queryFactory, pathBase, expression);
+        return new Selector<>(getQueryFactory(), pathBase, expression);
     }
 
     @Override
     public Selector<Tuple> selector(Expression<?>... expressions) {
-        return new Selector<>(queryFactory, pathBase, Projections.tuple(expressions));
-    }
-
-    @Override
-    public List<BEAN> selectAll() {
-        return queryFactory.selectFrom(pathBase)
-                .fetch();
+        return new Selector<>(getQueryFactory(), pathBase, Projections.tuple(expressions));
     }
 
     @Override
     public BEAN selectByKey(Object key) {
-        return queryFactory.selectFrom(pathBase)
+        return getQueryFactory().selectFrom(pathBase)
                 .where(QueryUtils.baseKeyEquals(pathBase, key))
                 .fetchOne();
     }
 
     @Override
-    public long countAll() {
-        return queryFactory.selectFrom(pathBase)
-                .fetchCount();
+    public List<BEAN> selectWhere(Predicate predicate) {
+        return getQueryFactory().selectFrom(pathBase)
+                .where(predicate)
+                .fetch();
     }
 
     @Override
     public long countWhere(Predicate predicate) {
-        return queryFactory.selectFrom(pathBase)
+        return getQueryFactory().selectFrom(pathBase)
                 .where(predicate)
                 .fetchCount();
     }
 
     @Override
     public long deleteByKey(Object key) {
-        return queryFactory.delete(pathBase)
+        return getQueryFactory().delete(pathBase)
                 .where(QueryUtils.baseKeyEquals(pathBase, key))
                 .execute();
     }
@@ -111,14 +104,14 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     @Override
     public long deleteBean(Object bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        return queryFactory.delete(pathBase)
+        return getQueryFactory().delete(pathBase)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
                 .execute();
     }
 
     @Override
     public long deleteWhere(Predicate predicate) {
-        return queryFactory.delete(pathBase)
+        return getQueryFactory().delete(pathBase)
                 .where(predicate)
                 .execute();
     }
@@ -126,7 +119,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     @Override
     public long updateBean(Object bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        return queryFactory.update(pathBase)
+        return getQueryFactory().update(pathBase)
                 .populate(bean)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
                 .execute();
@@ -135,7 +128,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     @Override
     public long updateBeans(Collection<?> beans) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        SQLUpdateClause update = queryFactory.update(pathBase);
+        SQLUpdateClause update = getQueryFactory().update(pathBase);
         for (Object bean : beans) {
             update.populate(bean)
                     .where(QueryUtils.beanKeyEquals(keyPaths, bean))
@@ -146,26 +139,26 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     @Override
     public SQLUpdateClause updaterByKey(Object key) {
-        return queryFactory.update(pathBase)
+        return getQueryFactory().update(pathBase)
                 .where(QueryUtils.baseKeyEquals(pathBase, key));
     }
 
     @Override
     public SQLUpdateClause updaterWhere(Predicate predicate) {
-        return queryFactory.update(pathBase)
+        return getQueryFactory().update(pathBase)
                 .where(predicate);
     }
 
     @Override
     public long insertBean(Object bean) {
-        return queryFactory.insert(pathBase)
+        return getQueryFactory().insert(pathBase)
                 .populate(bean)
                 .execute();
     }
 
     @Override
     public long insertBeans(Collection<?> beans) {
-        SQLInsertClause insert = queryFactory.insert(pathBase);
+        SQLInsertClause insert = getQueryFactory().insert(pathBase);
         for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }
@@ -175,7 +168,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     @Override
     public <KEY> KEY insertWithKey(Object bean) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
-        KEY value = queryFactory.insert(pathBase)
+        KEY value = getQueryFactory().insert(pathBase)
                 .populate(bean)
                 .executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
@@ -188,7 +181,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
         if (beans.isEmpty()) {
             return Collections.emptyList();
         }
-        SQLInsertClause insert = queryFactory.insert(pathBase);
+        SQLInsertClause insert = getQueryFactory().insert(pathBase);
         for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }

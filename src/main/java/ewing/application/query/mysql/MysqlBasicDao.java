@@ -10,11 +10,11 @@ public interface MysqlBasicDao<BEAN> extends BasicDao<BEAN> {
     /**
      * 使用 Mysql 的 ON DUPLICATE KEY UPDATE。
      */
-    long insertOnDuplicateKeyUpdate(Object bean);
+    long insertDuplicateUpdate(Object bean);
 
     /**
      * 批量使用 Mysql 的 ON DUPLICATE KEY UPDATE。
      */
-    long insertOnDuplicateKeyUpdates(Object... beans);
+    long insertDuplicateUpdates(Object... beans);
 
 }
