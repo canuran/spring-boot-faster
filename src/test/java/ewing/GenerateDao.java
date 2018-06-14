@@ -9,6 +9,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.stream.IntStream;
 
 /**
  * 自动生成Dao接口与实现，比Maven配置更灵活。
@@ -35,12 +36,15 @@ public class GenerateDao {
         exporter.setExportBeans(true);
         exporter.setNamePrefix("Q");
         exporter.setTargetFolder("src/main/java");
-        exporter.setPackageName("ewing.dao1.query");
-        exporter.setBeanPackageName("ewing.dao1.entity");
+        exporter.setPackageName("ewing.dao.query");
+        exporter.setBeanPackageName("ewing.dao.entity");
         exporter.setBeanInterfaces(new String[]{java.io.Serializable.class.getName()});
         Field beanAddToString = AbstractMetaDataExportMojo.class.getDeclaredField("beanAddToString");
         beanAddToString.setAccessible(true);
         beanAddToString.set(exporter, true);
+        Field exportPrimaryKeys = AbstractMetaDataExportMojo.class.getDeclaredField("exportPrimaryKeys");
+        exportPrimaryKeys.setAccessible(true);
+        exportPrimaryKeys.set(exporter, true);
         exporter.setCustomTypes(new String[]{com.querydsl.sql.types.UtilDateType.class.getName()});
         exporter.setNumericMappings(getNumericMappings());
         exporter.setTableNamePattern("%");
@@ -55,8 +59,8 @@ public class GenerateDao {
         new DaoGenerator()
                 .daoSuperClass(SBFBasisDao.class)
                 .javaCodePath("src/main/java")
-                .daoPackage("ewing.dao1")
-                .queryBeanPackage("ewing.dao1.query")
+                .daoPackage("ewing.dao")
+                .queryBeanPackage("ewing.dao.query")
                 .generate();
     }
 
@@ -64,14 +68,13 @@ public class GenerateDao {
      * 5位以下的整数统一使用Integer。
      */
     private static NumericMapping[] getNumericMappings() {
-        NumericMapping[] numericMappings = new NumericMapping[5];
-        for (int i = 0; i < numericMappings.length; i++) {
-            numericMappings[i] = new NumericMapping();
-            numericMappings[i].setDecimal(0);
-            numericMappings[i].setTotal(i);
-            numericMappings[i].setJavaType(Integer.class.getName());
-        }
-        return numericMappings;
+        return IntStream.range(1, 5).mapToObj(i -> {
+            NumericMapping mapping = new NumericMapping();
+            mapping.setDecimal(0);
+            mapping.setTotal(i);
+            mapping.setJavaType(Integer.class.getName());
+            return mapping;
+        }).toArray(NumericMapping[]::new);
     }
 
 }
