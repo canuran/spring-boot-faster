@@ -17,4 +17,9 @@ public interface MysqlBasicDao<BEAN> extends BasicDao<BEAN> {
      */
     long insertDuplicateUpdates(Object... beans);
 
+    /**
+     * 使用 Mysql 的 ON DUPLICATE KEY UPDATE 并返回ID值，同时ID也会设置到实体对象中。
+     */
+    <KEY> KEY insertDuplicateUpdateWithKey(Object bean);
+
 }

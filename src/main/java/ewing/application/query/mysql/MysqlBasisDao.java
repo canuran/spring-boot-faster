@@ -7,6 +7,7 @@ import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLInsertClause;
 import ewing.application.query.BasisDao;
+import ewing.application.query.QueryUtils;
 
 import java.util.Map;
 
@@ -32,6 +33,17 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
             insert.addBatch();
         }
         return insert.isEmpty() ? 0L : insert.execute();
+    }
+
+    @Override
+    public <KEY> KEY insertDuplicateUpdateWithKey(Object bean) {
+        Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
+        SQLInsertClause insert = getQueryFactory().insert(pathBase)
+                .populate(bean);
+        onDuplicateKeyUpdate(insert, bean);
+        KEY value = insert.executeWithKey(keyPath);
+        QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
+        return value;
     }
 
     private void onDuplicateKeyUpdate(SQLInsertClause insert, Object bean) {
