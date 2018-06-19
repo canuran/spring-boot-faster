@@ -47,7 +47,7 @@ public class SQLLogger implements SQLListener {
             List<Object> params = serializer.getConstants();
             Iterator iterator = params.iterator();
             char[] sqlChars = sql.toCharArray();
-            StringBuilder sqlBuilder = new StringBuilder(sqlChars.length + params.size() * 5);
+            StringBuilder sqlBuilder = new StringBuilder(sqlChars.length + params.size() * 10);
             for (char sqlChar : sqlChars) {
                 if ('?' == sqlChar && iterator.hasNext()) {
                     Object param = iterator.next();
