@@ -1,12 +1,11 @@
 package ewing.application.config;
 
-import com.querydsl.core.support.QueryBase;
-import com.querydsl.sql.*;
+import com.querydsl.sql.MySQLTemplates;
+import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import ewing.application.query.SQLLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +24,6 @@ import java.sql.Connection;
 @Configuration
 public class SBFQueryConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            SQLQueryFactory.class.getPackage().getName() + ".SQLParameters");
-
     @Autowired
     private DataSource dataSource;
 
@@ -41,12 +37,7 @@ public class SBFQueryConfig {
         SQLTemplates templates = MySQLTemplates.builder().quote().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
-        configuration.addListener(new SQLBaseListener() {
-            @Override
-            public void preExecute(SQLListenerContext context) {
-                LOGGER.debug(MDC.get(QueryBase.MDC_PARAMETERS));
-            }
-        });
+        configuration.addListener(new SQLLogger(configuration));
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
         return new SQLQueryFactory(configuration, provider);
     }
