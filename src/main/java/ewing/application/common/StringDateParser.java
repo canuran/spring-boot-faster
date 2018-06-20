@@ -151,6 +151,20 @@ public class StringDateParser {
             appendDateField(builder, minute).append(':');
             int second = calendar.get(Calendar.SECOND);
             appendDateField(builder, second);
+        } else if (source instanceof Timestamp) {
+            builder.append(calendar.get(Calendar.YEAR)).append('-');
+            int month = calendar.get(Calendar.MONTH) + 1;
+            appendDateField(builder, month).append('-');
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            appendDateField(builder, day).append(' ');
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            appendDateField(builder, hour).append(':');
+            int minute = calendar.get(Calendar.MINUTE);
+            appendDateField(builder, minute).append(':');
+            int second = calendar.get(Calendar.SECOND);
+            appendDateField(builder, second).append('.');
+            int millis = calendar.get(Calendar.MILLISECOND);
+            builder.append(millis);
         } else {
             builder.append(calendar.get(Calendar.YEAR)).append('-');
             int month = calendar.get(Calendar.MONTH) + 1;
