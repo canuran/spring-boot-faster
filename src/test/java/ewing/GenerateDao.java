@@ -6,7 +6,6 @@ import com.querydsl.sql.codegen.support.NumericMapping;
 import ewing.application.config.SBFBasisDao;
 import ewing.application.query.DaoGenerator;
 import org.apache.maven.project.MavenProject;
-import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.stream.IntStream;
@@ -22,8 +21,7 @@ public class GenerateDao {
     /***
      * 生成Bean和QBean。
      */
-    @Test
-    public void generateMeta() throws Exception {
+    public static void main(String[] args) throws Exception {
         // 配置参数并导出代码
         MetadataExportMojo exporter = new MetadataExportMojo();
         MavenProject project = new MavenProject();
@@ -54,14 +52,15 @@ public class GenerateDao {
     /***
      * 生成Dao层代码。
      */
-    @Test
-    public void generateDao() throws Exception {
-        new DaoGenerator()
-                .daoSuperClass(SBFBasisDao.class)
-                .javaCodePath("src/main/java")
-                .daoPackage("ewing.dao")
-                .queryBeanPackage("ewing.dao.query")
-                .generate();
+    public static class Generate {
+        public static void main(String[] args) {
+            new DaoGenerator()
+                    .daoSuperClass(SBFBasisDao.class)
+                    .javaCodePath("src/main/java")
+                    .daoPackage("ewing.dao")
+                    .queryBeanPackage("ewing.dao.query")
+                    .generate();
+        }
     }
 
     /**
