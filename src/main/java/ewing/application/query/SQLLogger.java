@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * SQL日志打印器，打印为可读易调试的参数形式。
+ * SQL日志打印器，打印为可以直接执行的SQL，方便连库调试。
  * <p>
  * 目前只支持Number、String和Date类参数，其他参数仍以?号显示。
  *
