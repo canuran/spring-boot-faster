@@ -50,7 +50,7 @@ public class GenerateDao {
     }
 
     /***
-     * 生成Dao层代码。
+     * 生成Dao层代码，生成Bean和QBean自动编译后再执行。
      */
     public static class Generate {
         public static void main(String[] args) {
