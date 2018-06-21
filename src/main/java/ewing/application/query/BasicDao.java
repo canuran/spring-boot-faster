@@ -99,13 +99,13 @@ public interface BasicDao<BEAN> {
     long insertBeans(Collection<?> beans);
 
     /**
-     * 将实体对象属性插入并返回ID值，同时ID也会设置到实体中。
+     * 将实体对象属性插入并返回ID值且设置ID到实体中。
      * 参数兼容至少包含一个对应的非null属性的实体。
      */
     <KEY> KEY insertWithKey(Object bean);
 
     /**
-     * 批量将实体对象属性插入并返回ID值，同时ID也会设置到实体中。
+     * 批量将实体对象属性插入并返回ID值且设置ID到实体中。
      * 参数兼容至少包含一个对应的非null属性的实体。
      */
     <KEY> List<KEY> insertWithKeys(Collection<?> beans);
