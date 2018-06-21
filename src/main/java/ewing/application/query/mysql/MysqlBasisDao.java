@@ -12,7 +12,7 @@ import ewing.application.query.QueryUtils;
 import java.util.Map;
 
 /**
- * 适用于Myql的根据泛型操作实体的实现。
+ * 适用于Mysql的根据泛型操作实体的实现。
  */
 public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 

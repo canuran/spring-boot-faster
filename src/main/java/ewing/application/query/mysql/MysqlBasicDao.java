@@ -3,7 +3,7 @@ package ewing.application.query.mysql;
 import ewing.application.query.BasicDao;
 
 /**
- * 适用于Myql的根据泛型操作实体的接口。
+ * 适用于Mysql的根据泛型操作实体的接口。
  */
 public interface MysqlBasicDao<BEAN> extends BasicDao<BEAN> {
 
