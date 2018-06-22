@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.net.NetworkInterface;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Enumeration;
@@ -28,9 +27,9 @@ public class GlobalIdWorker {
     // 计数器 可以溢出可循环使用 实际取后24位
     private static final AtomicInteger COUNTER = new AtomicInteger(new SecureRandom().nextInt());
     // 序号掩码（23个1）也是最大值8388607
-    private static final int COUNTER_MASK = ~(-1 << 23);
+    private static final int COUNTER_MASK = 0b11111111111111111111111;
     // 序号标志位 第24位为1 保证序号总长度为24位
-    private static final int COUNTER_FLAG = 1 << 23;
+    private static final int COUNTER_FLAG = 0b100000000000000000000000;
 
     /**
      * 私有化构造方法。
@@ -43,8 +42,8 @@ public class GlobalIdWorker {
      */
     static {
         // 保证一定是24位机器ID + 16位进程ID
-        int machineId = createMachineIdentifier() & 0xffffff | (1 << 24);
-        int processId = createProcessIdentifier() & 0xffff | (1 << 16);
+        int machineId = getMachineIdentifier() & 0b111111111111111111111111 | 0b1000000000000000000000000;
+        int processId = getProcessIdentifier() & 0b1111111111111111 | 0b10000000000000000;
         String machineIdBit = Integer.toBinaryString(machineId).substring(1);
         String processIdBit = Integer.toBinaryString(processId).substring(1);
         MAC_PROC_BIT = machineIdBit + processIdBit;
@@ -65,6 +64,10 @@ public class GlobalIdWorker {
         return new BigInteger(idBit, 2);
     }
 
+    public static void main(String[] args) {
+        System.out.println(nextBigInteger());
+    }
+
     /**
      * 获取36进制的String类型的ID。
      */
@@ -75,51 +78,45 @@ public class GlobalIdWorker {
     /**
      * 获取机器标识的HashCode。
      */
-    private static int createMachineIdentifier() {
-        int machineHash;
+    private static int getMachineIdentifier() {
         try {
             StringBuilder sb = new StringBuilder();
-            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
-            while (e.hasMoreElements()) {
-                NetworkInterface ni = e.nextElement();
-                sb.append(ni.toString());
+            Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
+            while (eni.hasMoreElements()) {
+                NetworkInterface ni = eni.nextElement();
                 byte[] mac = ni.getHardwareAddress();
-                if (mac != null) {
+                if (mac != null && mac.length > 1) {
                     ByteBuffer bb = ByteBuffer.wrap(mac);
-                    try {
+                    while (bb.remaining() > 1) {
                         sb.append(bb.getChar());
-                        sb.append(bb.getChar());
-                        sb.append(bb.getChar());
-                    } catch (BufferUnderflowException bue) {
-                        // Mac地址少于6字节 继续
                     }
                 }
             }
-            machineHash = sb.toString().hashCode();
+            if (sb.length() < 3) {
+                throw new IllegalStateException("Get mac address incorrect!");
+            }
+            return sb.toString().hashCode();
         } catch (Throwable throwable) {
-            machineHash = new SecureRandom().nextInt();
             LOGGER.warn("Use random number instead mac address!", throwable);
+            return new SecureRandom().nextInt();
         }
-        return machineHash;
     }
 
     /**
      * 获取进程标识，转换双字节型。
      */
-    private static short createProcessIdentifier() {
-        short processId;
+    private static int getProcessIdentifier() {
         try {
             String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
             if (processName.contains("@")) {
-                processId = (short) Integer.parseInt(processName.substring(0, processName.indexOf('@')));
+                return Integer.parseInt(processName.substring(0, processName.indexOf('@')));
             } else {
-                processId = (short) java.lang.management.ManagementFactory.getRuntimeMXBean().getName().hashCode();
+                return java.lang.management.ManagementFactory.getRuntimeMXBean().getName().hashCode();
             }
         } catch (Throwable throwable) {
-            processId = (short) new SecureRandom().nextInt();
             LOGGER.warn("Use random number instead process id!", throwable);
+            return new SecureRandom().nextInt();
         }
-        return processId;
     }
 
 } 
