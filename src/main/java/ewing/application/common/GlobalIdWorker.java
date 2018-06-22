@@ -64,10 +64,6 @@ public class GlobalIdWorker {
         return new BigInteger(idBit, 2);
     }
 
-    public static void main(String[] args) {
-        System.out.println(nextBigInteger());
-    }
-
     /**
      * 获取36进制的String类型的ID。
      */
