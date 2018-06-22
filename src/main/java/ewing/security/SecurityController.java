@@ -3,7 +3,7 @@ package ewing.security;
 import ewing.application.RequestUtils;
 import ewing.application.ResultMessage;
 import ewing.application.common.OkHttpUtils;
-import ewing.application.exception.AppRunException;
+import ewing.application.exception.BusinessException;
 import ewing.application.query.Page;
 import ewing.dao.entity.Authority;
 import ewing.security.vo.AuthorityNode;
@@ -100,7 +100,7 @@ public class SecurityController {
             response.getWriter().print(content.toString());
             response.getWriter().flush();
         } catch (IOException e) {
-            throw new AppRunException("导出文件输出流错误！");
+            throw new BusinessException("导出文件输出流错误！");
         }
     }
 

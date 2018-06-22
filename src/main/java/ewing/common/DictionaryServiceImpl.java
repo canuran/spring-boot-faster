@@ -3,7 +3,7 @@ package ewing.common;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import ewing.application.AppAsserts;
 import ewing.application.common.TreeUtils;
-import ewing.application.exception.AppRunException;
+import ewing.application.exception.BusinessException;
 import ewing.application.query.Page;
 import ewing.common.vo.DictionaryNode;
 import ewing.common.vo.FindDictionaryParam;
@@ -48,7 +48,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                     .where(qDictionary.dictionaryId.eq(dictionary.getParentId()))
                     .fetchOne();
             if (parent == null) {
-                throw new AppRunException("父字典项不存在！");
+                throw new BusinessException("父字典项不存在！");
             } else {
                 // 父字典存在则根字典继承自父字典
                 dictionary.setRootId(parent.getRootId());

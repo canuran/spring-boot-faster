@@ -1,6 +1,6 @@
 package ewing.application;
 
-import ewing.application.exception.AppRunException;
+import ewing.application.exception.BusinessException;
 import ewing.security.SecurityUser;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -36,7 +36,7 @@ public class RequestUtils {
             return (SecurityUser) SecurityContextHolder.getContext()
                     .getAuthentication().getPrincipal();
         } catch (Exception e) {
-            throw new AppRunException("获取当前登录用户失败！", e);
+            throw new BusinessException("获取当前登录用户失败！", e);
         }
     }
 

@@ -3,7 +3,7 @@ package ewing.application;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import ewing.application.common.GsonUtils;
-import ewing.application.exception.AppRunException;
+import ewing.application.exception.BusinessException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -56,7 +56,7 @@ public class RemoteDebugger {
         try {
             clazz = bean == null ? Class.forName(classOrBeanName) : AopProxyUtils.ultimateTargetClass(bean);
         } catch (Exception e) {
-            throw new AppRunException("初始化类失败！", e);
+            throw new BusinessException("初始化类失败！", e);
         }
         AppAsserts.notNull(clazz, "调用Class不能为空！");
 
@@ -104,7 +104,7 @@ public class RemoteDebugger {
                 return foundMethod.invoke(bean == null ? clazz.newInstance() : bean, args.toArray());
             }
         } catch (Exception e) {
-            throw new AppRunException("调用方法失败！", e);
+            throw new BusinessException("调用方法失败！", e);
         }
     }
 
@@ -112,7 +112,7 @@ public class RemoteDebugger {
         try {
             return GsonUtils.toObject(jsonParams, JsonArray.class);
         } catch (Exception e) {
-            throw new AppRunException("参数格式不正确！");
+            throw new BusinessException("参数格式不正确！");
         }
     }
 

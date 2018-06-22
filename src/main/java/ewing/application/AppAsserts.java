@@ -1,6 +1,6 @@
 package ewing.application;
 
-import ewing.application.exception.AppRunException;
+import ewing.application.exception.BusinessException;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class AppAsserts {
      */
     public static void yes(boolean value, String elseMessage) {
         if (!value) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -28,7 +28,7 @@ public class AppAsserts {
      */
     public static void yes(boolean value, ResultMessage elseMessage) {
         if (!value) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -37,7 +37,7 @@ public class AppAsserts {
      */
     public static void no(boolean value, String elseMessage) {
         if (value) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -46,7 +46,7 @@ public class AppAsserts {
      */
     public static void no(boolean value, ResultMessage elseMessage) {
         if (value) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -55,7 +55,7 @@ public class AppAsserts {
      */
     public static void isNull(Object value, String elseMessage) {
         if (value != null) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -64,7 +64,7 @@ public class AppAsserts {
      */
     public static void isNull(Object value, ResultMessage elseMessage) {
         if (value != null) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -73,7 +73,7 @@ public class AppAsserts {
      */
     public static void notNull(Object value, String elseMessage) {
         if (value == null) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -82,7 +82,7 @@ public class AppAsserts {
      */
     public static void notNull(Object value, ResultMessage elseMessage) {
         if (value == null) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -91,7 +91,7 @@ public class AppAsserts {
      */
     public static void hasText(String value, String elseMessage) {
         if (!StringUtils.hasText(value)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -100,7 +100,7 @@ public class AppAsserts {
      */
     public static void hasText(String value, ResultMessage elseMessage) {
         if (!StringUtils.hasText(value)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -109,7 +109,7 @@ public class AppAsserts {
      */
     public static void minLength(String value, int length, String elseMessage) {
         if (value == null || value.length() < length) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -118,7 +118,7 @@ public class AppAsserts {
      */
     public static void minLength(String value, int length, ResultMessage elseMessage) {
         if (value == null || value.length() < length) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -127,7 +127,7 @@ public class AppAsserts {
      */
     public static void maxLength(String value, int length, String elseMessage) {
         if (value != null && value.length() > length) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -136,7 +136,7 @@ public class AppAsserts {
      */
     public static void maxLength(String value, int length, ResultMessage elseMessage) {
         if (value != null && value.length() > length) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -145,7 +145,7 @@ public class AppAsserts {
      */
     public static void matchPattern(String value, Pattern pattern, String elseMessage) {
         if (value == null || !pattern.matcher(value).matches()) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -154,7 +154,7 @@ public class AppAsserts {
      */
     public static void matchPattern(String value, Pattern pattern, ResultMessage elseMessage) {
         if (value == null || !pattern.matcher(value).matches()) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -163,7 +163,7 @@ public class AppAsserts {
      */
     public static void equals(Object a, Object b, String elseMessage) {
         if (!Objects.equals(a, b)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -172,7 +172,7 @@ public class AppAsserts {
      */
     public static void equals(Object a, Object b, ResultMessage elseMessage) {
         if (!Objects.equals(a, b)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -181,7 +181,7 @@ public class AppAsserts {
      */
     public static void notEquals(Object a, Object b, String elseMessage) {
         if (Objects.equals(a, b)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -190,7 +190,7 @@ public class AppAsserts {
      */
     public static void notEquals(Object a, Object b, ResultMessage elseMessage) {
         if (Objects.equals(a, b)) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -199,7 +199,7 @@ public class AppAsserts {
      */
     public static void notEmpty(Collection collection, String elseMessage) {
         if (collection.isEmpty()) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -208,7 +208,7 @@ public class AppAsserts {
      */
     public static void notEmpty(Collection collection, ResultMessage elseMessage) {
         if (collection.isEmpty()) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -217,7 +217,7 @@ public class AppAsserts {
      */
     public static void notEmpty(Object[] array, String elseMessage) {
         if (array == null || array.length == 0) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 
@@ -226,7 +226,7 @@ public class AppAsserts {
      */
     public static void notEmpty(Object[] array, ResultMessage elseMessage) {
         if (array == null || array.length == 0) {
-            throw new AppRunException(elseMessage);
+            throw new BusinessException(elseMessage);
         }
     }
 

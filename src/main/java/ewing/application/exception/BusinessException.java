@@ -7,7 +7,7 @@ import ewing.application.ResultMessage;
  *
  * @author Ewing
  */
-public class AppRunException extends RuntimeException implements ResultException {
+public class BusinessException extends RuntimeException implements ResultException {
 
     // 异常类型、结果编码
     private int code = 0;
@@ -15,29 +15,29 @@ public class AppRunException extends RuntimeException implements ResultException
     // 异常可带出结果数据
     private Object data;
 
-    public AppRunException() {
+    public BusinessException() {
         super();
     }
 
-    public AppRunException(String message) {
+    public BusinessException(String message) {
         super(message);
     }
 
-    public AppRunException(String message, Throwable cause) {
+    public BusinessException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AppRunException(Throwable cause) {
+    public BusinessException(Throwable cause) {
         super(cause);
     }
 
-    public AppRunException(ResultMessage message) {
+    public BusinessException(ResultMessage message) {
         this(message.getMessage());
         this.code = message.getCode();
         this.data = message.getData();
     }
 
-    public AppRunException(ResultMessage message, Throwable cause) {
+    public BusinessException(ResultMessage message, Throwable cause) {
         this(message.getMessage(), cause);
         this.code = message.getCode();
         this.data = message.getData();
@@ -49,7 +49,7 @@ public class AppRunException extends RuntimeException implements ResultException
     }
 
     @Override
-    public AppRunException setCode(int code) {
+    public BusinessException setCode(int code) {
         this.code = code;
         return this;
     }
@@ -60,7 +60,7 @@ public class AppRunException extends RuntimeException implements ResultException
     }
 
     @Override
-    public AppRunException setData(Object data) {
+    public BusinessException setData(Object data) {
         this.data = data;
         return this;
     }
