@@ -26,7 +26,7 @@ public class GlobalIdWorker {
     private static final String MAC_PROC_BIT;
     // 计数器 可以溢出可循环使用 实际取后24位
     private static final AtomicInteger COUNTER = new AtomicInteger(new SecureRandom().nextInt());
-    // 序号掩码（23个1）也是最大值8388607
+    // 序号掩码 23个1 也是最大值8388607
     private static final int COUNTER_MASK = 0b11111111111111111111111;
     // 序号标志位 第24位为1 保证序号总长度为24位
     private static final int COUNTER_FLAG = 0b100000000000000000000000;
@@ -68,7 +68,7 @@ public class GlobalIdWorker {
      * 获取36进制的String类型的ID。
      */
     public static String nextString() {
-        return nextBigInteger().toString(36);
+        return nextBigInteger().toString(36).toUpperCase();
     }
 
     /**
