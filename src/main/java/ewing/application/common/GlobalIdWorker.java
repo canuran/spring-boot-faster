@@ -11,9 +11,9 @@ import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 全局ID生成器，保持趋势递增，尾数均匀，每秒可获取131072000个全局唯一值。
- * 实测生成千万个用时约12秒，即每秒80多万个，相对于1亿3千万来说是非常安全的。
- * 位值组成：毫秒去掉低6位(精度为64毫秒)+24位机器标识+16位进程标识+24位累加数。
+ * 全局ID生成器，保持趋势递增，尾数均匀，理论每秒可获取262144000个全局唯一值。
+ * 实测1000个线程共生成千万个用时约12秒（80万个/秒），远低于安全极限2亿6千万个/秒。
+ * 位值组成：毫秒去掉低6位（每64毫秒）+ 24位机器标识 + 16位进程标识 + 24位累加数。
  * 使用31位10进制整数或20位36进制字符串可使用到3060年，到时扩展字段长度即可。
  *
  * @author Ewing
@@ -26,10 +26,10 @@ public class GlobalIdWorker {
     private static final String MAC_PROC_BIT;
     // 计数器 可以溢出可循环使用 实际取后24位
     private static final AtomicInteger COUNTER = new AtomicInteger(new SecureRandom().nextInt());
-    // 序号掩码 23个1 也是最大值8388607
-    private static final int COUNTER_MASK = 0b11111111111111111111111;
-    // 序号标志位 第24位为1 保证序号总长度为24位
-    private static final int COUNTER_FLAG = 0b100000000000000000000000;
+    // 序号掩码 即每64毫秒内生成不能超16777216个
+    private static final int COUNTER_MASK = 0b111111111111111111111111;
+    // 序号标志位 第25位为1 保证序号总长度为24位
+    private static final int COUNTER_FLAG = 0b1000000000000000000000000;
 
     /**
      * 私有化构造方法。
@@ -55,11 +55,11 @@ public class GlobalIdWorker {
     public static BigInteger nextBigInteger() {
         long timestamp = System.currentTimeMillis() >>> TIME_TRUNCATE;
 
-        int count = COUNTER.getAndIncrement() & COUNTER_MASK;
+        int count = COUNTER.getAndIncrement() & COUNTER_MASK | COUNTER_FLAG;
 
         // 时间位+机器与进程位+计数器位组成最终的ID
         String idBit = Long.toBinaryString(timestamp) + MAC_PROC_BIT +
-                Integer.toBinaryString(count | COUNTER_FLAG);
+                Integer.toBinaryString(count).substring(1);
 
         return new BigInteger(idBit, 2);
     }
