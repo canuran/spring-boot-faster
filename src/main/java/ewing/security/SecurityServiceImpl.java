@@ -115,7 +115,7 @@ public class SecurityServiceImpl implements SecurityService {
                 "请先删除所有子权限！");
         AssertBusiness.yes(roleAuthorityDao.countWhere(
                 qRoleAuthority.authorityId.eq(authorityId)) < 1,
-                "该权限已有角色正在使用！");
+                "该权限有角色正在使用！");
 
         authorityDao.deleteByKey(authorityId);
     }
@@ -190,7 +190,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         AssertBusiness.yes(userRoleDao.countWhere(
                 qUserRole.roleId.eq(roleId)) < 1,
-                "该权限已有角色正在使用！");
+                "该角色有用户正在使用！");
 
         // 清空角色权限关系
         roleAuthorityDao.deleteWhere(
