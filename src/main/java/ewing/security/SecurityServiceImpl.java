@@ -1,20 +1,16 @@
 package ewing.security;
 
-import ewing.application.AppAsserts;
+import ewing.application.AssertBusiness;
 import ewing.application.common.TreeUtils;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
+import ewing.dao.*;
 import ewing.dao.entity.Authority;
 import ewing.dao.entity.Role;
 import ewing.dao.entity.RoleAuthority;
-import ewing.dao.AuthorityDao;
-import ewing.dao.PermissionDao;
-import ewing.dao.RoleAuthorityDao;
-import ewing.dao.RoleDao;
 import ewing.security.vo.AuthorityNode;
 import ewing.security.vo.FindRoleParam;
 import ewing.security.vo.RoleWithAuthority;
-import ewing.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -40,6 +36,8 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private RoleAuthorityDao roleAuthorityDao;
     @Autowired
+    private UserRoleDao userRoleDao;
+    @Autowired
     private RoleDao roleDao;
     @Autowired
     private PermissionDao permissionDao;
@@ -48,7 +46,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public SecurityUser getSecurityUser(String username) {
-        AppAsserts.hasText(username, "用户名不能为空！");
+        AssertBusiness.hasText(username, "用户名不能为空！");
         return userDao.selector(SecurityUser.class)
                 .where(qUser.username.eq(username)).fetchOne();
     }
@@ -60,16 +58,16 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void addAuthority(Authority authority) {
-        AppAsserts.notNull(authority, "权限信息不能为空！");
-        AppAsserts.hasText(authority.getName(), "权限名称不能为空！");
-        AppAsserts.matchPattern(authority.getCode(), CODE_PATTERN,
+        AssertBusiness.notNull(authority, "权限信息不能为空！");
+        AssertBusiness.hasText(authority.getName(), "权限名称不能为空！");
+        AssertBusiness.matchPattern(authority.getCode(), CODE_PATTERN,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        AppAsserts.hasText(authority.getType(), "权限类型不能为空！");
+        AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
 
-        AppAsserts.yes(authorityDao.countWhere(
+        AssertBusiness.yes(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AppAsserts.yes(authorityDao.countWhere(
+        AssertBusiness.yes(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
 
@@ -84,18 +82,18 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void updateAuthority(Authority authority) {
-        AppAsserts.notNull(authority, "权限信息不能为空！");
-        AppAsserts.notNull(authority.getAuthorityId(), "权限ID不能为空！");
-        AppAsserts.hasText(authority.getName(), "权限名称不能为空！");
-        AppAsserts.matchPattern(authority.getCode(), CODE_PATTERN,
+        AssertBusiness.notNull(authority, "权限信息不能为空！");
+        AssertBusiness.notNull(authority.getAuthorityId(), "权限ID不能为空！");
+        AssertBusiness.hasText(authority.getName(), "权限名称不能为空！");
+        AssertBusiness.matchPattern(authority.getCode(), CODE_PATTERN,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        AppAsserts.hasText(authority.getType(), "权限类型不能为空！");
+        AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
 
-        AppAsserts.yes(authorityDao.countWhere(
+        AssertBusiness.yes(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AppAsserts.yes(authorityDao.countWhere(
+        AssertBusiness.yes(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
@@ -110,12 +108,12 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void deleteAuthority(Long authorityId) {
-        AppAsserts.notNull(authorityId, "权限ID不能为空！");
+        AssertBusiness.notNull(authorityId, "权限ID不能为空！");
 
-        AppAsserts.yes(authorityDao.countWhere(
+        AssertBusiness.yes(authorityDao.countWhere(
                 qAuthority.parentId.eq(authorityId)) < 1,
                 "请先删除所有子权限！");
-        AppAsserts.yes(roleAuthorityDao.countWhere(
+        AssertBusiness.yes(roleAuthorityDao.countWhere(
                 qRoleAuthority.authorityId.eq(authorityId)) < 1,
                 "该权限已有角色正在使用！");
 
@@ -134,7 +132,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<AuthorityNode> getUserAuthorities(Long userId) {
-        AppAsserts.notNull(userId, "用户ID不能为空！");
+        AssertBusiness.notNull(userId, "用户ID不能为空！");
         return authorityDao.getUserAuthorities(userId);
     }
 
@@ -151,9 +149,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void addRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
-        AppAsserts.notNull(roleWithAuthority, "角色对象不能为空。");
-        AppAsserts.notNull(roleWithAuthority.getName(), "角色名不能为空。");
-        AppAsserts.yes(roleDao.countWhere(
+        AssertBusiness.notNull(roleWithAuthority, "角色对象不能为空。");
+        AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
+        AssertBusiness.yes(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())) < 1,
                 "角色名已被使用。");
         // 使用自定义VO新增角色
@@ -166,11 +164,11 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void updateRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
-        AppAsserts.notNull(roleWithAuthority, "角色对象不能为空。");
-        AppAsserts.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
-        AppAsserts.notNull(roleWithAuthority.getName(), "角色名不能为空。");
+        AssertBusiness.notNull(roleWithAuthority, "角色对象不能为空。");
+        AssertBusiness.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
+        AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
         // 名称存在并且不是自己
-        AppAsserts.yes(roleDao.countWhere(
+        AssertBusiness.yes(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())
                         .and(qRole.roleId.ne(roleWithAuthority.getRoleId()))) < 1,
                 "角色名已被使用。");
@@ -188,7 +186,11 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void deleteRole(Long roleId) {
-        AppAsserts.notNull(roleId, "角色ID不能为空。");
+        AssertBusiness.notNull(roleId, "角色ID不能为空。");
+
+        AssertBusiness.yes(userRoleDao.countWhere(
+                qUserRole.roleId.eq(roleId)) < 1,
+                "该权限已有角色正在使用！");
 
         // 清空角色权限关系
         roleAuthorityDao.deleteWhere(
@@ -203,7 +205,7 @@ public class SecurityServiceImpl implements SecurityService {
             List<RoleAuthority> roleAuthorities = new ArrayList<>(authorities.size());
             for (Authority authority : roleWithAuthority.getAuthorities()) {
                 RoleAuthority roleAuthority = new RoleAuthority();
-                AppAsserts.notNull(authority.getAuthorityId(), "权限ID不能为空。");
+                AssertBusiness.notNull(authority.getAuthorityId(), "权限ID不能为空。");
                 roleAuthority.setAuthorityId(authority.getAuthorityId());
                 roleAuthority.setRoleId(roleWithAuthority.getRoleId());
                 roleAuthority.setCreateTime(new Date());
@@ -217,9 +219,9 @@ public class SecurityServiceImpl implements SecurityService {
     @Cacheable(cacheNames = "PermissionCache", key = "#userId.toString() + #action + #targetType + #targetId")
     public boolean userHasPermission(Long userId, String action,
                                      String targetType, String targetId) {
-        AppAsserts.notNull(userId, "用户ID不能为空！");
-        AppAsserts.hasText(action, "权限操作不能为空！");
-        AppAsserts.hasText(targetId, "资源ID不能为空！");
+        AssertBusiness.notNull(userId, "用户ID不能为空！");
+        AssertBusiness.hasText(action, "权限操作不能为空！");
+        AssertBusiness.hasText(targetId, "资源ID不能为空！");
         return permissionDao.selector()
                 .where(qPermission.userId.eq(userId))
                 .where(qPermission.action.eq(action))
