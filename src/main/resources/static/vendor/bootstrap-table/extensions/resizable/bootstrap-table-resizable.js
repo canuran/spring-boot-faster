@@ -20,8 +20,7 @@
             hoverCursor: that.options.hoverCursor,
             dragCursor: that.options.dragCursor,
             onResize: that.onResize,
-            onDrag: that.options.onResizableDrag,
-            resizeMode: that.options.resizeMode
+            onDrag: that.options.onResizableDrag
         });
     };
 

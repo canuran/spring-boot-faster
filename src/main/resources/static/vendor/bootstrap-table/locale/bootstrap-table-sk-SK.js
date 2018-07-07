@@ -21,9 +21,6 @@
         formatNoMatches: function () {
             return 'Nenájdená žiadna vyhovujúca položka';
         },
-        formatPaginationSwitch: function () {
-            return 'Skry/Zobraz stránkovanie';
-        },
         formatRefresh: function () {
             return 'Obnoviť';
         },
@@ -32,15 +29,6 @@
         },
         formatColumns: function () {
             return 'Stĺpce';
-        },
-        formatAllRows: function () {
-            return 'Všetky';
-        },
-        formatExport: function () {
-            return 'Exportuj dáta';
-        },
-        formatClearFilters: function () {
-            return 'Odstráň filtre';
         }
     };
 

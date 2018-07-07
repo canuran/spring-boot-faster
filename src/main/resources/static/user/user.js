@@ -163,7 +163,7 @@ function openEditWin(title) {
     id: 'formWinOpen',
     title: '<i class="glyphicon glyphicon-tasks"></i> ' + title,
     offset: '50px',
-    area: ['600px'],
+    area: ['600px', '500px'],
     zIndex: 10,
     type: 1,
     content: $('#formWin'),
