@@ -3,6 +3,7 @@ package ewing.security.vo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -13,9 +14,9 @@ import java.util.List;
  */
 public class AuthorityNode implements GrantedAuthority {
 
-    private Long authorityId;
+    private BigInteger authorityId;
 
-    private Long parentId;
+    private BigInteger parentId;
 
     private String name;
 
@@ -27,11 +28,11 @@ public class AuthorityNode implements GrantedAuthority {
 
     private List<AuthorityNode> children;
 
-    public Long getParentId() {
+    public BigInteger getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(BigInteger parentId) {
         this.parentId = parentId;
     }
 
@@ -49,11 +50,11 @@ public class AuthorityNode implements GrantedAuthority {
         return code;
     }
 
-    public Long getAuthorityId() {
+    public BigInteger getAuthorityId() {
         return authorityId;
     }
 
-    public void setAuthorityId(Long authorityId) {
+    public void setAuthorityId(BigInteger authorityId) {
         this.authorityId = authorityId;
     }
 

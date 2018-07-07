@@ -2,6 +2,7 @@ package ewing.common;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import ewing.application.AssertBusiness;
+import ewing.application.common.GlobalIdWorker;
 import ewing.application.common.TreeUtils;
 import ewing.application.exception.BusinessException;
 import ewing.application.query.Page;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,7 +72,8 @@ public class DictionaryServiceImpl implements DictionaryService {
             dictionary.setDetail(null);
         }
         dictionary.setCreateTime(new Date());
-        dictionaryDao.insertWithKey(dictionary);
+        dictionary.setDictionaryId(GlobalIdWorker.nextBigInteger());
+        dictionaryDao.insertBean(dictionary);
 
         // 没有父字典则自身就是根字典
         if (dictionary.getParentId() == null) {
@@ -111,7 +114,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
-    public void deleteDictionary(Long dictionaryId) {
+    public void deleteDictionary(BigInteger dictionaryId) {
         AssertBusiness.notNull(dictionaryId, "字典ID不能为空！");
         AssertBusiness.notNull(dictionaryDao.selectByKey(dictionaryId),
                 "该字典不存在或已删除！");

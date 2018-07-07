@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class UserController {
 
     @ApiOperation("根据ID获取用户")
     @GetMapping("/getUser")
-    public ResultMessage<User> getUser(Long userId) {
+    public ResultMessage<User> getUser(BigInteger userId) {
         return new ResultMessage<>(userService.getUser(userId));
     }
 
@@ -53,7 +54,7 @@ public class UserController {
     @ApiOperation("添加用户并返回ID")
     @PostMapping("/addUserWithRole")
     @PreAuthorize("hasAuthority('" + AuthorityCodes.USER_ADD + "')")
-    public ResultMessage<Long> addUserWithRole(@RequestBody UserWithRole userWithRole) {
+    public ResultMessage<BigInteger> addUserWithRole(@RequestBody UserWithRole userWithRole) {
         return new ResultMessage<>(userService.addUserWithRole(userWithRole));
     }
 
@@ -68,7 +69,7 @@ public class UserController {
     @ApiOperation("根据ID删除用户")
     @PostMapping("/deleteUser")
     @PreAuthorize("hasAuthority('" + AuthorityCodes.USER_DELETE + "')")
-    public ResultMessage deleteUser(Long userId) {
+    public ResultMessage deleteUser(BigInteger userId) {
         userService.deleteUser(userId);
         return new ResultMessage();
     }

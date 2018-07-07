@@ -1,18 +1,20 @@
 package ewing.dao.query;
 
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.PathMetadata;
-import com.querydsl.core.types.dsl.DatePath;
-import com.querydsl.core.types.dsl.DateTimePath;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.sql.ColumnMetadata;
+import static com.querydsl.core.types.PathMetadataFactory.*;
 import ewing.dao.entity.User;
 
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
+import com.querydsl.core.types.Path;
+
+import com.querydsl.sql.ColumnMetadata;
 import java.sql.Types;
 
-import static com.querydsl.core.types.PathMetadataFactory.forVariable;
+
+
 
 /**
  * QUser is a Querydsl query type for User
@@ -20,7 +22,7 @@ import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
 public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
 
-    private static final long serialVersionUID = 946204696;
+    private static final long serialVersionUID = 936513212;
 
     public static final QUser user = new QUser("user");
 
@@ -34,7 +36,7 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
 
     public final StringPath password = createString("password");
 
-    public final NumberPath<Long> userId = createNumber("userId", Long.class);
+    public final NumberPath<java.math.BigInteger> userId = createNumber("userId", java.math.BigInteger.class);
 
     public final StringPath username = createString("username");
 
@@ -68,10 +70,10 @@ public class QUser extends com.querydsl.sql.RelationalPathBase<User> {
     public void addMetadata() {
         addMetadata(birthday, ColumnMetadata.named("birthday").withIndex(6).ofType(Types.DATE).withSize(10));
         addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(7).ofType(Types.TIMESTAMP).withSize(19).notNull());
-        addMetadata(gender, ColumnMetadata.named("gender").withIndex(5).ofType(Types.VARCHAR).withSize(16));
+        addMetadata(gender, ColumnMetadata.named("gender").withIndex(5).ofType(Types.VARCHAR).withSize(16).notNull());
         addMetadata(nickname, ColumnMetadata.named("nickname").withIndex(4).ofType(Types.VARCHAR).withSize(64).notNull());
         addMetadata(password, ColumnMetadata.named("password").withIndex(3).ofType(Types.VARCHAR).withSize(32).notNull());
-        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(1).ofType(Types.DECIMAL).withSize(31).notNull());
         addMetadata(username, ColumnMetadata.named("username").withIndex(2).ofType(Types.VARCHAR).withSize(64).notNull());
     }
 

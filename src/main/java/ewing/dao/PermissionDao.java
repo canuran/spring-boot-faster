@@ -4,6 +4,7 @@ import ewing.application.query.BasicDao;
 import ewing.dao.entity.Permission;
 import ewing.security.SecurityBeans;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -11,6 +12,6 @@ import java.util.List;
  */
 public interface PermissionDao extends BasicDao<Permission>, SecurityBeans {
 
-    List<Permission> getUserPermissions(Long userId);
+    List<Permission> getUserPermissions(BigInteger userId);
 
 }

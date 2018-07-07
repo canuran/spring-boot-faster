@@ -11,9 +11,9 @@ public class UserRole implements Serializable {
 
     private java.util.Date createTime;
 
-    private Long roleId;
+    private java.math.BigInteger roleId;
 
-    private Long userId;
+    private java.math.BigInteger userId;
 
     public java.util.Date getCreateTime() {
         return createTime;
@@ -23,25 +23,25 @@ public class UserRole implements Serializable {
         this.createTime = createTime;
     }
 
-    public Long getRoleId() {
+    public java.math.BigInteger getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(java.math.BigInteger roleId) {
         this.roleId = roleId;
     }
 
-    public Long getUserId() {
+    public java.math.BigInteger getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(java.math.BigInteger userId) {
         this.userId = userId;
     }
 
     @Override
     public String toString() {
-        return "createTime = " + createTime + ", roleId = " + roleId + ", userId = " + userId;
+         return "createTime = " + createTime + ", roleId = " + roleId + ", userId = " + userId;
     }
 
 }

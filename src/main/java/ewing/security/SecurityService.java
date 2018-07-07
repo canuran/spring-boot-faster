@@ -7,6 +7,7 @@ import ewing.security.vo.AuthorityNode;
 import ewing.security.vo.FindRoleParam;
 import ewing.security.vo.RoleWithAuthority;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -22,11 +23,11 @@ public interface SecurityService extends SecurityBeans {
 
     void updateAuthority(Authority authority);
 
-    void deleteAuthority(Long authorityId);
+    void deleteAuthority(BigInteger authorityId);
 
     List<AuthorityNode> getAuthorityTree();
 
-    List<AuthorityNode> getUserAuthorities(Long userId);
+    List<AuthorityNode> getUserAuthorities(BigInteger userId);
 
     List<Role> getAllRoles();
 
@@ -36,7 +37,7 @@ public interface SecurityService extends SecurityBeans {
 
     void updateRoleWithAuthority(RoleWithAuthority roleWithAuthority);
 
-    void deleteRole(Long roleId);
+    void deleteRole(BigInteger roleId);
 
-    boolean userHasPermission(Long userId, String action, String targetType, String targetId);
+    boolean userHasPermission(BigInteger userId, String action, String targetType, String targetId);
 }

@@ -5,6 +5,7 @@ import ewing.common.vo.DictionaryNode;
 import ewing.common.vo.FindDictionaryParam;
 import ewing.dao.entity.Dictionary;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public interface DictionaryService extends DictionaryBeans {
 
     void updateDictionary(Dictionary dictionary);
 
-    void deleteDictionary(Long dictionaryId);
+    void deleteDictionary(BigInteger dictionaryId);
 
     List<DictionaryNode> findDictionaryTrees(String[] rootValues);
 }

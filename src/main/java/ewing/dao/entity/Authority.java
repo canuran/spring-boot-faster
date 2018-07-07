@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Generated("com.querydsl.codegen.BeanSerializer")
 public class Authority implements Serializable {
 
-    private Long authorityId;
+    private java.math.BigInteger authorityId;
 
     private String code;
 
@@ -19,15 +19,15 @@ public class Authority implements Serializable {
 
     private String name;
 
-    private Long parentId;
+    private java.math.BigInteger parentId;
 
     private String type;
 
-    public Long getAuthorityId() {
+    public java.math.BigInteger getAuthorityId() {
         return authorityId;
     }
 
-    public void setAuthorityId(Long authorityId) {
+    public void setAuthorityId(java.math.BigInteger authorityId) {
         this.authorityId = authorityId;
     }
 
@@ -63,11 +63,11 @@ public class Authority implements Serializable {
         this.name = name;
     }
 
-    public Long getParentId() {
+    public java.math.BigInteger getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(java.math.BigInteger parentId) {
         this.parentId = parentId;
     }
 
@@ -81,7 +81,7 @@ public class Authority implements Serializable {
 
     @Override
     public String toString() {
-        return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", type = " + type;
+         return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", type = " + type;
     }
 
 }

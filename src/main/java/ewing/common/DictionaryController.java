@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class DictionaryController {
     @ApiOperation("删除字典项")
     @PostMapping("/deleteDictionary")
     @PreAuthorize("hasAuthority('" + AuthorityCodes.DICTIONARY_DELETE + "')")
-    public ResultMessage<?> deleteDictionary(Long dictionaryId) {
+    public ResultMessage<?> deleteDictionary(BigInteger dictionaryId) {
         dictionaryService.deleteDictionary(dictionaryId);
         return new ResultMessage<>();
     }

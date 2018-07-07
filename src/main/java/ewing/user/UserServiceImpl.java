@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.AssertBusiness;
+import ewing.application.common.GlobalIdWorker;
 import ewing.application.common.When;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
@@ -20,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     private UserRoleDao userRoleDao;
 
     @Override
-    public Long addUserWithRole(UserWithRole userWithRole) {
+    public BigInteger addUserWithRole(UserWithRole userWithRole) {
         AssertBusiness.notNull(userWithRole, "用户不能为空！");
         AssertBusiness.hasText(userWithRole.getUsername(), "用户名不能为空！");
         AssertBusiness.hasText(userWithRole.getNickname(), "昵称不能为空！");
@@ -48,7 +50,8 @@ public class UserServiceImpl implements UserService {
                 "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());
-        userDao.insertWithKey(userWithRole);
+        userWithRole.setUserId(GlobalIdWorker.nextBigInteger());
+        userDao.insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();
     }
@@ -70,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
-    public User getUser(Long userId) {
+    public User getUser(BigInteger userId) {
         AssertBusiness.notNull(userId, "用户ID不能为空！");
         return userDao.selectByKey(userId);
     }
@@ -111,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
-    public long deleteUser(Long userId) {
+    public long deleteUser(BigInteger userId) {
         AssertBusiness.notNull(userId, "用户ID不能为空！");
         return userDao.deleteByKey(userId);
     }

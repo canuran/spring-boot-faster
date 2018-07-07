@@ -1,17 +1,20 @@
 package ewing.dao.query;
 
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.PathMetadata;
-import com.querydsl.core.types.dsl.DateTimePath;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.sql.ColumnMetadata;
+import static com.querydsl.core.types.PathMetadataFactory.*;
 import ewing.dao.entity.Authority;
 
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
+import com.querydsl.core.types.Path;
+
+import com.querydsl.sql.ColumnMetadata;
 import java.sql.Types;
 
-import static com.querydsl.core.types.PathMetadataFactory.forVariable;
+
+
 
 /**
  * QAuthority is a Querydsl query type for Authority
@@ -19,11 +22,11 @@ import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
 public class QAuthority extends com.querydsl.sql.RelationalPathBase<Authority> {
 
-    private static final long serialVersionUID = 1005366038;
+    private static final long serialVersionUID = 1228804850;
 
     public static final QAuthority authority = new QAuthority("authority");
 
-    public final NumberPath<Long> authorityId = createNumber("authorityId", Long.class);
+    public final NumberPath<java.math.BigInteger> authorityId = createNumber("authorityId", java.math.BigInteger.class);
 
     public final StringPath code = createString("code");
 
@@ -33,7 +36,7 @@ public class QAuthority extends com.querydsl.sql.RelationalPathBase<Authority> {
 
     public final StringPath name = createString("name");
 
-    public final NumberPath<Long> parentId = createNumber("parentId", Long.class);
+    public final NumberPath<java.math.BigInteger> parentId = createNumber("parentId", java.math.BigInteger.class);
 
     public final StringPath type = createString("type");
 
@@ -65,12 +68,12 @@ public class QAuthority extends com.querydsl.sql.RelationalPathBase<Authority> {
     }
 
     public void addMetadata() {
-        addMetadata(authorityId, ColumnMetadata.named("authority_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(authorityId, ColumnMetadata.named("authority_id").withIndex(1).ofType(Types.DECIMAL).withSize(31).notNull());
         addMetadata(code, ColumnMetadata.named("code").withIndex(3).ofType(Types.VARCHAR).withSize(64).notNull());
         addMetadata(content, ColumnMetadata.named("content").withIndex(5).ofType(Types.VARCHAR).withSize(255));
         addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(7).ofType(Types.TIMESTAMP).withSize(19).notNull());
         addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(128).notNull());
-        addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(6).ofType(Types.BIGINT).withSize(19));
+        addMetadata(parentId, ColumnMetadata.named("parent_id").withIndex(6).ofType(Types.DECIMAL).withSize(31));
         addMetadata(type, ColumnMetadata.named("type").withIndex(4).ofType(Types.VARCHAR).withSize(64).notNull());
     }
 

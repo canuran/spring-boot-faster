@@ -5,6 +5,7 @@ import ewing.application.common.TreeUtils;
 import ewing.security.vo.AuthorityNode;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class SecurityUser implements UserDetails {
 
-    private Long userId;
+    private BigInteger userId;
 
     private String username;
 
@@ -56,11 +57,11 @@ public class SecurityUser implements UserDetails {
                 AuthorityNode::setChildren);
     }
 
-    public Long getUserId() {
+    public BigInteger getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(BigInteger userId) {
         this.userId = userId;
     }
 

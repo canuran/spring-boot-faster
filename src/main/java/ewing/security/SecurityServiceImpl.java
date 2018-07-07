@@ -1,6 +1,7 @@
 package ewing.security;
 
 import ewing.application.AssertBusiness;
+import ewing.application.common.GlobalIdWorker;
 import ewing.application.common.TreeUtils;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +79,8 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authority.setCode(authority.getCode().toUpperCase());
         authority.setCreateTime(new Date());
-        authorityDao.insertWithKey(authority);
+        authority.setAuthorityId(GlobalIdWorker.nextBigInteger());
+        authorityDao.insertBean(authority);
     }
 
     @Override
@@ -107,7 +110,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void deleteAuthority(Long authorityId) {
+    public void deleteAuthority(BigInteger authorityId) {
         AssertBusiness.notNull(authorityId, "权限ID不能为空！");
 
         AssertBusiness.yes(authorityDao.countWhere(
@@ -131,7 +134,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public List<AuthorityNode> getUserAuthorities(Long userId) {
+    public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
         AssertBusiness.notNull(userId, "用户ID不能为空！");
         return authorityDao.getUserAuthorities(userId);
     }
@@ -156,7 +159,8 @@ public class SecurityServiceImpl implements SecurityService {
                 "角色名已被使用。");
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleDao.insertWithKey(roleWithAuthority);
+        roleWithAuthority.setRoleId(GlobalIdWorker.nextBigInteger());
+        roleDao.insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系
         addRoleAuthorities(roleWithAuthority);
@@ -185,7 +189,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void deleteRole(Long roleId) {
+    public void deleteRole(BigInteger roleId) {
         AssertBusiness.notNull(roleId, "角色ID不能为空。");
 
         AssertBusiness.yes(userRoleDao.countWhere(
@@ -217,7 +221,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     @Cacheable(cacheNames = "PermissionCache", key = "#userId.toString() + #action + #targetType + #targetId")
-    public boolean userHasPermission(Long userId, String action,
+    public boolean userHasPermission(BigInteger userId, String action,
                                      String targetType, String targetId) {
         AssertBusiness.notNull(userId, "用户ID不能为空！");
         AssertBusiness.hasText(action, "权限操作不能为空！");

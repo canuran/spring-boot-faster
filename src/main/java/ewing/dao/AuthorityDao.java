@@ -5,6 +5,7 @@ import ewing.dao.entity.Authority;
 import ewing.security.SecurityBeans;
 import ewing.security.vo.AuthorityNode;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -12,6 +13,6 @@ import java.util.List;
  */
 public interface AuthorityDao extends BasicDao<Authority>, SecurityBeans {
 
-    List<AuthorityNode> getUserAuthorities(Long userId);
+    List<AuthorityNode> getUserAuthorities(BigInteger userId);
 
 }

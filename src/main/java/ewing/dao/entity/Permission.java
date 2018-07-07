@@ -13,13 +13,13 @@ public class Permission implements Serializable {
 
     private java.util.Date createTime;
 
-    private Long permissionId;
+    private java.math.BigInteger permissionId;
 
     private String targetId;
 
     private String targetType;
 
-    private Long userId;
+    private java.math.BigInteger userId;
 
     public String getAction() {
         return action;
@@ -37,11 +37,11 @@ public class Permission implements Serializable {
         this.createTime = createTime;
     }
 
-    public Long getPermissionId() {
+    public java.math.BigInteger getPermissionId() {
         return permissionId;
     }
 
-    public void setPermissionId(Long permissionId) {
+    public void setPermissionId(java.math.BigInteger permissionId) {
         this.permissionId = permissionId;
     }
 
@@ -61,17 +61,17 @@ public class Permission implements Serializable {
         this.targetType = targetType;
     }
 
-    public Long getUserId() {
+    public java.math.BigInteger getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(java.math.BigInteger userId) {
         this.userId = userId;
     }
 
     @Override
     public String toString() {
-        return "action = " + action + ", createTime = " + createTime + ", permissionId = " + permissionId + ", targetId = " + targetId + ", targetType = " + targetType + ", userId = " + userId;
+         return "action = " + action + ", createTime = " + createTime + ", permissionId = " + permissionId + ", targetId = " + targetId + ", targetType = " + targetType + ", userId = " + userId;
     }
 
 }

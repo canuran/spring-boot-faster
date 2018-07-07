@@ -8,6 +8,7 @@ import ewing.dao.query.QAuthority;
 import ewing.security.vo.AuthorityNode;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
 public class AuthorityDaoImpl extends SBFBasisDao<QAuthority, Authority> implements AuthorityDao {
 
     @Override
-    public List<AuthorityNode> getUserAuthorities(Long userId) {
+    public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
         // 用户->角色->权限
         return getQueryFactory().selectDistinct(Projections
                 .bean(AuthorityNode.class, qAuthority.all()))

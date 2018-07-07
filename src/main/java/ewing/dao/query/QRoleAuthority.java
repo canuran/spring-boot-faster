@@ -1,16 +1,20 @@
 package ewing.dao.query;
 
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.PathMetadata;
-import com.querydsl.core.types.dsl.DateTimePath;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.sql.ColumnMetadata;
+import static com.querydsl.core.types.PathMetadataFactory.*;
 import ewing.dao.entity.RoleAuthority;
 
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
+import com.querydsl.core.types.Path;
+
+import com.querydsl.sql.ColumnMetadata;
 import java.sql.Types;
 
-import static com.querydsl.core.types.PathMetadataFactory.forVariable;
+
+
 
 /**
  * QRoleAuthority is a Querydsl query type for RoleAuthority
@@ -18,15 +22,15 @@ import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 @Generated("com.querydsl.sql.codegen.MetaDataSerializer")
 public class QRoleAuthority extends com.querydsl.sql.RelationalPathBase<RoleAuthority> {
 
-    private static final long serialVersionUID = -1178120768;
+    private static final long serialVersionUID = 1848207260;
 
     public static final QRoleAuthority roleAuthority = new QRoleAuthority("role_authority");
 
-    public final NumberPath<Long> authorityId = createNumber("authorityId", Long.class);
+    public final NumberPath<java.math.BigInteger> authorityId = createNumber("authorityId", java.math.BigInteger.class);
 
     public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
 
-    public final NumberPath<Long> roleId = createNumber("roleId", Long.class);
+    public final NumberPath<java.math.BigInteger> roleId = createNumber("roleId", java.math.BigInteger.class);
 
     public final com.querydsl.sql.PrimaryKey<RoleAuthority> primary = createPrimaryKey(authorityId, roleId);
 
@@ -56,9 +60,9 @@ public class QRoleAuthority extends com.querydsl.sql.RelationalPathBase<RoleAuth
     }
 
     public void addMetadata() {
-        addMetadata(authorityId, ColumnMetadata.named("authority_id").withIndex(2).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(authorityId, ColumnMetadata.named("authority_id").withIndex(2).ofType(Types.DECIMAL).withSize(31).notNull());
         addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(3).ofType(Types.TIMESTAMP).withSize(19).notNull());
-        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.DECIMAL).withSize(31).notNull());
     }
 
 }

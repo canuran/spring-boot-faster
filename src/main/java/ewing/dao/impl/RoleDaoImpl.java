@@ -16,6 +16,7 @@ import ewing.dao.query.QRole;
 import ewing.security.vo.RoleWithAuthority;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -51,7 +52,7 @@ public class RoleDaoImpl extends SBFBasisDao<QRole, Role> implements RoleDao {
     }
 
     @Override
-    public List<Role> getRolesByUser(Long userId) {
+    public List<Role> getRolesByUser(BigInteger userId) {
         // 用户->角色
         return getQueryFactory().selectDistinct(qRole)
                 .from(qRole)

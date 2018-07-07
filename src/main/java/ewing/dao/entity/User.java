@@ -19,7 +19,7 @@ public class User implements Serializable {
 
     private String password;
 
-    private Long userId;
+    private java.math.BigInteger userId;
 
     private String username;
 
@@ -63,11 +63,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public Long getUserId() {
+    public java.math.BigInteger getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(java.math.BigInteger userId) {
         this.userId = userId;
     }
 
@@ -81,7 +81,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", nickname = " + nickname + ", password = " + password + ", userId = " + userId + ", username = " + username;
+         return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", nickname = " + nickname + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

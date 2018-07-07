@@ -6,6 +6,7 @@ import ewing.dao.entity.Permission;
 import ewing.dao.query.QPermission;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ import java.util.List;
 public class PermissionDaoImpl extends SBFBasisDao<QPermission, Permission> implements PermissionDao {
 
     @Override
-    public List<Permission> getUserPermissions(Long userId) {
+    public List<Permission> getUserPermissions(BigInteger userId) {
         // 用户->许可
         return getQueryFactory().selectDistinct(qPermission)
                 .from(qPermission)

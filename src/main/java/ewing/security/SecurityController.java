@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -66,7 +67,7 @@ public class SecurityController {
     @ApiOperation("删除权限")
     @PostMapping("/deleteAuthority")
     @PreAuthorize("hasAuthority('" + AuthorityCodes.AUTHORITY_DELETE + "')")
-    public ResultMessage<?> deleteAuthority(Long authorityId) {
+    public ResultMessage<?> deleteAuthority(BigInteger authorityId) {
         securityService.deleteAuthority(authorityId);
         return new ResultMessage<>();
     }
@@ -140,7 +141,7 @@ public class SecurityController {
     @ApiOperation("删除角色")
     @PostMapping("/deleteRole")
     @PreAuthorize("hasAuthority('" + AuthorityCodes.ROLE_DELETE + "')")
-    public ResultMessage<?> deleteRole(Long roleId) {
+    public ResultMessage<?> deleteRole(BigInteger roleId) {
         securityService.deleteRole(roleId);
         return new ResultMessage<>();
     }

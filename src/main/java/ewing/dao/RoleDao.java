@@ -8,6 +8,7 @@ import ewing.dao.entity.Role;
 import ewing.security.SecurityBeans;
 import ewing.security.vo.RoleWithAuthority;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -17,6 +18,6 @@ public interface RoleDao extends BasicDao<Role>, SecurityBeans {
 
     Page<RoleWithAuthority> findRoleWithAuthority(Pager pager, Predicate predicate);
 
-    List<Role> getRolesByUser(Long userId);
+    List<Role> getRolesByUser(BigInteger userId);
 
 }
