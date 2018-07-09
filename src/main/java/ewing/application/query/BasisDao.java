@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> implements BasicDao<BEAN> {
 
-    protected BASE pathBase;
+    protected final BASE pathBase;
 
     protected abstract SQLQueryFactory getQueryFactory();
 
@@ -42,15 +42,15 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
         // 获取查询类中预置的静态查询对象
         for (Field field : baseClass.getFields()) {
             if (baseClass.equals(field.getType())) {
-                Assert.isNull(pathBase, "Path base duplicate.");
                 try {
                     pathBase = (BASE) field.get(baseClass);
+                    return;
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                 }
             }
         }
-        Assert.notNull(pathBase, "Path base missing.");
+        throw new IllegalStateException("Path base missing.");
     }
 
     @Override
@@ -144,9 +144,8 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public SQLUpdateClause updaterWhere(Predicate predicate) {
-        return getQueryFactory().update(pathBase)
-                .where(predicate);
+    public SQLUpdateClause updater() {
+        return getQueryFactory().update(pathBase);
     }
 
     @Override

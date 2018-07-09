@@ -82,9 +82,9 @@ public interface BasicDao<BEAN> {
     SQLUpdateClause updaterByKey(Object key);
 
     /**
-     * 根据条件参数创建更新器。
+     * 创建实体对象的更新器。
      */
-    SQLUpdateClause updaterWhere(Predicate predicate);
+    SQLUpdateClause updater();
 
     /**
      * 将实体对象非null属性插入到数据库。
