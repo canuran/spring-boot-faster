@@ -3,6 +3,7 @@ package ewing.application.query;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 
 import java.util.Collection;
@@ -60,9 +61,9 @@ public interface BasicDao<BEAN> {
     long deleteBean(Object bean);
 
     /**
-     * 根据条件参数删除实体。
+     * 创建实体对象的删除器。
      */
-    long deleteWhere(Predicate predicate);
+    SQLDeleteClause deleter();
 
     /**
      * 根据对象中的ID属性和非null属性更新实体。

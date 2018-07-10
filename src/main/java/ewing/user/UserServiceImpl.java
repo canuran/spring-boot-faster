@@ -85,7 +85,9 @@ public class UserServiceImpl implements UserService {
         AssertBusiness.notNull(userWithRole.getUserId(), "用户ID不能为空！");
 
         // 更新用户的角色列表
-        userRoleDao.deleteWhere(qUserRole.userId.eq(userWithRole.getUserId()));
+        userRoleDao.deleter()
+                .where(qUserRole.userId.eq(userWithRole.getUserId()))
+                .execute();
         addUserRoles(userWithRole);
 
         // 更新用户

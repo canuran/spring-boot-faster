@@ -7,6 +7,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import org.springframework.util.Assert;
@@ -110,10 +111,8 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long deleteWhere(Predicate predicate) {
-        return getQueryFactory().delete(pathBase)
-                .where(predicate)
-                .execute();
+    public SQLDeleteClause deleter() {
+        return getQueryFactory().delete(pathBase);
     }
 
     @Override

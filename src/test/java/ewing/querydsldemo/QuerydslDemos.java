@@ -199,7 +199,9 @@ public class QuerydslDemos {
         System.out.println(rows);
 
         // 删除实体，根据条件删除
-        rows = demoUserDao.deleteWhere(qDemoUser.username.contains("元宝"));
+        rows = demoUserDao.deleter()
+                .where(qDemoUser.username.contains("元宝"))
+                .execute();
 
         System.out.println(rows);
     }

@@ -6,6 +6,7 @@ import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringConnectionProvider;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
 import ewing.application.query.SQLLogger;
+import ewing.application.query.SQLSafeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ public class SBFQueryConfig {
         SQLTemplates templates = MySQLTemplates.builder().quote().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
+        configuration.addListener(new SQLSafeFilter());
         configuration.addListener(new SQLLogger(configuration));
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
         return new SQLQueryFactory(configuration, provider);

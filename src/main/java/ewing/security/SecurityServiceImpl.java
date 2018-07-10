@@ -181,8 +181,9 @@ public class SecurityServiceImpl implements SecurityService {
         roleDao.updateBean(roleWithAuthority);
 
         // 清空角色权限关系
-        roleAuthorityDao.deleteWhere(qRoleAuthority
-                .roleId.eq(roleWithAuthority.getRoleId()));
+        roleAuthorityDao.deleter()
+                .where(qRoleAuthority.roleId.eq(roleWithAuthority.getRoleId()))
+                .execute();
 
         // 批量建立新的角色权限关系
         addRoleAuthorities(roleWithAuthority);
@@ -197,8 +198,9 @@ public class SecurityServiceImpl implements SecurityService {
                 "该角色有用户正在使用！");
 
         // 清空角色权限关系
-        roleAuthorityDao.deleteWhere(
-                qRoleAuthority.roleId.eq(roleId));
+        roleAuthorityDao.deleter()
+                .where(qRoleAuthority.roleId.eq(roleId))
+                .execute();
 
         roleDao.deleteByKey(roleId);
     }
