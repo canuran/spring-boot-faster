@@ -13,16 +13,16 @@ public interface MysqlBasicDao<BEAN> extends BasicDao<BEAN> {
     /**
      * 使用 Mysql 的 ON DUPLICATE KEY UPDATE。
      */
-    long insertDuplicateUpdate(Object bean, Path<?>... updates);
+    long insertDuplicateUpdate(BEAN bean, Path<?>... updates);
 
     /**
      * 批量使用 Mysql 的 ON DUPLICATE KEY UPDATE。
      */
-    long insertDuplicateUpdates(Collection<?> beans, Path<?>... updates);
+    long insertDuplicateUpdates(Collection<BEAN> beans, Path<?>... updates);
 
     /**
      * 使用 Mysql 的 ON DUPLICATE KEY UPDATE 并返回ID值，同时ID也会设置到实体对象中。
      */
-    <KEY> KEY insertDuplicateUpdateWithKey(Object bean, Path<?>... updates);
+    <KEY> KEY insertDuplicateUpdateWithKey(BEAN bean, Path<?>... updates);
 
 }

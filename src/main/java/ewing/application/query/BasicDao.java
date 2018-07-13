@@ -1,6 +1,5 @@
 package ewing.application.query;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.dml.SQLDeleteClause;
@@ -32,7 +31,7 @@ public interface BasicDao<BEAN> {
     /**
      * 元组结果类型的查询器。
      */
-    Selector<Tuple> selector(Expression<?>... expressions);
+    Selector<BEAN> selector(Expression<?>... expressions);
 
     /**
      * 根据条件表达式查询实体。
@@ -56,9 +55,8 @@ public interface BasicDao<BEAN> {
 
     /**
      * 根据实体中的ID属性删除实体。
-     * 参数兼容带有对应ID属性的实体。
      */
-    long deleteBean(Object bean);
+    long deleteBean(BEAN bean);
 
     /**
      * 创建实体对象的删除器。
@@ -67,15 +65,13 @@ public interface BasicDao<BEAN> {
 
     /**
      * 根据对象中的ID属性和非null属性更新实体。
-     * 参数兼容带有对应ID属性且至少有一个要更新的属性的实体。
      */
-    long updateBean(Object bean);
+    long updateBean(BEAN bean);
 
     /**
      * 批量根据对象中的ID属性和非null属性更新实体。
-     * 参数兼容带有对应ID属性且至少有一个要更新的属性的实体。
      */
-    long updateBeans(Collection<?> beans);
+    long updateBeans(Collection<BEAN> beans);
 
     /**
      * 根据ID参数创建更新器。
@@ -89,26 +85,22 @@ public interface BasicDao<BEAN> {
 
     /**
      * 将实体对象非null属性插入到数据库。
-     * 参数兼容至少包含一个对应的非null属性的实体。
      */
-    long insertBean(Object bean);
+    long insertBean(BEAN bean);
 
     /**
      * 批量将实体对象非null属性插入到数据库。
-     * 参数兼容至少包含一个对应的非null属性的实体。
      */
-    long insertBeans(Collection<?> beans);
+    long insertBeans(Collection<BEAN> beans);
 
     /**
      * 将实体对象属性插入并返回ID值且设置ID到实体中。
-     * 参数兼容至少包含一个对应的非null属性的实体。
      */
-    <KEY> KEY insertWithKey(Object bean);
+    <KEY> KEY insertWithKey(BEAN bean);
 
     /**
      * 批量将实体对象属性插入并返回ID值且设置ID到实体中。
-     * 参数兼容至少包含一个对应的非null属性的实体。
      */
-    <KEY> List<KEY> insertWithKeys(Collection<?> beans);
+    <KEY> List<KEY> insertWithKeys(Collection<BEAN> beans);
 
 }

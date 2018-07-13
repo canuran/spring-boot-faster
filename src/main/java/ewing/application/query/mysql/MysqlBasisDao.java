@@ -19,7 +19,7 @@ import java.util.Objects;
 public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 
     @Override
-    public long insertDuplicateUpdate(Object bean, Path<?>... updates) {
+    public long insertDuplicateUpdate(BEAN bean, Path<?>... updates) {
         SQLInsertClause insert = getQueryFactory().insert(pathBase)
                 .populate(bean);
         onDuplicateKeyUpdate(insert, bean, updates);
@@ -27,9 +27,9 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
     }
 
     @Override
-    public long insertDuplicateUpdates(Collection<?> beans, Path<?>... updates) {
+    public long insertDuplicateUpdates(Collection<BEAN> beans, Path<?>... updates) {
         SQLInsertClause insert = getQueryFactory().insert(pathBase);
-        for (Object bean : beans) {
+        for (BEAN bean : beans) {
             insert.populate(bean);
             onDuplicateKeyUpdate(insert, bean, updates);
             insert.addBatch();
@@ -38,7 +38,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
     }
 
     @Override
-    public <KEY> KEY insertDuplicateUpdateWithKey(Object bean, Path<?>... updates) {
+    public <KEY> KEY insertDuplicateUpdateWithKey(BEAN bean, Path<?>... updates) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         SQLInsertClause insert = getQueryFactory().insert(pathBase)
                 .populate(bean);
@@ -48,7 +48,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
         return value;
     }
 
-    private void onDuplicateKeyUpdate(SQLInsertClause insert, Object bean, Path<?>... updates) {
+    private void onDuplicateKeyUpdate(SQLInsertClause insert, BEAN bean, Path<?>... updates) {
         insert.addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
         boolean first = true;
         Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);

@@ -1,6 +1,5 @@
 package ewing.application.query;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
@@ -70,8 +69,9 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public Selector<Tuple> selector(Expression<?>... expressions) {
-        return new Selector<>(getQueryFactory(), pathBase, Projections.tuple(expressions));
+    public Selector<BEAN> selector(Expression<?>... expressions) {
+        return new Selector<>(getQueryFactory(), pathBase,
+                Projections.bean(pathBase.getType(), expressions));
     }
 
     @Override
@@ -103,7 +103,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long deleteBean(Object bean) {
+    public long deleteBean(BEAN bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return getQueryFactory().delete(pathBase)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
@@ -116,7 +116,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long updateBean(Object bean) {
+    public long updateBean(BEAN bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return getQueryFactory().update(pathBase)
                 .populate(bean)
@@ -125,7 +125,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long updateBeans(Collection<?> beans) {
+    public long updateBeans(Collection<BEAN> beans) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         SQLUpdateClause update = getQueryFactory().update(pathBase);
         for (Object bean : beans) {
@@ -148,23 +148,23 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long insertBean(Object bean) {
+    public long insertBean(BEAN bean) {
         return getQueryFactory().insert(pathBase)
                 .populate(bean)
                 .execute();
     }
 
     @Override
-    public long insertBeans(Collection<?> beans) {
+    public long insertBeans(Collection<BEAN> beans) {
         SQLInsertClause insert = getQueryFactory().insert(pathBase);
-        for (Object bean : beans) {
+        for (BEAN bean : beans) {
             insert.populate(bean).addBatch();
         }
         return insert.isEmpty() ? 0L : insert.execute();
     }
 
     @Override
-    public <KEY> KEY insertWithKey(Object bean) {
+    public <KEY> KEY insertWithKey(BEAN bean) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         KEY value = getQueryFactory().insert(pathBase)
                 .populate(bean)
@@ -174,13 +174,13 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public <KEY> List<KEY> insertWithKeys(Collection<?> beans) {
+    public <KEY> List<KEY> insertWithKeys(Collection<BEAN> beans) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         if (beans.isEmpty()) {
             return Collections.emptyList();
         }
         SQLInsertClause insert = getQueryFactory().insert(pathBase);
-        for (Object bean : beans) {
+        for (BEAN bean : beans) {
             insert.populate(bean).addBatch();
         }
         List<KEY> values = insert.executeWithKeys(keyPath);
