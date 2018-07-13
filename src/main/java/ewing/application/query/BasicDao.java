@@ -29,7 +29,7 @@ public interface BasicDao<BEAN> {
     <TYPE> Selector<TYPE> selector(Expression<TYPE> expression);
 
     /**
-     * 元组结果类型的查询器。
+     * 根据所需查询实体属性。
      */
     Selector<BEAN> selector(Expression<?>... expressions);
 
