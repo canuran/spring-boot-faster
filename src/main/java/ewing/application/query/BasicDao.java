@@ -64,12 +64,12 @@ public interface BasicDao<BEAN> {
     SQLDeleteClause deleter();
 
     /**
-     * 根据对象中的ID属性和非null属性更新实体。
+     * 更新实体中的非null属性到数据库。
      */
     long updateBean(BEAN bean);
 
     /**
-     * 批量根据对象中的ID属性和非null属性更新实体。
+     * 批量更新实体中的非null属性到数据库。
      */
     long updateBeans(Collection<BEAN> beans);
 
