@@ -395,6 +395,7 @@ public class TimeUtils {
      */
     public static Date setDayStart(Date date) {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
         setDayStart(calendar);
         return calendar.getTime();
     }
