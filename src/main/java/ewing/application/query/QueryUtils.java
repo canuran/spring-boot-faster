@@ -51,16 +51,18 @@ public class QueryUtils {
         if (pager.isCount()) {
             Page<T> page = new Page<>();
             page.setTotal(query.fetchCount());
-            if (page.getTotal() < 1 || page.getTotal() < pager.getOffset()) {
-                // 一条也没有或已经超出总数范围则返回空集
-                return page.setRows(Collections.emptyList());
-            } else {
+            if (pager.getLimit() > 0 && page.getTotal() > 0 && page.getTotal() > pager.getOffset()) {
                 query.limit(pager.getLimit()).offset(pager.getOffset());
-                return page.setRows(query.fetch());
+                page.setRows(query.fetch());
+                return page;
+            } else {
+                page.setRows(Collections.emptyList());
+                return page;
             }
         } else {
-            query.limit(pager.getLimit()).offset(pager.getOffset());
-            return new Page<>(query.fetch());
+            List<T> rows = pager.getLimit() > 0 ? query.limit(pager.getLimit())
+                    .offset(pager.getOffset()).fetch() : Collections.emptyList();
+            return new Page<>(rows);
         }
     }
 

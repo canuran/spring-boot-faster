@@ -1,5 +1,6 @@
 package ewing.application.query;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -9,7 +10,9 @@ import java.util.function.Consumer;
  *
  * @author Ewing
  **/
-public class Page<T> {
+public class Page<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private long total;
 
     private List<T> rows;
@@ -32,18 +35,16 @@ public class Page<T> {
         return total;
     }
 
-    public Page<T> setTotal(long total) {
+    public void setTotal(long total) {
         this.total = total;
-        return this;
     }
 
     public List<T> getRows() {
         return rows;
     }
 
-    public Page<T> setRows(List<T> rows) {
+    public void setRows(List<T> rows) {
         this.rows = rows == null ? Collections.emptyList() : rows;
-        return this;
     }
 
     public Page<T> forEach(Consumer<T> consumer) {
