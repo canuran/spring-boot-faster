@@ -4,7 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.application.AssertBusiness;
-import ewing.application.common.GlobalIdWorker;
+import ewing.application.common.GlobalIds;
 import ewing.application.common.When;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());
-        userWithRole.setUserId(GlobalIdWorker.nextBigInteger());
+        userWithRole.setUserId(GlobalIds.nextId());
         userDao.insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();

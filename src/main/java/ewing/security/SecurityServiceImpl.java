@@ -1,7 +1,7 @@
 package ewing.security;
 
 import ewing.application.AssertBusiness;
-import ewing.application.common.GlobalIdWorker;
+import ewing.application.common.GlobalIds;
 import ewing.application.common.TreeUtils;
 import ewing.application.query.Page;
 import ewing.application.query.Where;
@@ -79,7 +79,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authority.setCode(authority.getCode().toUpperCase());
         authority.setCreateTime(new Date());
-        authority.setAuthorityId(GlobalIdWorker.nextBigInteger());
+        authority.setAuthorityId(GlobalIds.nextId());
         authorityDao.insertBean(authority);
     }
 
@@ -159,7 +159,7 @@ public class SecurityServiceImpl implements SecurityService {
                 "角色名已被使用。");
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleWithAuthority.setRoleId(GlobalIdWorker.nextBigInteger());
+        roleWithAuthority.setRoleId(GlobalIds.nextId());
         roleDao.insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系

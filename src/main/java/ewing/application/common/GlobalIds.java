@@ -8,42 +8,50 @@ import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 全局ID生成器，保持趋势递增，尾数均匀，理论每秒可获取262144000个全局唯一值。
- * 实测1000个线程共生成千万个用时约12秒（80万个/秒），远低于安全极限2亿6千万个/秒。
- * 位值组成：毫秒去掉低6位（每64毫秒）+ 24位机器标识 + 16位进程标识 + 24位累加数。
- * 使用31位10进制整数或20位36进制字符串可使用到3060年，到时扩展字段长度即可。
+ * 全局ID生成器，保持趋势递增，尾数均匀，每秒可获取4096000个全局唯一值。
+ * 位值组成：毫秒（目前41位） + 24位机器标识 + 8位进程标识 + 12位累加数。
+ * 使用26位10进制整数（MySql占12字节）可使用到2150年，到时扩展长度即可。
  *
  * @author Ewing
  */
-public class GlobalIdWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalIdWorker.class);
-    // 将时间截掉后6位（相当于除以64）约精确到1/16秒
-    private static final int TIME_TRUNCATE = 6;
-    // 机器标识24位+进程标识16位
+public class GlobalIds {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalIds.class);
+
+    // 机器标识位 + 进程标识位
     private static final String MAC_PROC_BIT;
-    // 计数器 可以溢出可循环使用 实际取后24位
-    private static final AtomicInteger COUNTER = new AtomicInteger(new SecureRandom().nextInt());
-    // 序号掩码 即每64毫秒内生成不能超16777216个
-    private static final int COUNTER_MASK = 0b111111111111111111111111;
-    // 序号标志位 第25位为1 保证序号总长度为24位
-    private static final int COUNTER_FLAG = 0b1000000000000000000000000;
+
+    // 计数器掩码 用于取计数器后面的位
+    private static final int COUNTER_MASK = 0b111111111111;
+
+    // 标志位 防止高位为0时转成字符串被去掉
+    private static final int COUNTER_FLAG = COUNTER_MASK + 1;
+
+    // 时间戳 放在ID的最前面
+    private static long timestamp = System.currentTimeMillis();
+
+    // 计数器 取后面的位
+    private static int counter = new SecureRandom().nextInt(COUNTER_MASK);
+
+    // 游标 记录新的时间的计数器开始值
+    private static int cursor = counter;
 
     /**
      * 私有化构造方法。
      */
-    private GlobalIdWorker() {
+    private GlobalIds() {
     }
 
     /**
      * 初始化机器标识及进程标识。
      */
     static {
-        // 保证一定是24位机器ID + 16位进程ID
-        int machineId = getMachineIdentifier() & 0b111111111111111111111111 | 0b1000000000000000000000000;
-        int processId = getProcessIdentifier() & 0b1111111111111111 | 0b10000000000000000;
+        // 保证一定是24位机器ID + 8位进程ID
+        int machineMask = 0b111111111111111111111111;
+        int processMask = 0b11111111;
+        int machineId = getMachineIdentifier() & machineMask | (machineMask + 1);
+        int processId = getProcessIdentifier() & processMask | (processMask + 1);
         String machineIdBit = Integer.toBinaryString(machineId).substring(1);
         String processIdBit = Integer.toBinaryString(processId).substring(1);
         MAC_PROC_BIT = machineIdBit + processIdBit;
@@ -52,23 +60,39 @@ public class GlobalIdWorker {
     /**
      * 生成全局唯一的整数ID。
      */
-    public static BigInteger nextBigInteger() {
-        long timestamp = System.currentTimeMillis() >>> TIME_TRUNCATE;
+    public static synchronized BigInteger nextId() {
+        long currentTime = System.currentTimeMillis();
 
-        int count = COUNTER.getAndIncrement() & COUNTER_MASK | COUNTER_FLAG;
+        // 计数器自增 并取低位
+        counter = ++counter & COUNTER_MASK;
 
-        // 时间位+机器与进程位+计数器位组成最终的ID
+        if (currentTime > timestamp) {
+            // 时间更新 同时更新游标
+            timestamp = currentTime;
+            cursor = counter;
+        } else if (currentTime == timestamp) {
+            // 时间相等 没到游标处不用处理
+            if (counter == cursor) {
+                // 到了游标处表示该毫秒的计数已用完 等下一毫秒
+                while (timestamp == currentTime) {
+                    timestamp = System.currentTimeMillis();
+                }
+            }
+        } else if (currentTime - timestamp > 1000) {
+            // 机器时间后退太多
+            throw new IllegalStateException("Time gone back too much!");
+        } else {
+            // 机器时间后退了点
+            while (timestamp < currentTime) {
+                timestamp = System.currentTimeMillis();
+            }
+        }
+
+        // 时间位 + 机器与进程位 + 计数器位
         String idBit = Long.toBinaryString(timestamp) + MAC_PROC_BIT +
-                Integer.toBinaryString(count).substring(1);
+                Integer.toBinaryString(counter | COUNTER_FLAG).substring(1);
 
         return new BigInteger(idBit, 2);
-    }
-
-    /**
-     * 获取36进制的String类型的ID。
-     */
-    public static String nextString() {
-        return nextBigInteger().toString(36).toUpperCase();
     }
 
     /**

@@ -2,7 +2,7 @@ package ewing.common;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import ewing.application.AssertBusiness;
-import ewing.application.common.GlobalIdWorker;
+import ewing.application.common.GlobalIds;
 import ewing.application.common.TreeUtils;
 import ewing.application.exception.BusinessException;
 import ewing.application.query.Page;
@@ -72,7 +72,7 @@ public class DictionaryServiceImpl implements DictionaryService {
             dictionary.setDetail(null);
         }
         dictionary.setCreateTime(new Date());
-        dictionary.setDictionaryId(GlobalIdWorker.nextBigInteger());
+        dictionary.setDictionaryId(GlobalIds.nextId());
         dictionaryDao.insertBean(dictionary);
 
         // 没有父字典则自身就是根字典

@@ -6,7 +6,7 @@
   
 响应式管理界面改自zhengAdmin，基于Bootstrap、JQuery、Layui等，前后端是独立的，可分开部署和开发、自行更换前端框架。  
   
-全局唯一的十进制趋势递增ID，使用DECIMAL(31)存储占用14字节，比BIGINT的8字节稍大，好处是可应用到任意表或分表分库。  
+全局唯一的十进制趋势递增ID，使用DECIMAL(26)存储占用12字节，比BIGINT的8字节稍大，好处是可应用到任意表或分表分库。  
   
 ##### 首次启动前请修改pom.xml和application.yml中的数据库信息并执行faster-data.sql。  
 
