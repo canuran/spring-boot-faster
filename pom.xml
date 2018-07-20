@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.10.RELEASE</version>
+        <version>1.5.12.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -52,7 +52,7 @@
             <plugin>
                 <groupId>com.querydsl</groupId>
                 <artifactId>querydsl-maven-plugin</artifactId>
-                <version>4.1.4</version>
+                <version>4.2.1</version>
                 <configuration>
                     <jdbcDriver>com.mysql.jdbc.Driver</jdbcDriver>
                     <jdbcUrl>jdbc:mysql://localhost:3306/faster?useUnicode=true&amp;characterEncoding=UTF-8</jdbcUrl>
@@ -170,26 +170,26 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-spring</artifactId>
-            <version>4.1.4</version>
+            <version>4.2.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql</artifactId>
-            <version>4.1.4</version>
+            <version>4.2.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-codegen</artifactId>
-            <version>4.1.4</version>
+            <version>4.2.1</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-maven-plugin</artifactId>
-            <version>4.1.4</version>
+            <version>4.2.1</version>
             <scope>provided</scope>
         </dependency>
 

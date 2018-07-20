@@ -39,7 +39,7 @@ public class SBFQueryConfig {
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         configuration.addListener(new SQLSafeFilter());
-        configuration.addListener(new SQLLogger(configuration));
+        configuration.addListener(new SQLLogger());
         Provider<Connection> provider = new SpringConnectionProvider(dataSource);
         return new SQLQueryFactory(configuration, provider);
     }
