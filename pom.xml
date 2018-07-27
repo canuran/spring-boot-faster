@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ewing</groupId>
     <artifactId>spring-boot-faster</artifactId>
-    <version>RELEASE</version>
+    <version>FINAL</version>
 
     <name>Spring Boot Faster</name>
     <description>用于管理子项目</description>
@@ -12,14 +12,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
     </properties>
 
     <modules>
-        <module>faster</module>
-        <module>common</module>
         <module>query</module>
+        <module>common</module>
+        <module>faster</module>
     </modules>
 
 </project>

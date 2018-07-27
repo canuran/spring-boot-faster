@@ -59,6 +59,7 @@
     </build>
 
     <dependencies>
+        <!--本地项目依赖-->
         <dependency>
             <groupId>ewing</groupId>
             <artifactId>common</artifactId>
