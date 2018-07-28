@@ -5,7 +5,7 @@ import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.query.BasicDao;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 
 import java.util.List;
 

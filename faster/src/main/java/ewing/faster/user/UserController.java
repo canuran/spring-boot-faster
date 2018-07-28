@@ -7,7 +7,7 @@ import ewing.faster.security.AuthorityCodes;
 import ewing.faster.security.SecurityService;
 import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

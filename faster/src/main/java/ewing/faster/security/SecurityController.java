@@ -8,7 +8,7 @@ import ewing.faster.dao.entity.Authority;
 import ewing.faster.security.vo.AuthorityNode;
 import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

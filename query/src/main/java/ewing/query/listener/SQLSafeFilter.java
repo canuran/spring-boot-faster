@@ -1,4 +1,4 @@
-package ewing.query;
+package ewing.query.listener;
 
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.types.Expression;

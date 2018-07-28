@@ -3,7 +3,7 @@ package ewing.faster.common;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.entity.Dictionary;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 
 import java.math.BigInteger;
 import java.util.List;

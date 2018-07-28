@@ -1,4 +1,4 @@
-package ewing.query;
+package ewing.query.listener;
 
 import com.querydsl.sql.SQLBaseListener;
 import com.querydsl.sql.SQLBindings;

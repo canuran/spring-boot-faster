@@ -1,4 +1,4 @@
-package ewing.query;
+package ewing.query.paging;
 
 import java.io.Serializable;
 

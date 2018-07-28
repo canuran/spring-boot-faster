@@ -5,8 +5,8 @@ import ewing.faster.dao.entity.Role;
 import ewing.faster.security.SecurityBeans;
 import ewing.faster.security.vo.RoleWithAuthority;
 import ewing.query.BasicDao;
-import ewing.query.Page;
-import ewing.query.Pager;
+import ewing.query.paging.Page;
+import ewing.query.paging.Pager;
 
 import java.math.BigInteger;
 import java.util.List;

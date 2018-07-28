@@ -6,6 +6,8 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import ewing.query.paging.Page;
+import ewing.query.paging.Pager;
 
 import java.util.List;
 

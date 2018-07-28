@@ -13,6 +13,8 @@ import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
+import ewing.query.paging.Page;
+import ewing.query.paging.Pager;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

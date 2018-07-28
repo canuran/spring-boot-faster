@@ -13,7 +13,7 @@ import ewing.faster.dao.entity.User;
 import ewing.faster.dao.entity.UserRole;
 import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import ewing.query.Where;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;

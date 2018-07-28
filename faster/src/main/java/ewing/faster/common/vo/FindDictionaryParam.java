@@ -1,6 +1,6 @@
 package ewing.faster.common.vo;
 
-import ewing.query.Pager;
+import ewing.query.paging.Pager;
 
 public class FindDictionaryParam extends Pager {
 

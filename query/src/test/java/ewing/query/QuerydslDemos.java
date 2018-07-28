@@ -12,10 +12,8 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import ewing.query.Page;
-import ewing.query.Pager;
-import ewing.query.QueryUtils;
-import ewing.query.Where;
+import ewing.query.paging.Page;
+import ewing.query.paging.Pager;
 import ewing.query.querydsldemo.dao.DemoUserDao;
 import ewing.query.querydsldemo.entity.DemoAddress;
 import ewing.query.querydsldemo.entity.DemoUser;
@@ -37,8 +35,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 独立的Querydsl查询案例可作为参考。
- * 执行前请先执行src/test/resources/querydsldemo.sql。
+ * Querydsl查询测试案例，可作为参考。
+ * 测试使用Spring Boot配置的H2内存数据库。
  * 注意：测试事务会自动回滚。
  */
 @Transactional

@@ -7,7 +7,7 @@ import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.DictionaryDao;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.faster.dao.query.QDictionary;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import ewing.query.QueryUtils;
 import ewing.query.Where;
 import org.springframework.stereotype.Repository;

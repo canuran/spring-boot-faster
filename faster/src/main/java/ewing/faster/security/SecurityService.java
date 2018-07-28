@@ -5,7 +5,7 @@ import ewing.faster.dao.entity.Role;
 import ewing.faster.security.vo.AuthorityNode;
 import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 
 import java.math.BigInteger;
 import java.util.List;

@@ -5,7 +5,7 @@ import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.faster.security.AuthorityCodes;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

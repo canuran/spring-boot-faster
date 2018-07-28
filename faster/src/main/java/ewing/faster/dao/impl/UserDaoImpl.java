@@ -11,8 +11,8 @@ import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;
 import ewing.faster.dao.query.QUser;
 import ewing.faster.user.vo.UserWithRole;
-import ewing.query.Page;
-import ewing.query.Pager;
+import ewing.query.paging.Page;
+import ewing.query.paging.Pager;
 import ewing.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 

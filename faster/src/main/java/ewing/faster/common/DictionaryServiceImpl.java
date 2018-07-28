@@ -9,7 +9,7 @@ import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.DictionaryDao;
 import ewing.faster.dao.entity.Dictionary;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

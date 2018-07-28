@@ -10,7 +10,7 @@ import ewing.faster.dao.entity.RoleAuthority;
 import ewing.faster.security.vo.AuthorityNode;
 import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
-import ewing.query.Page;
+import ewing.query.paging.Page;
 import ewing.query.Where;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

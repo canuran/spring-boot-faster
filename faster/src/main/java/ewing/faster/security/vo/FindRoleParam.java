@@ -1,6 +1,6 @@
 package ewing.faster.security.vo;
 
-import ewing.query.Pager;
+import ewing.query.paging.Pager;
 
 public class FindRoleParam extends Pager {
 
