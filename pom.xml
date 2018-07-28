@@ -18,6 +18,6 @@
         <module>query</module>
         <module>common</module>
         <module>faster</module>
+        <module>faster-ui</module>
     </modules>
-
 </project>
