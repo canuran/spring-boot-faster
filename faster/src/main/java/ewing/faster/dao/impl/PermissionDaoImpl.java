@@ -1,6 +1,6 @@
 package ewing.faster.dao.impl;
 
-import ewing.faster.application.config.SBFBasisDao;
+import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.dao.PermissionDao;
 import ewing.faster.dao.entity.Permission;
 import ewing.faster.dao.query.QPermission;
@@ -13,7 +13,7 @@ import java.util.List;
  * 许可证数据访问实现。
  */
 @Repository
-public class PermissionDaoImpl extends SBFBasisDao<QPermission, Permission> implements PermissionDao {
+public class PermissionDaoImpl extends FasterBasisDao<QPermission, Permission> implements PermissionDao {
 
     @Override
     public List<Permission> getUserPermissions(BigInteger userId) {

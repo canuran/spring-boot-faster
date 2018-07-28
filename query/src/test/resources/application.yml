@@ -1,0 +1,4 @@
+#  Spring Boot 配置
+spring:
+  datasource:
+    schema: classpath:querydsldemo.sql

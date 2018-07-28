@@ -1,6 +1,6 @@
-package ewing.faster.querydsldemo.vo;
+package ewing.query.querydsldemo.vo;
 
-import ewing.faster.querydsldemo.entity.DemoUser;
+import ewing.query.querydsldemo.entity.DemoUser;
 
 /**
  * 用户详细信息。

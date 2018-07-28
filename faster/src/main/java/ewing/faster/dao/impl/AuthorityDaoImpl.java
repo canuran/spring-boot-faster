@@ -1,7 +1,7 @@
 package ewing.faster.dao.impl;
 
 import com.querydsl.core.types.Projections;
-import ewing.faster.application.config.SBFBasisDao;
+import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.dao.AuthorityDao;
 import ewing.faster.dao.entity.Authority;
 import ewing.faster.dao.query.QAuthority;
@@ -15,7 +15,7 @@ import java.util.List;
  * 权限数据访问实现。
  */
 @Repository
-public class AuthorityDaoImpl extends SBFBasisDao<QAuthority, Authority> implements AuthorityDao {
+public class AuthorityDaoImpl extends FasterBasisDao<QAuthority, Authority> implements AuthorityDao {
 
     @Override
     public List<AuthorityNode> getUserAuthorities(BigInteger userId) {

@@ -1,4 +1,4 @@
-package ewing.faster.querydsldemo;
+package ewing.query;
 
 import com.querydsl.core.QueryFlag;
 import com.querydsl.core.Tuple;
@@ -12,26 +12,24 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import ewing.common.utils.GsonUtils;
-import ewing.faster.StartApp;
-import ewing.faster.querydsldemo.dao.DemoUserDao;
-import ewing.faster.querydsldemo.entity.DemoAddress;
-import ewing.faster.querydsldemo.entity.DemoUser;
-import ewing.faster.querydsldemo.query.QDemoAddress;
-import ewing.faster.querydsldemo.query.QDemoUser;
-import ewing.faster.querydsldemo.vo.DemoAddressDetail;
-import ewing.faster.querydsldemo.vo.DemoAddressUser;
-import ewing.faster.querydsldemo.vo.DemoUserDetail;
 import ewing.query.Page;
 import ewing.query.Pager;
 import ewing.query.QueryUtils;
 import ewing.query.Where;
+import ewing.query.querydsldemo.dao.DemoUserDao;
+import ewing.query.querydsldemo.entity.DemoAddress;
+import ewing.query.querydsldemo.entity.DemoUser;
+import ewing.query.querydsldemo.query.QDemoAddress;
+import ewing.query.querydsldemo.query.QDemoUser;
+import ewing.query.querydsldemo.vo.DemoAddressDetail;
+import ewing.query.querydsldemo.vo.DemoAddressUser;
+import ewing.query.querydsldemo.vo.DemoUserDetail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -44,8 +42,8 @@ import java.util.List;
  * 注意：测试事务会自动回滚。
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = StartApp.class)
+@SpringBootTest
+@RunWith(SpringRunner.class)
 public class QuerydslDemos {
 
     @Autowired
@@ -222,7 +220,7 @@ public class QuerydslDemos {
                 .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq));
 
         Page<DemoUser> userPage = QueryUtils.queryPage(new Pager(), query);
-        System.out.println(GsonUtils.toJson(userPage));
+        System.out.println(userPage);
 
         // 简单封装动态条件、分页获取数据
         userPage = demoUserDao.selector()
@@ -231,7 +229,7 @@ public class QuerydslDemos {
                 .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
                 .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq))
                 .fetchPage(new Pager());
-        System.out.println(GsonUtils.toJson(userPage));
+        System.out.println(userPage);
     }
 
     /**
@@ -257,7 +255,7 @@ public class QuerydslDemos {
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getBindings());
 
-        System.out.println(GsonUtils.toJson(query.fetch()));
+        System.out.println(query.fetch());
     }
 
     /**
@@ -281,7 +279,7 @@ public class QuerydslDemos {
                         .where(qDemoUser.userId.eq(qUserChild.userId))
                         .exists())
                 .fetch();
-        System.out.println(GsonUtils.toJson(names));
+        System.out.println(names);
     }
 
     /**
@@ -300,7 +298,7 @@ public class QuerydslDemos {
                 .groupBy(qDemoAddress.name)
                 .having(qDemoUser.count().gt(0))
                 .fetch();
-        System.out.println(GsonUtils.toJson(addressUsers));
+        System.out.println(addressUsers);
 
         // 关联查询取两个表的全部属性
         List<?> addressAndUser = queryFactory
@@ -309,7 +307,7 @@ public class QuerydslDemos {
                 .leftJoin(qDemoUser)
                 .on(qDemoAddress.addressId.eq(qDemoUser.addressId))
                 .fetch();
-        System.out.println(GsonUtils.toJson(addressAndUser));
+        System.out.println(addressAndUser);
     }
 
     /**
@@ -317,6 +315,7 @@ public class QuerydslDemos {
      */
     @Test
     public void customSql() {
+        // 另见 MysqlBasisDao 类
         SQLQuery<Tuple> query = queryFactory.select(
                 // 常用的表达式构建方法
                 Expressions.asNumber(2).sum(),
@@ -341,12 +340,6 @@ public class QuerydslDemos {
         } catch (BadSqlGrammarException e) {
             System.out.println("数据库不支持该SQL！");
         }
-
-        // 甚至 Mysql 独有的插入语句，另见 MysqlBasisDao 类
-        queryFactory.insert(qDemoUser).populate(newDemoUser())
-                .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ")
-                .addFlag(QueryFlag.Position.END, qDemoUser.username.eq("元宝"))
-                .execute();
     }
 
     /**
@@ -364,7 +357,7 @@ public class QuerydslDemos {
                                 .as("genderName"),
                         qDemoAddress.name.as("addressName"),
                         Expressions.cases().when(
-                                qDemoUser.gender.max().eq(qDemoUser.gender.min()))
+                                qDemoUser.gender.eq(qDemoUser.gender))
                                 .then("性别相同")
                                 .otherwise("性别不同")
                                 .as("sameGender")))
@@ -372,7 +365,7 @@ public class QuerydslDemos {
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .fetch();
-        System.out.println(GsonUtils.toJson(demoUsers));
+        System.out.println(demoUsers);
     }
 
     /**
@@ -391,8 +384,7 @@ public class QuerydslDemos {
                         SQLExpressions.selectFrom(qDemoUser)
                                 .where(qDemoUser.gender.eq(2))
                 ).as(qDemoUser));
-        System.out.println(GsonUtils.toJson(QueryUtils
-                .queryPage(new Pager(1, 1), query)));
+        System.out.println(QueryUtils.queryPage(new Pager(1, 1), query));
 
         // 复杂UNION，定义别名并使结果列和别名一致
         QBean<DemoUserDetail> qUserAddress = QueryUtils.fitBean(
@@ -413,8 +405,7 @@ public class QuerydslDemos {
                         .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                         .where(qDemoUser.gender.eq(2))
         ).as("alias"));
-        System.out.println(GsonUtils.toJson(
-                QueryUtils.queryPage(new Pager(1, 1), queryDetail)));
+        System.out.println(QueryUtils.queryPage(new Pager(1, 1), queryDetail));
     }
 
     /**
@@ -458,7 +449,7 @@ public class QuerydslDemos {
                 DemoAddressDetail::getSubAddresses,
                 DemoAddressDetail::setSubAddresses);
 
-        System.out.println(GsonUtils.toJson(addressDetails));
+        System.out.println(addressDetails);
     }
 
 }

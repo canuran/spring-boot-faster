@@ -1,8 +1,7 @@
-package ewing.faster.application.config;
+package ewing.query;
 
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
-import ewing.query.BasisDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Ewing
  * @since 2018年06月12日
  */
-public abstract class SBFBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> {
+public abstract class QueryBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> {
 
     @Autowired
     private SQLQueryFactory queryFactory;

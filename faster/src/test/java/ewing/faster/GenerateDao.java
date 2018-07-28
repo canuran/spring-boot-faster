@@ -3,7 +3,7 @@ package ewing.faster;
 import com.querydsl.maven.AbstractMetaDataExportMojo;
 import com.querydsl.maven.MetadataExportMojo;
 import com.querydsl.sql.codegen.support.NumericMapping;
-import ewing.faster.application.config.SBFBasisDao;
+import ewing.faster.application.config.FasterBasisDao;
 import ewing.query.DaoGenerator;
 import org.apache.maven.project.MavenProject;
 
@@ -55,7 +55,7 @@ public class GenerateDao {
     public static class Generate {
         public static void main(String[] args) {
             new DaoGenerator()
-                    .daoSuperClass(SBFBasisDao.class)
+                    .daoSuperClass(FasterBasisDao.class)
                     .javaCodePath("faster/src/main/java")
                     .daoPackage("ewing.faster.dao")
                     .queryBeanPackage("ewing.faster.dao.query")

@@ -1,4 +1,4 @@
-package ewing.faster.querydsldemo.entity;
+package ewing.query.querydsldemo.entity;
 
 import javax.annotation.Generated;
 

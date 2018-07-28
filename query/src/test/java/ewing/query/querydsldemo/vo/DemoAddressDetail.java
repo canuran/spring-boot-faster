@@ -1,6 +1,6 @@
-package ewing.faster.querydsldemo.vo;
+package ewing.query.querydsldemo.vo;
 
-import ewing.faster.querydsldemo.entity.DemoAddress;
+import ewing.query.querydsldemo.entity.DemoAddress;
 
 import java.util.List;
 

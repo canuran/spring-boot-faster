@@ -1,7 +1,7 @@
 package ewing.faster.dao.impl;
 
 import com.querydsl.sql.SQLQuery;
-import ewing.faster.application.config.SBFBasisDao;
+import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.DictionaryDao;
@@ -18,7 +18,7 @@ import java.util.List;
  * 数据字典数据访问实现。
  */
 @Repository
-public class DictionaryDaoImpl extends SBFBasisDao<QDictionary, Dictionary> implements DictionaryDao {
+public class DictionaryDaoImpl extends FasterBasisDao<QDictionary, Dictionary> implements DictionaryDao {
 
     private QDictionary qAllDictionary = new QDictionary("all");
 

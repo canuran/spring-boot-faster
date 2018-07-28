@@ -1,4 +1,4 @@
-package ewing.faster.querydsldemo.query;
+package ewing.query.querydsldemo.query;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.PathMetadata;
@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.ColumnMetadata;
-import ewing.faster.querydsldemo.entity.DemoUser;
+import ewing.query.querydsldemo.entity.DemoUser;
 
 import javax.annotation.Generated;
 import java.sql.Types;

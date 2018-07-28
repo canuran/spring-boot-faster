@@ -5,7 +5,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.sql.SQLQuery;
-import ewing.faster.application.config.SBFBasisDao;
+import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.dao.RoleDao;
 import ewing.faster.dao.entity.Authority;
 import ewing.faster.dao.entity.Role;
@@ -23,7 +23,7 @@ import java.util.List;
  * 角色数据访问实现。
  */
 @Repository
-public class RoleDaoImpl extends SBFBasisDao<QRole, Role> implements RoleDao {
+public class RoleDaoImpl extends FasterBasisDao<QRole, Role> implements RoleDao {
 
     private QBean<RoleWithAuthority> qRoleWithAuthority = Projections
             .bean(RoleWithAuthority.class, qRole.all());

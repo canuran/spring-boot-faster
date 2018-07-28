@@ -1,4 +1,4 @@
-package ewing.faster.querydsldemo.vo;
+package ewing.query.querydsldemo.vo;
 
 /**
  * 城市用户统计。

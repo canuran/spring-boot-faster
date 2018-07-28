@@ -23,7 +23,7 @@ import java.sql.Connection;
  * @author Ewing
  */
 @Configuration
-public class SBFQueryConfig {
+public class FasterDaoConfig {
 
     @Autowired
     private DataSource dataSource;
