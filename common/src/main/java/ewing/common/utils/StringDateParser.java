@@ -134,50 +134,91 @@ public class StringDateParser {
     public static String dateToString(Date source) {
         if (source == null) {
             return null;
+        } else if (source instanceof Timestamp) {
+            return timestampToString((Timestamp) source);
+        } else if (source instanceof java.sql.Date) {
+            return sqlDateToString((java.sql.Date) source);
+        } else if (source instanceof Time) {
+            return timeToString((Time) source);
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(source);
+            StringBuilder builder = new StringBuilder();
+            builder.append(calendar.get(Calendar.YEAR)).append('-');
+            int month = calendar.get(Calendar.MONTH) + 1;
+            appendDateField(builder, month).append('-');
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            appendDateField(builder, day).append(' ');
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            appendDateField(builder, hour).append(':');
+            int minute = calendar.get(Calendar.MINUTE);
+            appendDateField(builder, minute).append(':');
+            int second = calendar.get(Calendar.SECOND);
+            appendDateField(builder, second);
+            return builder.toString();
+        }
+    }
+
+    /**
+     * Sql日期序列化为字符串。
+     */
+    public static String sqlDateToString(java.sql.Date source) {
+        if (source == null) {
+            return null;
         }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(source);
         StringBuilder builder = new StringBuilder();
-        if (source instanceof java.sql.Date) {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day);
-        } else if (source instanceof Time) {
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second);
-        } else if (source instanceof Timestamp) {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day).append(' ');
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second).append('.');
-            int millis = calendar.get(Calendar.MILLISECOND);
-            builder.append(millis);
-        } else {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day).append(' ');
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second);
+        builder.append(calendar.get(Calendar.YEAR)).append('-');
+        int month = calendar.get(Calendar.MONTH) + 1;
+        appendDateField(builder, month).append('-');
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        appendDateField(builder, day);
+        return builder.toString();
+    }
+
+    /**
+     * Sql时间序列化为字符串。
+     */
+    public static String timeToString(Time source) {
+        if (source == null) {
+            return null;
         }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(source);
+        StringBuilder builder = new StringBuilder();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        appendDateField(builder, hour).append(':');
+        int minute = calendar.get(Calendar.MINUTE);
+        appendDateField(builder, minute).append(':');
+        int second = calendar.get(Calendar.SECOND);
+        appendDateField(builder, second);
+        return builder.toString();
+    }
+
+    /**
+     * Timestamp序列化为字符串。
+     */
+    public static String timestampToString(Timestamp source) {
+        if (source == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(source);
+        StringBuilder builder = new StringBuilder();
+        builder.append(calendar.get(Calendar.YEAR)).append('-');
+        int month = calendar.get(Calendar.MONTH) + 1;
+        appendDateField(builder, month).append('-');
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        appendDateField(builder, day).append(' ');
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        appendDateField(builder, hour).append(':');
+        int minute = calendar.get(Calendar.MINUTE);
+        appendDateField(builder, minute).append(':');
+        int second = calendar.get(Calendar.SECOND);
+        appendDateField(builder, second).append('.');
+        int millis = calendar.get(Calendar.MILLISECOND);
+        builder.append(millis);
         return builder.toString();
     }
 

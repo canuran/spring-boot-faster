@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import ewing.common.utils.NameValue;
 import ewing.common.utils.StringDateParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -80,18 +79,6 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
             public java.sql.Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
                 String value = jsonParser.getValueAsString();
                 return StringDateParser.stringToSqlDate(value);
-            }
-        });
-        // 把实现命名值接口的属性转换成对象
-        simpleModule.addSerializer(NameValue.class, new JsonSerializer<NameValue>() {
-            @Override
-            public void serialize(NameValue source, JsonGenerator jsonGenerator,
-                                  SerializerProvider serializerProvider) throws IOException {
-                if (source == null) {
-                    jsonGenerator.writeNull();
-                } else {
-                    jsonGenerator.writeObject(new NameValue.Context(source));
-                }
             }
         });
         converter.getObjectMapper().registerModule(simpleModule);
