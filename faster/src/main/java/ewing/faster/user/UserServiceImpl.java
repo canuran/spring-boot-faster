@@ -13,8 +13,8 @@ import ewing.faster.dao.entity.User;
 import ewing.faster.dao.entity.UserRole;
 import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
-import ewing.query.paging.Page;
 import ewing.query.Where;
+import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
         When.notNull(userWithRole.getBirthday(), value -> update.set(qUser.birthday, value));
 
-        return update.execute();
+        return update.isEmpty() ? 0L : update.execute();
     }
 
     @Override
