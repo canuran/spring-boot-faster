@@ -1,6 +1,5 @@
 package ewing.faster.application.config;
 
-import ewing.faster.FasterMain;
 import io.swagger.annotations.ApiOperation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
