@@ -57,4 +57,13 @@ public class Pager implements Serializable {
     public void setCount(boolean count) {
         this.count = count;
     }
+
+    @Override
+    public String toString() {
+        return "Pager{" +
+                "offset=" + offset +
+                ", limit=" + limit +
+                ", count=" + count +
+                '}';
+    }
 }

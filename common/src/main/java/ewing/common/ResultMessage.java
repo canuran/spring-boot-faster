@@ -101,4 +101,13 @@ public class ResultMessage<E> {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "ResultMessage{" +
+                "code=" + code +
+                ", success=" + success +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

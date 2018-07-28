@@ -51,4 +51,12 @@ public class Page<T> implements Serializable {
         this.rows.forEach(consumer);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "total=" + total +
+                ", rows=" + rows +
+                '}';
+    }
 }
