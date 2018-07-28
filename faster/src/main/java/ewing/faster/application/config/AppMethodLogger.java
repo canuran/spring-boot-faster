@@ -1,5 +1,6 @@
 package ewing.faster.application.config;
 
+import ewing.faster.FasterMain;
 import io.swagger.annotations.ApiOperation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -25,7 +26,7 @@ public class AppMethodLogger {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AppMethodLogger.class.getSimpleName());
 
-    @Around("execution(* ewing.faster.*.*(..))" +
+    @Around("execution(* ewing.faster..*.*(..))" +
             " && (@within(org.springframework.stereotype.Component)" +
             " || @within(org.springframework.stereotype.Controller)" +
             " || @within(org.springframework.stereotype.Service)" +
