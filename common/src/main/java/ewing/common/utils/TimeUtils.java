@@ -363,7 +363,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置23:59:59.999。
+     * 获取该天的23:59:59.999。
      */
     public static Date getDayEnd(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -373,7 +373,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置00:00:00.000。
+     * 获取该天的00:00:00.000。
      */
     public static Date getDayStart(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -385,7 +385,7 @@ public class TimeUtils {
     /**
      * 获取今天开始的时间。
      */
-    public static Date getTodayStart() {
+    public static Date todayStart() {
         Calendar calendar = Calendar.getInstance();
         setDayStart(calendar);
         return calendar.getTime();
@@ -394,14 +394,14 @@ public class TimeUtils {
     /**
      * 获取今天开始的时间。
      */
-    public static Date getTodayEnd() {
+    public static Date todayEnd() {
         Calendar calendar = Calendar.getInstance();
         setDayEnd(calendar);
         return calendar.getTime();
     }
 
     /**
-     * 设置昨天的00:00:00.0。
+     * 获取昨天的00:00:00.0。
      */
     public static Date yesterdayStart() {
         Calendar calendar = Calendar.getInstance();
@@ -411,7 +411,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置昨天的23:59:59.999。
+     * 获取昨天的23:59:59.999。
      */
     public static Date yesterdayEnd() {
         Calendar calendar = Calendar.getInstance();
@@ -421,7 +421,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置明天的00:00:00.0。
+     * 获取明天的00:00:00.0。
      */
     public static Date tomorrowStart() {
         Calendar calendar = Calendar.getInstance();
@@ -431,7 +431,7 @@ public class TimeUtils {
     }
 
     /**
-     * 设置明天的23:59:59.999。
+     * 获取明天的23:59:59.999。
      */
     public static Date tomorrowEnd() {
         Calendar calendar = Calendar.getInstance();
