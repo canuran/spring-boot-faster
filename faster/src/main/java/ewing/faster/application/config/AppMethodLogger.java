@@ -25,9 +25,7 @@ public class AppMethodLogger {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AppMethodLogger.class.getSimpleName());
 
-    private static final String START_PACKAGE = "ewing";
-
-    @Around("execution(* " + START_PACKAGE + "..*.*(..))" +
+    @Around("execution(* ewing.faster.*.*(..))" +
             " && (@within(org.springframework.stereotype.Component)" +
             " || @within(org.springframework.stereotype.Controller)" +
             " || @within(org.springframework.stereotype.Service)" +
@@ -46,21 +44,17 @@ public class AppMethodLogger {
             String methodDetail = operation == null ? methodName
                     : operation.value() + "：" + methodName;
             // 记录执行日志 方法名、参数、返回值、异常信息等
-            LOGGER.info("调用方法：" + methodDetail + argsToString(point.getArgs()));
+            String invokeLog = "调用方法：" + methodDetail + argsToString(point.getArgs());
             long time = System.currentTimeMillis();
             try {
                 result = point.proceed();
             } catch (Throwable throwable) {
-                LOGGER.info("执行方法：" + methodDetail
-                        + " 经过时间：" + (System.currentTimeMillis() - time)
+                LOGGER.info(invokeLog + " 经过时间：" + (System.currentTimeMillis() - time)
                         + "ms 发生异常：" + throwable.getMessage());
                 throw throwable; // 原来的异常继续抛出去
             }
-            String returnValue = method.getReturnType() == void.class
-                    ? "ms" : "ms 返回值：" + result;
-            LOGGER.info("结束方法：" + methodDetail
-                    + " 执行耗时：" + (System.currentTimeMillis() - time)
-                    + returnValue);
+            String returnValue = method.getReturnType() == void.class ? "ms" : "ms 返回值：" + result;
+            LOGGER.info(invokeLog + " 执行耗时：" + (System.currentTimeMillis() - time) + returnValue);
         } else {
             result = point.proceed();
         }
