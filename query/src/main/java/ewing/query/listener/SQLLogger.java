@@ -57,6 +57,7 @@ public class SQLLogger extends SQLBaseListener {
                         sqlBuilder.append(sqlChar);
                     }
                 }
+                sqlBuilder.append(';');
             }
             LOGGER.info(sqlBuilder.toString());
         }
@@ -66,7 +67,6 @@ public class SQLLogger extends SQLBaseListener {
     /**
      * 日期及Sql日期序列化为字符串。
      */
-    @SuppressWarnings("Duplicates")
     private static String dateToString(Date source) {
         if (source == null) {
             return null;
