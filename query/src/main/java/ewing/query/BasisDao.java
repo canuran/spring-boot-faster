@@ -5,8 +5,8 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
@@ -26,7 +26,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     protected final BASE pathBase;
 
-    protected abstract SQLQueryFactory getQueryFactory();
+    protected abstract AbstractSQLQueryFactory<?> getQueryFactory();
 
     /**
      * 初始化构造方法。
