@@ -1,6 +1,7 @@
 package ewing.query;
 
 import com.mysema.commons.lang.Assert;
+import com.querydsl.core.FetchableQuery;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupExpression;
 import com.querydsl.core.types.*;
@@ -10,7 +11,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.BeanUtils;
 import com.querydsl.core.util.ReflectionUtils;
-import com.querydsl.sql.AbstractSQLQuery;
 import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPathBase;
 import ewing.query.paging.Page;
@@ -48,7 +48,7 @@ public class QueryUtils {
     /**
      * 使用分页参数和查询对象进行分页查询。
      */
-    public static <T> Page<T> queryPage(Pager pager, AbstractSQLQuery<T, ?> query) {
+    public static <T> Page<T> queryPage(Pager pager, FetchableQuery<T, ?> query) {
         // 是否统计总数
         if (pager.isCount()) {
             Page<T> page = new Page<>();
