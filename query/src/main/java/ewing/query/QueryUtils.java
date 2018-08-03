@@ -10,9 +10,9 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.BeanUtils;
 import com.querydsl.core.util.ReflectionUtils;
+import com.querydsl.sql.AbstractSQLQuery;
 import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLQuery;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
 
@@ -48,7 +48,7 @@ public class QueryUtils {
     /**
      * 使用分页参数和查询对象进行分页查询。
      */
-    public static <T> Page<T> queryPage(Pager pager, SQLQuery<T> query) {
+    public static <T> Page<T> queryPage(Pager pager, AbstractSQLQuery<T, ?> query) {
         // 是否统计总数
         if (pager.isCount()) {
             Page<T> page = new Page<>();

@@ -3,9 +3,9 @@ package ewing.query;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.sql.AbstractSQLQuery;
+import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLQuery;
-import com.querydsl.sql.SQLQueryFactory;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
 
@@ -16,20 +16,20 @@ import java.util.List;
  */
 public class Selector<BEAN> {
 
-    private SQLQuery<BEAN> query;
+    private AbstractSQLQuery<BEAN, ?> query;
     private RelationalPathBase<?> pathBase;
 
-    Selector(SQLQueryFactory queryFactory, RelationalPathBase<BEAN> pathBase) {
+    Selector(AbstractSQLQueryFactory<?> queryFactory, RelationalPathBase<BEAN> pathBase) {
         this.pathBase = pathBase;
         this.query = queryFactory.selectFrom(pathBase);
     }
 
-    Selector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
+    Selector(AbstractSQLQueryFactory<?> queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
         this.pathBase = pathBase;
         this.query = queryFactory.select(QueryUtils.fitBean(beanClass, pathBase)).from(pathBase);
     }
 
-    Selector(SQLQueryFactory queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
+    Selector(AbstractSQLQueryFactory<?> queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
         this.pathBase = pathBase;
         this.query = queryFactory.select(expression).from(pathBase);
     }
