@@ -4,70 +4,90 @@ import com.querydsl.core.QueryFlag;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.RelationalPathBase;
+import com.querydsl.sql.dml.AbstractSQLInsertClause;
 import com.querydsl.sql.dml.DefaultMapper;
 import com.querydsl.sql.dml.SQLInsertClause;
 import ewing.query.BasisDao;
 import ewing.query.QueryUtils;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 适用于Mysql的根据泛型操作实体的实现。
  */
+@SuppressWarnings("unchecked")
 public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 
     @Override
     public long insertDuplicateUpdate(BEAN bean, Path<?>... updates) {
-        SQLInsertClause insert = getQueryFactory().insert(pathBase)
-                .populate(bean);
-        onDuplicateKeyUpdate(insert, bean, updates);
-        return insert.execute();
+        return getInsertDuplicateUpdateClause(bean, updates).execute();
     }
 
     @Override
     public long insertDuplicateUpdates(Collection<BEAN> beans, Path<?>... updates) {
-        SQLInsertClause insert = getQueryFactory().insert(pathBase);
+        Map<List<Path<?>>, SQLInsertClause> updatePathsInsertMap = new HashMap<>();
         for (BEAN bean : beans) {
-            insert.populate(bean);
-            onDuplicateKeyUpdate(insert, bean, updates);
+            Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);
+            List<Path<?>> updatePaths = new ArrayList<>();
+            for (Path<?> path : values.keySet()) {
+                if (updates.length > 0) {
+                    for (Path<?> update : updates) {
+                        if (Objects.equals(path, update)) {
+                            updatePaths.add(path);
+                            break;
+                        }
+                    }
+                } else {
+                    updatePaths.add(path);
+                }
+            }
+            SQLInsertClause insert = updatePathsInsertMap.computeIfAbsent(updatePaths,
+                    (paths) -> getQueryFactory().insert(pathBase)
+                            .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE "));
+            for (Map.Entry<Path<?>, Object> entry : values.entrySet()) {
+                insert.set((Path) entry.getKey(), entry.getValue());
+            }
+            String template = "";
+            for (Path<?> path : updatePaths) {
+                template = template.isEmpty() ? "{0} = VALUES({0})" : ", {0} = VALUES({0})";
+                insert.addFlag(QueryFlag.Position.END, Expressions.template(Object.class, template, path));
+            }
             insert.addBatch();
         }
-        return insert.isEmpty() ? 0L : insert.execute();
+        return updatePathsInsertMap.values().stream().mapToLong(
+                AbstractSQLInsertClause::execute).sum();
     }
 
     @Override
     public <KEY> KEY insertDuplicateUpdateWithKey(BEAN bean, Path<?>... updates) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
-        SQLInsertClause insert = getQueryFactory().insert(pathBase)
-                .populate(bean);
-        onDuplicateKeyUpdate(insert, bean, updates);
+        SQLInsertClause insert = getInsertDuplicateUpdateClause(bean, updates);
         KEY value = insert.executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
         return value;
     }
 
-    private void onDuplicateKeyUpdate(SQLInsertClause insert, BEAN bean, Path<?>... updates) {
-        insert.addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
-        boolean first = true;
+    private SQLInsertClause getInsertDuplicateUpdateClause(BEAN bean, Path<?>[] updates) {
+        SQLInsertClause insert = getQueryFactory().insert(pathBase)
+                .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
+        String template = "";
         Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);
-        for (Path<?> path : values.keySet()) {
-            if (updates != null && updates.length > 0) {
+        for (Map.Entry<Path<?>, Object> entry : values.entrySet()) {
+            insert.set((Path) entry.getKey(), entry.getValue());
+            if (updates.length > 0) {
                 for (Path<?> update : updates) {
-                    if (Objects.equals(update, path)) {
-                        String template = first ? "{0} = VALUES({0})" : ", {0} = VALUES({0})";
-                        insert.addFlag(QueryFlag.Position.END, Expressions.template(Object.class, template, path));
-                        first = false;
+                    if (Objects.equals(entry.getKey(), update)) {
+                        template = template.isEmpty() ? "{0} = VALUES({0})" : ", {0} = VALUES({0})";
+                        insert.addFlag(QueryFlag.Position.END, Expressions.template(Object.class, template, entry.getKey()));
                         break;
                     }
                 }
             } else {
-                String template = first ? "{0} = VALUES({0})" : ", {0} = VALUES({0})";
-                insert.addFlag(QueryFlag.Position.END, Expressions.template(Object.class, template, path));
-                first = false;
+                template = template.isEmpty() ? "{0} = VALUES({0})" : ", {0} = VALUES({0})";
+                insert.addFlag(QueryFlag.Position.END, Expressions.template(Object.class, template, entry.getKey()));
             }
         }
+        return insert;
     }
 
 }
