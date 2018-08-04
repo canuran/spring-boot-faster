@@ -17,7 +17,7 @@ public class AssertBusiness {
     /**
      * 断定为是，否则抛出异常。
      */
-    public static void yes(boolean value, String elseMessage) {
+    public static void isTrue(boolean value, String elseMessage) {
         if (!value) {
             throw new BusinessException(elseMessage);
         }
@@ -26,7 +26,7 @@ public class AssertBusiness {
     /**
      * 断定为真，否则抛出异常。
      */
-    public static void yes(boolean value, ResultMessage elseMessage) {
+    public static void isTrue(boolean value, ResultMessage elseMessage) {
         if (!value) {
             throw new BusinessException(elseMessage);
         }
@@ -35,7 +35,7 @@ public class AssertBusiness {
     /**
      * 断定为否，否则抛出异常。
      */
-    public static void no(boolean value, String elseMessage) {
+    public static void isFalse(boolean value, String elseMessage) {
         if (value) {
             throw new BusinessException(elseMessage);
         }
@@ -44,7 +44,7 @@ public class AssertBusiness {
     /**
      * 断定为否，否则抛出异常。
      */
-    public static void no(boolean value, ResultMessage elseMessage) {
+    public static void isFalse(boolean value, ResultMessage elseMessage) {
         if (value) {
             throw new BusinessException(elseMessage);
         }

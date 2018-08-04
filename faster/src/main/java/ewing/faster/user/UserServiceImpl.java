@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
         AssertBusiness.hasText(userWithRole.getNickname(), "昵称不能为空！");
         AssertBusiness.hasText(userWithRole.getPassword(), "密码不能为空！");
         AssertBusiness.hasText(userWithRole.getGender(), "性别不能为空！");
-        AssertBusiness.yes(userDao.countWhere(
+        AssertBusiness.isTrue(userDao.countWhere(
                 qUser.username.eq(userWithRole.getUsername())) < 1,
                 "用户名已被使用！");
 

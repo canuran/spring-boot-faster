@@ -62,7 +62,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                 qDictionary.parentId.isNull() :
                 qDictionary.parentId.eq(dictionary.getParentId());
 
-        AssertBusiness.yes(dictionaryDao.countWhere(parentIdEquals
+        AssertBusiness.isTrue(dictionaryDao.countWhere(parentIdEquals
                         .and(qDictionary.name.eq(dictionary.getName())
                                 .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
                 "相同位置下的字典名或值不能重复！");
@@ -98,7 +98,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                         qDictionary.parentId.isNull() :
                         qDictionary.parentId.eq(dictionary.getParentId()));
 
-        AssertBusiness.yes(dictionaryDao.countWhere(parentIdEquals
+        AssertBusiness.isTrue(dictionaryDao.countWhere(parentIdEquals
                         .and(qDictionary.name.eq(dictionary.getName())
                                 .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
                 "相同位置下的字典名或值不能重复！");
@@ -118,7 +118,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         AssertBusiness.notNull(dictionaryId, "字典ID不能为空！");
         AssertBusiness.notNull(dictionaryDao.selectByKey(dictionaryId),
                 "该字典不存在或已删除！");
-        AssertBusiness.yes(dictionaryDao.countWhere(
+        AssertBusiness.isTrue(dictionaryDao.countWhere(
                 qDictionary.parentId.eq(dictionaryId)) < 1,
                 "请先删除该字典的所有子项！");
 

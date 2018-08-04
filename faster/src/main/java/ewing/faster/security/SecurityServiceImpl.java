@@ -66,10 +66,10 @@ public class SecurityServiceImpl implements SecurityService {
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
 
-        AssertBusiness.yes(authorityDao.countWhere(
+        AssertBusiness.isTrue(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AssertBusiness.yes(authorityDao.countWhere(
+        AssertBusiness.isTrue(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
 
@@ -92,11 +92,11 @@ public class SecurityServiceImpl implements SecurityService {
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
 
-        AssertBusiness.yes(authorityDao.countWhere(
+        AssertBusiness.isTrue(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AssertBusiness.yes(authorityDao.countWhere(
+        AssertBusiness.isTrue(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
@@ -113,10 +113,10 @@ public class SecurityServiceImpl implements SecurityService {
     public void deleteAuthority(BigInteger authorityId) {
         AssertBusiness.notNull(authorityId, "权限ID不能为空！");
 
-        AssertBusiness.yes(authorityDao.countWhere(
+        AssertBusiness.isTrue(authorityDao.countWhere(
                 qAuthority.parentId.eq(authorityId)) < 1,
                 "请先删除所有子权限！");
-        AssertBusiness.yes(roleAuthorityDao.countWhere(
+        AssertBusiness.isTrue(roleAuthorityDao.countWhere(
                 qRoleAuthority.authorityId.eq(authorityId)) < 1,
                 "该权限有角色正在使用！");
 
@@ -154,7 +154,7 @@ public class SecurityServiceImpl implements SecurityService {
     public void addRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
         AssertBusiness.notNull(roleWithAuthority, "角色对象不能为空。");
         AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
-        AssertBusiness.yes(roleDao.countWhere(
+        AssertBusiness.isTrue(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())) < 1,
                 "角色名已被使用。");
         // 使用自定义VO新增角色
@@ -172,7 +172,7 @@ public class SecurityServiceImpl implements SecurityService {
         AssertBusiness.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
         AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
         // 名称存在并且不是自己
-        AssertBusiness.yes(roleDao.countWhere(
+        AssertBusiness.isTrue(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())
                         .and(qRole.roleId.ne(roleWithAuthority.getRoleId()))) < 1,
                 "角色名已被使用。");
@@ -193,7 +193,7 @@ public class SecurityServiceImpl implements SecurityService {
     public void deleteRole(BigInteger roleId) {
         AssertBusiness.notNull(roleId, "角色ID不能为空。");
 
-        AssertBusiness.yes(userRoleDao.countWhere(
+        AssertBusiness.isTrue(userRoleDao.countWhere(
                 qUserRole.roleId.eq(roleId)) < 1,
                 "该角色有用户正在使用！");
 

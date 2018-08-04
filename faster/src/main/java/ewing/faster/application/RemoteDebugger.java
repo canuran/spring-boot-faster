@@ -49,7 +49,7 @@ public class RemoteDebugger {
     public ResultMessage methodExecute(@RequestBody String expression) {
         AssertBusiness.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        AssertBusiness.yes(matcher.find(), "表达式格式不正确！");
+        AssertBusiness.isTrue(matcher.find(), "表达式格式不正确！");
 
         // 根据名称获取Bean
         String classOrBeanName = matcher.group(1);
