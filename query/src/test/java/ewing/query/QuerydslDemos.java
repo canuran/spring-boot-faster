@@ -217,7 +217,7 @@ public class QuerydslDemos {
                 .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
                 .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq));
 
-        Page<DemoUser> userPage = QueryUtils.queryPage(new Pager(), query);
+        Page<DemoUser> userPage = QueryUtils.queryPage(query, new Pager());
         System.out.println(userPage);
 
         // 简单封装动态条件、分页获取数据
@@ -382,7 +382,7 @@ public class QuerydslDemos {
                         SQLExpressions.selectFrom(qDemoUser)
                                 .where(qDemoUser.gender.eq(2))
                 ).as(qDemoUser));
-        System.out.println(QueryUtils.queryPage(new Pager(1, 1), query));
+        System.out.println(QueryUtils.queryPage(query, new Pager()));
 
         // 复杂UNION，定义别名并使结果列和别名一致
         QBean<DemoUserDetail> qUserAddress = QueryUtils.fitBean(
@@ -403,7 +403,7 @@ public class QuerydslDemos {
                         .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                         .where(qDemoUser.gender.eq(2))
         ).as("alias"));
-        System.out.println(QueryUtils.queryPage(new Pager(1, 1), queryDetail));
+        System.out.println(QueryUtils.queryPage(queryDetail, new Pager()));
     }
 
     /**

@@ -48,11 +48,13 @@ public class QueryUtils {
     /**
      * 使用分页参数和查询对象进行分页查询。
      */
-    public static <T> Page<T> queryPage(Pager pager, FetchableQuery<T, ?> query) {
-        // 是否统计总数
-        if (pager.isCount()) {
+    public static <T> Page<T> queryPage(FetchableQuery<T, ?> query, Pager pager) {
+        if (pager == null) {
+            return new Page<>(query.fetch());
+        } else if (pager.isCount()) {
             Page<T> page = new Page<>();
             page.setTotal(query.fetchCount());
+            // 能查到数据才进行查询
             if (pager.getLimit() > 0 && page.getTotal() > 0 && page.getTotal() > pager.getOffset()) {
                 query.limit(pager.getLimit()).offset(pager.getOffset());
                 page.setRows(query.fetch());

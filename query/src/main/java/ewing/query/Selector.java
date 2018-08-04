@@ -172,7 +172,7 @@ public class Selector<BEAN> {
      * 获取分页结果页。
      */
     public Page<BEAN> fetchPage(Pager pager) {
-        return QueryUtils.queryPage(pager, this.query);
+        return QueryUtils.queryPage(this.query, pager);
     }
 
 }
