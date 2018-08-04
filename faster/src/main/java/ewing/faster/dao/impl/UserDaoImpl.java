@@ -42,7 +42,7 @@ public class UserDaoImpl extends FasterBasisDao<QUser, User> implements UserDao 
                 .leftJoin(qRole).on(qUserRole.roleId.eq(qRole.roleId))
                 .fetch();
 
-        return new Page<>(total, QueryUtils.oneToMany(
+        return new Page<>(total, QueryUtils.rowsToTree(
                 rows, qUserWithRole, qRole,
                 User::getUserId,
                 Role::getRoleId,

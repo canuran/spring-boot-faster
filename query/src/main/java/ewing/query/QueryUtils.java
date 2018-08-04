@@ -268,48 +268,50 @@ public class QueryUtils {
     }
 
     /**
-     * 一对多关联查询的结果列表转换成一对多的层级对象。
+     * 转换具有父子关系的关联查询的结果集为树形对象集合。
      * <p>
-     * 例如把 List<Tuple> rows 转换成一对多的层级对象：
-     * QueryUtils.oneToMany(
-     * rows, qOne, qMany,
-     * One::getOneKey,
-     * Many::getManyKey,
-     * One::getManies,
-     * One::setManies))
+     * 例如把 List<Tuple> rows 转换为树形对象集合：
+     * QueryUtils.rowsToTree(
+     * rows, qParent, qChild,
+     * Parent::getKey,
+     * Child::getKey,
+     * Parent::getChildren,
+     * Parent::setChildren))
      */
-    public static <ONE, MANY, QONE extends Expression<ONE>, QMANY extends Expression<MANY>>
-    List<ONE> oneToMany(List<Tuple> rows, QONE qOne, QMANY qMany,
-                        Function<ONE, Serializable> oneKeyGetter,
-                        Function<MANY, Serializable> manyKeyGetter,
-                        Function<ONE, List<MANY>> manyGetter,
-                        BiConsumer<ONE, List<MANY>> manySetter) {
+    public static <PARENT, CHILD, QPARENT extends Expression<PARENT>, QCHILD extends Expression<CHILD>>
+    List<PARENT> rowsToTree(List<Tuple> rows, QPARENT qParent, QCHILD qChild,
+                            Function<PARENT, Serializable> parentKeyGetter,
+                            Function<CHILD, Serializable> childKeyGetter,
+                            Function<PARENT, List<CHILD>> childrenGetter,
+                            BiConsumer<PARENT, List<CHILD>> childrenSetter) {
         if (rows == null) {
             return null;
         }
-        if (qOne == null || qMany == null
-                || oneKeyGetter == null || manyKeyGetter == null
-                || manyGetter == null || manySetter == null) {
+        if (qParent == null || qChild == null
+                || parentKeyGetter == null || childKeyGetter == null
+                || childrenGetter == null || childrenSetter == null) {
             throw new IllegalArgumentException("Arguments missing.");
         }
-        // 取一对多的“一”并根据“一”的Key去重
-        Map<Serializable, ONE> oneMap = new HashMap<>();
+        // 取父对象并且根据父对象的Key去重
+        Map<Serializable, PARENT> parentMap = new HashMap<>();
         for (Tuple row : rows) {
-            ONE one = row.get(qOne);
-            if (one != null && oneKeyGetter.apply(one) != null) {
-                ONE exists = oneMap.putIfAbsent(oneKeyGetter.apply(one), one);
-                one = exists == null ? one : exists;
-                // 取一对多的“多”并添加到“一”中
-                MANY many = row.get(qMany);
-                if (many != null && manyKeyGetter.apply(many) != null) {
-                    if (manyGetter.apply(one) == null) {
-                        manySetter.accept(one, new ArrayList<>());
+            if (row != null) {
+                PARENT parent = row.get(qParent);
+                if (parent != null && parentKeyGetter.apply(parent) != null) {
+                    PARENT exists = parentMap.putIfAbsent(parentKeyGetter.apply(parent), parent);
+                    parent = exists == null ? parent : exists;
+                    // 取子对象并添加到父对象中
+                    CHILD child = row.get(qChild);
+                    if (child != null && childKeyGetter.apply(child) != null) {
+                        if (childrenGetter.apply(parent) == null) {
+                            childrenSetter.accept(parent, new ArrayList<>());
+                        }
+                        childrenGetter.apply(parent).add(child);
                     }
-                    manyGetter.apply(one).add(many);
                 }
             }
         }
-        return new ArrayList<>(oneMap.values());
+        return new ArrayList<>(parentMap.values());
     }
 
 }

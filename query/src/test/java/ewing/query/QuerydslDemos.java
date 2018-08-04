@@ -440,7 +440,7 @@ public class QuerydslDemos {
                 .fetch();
 
         // 将并列的对象转换成一对多层级对象
-        List<DemoAddressDetail> addressDetails = QueryUtils.oneToMany(
+        List<DemoAddressDetail> addressDetails = QueryUtils.rowsToTree(
                 rows, qAddressDetail, qSubAddress,
                 DemoAddressDetail::getAddressId,
                 DemoAddress::getAddressId,

@@ -43,7 +43,7 @@ public class RoleDaoImpl extends FasterBasisDao<QRole, Role> implements RoleDao 
                 .leftJoin(qAuthority).on(qRoleAuthority.authorityId.eq(qAuthority.authorityId))
                 .fetch();
 
-        return new Page<>(total, QueryUtils.oneToMany(
+        return new Page<>(total, QueryUtils.rowsToTree(
                 rows, qRoleWithAuthority, qAuthority,
                 RoleWithAuthority::getRoleId,
                 Authority::getAuthorityId,
