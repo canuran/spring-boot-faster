@@ -6,7 +6,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.dml.AbstractSQLInsertClause;
 import com.querydsl.sql.dml.DefaultMapper;
-import com.querydsl.sql.dml.SQLInsertClause;
 import ewing.query.BasisDao;
 import ewing.query.QueryUtils;
 
@@ -25,7 +24,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
 
     @Override
     public long insertDuplicateUpdates(Collection<BEAN> beans, Path<?>... updates) {
-        Map<List<Path<?>>, SQLInsertClause> updatePathsInsertMap = new HashMap<>();
+        Map<List<Path<?>>, AbstractSQLInsertClause<?>> updatePathsInsertMap = new HashMap<>();
         for (BEAN bean : beans) {
             Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);
             List<Path<?>> updatePaths = new ArrayList<>();
@@ -41,7 +40,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
                     updatePaths.add(path);
                 }
             }
-            SQLInsertClause insert = updatePathsInsertMap.computeIfAbsent(updatePaths,
+            AbstractSQLInsertClause<?> insert = updatePathsInsertMap.computeIfAbsent(updatePaths,
                     (paths) -> getQueryFactory().insert(pathBase)
                             .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE "));
             for (Map.Entry<Path<?>, Object> entry : values.entrySet()) {
@@ -61,14 +60,14 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
     @Override
     public <KEY> KEY insertDuplicateUpdateWithKey(BEAN bean, Path<?>... updates) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
-        SQLInsertClause insert = getInsertDuplicateUpdateClause(bean, updates);
+        AbstractSQLInsertClause<?> insert = getInsertDuplicateUpdateClause(bean, updates);
         KEY value = insert.executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
         return value;
     }
 
-    private SQLInsertClause getInsertDuplicateUpdateClause(BEAN bean, Path<?>[] updates) {
-        SQLInsertClause insert = getQueryFactory().insert(pathBase)
+    private AbstractSQLInsertClause<?> getInsertDuplicateUpdateClause(BEAN bean, Path<?>[] updates) {
+        AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase)
                 .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
         String template = "";
         Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);

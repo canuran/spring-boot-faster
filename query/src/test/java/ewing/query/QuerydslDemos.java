@@ -10,8 +10,8 @@ import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import com.querydsl.sql.dml.DefaultMapper;
-import com.querydsl.sql.dml.SQLUpdateClause;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
 import ewing.query.querydsldemo.dao.DemoUserDao;
@@ -412,7 +412,7 @@ public class QuerydslDemos {
     @Test
     public void executeBatch() {
         // 批量更新，插入和删除操作类似，设置参数后调用addBatch即可
-        SQLUpdateClause update = queryFactory.update(qDemoUser);
+        AbstractSQLUpdateClause<?> update = queryFactory.update(qDemoUser);
 
         update.set(qDemoUser.username, qDemoUser.username.append("哥哥"))
                 .where(qDemoUser.gender.eq(1)).addBatch();

@@ -7,9 +7,9 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.dml.SQLDeleteClause;
-import com.querydsl.sql.dml.SQLInsertClause;
-import com.querydsl.sql.dml.SQLUpdateClause;
+import com.querydsl.sql.dml.AbstractSQLDeleteClause;
+import com.querydsl.sql.dml.AbstractSQLInsertClause;
+import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -111,7 +111,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public SQLDeleteClause deleter() {
+    public AbstractSQLDeleteClause<?> deleter() {
         return getQueryFactory().delete(pathBase);
     }
 
@@ -127,7 +127,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     @Override
     public long updateBeans(Collection<BEAN> beans) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
-        SQLUpdateClause update = getQueryFactory().update(pathBase);
+        AbstractSQLUpdateClause<?> update = getQueryFactory().update(pathBase);
         for (Object bean : beans) {
             update.populate(bean)
                     .where(QueryUtils.beanKeyEquals(keyPaths, bean))
@@ -137,13 +137,13 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public SQLUpdateClause updaterByKey(Object key) {
+    public AbstractSQLUpdateClause<?> updaterByKey(Object key) {
         return getQueryFactory().update(pathBase)
                 .where(QueryUtils.baseKeyEquals(pathBase, key));
     }
 
     @Override
-    public SQLUpdateClause updater() {
+    public AbstractSQLUpdateClause<?> updater() {
         return getQueryFactory().update(pathBase);
     }
 
@@ -156,7 +156,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
 
     @Override
     public long insertBeans(Collection<BEAN> beans) {
-        SQLInsertClause insert = getQueryFactory().insert(pathBase);
+        AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase);
         for (BEAN bean : beans) {
             insert.populate(bean).addBatch();
         }
@@ -179,7 +179,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
         if (beans.isEmpty()) {
             return Collections.emptyList();
         }
-        SQLInsertClause insert = getQueryFactory().insert(pathBase);
+        AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase);
         for (BEAN bean : beans) {
             insert.populate(bean).addBatch();
         }

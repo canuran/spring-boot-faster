@@ -2,7 +2,7 @@ package ewing.faster.user;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.sql.dml.SQLUpdateClause;
+import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import ewing.common.AssertBusiness;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.When;
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         addUserRoles(userWithRole);
 
         // 更新用户
-        SQLUpdateClause update = userDao.updaterByKey(userWithRole.getUserId());
+        AbstractSQLUpdateClause<?> update = userDao.updaterByKey(userWithRole.getUserId());
 
         When.hasText(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
 

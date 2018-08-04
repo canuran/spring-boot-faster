@@ -2,8 +2,8 @@ package ewing.query;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.sql.dml.SQLDeleteClause;
-import com.querydsl.sql.dml.SQLUpdateClause;
+import com.querydsl.sql.dml.AbstractSQLDeleteClause;
+import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 
 import java.util.Collection;
 import java.util.List;
@@ -61,7 +61,7 @@ public interface BasicDao<BEAN> {
     /**
      * 创建实体对象的删除器。
      */
-    SQLDeleteClause deleter();
+    AbstractSQLDeleteClause<?> deleter();
 
     /**
      * 更新实体中的非null属性到数据库。
@@ -76,12 +76,12 @@ public interface BasicDao<BEAN> {
     /**
      * 根据ID参数创建更新器。
      */
-    SQLUpdateClause updaterByKey(Object key);
+    AbstractSQLUpdateClause<?> updaterByKey(Object key);
 
     /**
      * 创建实体对象的更新器。
      */
-    SQLUpdateClause updater();
+    AbstractSQLUpdateClause<?> updater();
 
     /**
      * 将实体对象非null属性插入到数据库。
