@@ -385,24 +385,23 @@ public class QuerydslDemos {
         System.out.println(QueryUtils.queryPage(query, new Pager()));
 
         // 复杂UNION，定义别名并使结果列和别名一致
-        QBean<DemoUserDetail> qUserAddress = QueryUtils.fitBean(
-                DemoUserDetail.class, qDemoUser,
-                qDemoAddress.name.as("addressName"));
+        QDemoUser qDemoUserUnions = new QDemoUser("unions");
+        QDemoAddress qDemoAddressUnions = new QDemoAddress("unions");
 
         SQLQuery<DemoUserDetail> queryDetail = queryFactory.select(
                 QueryUtils.fitBean(DemoUserDetail.class,
-                        new QDemoUser("alias"),
-                        Expressions.stringPath("addressName"))
-        ).from(SQLExpressions.union(
-                SQLExpressions.select(qUserAddress).from(qDemoUser)
-                        .leftJoin(qDemoAddress)
-                        .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                        .where(qDemoUser.gender.eq(1)),
-                SQLExpressions.select(qUserAddress).from(qDemoUser)
-                        .leftJoin(qDemoAddress)
-                        .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                        .where(qDemoUser.gender.eq(2))
-        ).as("alias"));
+                        qDemoUserUnions,
+                        qDemoAddressUnions.name.as("addressName")))
+                .from(SQLExpressions.union(
+                        SQLExpressions.select(qDemoUser, qDemoAddress.name).from(qDemoUser)
+                                .leftJoin(qDemoAddress)
+                                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                                .where(qDemoUser.gender.eq(1)),
+                        SQLExpressions.select(qDemoUser, qDemoAddress.name).from(qDemoUser)
+                                .leftJoin(qDemoAddress)
+                                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
+                                .where(qDemoUser.gender.eq(2)))
+                        .as("unions"));
         System.out.println(QueryUtils.queryPage(queryDetail, new Pager()));
     }
 
