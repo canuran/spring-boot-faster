@@ -219,7 +219,7 @@ public class QueryUtils {
                 for (Expression path : paths) {
                     matchBindings(expressionMap, properties, path);
                 }
-            } else {
+            } else if (expression != null) {
                 // 匹配单个路径表达式是否用的上
                 matchBindings(expressionMap, properties, expression);
             }
