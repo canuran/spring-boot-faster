@@ -1,8 +1,8 @@
 package ewing.faster.common;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import ewing.common.AssertBusiness;
 import ewing.common.exception.BusinessException;
+import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
@@ -34,15 +34,15 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public Page<Dictionary> findWithSubDictionary(
             FindDictionaryParam findDictionaryParam) {
-        AssertBusiness.notNull(findDictionaryParam, "查询参数不能为空！");
+        Checks.notNull(findDictionaryParam, "查询参数不能为空！");
         return dictionaryDao.findWithSubDictionary(findDictionaryParam);
     }
 
     @Override
     public void addDictionary(Dictionary dictionary) {
-        AssertBusiness.notNull(dictionary, "字典项不能为空！");
-        AssertBusiness.hasText(dictionary.getName(), "字典名不能为空！");
-        AssertBusiness.hasText(dictionary.getValue(), "字典值不能为空！");
+        Checks.notNull(dictionary, "字典项不能为空！");
+        Checks.hasText(dictionary.getName(), "字典名不能为空！");
+        Checks.hasText(dictionary.getValue(), "字典值不能为空！");
 
         // 处理父字典和根字典的关系
         if (dictionary.getParentId() != null) {
@@ -62,7 +62,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                 qDictionary.parentId.isNull() :
                 qDictionary.parentId.eq(dictionary.getParentId());
 
-        AssertBusiness.isTrue(dictionaryDao.countWhere(parentIdEquals
+        Checks.isTrue(dictionaryDao.countWhere(parentIdEquals
                         .and(qDictionary.name.eq(dictionary.getName())
                                 .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
                 "相同位置下的字典名或值不能重复！");
@@ -86,10 +86,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void updateDictionary(Dictionary dictionary) {
-        AssertBusiness.notNull(dictionary, "字典项不能为空！");
-        AssertBusiness.notNull(dictionary.getDictionaryId(), "字典ID不能为空！");
-        AssertBusiness.hasText(dictionary.getName(), "字典名不能为空！");
-        AssertBusiness.hasText(dictionary.getValue(), "字典值不能为空！");
+        Checks.notNull(dictionary, "字典项不能为空！");
+        Checks.notNull(dictionary.getDictionaryId(), "字典ID不能为空！");
+        Checks.hasText(dictionary.getName(), "字典名不能为空！");
+        Checks.hasText(dictionary.getValue(), "字典值不能为空！");
 
         // 相同位置下的字典名称或值不能重复
         BooleanExpression parentIdEquals = qDictionary
@@ -98,7 +98,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                         qDictionary.parentId.isNull() :
                         qDictionary.parentId.eq(dictionary.getParentId()));
 
-        AssertBusiness.isTrue(dictionaryDao.countWhere(parentIdEquals
+        Checks.isTrue(dictionaryDao.countWhere(parentIdEquals
                         .and(qDictionary.name.eq(dictionary.getName())
                                 .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
                 "相同位置下的字典名或值不能重复！");
@@ -115,10 +115,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void deleteDictionary(BigInteger dictionaryId) {
-        AssertBusiness.notNull(dictionaryId, "字典ID不能为空！");
-        AssertBusiness.notNull(dictionaryDao.selectByKey(dictionaryId),
+        Checks.notNull(dictionaryId, "字典ID不能为空！");
+        Checks.notNull(dictionaryDao.selectByKey(dictionaryId),
                 "该字典不存在或已删除！");
-        AssertBusiness.isTrue(dictionaryDao.countWhere(
+        Checks.isTrue(dictionaryDao.countWhere(
                 qDictionary.parentId.eq(dictionaryId)) < 1,
                 "请先删除该字典的所有子项！");
 
@@ -127,7 +127,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public List<DictionaryNode> findDictionaryTrees(String[] rootValues) {
-        AssertBusiness.notNull(rootValues, "查询参数不能为空！");
+        Checks.notNull(rootValues, "查询参数不能为空！");
         List<DictionaryNode> dictionaries = dictionaryDao
                 .findRootSubDictionaries(rootValues);
         return TreeUtils.toTree(dictionaries,

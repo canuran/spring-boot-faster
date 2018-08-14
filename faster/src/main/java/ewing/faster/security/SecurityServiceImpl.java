@@ -1,6 +1,6 @@
 package ewing.faster.security;
 
-import ewing.common.AssertBusiness;
+import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.*;
@@ -10,8 +10,8 @@ import ewing.faster.dao.entity.RoleAuthority;
 import ewing.faster.security.vo.AuthorityNode;
 import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
-import ewing.query.paging.Page;
 import ewing.query.Where;
+import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public SecurityUser getSecurityUser(String username) {
-        AssertBusiness.hasText(username, "用户名不能为空！");
+        Checks.hasText(username, "用户名不能为空！");
         return userDao.selector(SecurityUser.class)
                 .where(qUser.username.eq(username)).fetchOne();
     }
@@ -60,16 +60,16 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void addAuthority(Authority authority) {
-        AssertBusiness.notNull(authority, "权限信息不能为空！");
-        AssertBusiness.hasText(authority.getName(), "权限名称不能为空！");
-        AssertBusiness.matchPattern(authority.getCode(), CODE_PATTERN,
+        Checks.notNull(authority, "权限信息不能为空！");
+        Checks.hasText(authority.getName(), "权限名称不能为空！");
+        Checks.matchPattern(authority.getCode(), CODE_PATTERN,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
+        Checks.hasText(authority.getType(), "权限类型不能为空！");
 
-        AssertBusiness.isTrue(authorityDao.countWhere(
+        Checks.isTrue(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AssertBusiness.isTrue(authorityDao.countWhere(
+        Checks.isTrue(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
 
@@ -85,18 +85,18 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void updateAuthority(Authority authority) {
-        AssertBusiness.notNull(authority, "权限信息不能为空！");
-        AssertBusiness.notNull(authority.getAuthorityId(), "权限ID不能为空！");
-        AssertBusiness.hasText(authority.getName(), "权限名称不能为空！");
-        AssertBusiness.matchPattern(authority.getCode(), CODE_PATTERN,
+        Checks.notNull(authority, "权限信息不能为空！");
+        Checks.notNull(authority.getAuthorityId(), "权限ID不能为空！");
+        Checks.hasText(authority.getName(), "权限名称不能为空！");
+        Checks.matchPattern(authority.getCode(), CODE_PATTERN,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        AssertBusiness.hasText(authority.getType(), "权限类型不能为空！");
+        Checks.hasText(authority.getType(), "权限类型不能为空！");
 
-        AssertBusiness.isTrue(authorityDao.countWhere(
+        Checks.isTrue(authorityDao.countWhere(
                 qAuthority.name.eq(authority.getName())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        AssertBusiness.isTrue(authorityDao.countWhere(
+        Checks.isTrue(authorityDao.countWhere(
                 qAuthority.code.eq(authority.getCode())
                         .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
@@ -111,12 +111,12 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void deleteAuthority(BigInteger authorityId) {
-        AssertBusiness.notNull(authorityId, "权限ID不能为空！");
+        Checks.notNull(authorityId, "权限ID不能为空！");
 
-        AssertBusiness.isTrue(authorityDao.countWhere(
+        Checks.isTrue(authorityDao.countWhere(
                 qAuthority.parentId.eq(authorityId)) < 1,
                 "请先删除所有子权限！");
-        AssertBusiness.isTrue(roleAuthorityDao.countWhere(
+        Checks.isTrue(roleAuthorityDao.countWhere(
                 qRoleAuthority.authorityId.eq(authorityId)) < 1,
                 "该权限有角色正在使用！");
 
@@ -135,7 +135,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
-        AssertBusiness.notNull(userId, "用户ID不能为空！");
+        Checks.notNull(userId, "用户ID不能为空！");
         return authorityDao.getUserAuthorities(userId);
     }
 
@@ -152,9 +152,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void addRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
-        AssertBusiness.notNull(roleWithAuthority, "角色对象不能为空。");
-        AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
-        AssertBusiness.isTrue(roleDao.countWhere(
+        Checks.notNull(roleWithAuthority, "角色对象不能为空。");
+        Checks.notNull(roleWithAuthority.getName(), "角色名不能为空。");
+        Checks.isTrue(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())) < 1,
                 "角色名已被使用。");
         // 使用自定义VO新增角色
@@ -168,11 +168,11 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void updateRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
-        AssertBusiness.notNull(roleWithAuthority, "角色对象不能为空。");
-        AssertBusiness.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
-        AssertBusiness.notNull(roleWithAuthority.getName(), "角色名不能为空。");
+        Checks.notNull(roleWithAuthority, "角色对象不能为空。");
+        Checks.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
+        Checks.notNull(roleWithAuthority.getName(), "角色名不能为空。");
         // 名称存在并且不是自己
-        AssertBusiness.isTrue(roleDao.countWhere(
+        Checks.isTrue(roleDao.countWhere(
                 qRole.name.eq(roleWithAuthority.getName())
                         .and(qRole.roleId.ne(roleWithAuthority.getRoleId()))) < 1,
                 "角色名已被使用。");
@@ -191,9 +191,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void deleteRole(BigInteger roleId) {
-        AssertBusiness.notNull(roleId, "角色ID不能为空。");
+        Checks.notNull(roleId, "角色ID不能为空。");
 
-        AssertBusiness.isTrue(userRoleDao.countWhere(
+        Checks.isTrue(userRoleDao.countWhere(
                 qUserRole.roleId.eq(roleId)) < 1,
                 "该角色有用户正在使用！");
 
@@ -211,7 +211,7 @@ public class SecurityServiceImpl implements SecurityService {
             List<RoleAuthority> roleAuthorities = new ArrayList<>(authorities.size());
             for (Authority authority : roleWithAuthority.getAuthorities()) {
                 RoleAuthority roleAuthority = new RoleAuthority();
-                AssertBusiness.notNull(authority.getAuthorityId(), "权限ID不能为空。");
+                Checks.notNull(authority.getAuthorityId(), "权限ID不能为空。");
                 roleAuthority.setAuthorityId(authority.getAuthorityId());
                 roleAuthority.setRoleId(roleWithAuthority.getRoleId());
                 roleAuthority.setCreateTime(new Date());
@@ -225,9 +225,9 @@ public class SecurityServiceImpl implements SecurityService {
     @Cacheable(cacheNames = "PermissionCache", key = "#userId.toString() + #action + #targetType + #targetId")
     public boolean userHasPermission(BigInteger userId, String action,
                                      String targetType, String targetId) {
-        AssertBusiness.notNull(userId, "用户ID不能为空！");
-        AssertBusiness.hasText(action, "权限操作不能为空！");
-        AssertBusiness.hasText(targetId, "资源ID不能为空！");
+        Checks.notNull(userId, "用户ID不能为空！");
+        Checks.hasText(action, "权限操作不能为空！");
+        Checks.hasText(targetId, "资源ID不能为空！");
         return permissionDao.selector()
                 .where(qPermission.userId.eq(userId))
                 .where(qPermission.action.eq(action))

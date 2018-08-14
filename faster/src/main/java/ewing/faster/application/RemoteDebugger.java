@@ -2,9 +2,9 @@ package ewing.faster.application;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import ewing.common.AssertBusiness;
 import ewing.common.ResultMessage;
 import ewing.common.exception.BusinessException;
+import ewing.common.exception.Checks;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,9 +47,9 @@ public class RemoteDebugger {
     @ApiOperation(value = "根据Bean名称或类全名调用方法", notes = "例如：userServiceImpl.findUserWithRole({limit:2})" +
             " 或：ewing.common.utils.TimeUtils.getDaysOfMonth(2018,5) 注意：无法区分重载且参数的Json相互兼容的方法")
     public ResultMessage methodExecute(@RequestBody String expression) {
-        AssertBusiness.hasText(expression, "表达式不能为空！");
+        Checks.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        AssertBusiness.isTrue(matcher.find(), "表达式格式不正确！");
+        Checks.isTrue(matcher.find(), "表达式格式不正确！");
 
         // 根据名称获取Bean
         String classOrBeanName = matcher.group(1);
@@ -60,7 +60,7 @@ public class RemoteDebugger {
         } catch (Exception e) {
             throw new BusinessException("初始化类失败！", e);
         }
-        AssertBusiness.notNull(clazz, "调用Class不能为空！");
+        Checks.notNull(clazz, "调用Class不能为空！");
 
         // 根据名称获取方法列表
         List<Method> mayMethods = getMethods(clazz, matcher.group(2));
@@ -92,12 +92,12 @@ public class RemoteDebugger {
             } catch (Exception e) {
                 continue;
             }
-            AssertBusiness.isNull(foundMethod, "方法调用重复：" + foundMethod + " 和 " + method);
+            Checks.isNull(foundMethod, "方法调用重复：" + foundMethod + " 和 " + method);
             foundMethod = method;
         }
 
         // 调用方法并返回
-        AssertBusiness.notNull(foundMethod, "未找到满足参数的方法！");
+        Checks.notNull(foundMethod, "未找到满足参数的方法！");
         try {
             foundMethod.setAccessible(true);
             if (Modifier.isStatic(foundMethod.getModifiers())) {
@@ -122,7 +122,7 @@ public class RemoteDebugger {
         List<Method> mayMethods = Stream.of(clazz.getDeclaredMethods())
                 .filter(m -> methodName.equals(m.getName()))
                 .collect(Collectors.toList());
-        AssertBusiness.notEmpty(mayMethods, "未找到方法：" + methodName);
+        Checks.notEmpty(mayMethods, "未找到方法：" + methodName);
         return mayMethods;
     }
 

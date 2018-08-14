@@ -1,6 +1,6 @@
-package ewing.common;
+package ewing.common.exception;
 
-import ewing.common.exception.BusinessException;
+import ewing.common.ResultMessage;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  *
  * @author Ewing
  */
-public class AssertBusiness {
+public class Checks {
 
     /**
      * 断定为是，否则抛出异常。

@@ -3,7 +3,7 @@ package ewing.faster.user;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
-import ewing.common.AssertBusiness;
+import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.When;
 import ewing.faster.dao.UserDao;
@@ -40,12 +40,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public BigInteger addUserWithRole(UserWithRole userWithRole) {
-        AssertBusiness.notNull(userWithRole, "用户不能为空！");
-        AssertBusiness.hasText(userWithRole.getUsername(), "用户名不能为空！");
-        AssertBusiness.hasText(userWithRole.getNickname(), "昵称不能为空！");
-        AssertBusiness.hasText(userWithRole.getPassword(), "密码不能为空！");
-        AssertBusiness.hasText(userWithRole.getGender(), "性别不能为空！");
-        AssertBusiness.isTrue(userDao.countWhere(
+        Checks.notNull(userWithRole, "用户不能为空！");
+        Checks.hasText(userWithRole.getUsername(), "用户名不能为空！");
+        Checks.hasText(userWithRole.getNickname(), "昵称不能为空！");
+        Checks.hasText(userWithRole.getPassword(), "密码不能为空！");
+        Checks.hasText(userWithRole.getGender(), "性别不能为空！");
+        Checks.isTrue(userDao.countWhere(
                 qUser.username.eq(userWithRole.getUsername())) < 1,
                 "用户名已被使用！");
 
@@ -74,15 +74,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(BigInteger userId) {
-        AssertBusiness.notNull(userId, "用户ID不能为空！");
+        Checks.notNull(userId, "用户ID不能为空！");
         return userDao.selectByKey(userId);
     }
 
     @Override
     @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
     public long updateUserWithRole(UserWithRole userWithRole) {
-        AssertBusiness.notNull(userWithRole, "用户不能为空！");
-        AssertBusiness.notNull(userWithRole.getUserId(), "用户ID不能为空！");
+        Checks.notNull(userWithRole, "用户不能为空！");
+        Checks.notNull(userWithRole.getUserId(), "用户ID不能为空！");
 
         // 更新用户的角色列表
         userRoleDao.deleter()
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
-        AssertBusiness.notNull(userId, "用户ID不能为空！");
+        Checks.notNull(userId, "用户ID不能为空！");
         return userDao.deleteByKey(userId);
     }
 
