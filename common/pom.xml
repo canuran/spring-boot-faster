@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.16.RELEASE</version>
+            <version>4.3.18.RELEASE</version>
         </dependency>
 
         <!--加解密工具类-->
@@ -61,14 +61,14 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>0.7.0</version>
+            <version>0.9.1</version>
         </dependency>
 
         <!--OkHttp客户端-->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>3.8.1</version>
+            <version>3.11.0</version>
         </dependency>
 
         <!--Protostuff序列化-->

@@ -65,12 +65,6 @@
 
         <dependency>
             <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-sql-codegen</artifactId>
-            <version>4.2.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.querydsl</groupId>
             <artifactId>querydsl-maven-plugin</artifactId>
             <version>4.2.1</version>
         </dependency>

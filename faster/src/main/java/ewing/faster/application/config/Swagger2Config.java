@@ -28,7 +28,7 @@ public class Swagger2Config {
     public Docket createRestApi() {
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("服务接口文档")
-                .version("release")
+                .version("Release")
                 .build();
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
