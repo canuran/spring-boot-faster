@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * 安全服务实现。
@@ -44,7 +43,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private PermissionDao permissionDao;
 
-    public static final Pattern CODE_PATTERN = Pattern.compile("[a-zA-Z]|([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])");
+    public static final String CODE_REGEXP = "[a-zA-Z]|([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])";
 
     @Override
     public SecurityUser getSecurityUser(String username) {
@@ -62,7 +61,7 @@ public class SecurityServiceImpl implements SecurityService {
     public void addAuthority(Authority authority) {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.hasText(authority.getName(), "权限名称不能为空！");
-        Checks.matchPattern(authority.getCode(), CODE_PATTERN,
+        Checks.matches(authority.getCode(), CODE_REGEXP,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         Checks.hasText(authority.getType(), "权限类型不能为空！");
 
@@ -88,7 +87,7 @@ public class SecurityServiceImpl implements SecurityService {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.notNull(authority.getAuthorityId(), "权限ID不能为空！");
         Checks.hasText(authority.getName(), "权限名称不能为空！");
-        Checks.matchPattern(authority.getCode(), CODE_PATTERN,
+        Checks.matches(authority.getCode(), CODE_REGEXP,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         Checks.hasText(authority.getType(), "权限类型不能为空！");
 

@@ -4,7 +4,9 @@ import ewing.common.ResultMessage;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -13,6 +15,11 @@ import java.util.regex.Pattern;
  * @author Ewing
  */
 public class Checks {
+
+    private static final Map<String, Pattern> patternCache = new ConcurrentHashMap<>();
+
+    private Checks() {
+    }
 
     /**
      * 断定为是，否则抛出异常。
@@ -143,8 +150,8 @@ public class Checks {
     /**
      * 断定匹配指定正则表达式，否则抛出异常。
      */
-    public static void matchPattern(String value, Pattern pattern, String elseMessage) {
-        if (value == null || !pattern.matcher(value).matches()) {
+    public static void matches(String value, String regexp, String elseMessage) {
+        if (value == null || !patternCache.computeIfAbsent(regexp, Pattern::compile).matcher(value).matches()) {
             throw new BusinessException(elseMessage);
         }
     }
@@ -152,8 +159,8 @@ public class Checks {
     /**
      * 断定匹配指定正则表达式，否则抛出异常。
      */
-    public static void matchPattern(String value, Pattern pattern, ResultMessage elseMessage) {
-        if (value == null || !pattern.matcher(value).matches()) {
+    public static void matches(String value, String regexp, ResultMessage elseMessage) {
+        if (value == null || !patternCache.computeIfAbsent(regexp, Pattern::compile).matcher(value).matches()) {
             throw new BusinessException(elseMessage);
         }
     }
@@ -198,7 +205,7 @@ public class Checks {
      * 断定集合不为空，否则抛出异常。
      */
     public static void notEmpty(Collection collection, String elseMessage) {
-        if (collection.isEmpty()) {
+        if (collection == null || collection.isEmpty()) {
             throw new BusinessException(elseMessage);
         }
     }
@@ -207,7 +214,7 @@ public class Checks {
      * 断定集合不为空，否则抛出异常。
      */
     public static void notEmpty(Collection collection, ResultMessage elseMessage) {
-        if (collection.isEmpty()) {
+        if (collection == null || collection.isEmpty()) {
             throw new BusinessException(elseMessage);
         }
     }
