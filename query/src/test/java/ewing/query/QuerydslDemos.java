@@ -320,7 +320,7 @@ public class QuerydslDemos {
                 Expressions.asNumber(1).count(),
                 SQLExpressions.sum(Expressions.constant(3)),
                 // 自定义结果列名
-                Expressions.stringPath("demo_user.username"),
+                Expressions.stringPath(qDemoUser.username.getMetadata()),
                 // 自定义表达式
                 Expressions.stringTemplate("group_concat({0})", qDemoUser.username),
                 qDemoUser.createTime.milliSecond().avg())
