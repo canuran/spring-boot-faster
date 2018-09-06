@@ -1,6 +1,5 @@
 package ewing.faster.common;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import ewing.common.exception.BusinessException;
 import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
@@ -57,14 +56,13 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
 
-        // 相同位置下的字典名称或值不能重复
-        BooleanExpression parentIdEquals = dictionary.getParentId() == null ?
-                qDictionary.parentId.isNull() :
-                qDictionary.parentId.eq(dictionary.getParentId());
-
-        Checks.isTrue(dictionaryDao.countWhere(parentIdEquals
-                        .and(qDictionary.name.eq(dictionary.getName())
-                                .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
+        Checks.isTrue(dictionaryDao.selector()
+                        .where(dictionary.getParentId() == null ?
+                                qDictionary.parentId.isNull() :
+                                qDictionary.parentId.eq(dictionary.getParentId()))
+                        .where(qDictionary.name.eq(dictionary.getName())
+                                .or(qDictionary.value.eq(dictionary.getValue())))
+                        .fetchCount() < 1,
                 "相同位置下的字典名或值不能重复！");
 
         // 详情不允许为空串
@@ -91,16 +89,14 @@ public class DictionaryServiceImpl implements DictionaryService {
         Checks.hasText(dictionary.getName(), "字典名不能为空！");
         Checks.hasText(dictionary.getValue(), "字典值不能为空！");
 
-        // 相同位置下的字典名称或值不能重复
-        BooleanExpression parentIdEquals = qDictionary
-                .dictionaryId.ne(dictionary.getDictionaryId())
-                .and(dictionary.getParentId() == null ?
-                        qDictionary.parentId.isNull() :
-                        qDictionary.parentId.eq(dictionary.getParentId()));
-
-        Checks.isTrue(dictionaryDao.countWhere(parentIdEquals
-                        .and(qDictionary.name.eq(dictionary.getName())
-                                .or(qDictionary.value.eq(dictionary.getValue())))) < 1,
+        Checks.isTrue(dictionaryDao.selector()
+                        .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
+                        .where(dictionary.getParentId() == null ?
+                                qDictionary.parentId.isNull() :
+                                qDictionary.parentId.eq(dictionary.getParentId()))
+                        .where(qDictionary.name.eq(dictionary.getName())
+                                .or(qDictionary.value.eq(dictionary.getValue())))
+                        .fetchCount() < 1,
                 "相同位置下的字典名或值不能重复！");
 
         // 不能修改父字典和根字典
@@ -118,8 +114,9 @@ public class DictionaryServiceImpl implements DictionaryService {
         Checks.notNull(dictionaryId, "字典ID不能为空！");
         Checks.notNull(dictionaryDao.selectByKey(dictionaryId),
                 "该字典不存在或已删除！");
-        Checks.isTrue(dictionaryDao.countWhere(
-                qDictionary.parentId.eq(dictionaryId)) < 1,
+        Checks.isTrue(dictionaryDao.selector()
+                        .where(qDictionary.parentId.eq(dictionaryId))
+                        .fetchCount() < 1,
                 "请先删除该字典的所有子项！");
 
         dictionaryDao.deleteByKey(dictionaryId);

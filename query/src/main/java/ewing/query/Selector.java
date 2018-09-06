@@ -1,5 +1,6 @@
 package ewing.query;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -24,16 +25,6 @@ public class Selector<BEAN> {
         this.query = queryFactory.selectFrom(pathBase);
     }
 
-    Selector(AbstractSQLQueryFactory<?> queryFactory, RelationalPathBase<?> pathBase, Class<BEAN> beanClass) {
-        this.pathBase = pathBase;
-        this.query = queryFactory.select(QueryUtils.fitBean(beanClass, pathBase)).from(pathBase);
-    }
-
-    Selector(AbstractSQLQueryFactory<?> queryFactory, RelationalPathBase<?> pathBase, Expression<BEAN> expression) {
-        this.pathBase = pathBase;
-        this.query = queryFactory.select(expression).from(pathBase);
-    }
-
     /**
      * 查询想要的结果。
      */
@@ -50,6 +41,15 @@ public class Selector<BEAN> {
     public <TYPE> Selector<TYPE> select(Expression<TYPE> expression) {
         query.select(expression);
         return (Selector<TYPE>) this;
+    }
+
+    /**
+     * 查询想要的结果。
+     */
+    @SuppressWarnings("unchecked")
+    public Selector<Tuple> select(Expression... expressions) {
+        query.select(expressions);
+        return (Selector<Tuple>) this;
     }
 
     /**

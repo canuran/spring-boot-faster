@@ -1,7 +1,7 @@
 package ewing.query;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.dml.AbstractSQLDeleteClause;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 
@@ -12,6 +12,11 @@ import java.util.List;
  * 根据泛型操作实体的接口。
  */
 public interface BasicDao<BEAN> {
+
+    /**
+     * 根据ID查询实体对象。
+     */
+    BEAN selectByKey(Object key);
 
     /**
      * 简单的实体Bean查询器。
@@ -29,24 +34,9 @@ public interface BasicDao<BEAN> {
     <TYPE> Selector<TYPE> selector(Expression<TYPE> expression);
 
     /**
-     * 根据所需查询实体属性。
+     * 根据所需查询属性元组。
      */
-    Selector<BEAN> selector(Expression<?>... expressions);
-
-    /**
-     * 根据条件表达式查询实体。
-     */
-    List<BEAN> selectWhere(Predicate predicate);
-
-    /**
-     * 根据ID查询实体对象。
-     */
-    BEAN selectByKey(Object key);
-
-    /**
-     * 根据条件表达式查询总数。
-     */
-    long countWhere(Predicate predicate);
+    Selector<Tuple> selector(Expression<?>... expressions);
 
     /**
      * 根据ID从数据库删除实体。
@@ -57,6 +47,11 @@ public interface BasicDao<BEAN> {
      * 根据实体中的ID属性删除实体。
      */
     long deleteBean(Object bean);
+
+    /**
+     * 批量根据实体中的ID属性删除实体。
+     */
+    long deleteBeans(Collection<?> beans);
 
     /**
      * 创建实体对象的删除器。

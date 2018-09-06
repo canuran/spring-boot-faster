@@ -45,8 +45,9 @@ public class UserServiceImpl implements UserService {
         Checks.hasText(userWithRole.getNickname(), "昵称不能为空！");
         Checks.hasText(userWithRole.getPassword(), "密码不能为空！");
         Checks.hasText(userWithRole.getGender(), "性别不能为空！");
-        Checks.isTrue(userDao.countWhere(
-                qUser.username.eq(userWithRole.getUsername())) < 1,
+        Checks.isTrue(userDao.selector()
+                        .where(qUser.username.eq(userWithRole.getUsername()))
+                        .fetchCount() < 1,
                 "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());

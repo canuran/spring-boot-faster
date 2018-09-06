@@ -1,10 +1,9 @@
 package ewing.query;
 
 import com.mysema.commons.lang.Assert;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.Projections;
 import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.dml.AbstractSQLDeleteClause;
@@ -54,27 +53,6 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public Selector<BEAN> selector() {
-        return new Selector<>(getQueryFactory(), pathBase);
-    }
-
-    @Override
-    public <TYPE> Selector<TYPE> selector(Class<TYPE> beanClass) {
-        return new Selector<>(getQueryFactory(), pathBase, beanClass);
-    }
-
-    @Override
-    public <TYPE> Selector<TYPE> selector(Expression<TYPE> expression) {
-        return new Selector<>(getQueryFactory(), pathBase, expression);
-    }
-
-    @Override
-    public Selector<BEAN> selector(Expression<?>... expressions) {
-        return new Selector<>(getQueryFactory(), pathBase,
-                Projections.bean(pathBase.getType(), expressions));
-    }
-
-    @Override
     public BEAN selectByKey(Object key) {
         return getQueryFactory().selectFrom(pathBase)
                 .where(QueryUtils.baseKeyEquals(pathBase, key))
@@ -82,17 +60,23 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public List<BEAN> selectWhere(Predicate predicate) {
-        return getQueryFactory().selectFrom(pathBase)
-                .where(predicate)
-                .fetch();
+    public Selector<BEAN> selector() {
+        return new Selector<>(getQueryFactory(), pathBase);
     }
 
     @Override
-    public long countWhere(Predicate predicate) {
-        return getQueryFactory().selectFrom(pathBase)
-                .where(predicate)
-                .fetchCount();
+    public <TYPE> Selector<TYPE> selector(Class<TYPE> beanClass) {
+        return new Selector<>(getQueryFactory(), pathBase).select(beanClass);
+    }
+
+    @Override
+    public <TYPE> Selector<TYPE> selector(Expression<TYPE> expression) {
+        return new Selector<>(getQueryFactory(), pathBase).select(expression);
+    }
+
+    @Override
+    public Selector<Tuple> selector(Expression<?>... expressions) {
+        return new Selector<>(getQueryFactory(), pathBase).select(expressions);
     }
 
     @Override
@@ -108,6 +92,17 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
         return getQueryFactory().delete(pathBase)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
                 .execute();
+    }
+
+    @Override
+    public long deleteBeans(Collection<?> beans) {
+        List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
+        AbstractSQLDeleteClause<?> delete = getQueryFactory().delete(pathBase);
+        for (Object bean : beans) {
+            delete.where(QueryUtils.beanKeyEquals(keyPaths, bean))
+                    .addBatch();
+        }
+        return delete.getBatchCount() > 0 ? delete.execute() : 0L;
     }
 
     @Override

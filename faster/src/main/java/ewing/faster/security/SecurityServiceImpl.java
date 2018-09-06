@@ -54,7 +54,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Authority> getAllAuthority() {
-        return authorityDao.selectWhere(null);
+        return authorityDao.selector().fetch();
     }
 
     @Override
@@ -65,11 +65,13 @@ public class SecurityServiceImpl implements SecurityService {
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         Checks.hasText(authority.getType(), "权限类型不能为空！");
 
-        Checks.isTrue(authorityDao.countWhere(
-                qAuthority.name.eq(authority.getName())) < 1,
+        Checks.isTrue(authorityDao.selector()
+                        .where(qAuthority.name.eq(authority.getName()))
+                        .fetchCount() < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        Checks.isTrue(authorityDao.countWhere(
-                qAuthority.code.eq(authority.getCode())) < 1,
+        Checks.isTrue(authorityDao.selector()
+                        .where(qAuthority.code.eq(authority.getCode()))
+                        .fetchCount() < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
 
         // 内容不允许为空串
@@ -91,13 +93,15 @@ public class SecurityServiceImpl implements SecurityService {
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         Checks.hasText(authority.getType(), "权限类型不能为空！");
 
-        Checks.isTrue(authorityDao.countWhere(
-                qAuthority.name.eq(authority.getName())
-                        .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
+        Checks.isTrue(authorityDao.selector()
+                        .where(qAuthority.name.eq(authority.getName()))
+                        .where(qAuthority.authorityId.ne(authority.getAuthorityId()))
+                        .fetchCount() < 1,
                 "权限名称 " + authority.getName() + " 已存在！");
-        Checks.isTrue(authorityDao.countWhere(
-                qAuthority.code.eq(authority.getCode())
-                        .and(qAuthority.authorityId.ne(authority.getAuthorityId()))) < 1,
+        Checks.isTrue(authorityDao.selector()
+                        .where(qAuthority.code.eq(authority.getCode()))
+                        .where(qAuthority.authorityId.ne(authority.getAuthorityId()))
+                        .fetchCount() < 1,
                 "权限编码 " + authority.getCode() + " 已存在！");
 
         // 内容不允许为空串
@@ -112,11 +116,13 @@ public class SecurityServiceImpl implements SecurityService {
     public void deleteAuthority(BigInteger authorityId) {
         Checks.notNull(authorityId, "权限ID不能为空！");
 
-        Checks.isTrue(authorityDao.countWhere(
-                qAuthority.parentId.eq(authorityId)) < 1,
+        Checks.isTrue(authorityDao.selector()
+                        .where(qAuthority.parentId.eq(authorityId))
+                        .fetchCount() < 1,
                 "请先删除所有子权限！");
-        Checks.isTrue(roleAuthorityDao.countWhere(
-                qRoleAuthority.authorityId.eq(authorityId)) < 1,
+        Checks.isTrue(roleAuthorityDao.selector()
+                        .where(qRoleAuthority.authorityId.eq(authorityId))
+                        .fetchCount() < 1,
                 "该权限有角色正在使用！");
 
         authorityDao.deleteByKey(authorityId);
@@ -140,7 +146,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Role> getAllRoles() {
-        return roleDao.selectWhere(null);
+        return roleDao.selector().fetch();
     }
 
     @Override
@@ -153,8 +159,9 @@ public class SecurityServiceImpl implements SecurityService {
     public void addRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
         Checks.notNull(roleWithAuthority, "角色对象不能为空。");
         Checks.notNull(roleWithAuthority.getName(), "角色名不能为空。");
-        Checks.isTrue(roleDao.countWhere(
-                qRole.name.eq(roleWithAuthority.getName())) < 1,
+        Checks.isTrue(roleDao.selector()
+                        .where(qRole.name.eq(roleWithAuthority.getName()))
+                        .fetchCount() < 1,
                 "角色名已被使用。");
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
@@ -171,9 +178,10 @@ public class SecurityServiceImpl implements SecurityService {
         Checks.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
         Checks.notNull(roleWithAuthority.getName(), "角色名不能为空。");
         // 名称存在并且不是自己
-        Checks.isTrue(roleDao.countWhere(
-                qRole.name.eq(roleWithAuthority.getName())
-                        .and(qRole.roleId.ne(roleWithAuthority.getRoleId()))) < 1,
+        Checks.isTrue(roleDao.selector()
+                        .where(qRole.name.eq(roleWithAuthority.getName()))
+                        .where(qRole.roleId.ne(roleWithAuthority.getRoleId()))
+                        .fetchCount() < 1,
                 "角色名已被使用。");
 
         // 使用自定义VO更新角色
@@ -192,8 +200,9 @@ public class SecurityServiceImpl implements SecurityService {
     public void deleteRole(BigInteger roleId) {
         Checks.notNull(roleId, "角色ID不能为空。");
 
-        Checks.isTrue(userRoleDao.countWhere(
-                qUserRole.roleId.eq(roleId)) < 1,
+        Checks.isTrue(userRoleDao.selector()
+                        .where(qUserRole.roleId.eq(roleId))
+                        .fetchCount() < 1,
                 "该角色有用户正在使用！");
 
         // 清空角色权限关系
