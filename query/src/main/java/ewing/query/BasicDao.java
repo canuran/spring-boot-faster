@@ -56,7 +56,7 @@ public interface BasicDao<BEAN> {
     /**
      * 根据实体中的ID属性删除实体。
      */
-    long deleteBean(BEAN bean);
+    long deleteBean(Object bean);
 
     /**
      * 创建实体对象的删除器。
@@ -66,12 +66,12 @@ public interface BasicDao<BEAN> {
     /**
      * 更新实体中的非null属性到数据库。
      */
-    long updateBean(BEAN bean);
+    long updateBean(Object bean);
 
     /**
      * 批量更新实体中的非null属性到数据库。
      */
-    long updateBeans(Collection<BEAN> beans);
+    long updateBeans(Collection<?> beans);
 
     /**
      * 根据ID参数创建更新器。
@@ -86,21 +86,21 @@ public interface BasicDao<BEAN> {
     /**
      * 将实体对象非null属性插入到数据库。
      */
-    long insertBean(BEAN bean);
+    long insertBean(Object bean);
 
     /**
      * 批量将实体对象非null属性插入到数据库。
      */
-    long insertBeans(Collection<BEAN> beans);
+    long insertBeans(Collection<?> beans);
 
     /**
      * 将实体对象属性插入并返回ID值且设置ID到实体中。
      */
-    <KEY> KEY insertWithKey(BEAN bean);
+    <KEY> KEY insertWithKey(Object bean);
 
     /**
      * 批量将实体对象属性插入并返回ID值且设置ID到实体中。
      */
-    <KEY> List<KEY> insertWithKeys(Collection<BEAN> beans);
+    <KEY> List<KEY> insertWithKeys(Collection<?> beans);
 
 }

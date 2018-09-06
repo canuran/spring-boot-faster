@@ -103,7 +103,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long deleteBean(BEAN bean) {
+    public long deleteBean(Object bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return getQueryFactory().delete(pathBase)
                 .where(QueryUtils.beanKeyEquals(keyPaths, bean))
@@ -116,7 +116,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long updateBean(BEAN bean) {
+    public long updateBean(Object bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         return getQueryFactory().update(pathBase)
                 .populate(bean)
@@ -125,7 +125,7 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long updateBeans(Collection<BEAN> beans) {
+    public long updateBeans(Collection<?> beans) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths(pathBase);
         AbstractSQLUpdateClause<?> update = getQueryFactory().update(pathBase);
         for (Object bean : beans) {
@@ -148,23 +148,23 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public long insertBean(BEAN bean) {
+    public long insertBean(Object bean) {
         return getQueryFactory().insert(pathBase)
                 .populate(bean)
                 .execute();
     }
 
     @Override
-    public long insertBeans(Collection<BEAN> beans) {
+    public long insertBeans(Collection<?> beans) {
         AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase);
-        for (BEAN bean : beans) {
+        for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }
         return insert.isEmpty() ? 0L : insert.execute();
     }
 
     @Override
-    public <KEY> KEY insertWithKey(BEAN bean) {
+    public <KEY> KEY insertWithKey(Object bean) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         KEY value = getQueryFactory().insert(pathBase)
                 .populate(bean)
@@ -174,13 +174,13 @@ public abstract class BasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> impl
     }
 
     @Override
-    public <KEY> List<KEY> insertWithKeys(Collection<BEAN> beans) {
+    public <KEY> List<KEY> insertWithKeys(Collection<?> beans) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         if (beans.isEmpty()) {
             return Collections.emptyList();
         }
         AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase);
-        for (BEAN bean : beans) {
+        for (Object bean : beans) {
             insert.populate(bean).addBatch();
         }
         List<KEY> values = insert.executeWithKeys(keyPath);

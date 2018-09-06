@@ -11,6 +11,7 @@ public class Pager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final Pager COUNT_ONLY = new Pager(0, 0);
+    public static final Pager LIST_ONLY = new Pager(0, Integer.MAX_VALUE, false);
 
     private int offset;
     private int limit;

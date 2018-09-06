@@ -18,14 +18,14 @@ import java.util.*;
 public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN> extends BasisDao<BASE, BEAN> implements MysqlBasicDao<BEAN> {
 
     @Override
-    public long insertDuplicateUpdate(BEAN bean, Path<?>... updates) {
+    public long insertDuplicateUpdate(Object bean, Path<?>... updates) {
         return getInsertDuplicateUpdateClause(bean, updates).execute();
     }
 
     @Override
-    public long insertDuplicateUpdates(Collection<BEAN> beans, Path<?>... updates) {
+    public long insertDuplicateUpdates(Collection<?> beans, Path<?>... updates) {
         Map<List<Path<?>>, AbstractSQLInsertClause<?>> updatePathsInsertMap = new HashMap<>();
-        for (BEAN bean : beans) {
+        for (Object bean : beans) {
             Map<Path<?>, Object> values = DefaultMapper.DEFAULT.createMap(pathBase, bean);
             List<Path<?>> updatePaths = new ArrayList<>();
             for (Path<?> path : values.keySet()) {
@@ -58,7 +58,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
     }
 
     @Override
-    public <KEY> KEY insertDuplicateUpdateWithKey(BEAN bean, Path<?>... updates) {
+    public <KEY> KEY insertDuplicateUpdateWithKey(Object bean, Path<?>... updates) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey(pathBase);
         AbstractSQLInsertClause<?> insert = getInsertDuplicateUpdateClause(bean, updates);
         KEY value = insert.executeWithKey(keyPath);
@@ -66,7 +66,7 @@ public abstract class MysqlBasisDao<BASE extends RelationalPathBase<BEAN>, BEAN>
         return value;
     }
 
-    private AbstractSQLInsertClause<?> getInsertDuplicateUpdateClause(BEAN bean, Path<?>[] updates) {
+    private AbstractSQLInsertClause<?> getInsertDuplicateUpdateClause(Object bean, Path<?>[] updates) {
         AbstractSQLInsertClause<?> insert = getQueryFactory().insert(pathBase)
                 .addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
         String template = "";

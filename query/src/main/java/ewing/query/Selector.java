@@ -35,6 +35,24 @@ public class Selector<BEAN> {
     }
 
     /**
+     * 查询想要的结果。
+     */
+    @SuppressWarnings("unchecked")
+    public <TYPE> Selector<TYPE> select(Class<TYPE> beanClass) {
+        query.select(QueryUtils.fitBean(beanClass, pathBase));
+        return (Selector<TYPE>) this;
+    }
+
+    /**
+     * 查询想要的结果。
+     */
+    @SuppressWarnings("unchecked")
+    public <TYPE> Selector<TYPE> select(Expression<TYPE> expression) {
+        query.select(expression);
+        return (Selector<TYPE>) this;
+    }
+
+    /**
      * 查询结果去重。
      */
     public Selector<BEAN> distinct() {

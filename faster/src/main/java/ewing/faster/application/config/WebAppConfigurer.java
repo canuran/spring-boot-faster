@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -41,7 +41,7 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
     @PostConstruct
     public void registerJsonModule() {
         SimpleModule simpleModule = new SimpleModule();
-        // 大数字用字符串表示，避免返回科学计数法
+        // 大数字用字符串代替科学计数法
         simpleModule.addSerializer(BigDecimal.class, new JsonSerializer<BigDecimal>() {
             @Override
             public void serialize(BigDecimal decimal, JsonGenerator jsonGenerator,
@@ -53,7 +53,7 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                 }
             }
         });
-        // 大数字用字符串表示，避免返回科学计数法
+        // 大数字用字符串代替科学计数法
         simpleModule.addSerializer(BigInteger.class, new JsonSerializer<BigInteger>() {
             @Override
             public void serialize(BigInteger bigInteger, JsonGenerator jsonGenerator,
@@ -62,6 +62,18 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                     jsonGenerator.writeNull();
                 } else {
                     jsonGenerator.writeString(bigInteger.toString());
+                }
+            }
+        });
+        // 支持序列化多种格式的Date
+        simpleModule.addSerializer(Date.class, new JsonSerializer<Date>() {
+            @Override
+            public void serialize(Date date, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (date == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(StringDateParser.dateToString(date));
                 }
             }
         });
@@ -91,40 +103,33 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
         super.addViewControllers(registry);
     }
 
-    /**
-     * 字符串转换成日期。
-     */
-    @Component
-    public static class StringToDate implements Converter<String, Date> {
-        @Override
-        public Date convert(String source) {
-            return StringDateParser.stringToDate(source);
-        }
-    }
-
-    /**
-     * 字符串转换成Timestamp。
-     */
-    @Component
-    public static class StringToTimestamp implements Converter<String, Timestamp> {
-        @Override
-        public Timestamp convert(String source) {
-            return StringDateParser.stringToTimestamp(source);
-        }
-    }
-
-    /**
-     * 日期转换成字符串。
-     */
-    @Component
-    public static class DateToString implements Converter<Date, String> {
-        @Override
-        public String convert(Date source) {
-            if (source == null) {
-                return null;
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new Converter<String, Date>() {
+            @Override
+            public Date convert(String source) {
+                return StringDateParser.stringToDate(source);
             }
-            return StringDateParser.dateToString(source);
-        }
+        });
+        registry.addConverter(new Converter<String, java.sql.Date>() {
+            @Override
+            public java.sql.Date convert(String source) {
+                return StringDateParser.stringToSqlDate(source);
+            }
+        });
+        registry.addConverter(new Converter<String, Timestamp>() {
+            @Override
+            public Timestamp convert(String source) {
+                return StringDateParser.stringToTimestamp(source);
+            }
+        });
+        registry.addConverter(new Converter<Date, String>() {
+            @Override
+            public String convert(Date source) {
+                return StringDateParser.dateToString(source);
+            }
+        });
+        super.addFormatters(registry);
     }
 
 }
