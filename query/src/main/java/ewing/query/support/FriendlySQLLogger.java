@@ -1,4 +1,4 @@
-package ewing.query.listener;
+package ewing.query.support;
 
 import com.querydsl.sql.SQLBaseListener;
 import com.querydsl.sql.SQLBindings;
@@ -20,11 +20,11 @@ import java.util.Iterator;
  * @author Ewing
  * @since 2018年06月18日
  */
-public class SQLLogger extends SQLBaseListener {
+public class FriendlySQLLogger extends SQLBaseListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQLLogger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FriendlySQLLogger.class);
 
-    public SQLLogger() {
+    public FriendlySQLLogger() {
     }
 
     @Override

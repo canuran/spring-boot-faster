@@ -248,7 +248,7 @@ public class QuerydslDemos {
                         .and(qDemoUser.gender.eq(0))
                 ));
 
-        // 查看SQL和参数，另见 SQLLogger 类
+        // 查看SQL和参数，另见 FriendlySQLLogger 类
         SQLBindings sqlBindings = query.getSQL();
         System.out.println(sqlBindings.getSQL());
         System.out.println(sqlBindings.getNullFriendlyBindings());

@@ -30,7 +30,6 @@ import java.util.List;
  * 用户服务实现。
  **/
 @Service
-@Transactional(rollbackFor = Throwable.class)
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -39,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private UserRoleDao userRoleDao;
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public BigInteger addUserWithRole(UserWithRole userWithRole) {
         Checks.notNull(userWithRole, "用户不能为空！");
         Checks.hasText(userWithRole.getUsername(), "用户名不能为空！");
@@ -80,6 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
     public long updateUserWithRole(UserWithRole userWithRole) {
         Checks.notNull(userWithRole, "用户不能为空！");
@@ -116,6 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
         Checks.notNull(userId, "用户ID不能为空！");

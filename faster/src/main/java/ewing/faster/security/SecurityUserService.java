@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,7 +13,6 @@ import java.util.List;
  *
  * @author Ewing
  */
-@Transactional(rollbackFor = Throwable.class)
 public class SecurityUserService implements UserDetailsService {
 
     @Autowired

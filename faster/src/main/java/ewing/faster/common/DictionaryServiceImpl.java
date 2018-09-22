@@ -24,7 +24,6 @@ import java.util.List;
  * 字典有父字典ID和根字典ID，根字典ID用来取所有同类字典值，可以避免递归查询。
  **/
 @Service
-@Transactional(rollbackFor = Throwable.class)
 public class DictionaryServiceImpl implements DictionaryService {
 
     @Autowired
@@ -38,6 +37,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void addDictionary(Dictionary dictionary) {
         Checks.notNull(dictionary, "字典项不能为空！");
         Checks.hasText(dictionary.getName(), "字典名不能为空！");
@@ -83,6 +83,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void updateDictionary(Dictionary dictionary) {
         Checks.notNull(dictionary, "字典项不能为空！");
         Checks.notNull(dictionary.getDictionaryId(), "字典ID不能为空！");
@@ -110,6 +111,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void deleteDictionary(BigInteger dictionaryId) {
         Checks.notNull(dictionaryId, "字典ID不能为空！");
         Checks.notNull(dictionaryDao.selectByKey(dictionaryId),

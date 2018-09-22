@@ -27,7 +27,6 @@ import java.util.List;
  * 安全服务实现。
  **/
 @Service
-@Transactional(rollbackFor = Throwable.class)
 public class SecurityServiceImpl implements SecurityService {
 
     @Autowired
@@ -58,6 +57,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void addAuthority(Authority authority) {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.hasText(authority.getName(), "权限名称不能为空！");
@@ -85,6 +85,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void updateAuthority(Authority authority) {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.notNull(authority.getAuthorityId(), "权限ID不能为空！");
@@ -113,6 +114,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void deleteAuthority(BigInteger authorityId) {
         Checks.notNull(authorityId, "权限ID不能为空！");
 
@@ -156,6 +158,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void addRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
         Checks.notNull(roleWithAuthority, "角色对象不能为空。");
         Checks.notNull(roleWithAuthority.getName(), "角色名不能为空。");
@@ -173,6 +176,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void updateRoleWithAuthority(RoleWithAuthority roleWithAuthority) {
         Checks.notNull(roleWithAuthority, "角色对象不能为空。");
         Checks.notNull(roleWithAuthority.getRoleId(), "角色ID不能为空。");
@@ -197,6 +201,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void deleteRole(BigInteger roleId) {
         Checks.notNull(roleId, "角色ID不能为空。");
 
