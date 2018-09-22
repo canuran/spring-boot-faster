@@ -35,8 +35,7 @@ public class QueryDaoConfig {
         SQLTemplates templates = H2Templates.builder().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
-        SafeConnectionProvider safeConnectionProvider = new SafeConnectionProvider(dataSource);
-        configuration.addListener(safeConnectionProvider);
+        SafeConnectionProvider safeConnectionProvider = new SafeConnectionProvider(dataSource, configuration);
         configuration.addListener(new FriendlySQLLogger());
         return new SQLQueryFactory(configuration, safeConnectionProvider);
     }
