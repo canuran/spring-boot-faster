@@ -13,8 +13,6 @@ import java.sql.SQLException;
 
 /**
  * 安全连接提供者及监听器，主动释放没有被Spring事务管理的连接。
- * <p>
- * 禁止不带条件删除或更新数据，请使用 Expressions.TRUE 实现删除或更新所有数据。
  *
  * @author caiyouyuan
  * @since 2018年06月18日
