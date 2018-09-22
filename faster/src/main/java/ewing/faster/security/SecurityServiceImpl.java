@@ -57,7 +57,6 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
     public void addAuthority(Authority authority) {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.hasText(authority.getName(), "权限名称不能为空！");
@@ -85,7 +84,6 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
     public void updateAuthority(Authority authority) {
         Checks.notNull(authority, "权限信息不能为空！");
         Checks.notNull(authority.getAuthorityId(), "权限ID不能为空！");
@@ -114,7 +112,6 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
     public void deleteAuthority(BigInteger authorityId) {
         Checks.notNull(authorityId, "权限ID不能为空！");
 

@@ -121,6 +121,9 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
         Checks.notNull(userId, "用户ID不能为空！");
+        userRoleDao.deleter()
+                .where(qUserRole.userId.eq(userId))
+                .execute();
         return userDao.deleteByKey(userId);
     }
 
