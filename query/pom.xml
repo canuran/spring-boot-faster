@@ -71,6 +71,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Spring 数据库支持 -->
