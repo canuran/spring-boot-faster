@@ -32,11 +32,6 @@ public class ConnectionProvider extends SQLBaseListener implements Provider<Conn
     }
 
     @Override
-    public void exception(SQLListenerContext context) {
-        end(context);
-    }
-
-    @Override
     public void end(SQLListenerContext context) {
         Connection connection = context.getConnection();
         // 主动释放没有被Spring事务管理的连接
