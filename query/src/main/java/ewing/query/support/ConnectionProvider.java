@@ -40,7 +40,7 @@ public class ConnectionProvider extends SQLBaseListener implements Provider<Conn
     public void end(SQLListenerContext context) {
         Connection connection = context.getConnection();
         // 主动释放没有被Spring事务管理的连接
-        if (!DataSourceUtils.isConnectionTransactional(connection, this.dataSource)) {
+        if (connection != null && !DataSourceUtils.isConnectionTransactional(connection, this.dataSource)) {
             try {
                 DataSourceUtils.doCloseConnection(connection, this.dataSource);
             } catch (SQLException e) {
