@@ -1,5 +1,7 @@
 package ewing.common.utils;
 
+import org.springframework.util.Assert;
+
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,62 +16,211 @@ import java.util.GregorianCalendar;
  */
 public class TimeUtils {
 
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+
     /**
-     * 把日期字符串格式化成日期类型。
+     * 把日期类型格式化成字符串。
      */
-    public static Date parseDate(String dateStr, String format) {
-        SimpleDateFormat simple = new SimpleDateFormat(format);
-        try {
-            return simple.parse(dateStr);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public static String format(Date date, String format) {
+        if (date == null) {
+            return null;
         }
+        return new SimpleDateFormat(format).format(date);
     }
 
     /**
      * 把日期类型格式化成字符串。
      */
-    public static String formatDate(Date date, String format) {
-        return new SimpleDateFormat(format).format(date);
+    public static String formatDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new SimpleDateFormat(DATE_FORMAT).format(date);
+    }
+
+    /**
+     * 把日期类型格式化成字符串。
+     */
+    public static String formatDateTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
+    }
+
+    /**
+     * 把日期类型格式化成字符串。
+     */
+    public static String formatTimestamp(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new SimpleDateFormat(TIMESTAMP_FORMAT).format(date);
     }
 
     /**
      * 转sql的time格式。
      */
     public static Timestamp toTimestamp(Date date) {
+        if (date == null) {
+            return null;
+        }
         return new Timestamp(date.getTime());
     }
 
     /**
-     * 转sql的日期格式。
+     * 获取当前Timestamp。
      */
-    public static Date toSqlDate(Date date) {
-        return new Date(date.getTime());
+    public static Timestamp nowTimestamp() {
+        return new Timestamp(System.currentTimeMillis());
     }
 
     /**
-     * 获取当前日期。
+     * 获取当前Timestamp。
      */
-    public static String currentDate(String format) {
-        return new SimpleDateFormat(format).format(new Date());
+    public static java.sql.Date nowSqlDate() {
+        return new java.sql.Date(System.currentTimeMillis());
     }
 
     /**
-     * 获取月份的天数。
+     * 获取今天开始的 Timestamp。
      */
-    public static int getDaysOfMonth(int year, int month) {
+    public static Timestamp todayStart() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, 1);
-        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        setDayStart(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
     }
 
     /**
-     * 获取日期的年。
+     * 获取今天结束的 Timestamp。
      */
-    public static int getYear(Date date) {
+    public static Timestamp todayEnd() {
+        Calendar calendar = Calendar.getInstance();
+        setDayEnd(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置23:59:59.999。
+     */
+    private static void setDayEnd(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+    }
+
+    /**
+     * 设置00:00:00.0。
+     */
+    private static void setDayStart(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+    }
+
+    /**
+     * 设置23:59:59.999。
+     */
+    public static Timestamp getDayEnd(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
+        setDayEnd(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置00:00:00.000。
+     */
+    public static Timestamp getDayStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        setDayStart(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置昨天的00:00:00.0。
+     */
+    public static Timestamp yesterdayStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        setDayStart(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置昨天的23:59:59.999。
+     */
+    public static Timestamp yesterdayEnd() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        setDayEnd(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置上月开始的00:00:00.0。
+     */
+    public static Timestamp lastMonthStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        setDayStart(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置上月结束的23:59:59.999。
+     */
+    public static Timestamp lastMonthEnd() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+        setDayEnd(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置本月开始的00:00:00.0。
+     */
+    public static Timestamp thisMonthStart() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        setDayStart(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 设置本月开始的23:59:59.999。
+     */
+    public static Timestamp thisMonthEnd() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        setDayEnd(calendar);
+        return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 是否是同一天。
+     */
+    public static boolean isOneDay(Date startDate, Date endDate) {
+        Assert.notNull(startDate, "开始日期不能为空");
+        Assert.notNull(endDate, "结束日期不能为空");
+        return getDayStart(startDate).equals(getDayStart(endDate));
+    }
+
+    /**
+     * 获取日期的日。
+     */
+    public static int getDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.DATE);
     }
 
     /**
@@ -82,12 +233,12 @@ public class TimeUtils {
     }
 
     /**
-     * 获取日期的日。
+     * 获取日期的年。
      */
-    public static int getDay(Date date) {
+    public static int getYear(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return calendar.get(Calendar.DATE);
+        return calendar.get(Calendar.YEAR);
     }
 
     /**
@@ -125,6 +276,15 @@ public class TimeUtils {
         calendar.setTime(date);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         return dayOfWeek - 1;
+    }
+
+    /**
+     * 获取月份的天数。
+     */
+    public static int getDaysOfMonth(int year, int month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, 1);
+        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     /**
@@ -214,13 +374,13 @@ public class TimeUtils {
     /**
      * 日期字段操作，见Calendar中的常量。
      */
-    private static Date add(Date date, int field, int amount) {
+    private static Date add(Date date, int calendarField, int amount) {
         if (date == null) {
             throw new IllegalArgumentException("The date must not be null");
         } else {
             Calendar c = Calendar.getInstance();
             c.setTime(date);
-            c.add(field, amount);
+            c.add(calendarField, amount);
             return c.getTime();
         }
     }
@@ -317,6 +477,13 @@ public class TimeUtils {
     }
 
     /**
+     * 年差。
+     */
+    public static int diffYear(Date before, Date after) {
+        return getYear(after) - getYear(before);
+    }
+
+    /**
      * 月差。
      */
     public static int diffMonth(Date before, Date after) {
@@ -333,111 +500,6 @@ public class TimeUtils {
             monthAll = monthAll + 1;
         }
         return monthAll;
-    }
-
-    /**
-     * 年差。
-     */
-    public static int diffYear(Date before, Date after) {
-        return getYear(after) - getYear(before);
-    }
-
-    /**
-     * 设置23:59:59.999。
-     */
-    private static void setDayEnd(Calendar calendar) {
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-    }
-
-    /**
-     * 设置00:00:00.0。
-     */
-    private static void setDayStart(Calendar calendar) {
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-    }
-
-    /**
-     * 获取该天的23:59:59.999。
-     */
-    public static Date getDayEnd(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        setDayEnd(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取该天的00:00:00.000。
-     */
-    public static Date getDayStart(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        setDayStart(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取今天开始的时间。
-     */
-    public static Date todayStart() {
-        Calendar calendar = Calendar.getInstance();
-        setDayStart(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取今天开始的时间。
-     */
-    public static Date todayEnd() {
-        Calendar calendar = Calendar.getInstance();
-        setDayEnd(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取昨天的00:00:00.0。
-     */
-    public static Date yesterdayStart() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        setDayStart(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取昨天的23:59:59.999。
-     */
-    public static Date yesterdayEnd() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        setDayEnd(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取明天的00:00:00.0。
-     */
-    public static Date tomorrowStart() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, 1);
-        setDayStart(calendar);
-        return calendar.getTime();
-    }
-
-    /**
-     * 获取明天的23:59:59.999。
-     */
-    public static Date tomorrowEnd() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, 1);
-        setDayEnd(calendar);
-        return calendar.getTime();
     }
 
 }
