@@ -8,13 +8,10 @@ import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
-import com.querydsl.sql.SQLQuery;
-import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import com.querydsl.sql.dml.DefaultMapper;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
-import ewing.query.querydsldemo.dao.DemoUserDao;
 import ewing.query.querydsldemo.entity.DemoAddress;
 import ewing.query.querydsldemo.entity.DemoUser;
 import ewing.query.querydsldemo.query.QDemoAddress;
@@ -22,6 +19,7 @@ import ewing.query.querydsldemo.query.QDemoUser;
 import ewing.query.querydsldemo.vo.DemoAddressDetail;
 import ewing.query.querydsldemo.vo.DemoAddressUser;
 import ewing.query.querydsldemo.vo.DemoUserDetail;
+import ewing.query.sqlclause.BaseQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +43,7 @@ import java.util.List;
 public class QuerydslDemos {
 
     @Autowired
-    private SQLQueryFactory queryFactory;
-
-    @Autowired
-    private DemoUserDao demoUserDao;
+    private BaseQueryFactory queryFactory;
 
     /**
      * 表映射对象、路径、表达式等都是只会被读取（线程安全）的，可定义为全局的。
@@ -75,7 +70,7 @@ public class QuerydslDemos {
      * 原始API进行简单的CRUD操作。
      */
     @Test
-    public void basicOperation() {
+    public void originOperation() {
         DemoUser demoUser = newDemoUser();
         // 1.新增实体，并返回主键
         Integer userId = queryFactory.insert(qDemoUser)
@@ -143,32 +138,31 @@ public class QuerydslDemos {
 
     /**
      * 使用简单封装的API进行CRUD操作。
-     * 点击Dao的方法查看更多API及实现，覆盖几乎所有单表操作。
      */
     @Test
-    public void warpedOperation() {
+    public void simpleOperation() {
         DemoUser demoUser = newDemoUser();
         // 1.新增实体，并返回主键，主键也会被设置到Bean中
-        Integer userId = demoUserDao.insertWithKey(demoUser);
+        Integer userId = queryFactory.insert(qDemoUser).insertWithKey(demoUser);
 
         System.out.println(userId);
         System.out.println(demoUser);
 
         // 批量新增实体
         List<DemoUser> newUsers = Arrays.asList(newDemoUser(), newDemoUser());
-        List<Integer> userIds = demoUserDao.insertWithKeys(newUsers);
+        List<Integer> userIds = queryFactory.insert(qDemoUser).insertWithKeys(newUsers);
 
         System.out.println(userIds);
 
         // 2.更新实体，使用实体对象
         demoUser.setUsername("元宝");
         demoUser.setPassword("ABC123");
-        long rows = demoUserDao.updateBean(demoUser);
+        long rows = queryFactory.update(qDemoUser).updateBean(demoUser);
 
         System.out.println(rows);
 
         // 更新实体，使用上下文参数
-        rows = demoUserDao.updaterByKey(userId)
+        rows = queryFactory.update(qDemoUser).whereKey(userId)
                 .set(qDemoUser.username, "元宝")
                 .set(qDemoUser.password, "123ABC")
                 // 使用字段表达式更新（在数据库事务下可保证一致性）
@@ -178,24 +172,24 @@ public class QuerydslDemos {
         System.out.println(rows);
 
         // 3.查询实体，根据ID查询
-        demoUser = demoUserDao.selectByKey(userId);
+        demoUser = queryFactory.selectFrom(qDemoUser).fetchByKey(userId);
 
         System.out.println(demoUser);
 
         // 查询实体，条件模糊查询
-        List<DemoUser> users = demoUserDao.selector()
+        List<DemoUser> users = queryFactory.selectFrom(qDemoUser)
                 .where(qDemoUser.username.contains("元宝"))
                 .fetch();
 
         System.out.println(users);
 
         // 4.删除实体，根据ID删除
-        rows = demoUserDao.deleteByKey(userId);
+        rows = queryFactory.delete(qDemoUser).deleteByKey(userId);
 
         System.out.println(rows);
 
         // 删除实体，根据条件删除
-        rows = demoUserDao.deleter()
+        rows = queryFactory.delete(qDemoUser)
                 .where(qDemoUser.username.contains("元宝"))
                 .execute();
 
@@ -210,7 +204,7 @@ public class QuerydslDemos {
         DemoUser demoUser = newDemoUser();
 
         // 原始API动态条件、分页获取数据
-        SQLQuery<DemoUser> query = queryFactory.selectFrom(qDemoUser)
+        BaseQuery<DemoUser> query = queryFactory.selectFrom(qDemoUser)
                 .distinct()
                 // 利用where(null)会被忽略的特性构建单行动态条件
                 .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
@@ -221,7 +215,7 @@ public class QuerydslDemos {
         System.out.println(userPage);
 
         // 简单封装动态条件、分页获取数据
-        userPage = demoUserDao.selector()
+        userPage = queryFactory.selectFrom(qDemoUser)
                 // 利用where(null)会被忽略的特性构建单行动态条件
                 .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
                 .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
@@ -235,8 +229,8 @@ public class QuerydslDemos {
      */
     @Test
     public void queryWhere() {
-        SQLQuery<DemoUser> query = queryFactory
-                .selectFrom(qDemoUser).distinct()
+        BaseQuery<DemoUser> query = queryFactory.selectFrom(qDemoUser)
+                .distinct()
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .orderBy(qDemoUser.createTime.desc().nullsFirst());
@@ -314,7 +308,7 @@ public class QuerydslDemos {
     @Test
     public void customSql() {
         // 另见 MysqlBasisDao 类
-        SQLQuery<Tuple> query = queryFactory.select(
+        BaseQuery<Tuple> query = queryFactory.select(
                 // 常用的表达式构建方法
                 Expressions.asNumber(2).sum(),
                 Expressions.asNumber(1).count(),
@@ -325,14 +319,12 @@ public class QuerydslDemos {
                 Expressions.stringTemplate("group_concat({0})", qDemoUser.username),
                 qDemoUser.createTime.milliSecond().avg())
                 .from(qDemoUser)
-                .groupBy(qDemoUser.userId);
-
-        // 使用数据库的 HINTS 优化查询
-        query.addFlag(QueryFlag.Position.AFTER_SELECT, "SQL_NO_CACHE ");
-
-        // 自定义条件表达式
-        query.where(Expressions.booleanTemplate(
-                "NOW() < {0} OR NOW() > {0}", DateExpression.currentDate()));
+                .groupBy(qDemoUser.userId)
+                // 使用数据库的 HINTS 优化查询
+                .addFlag(QueryFlag.Position.AFTER_SELECT, "SQL_NO_CACHE ")
+                // 自定义条件表达式
+                .where(Expressions.booleanTemplate(
+                        "NOW() < {0} OR NOW() > {0}", DateExpression.currentDate()));
         try {
             System.out.println(query.fetchFirst());
         } catch (BadSqlGrammarException e) {
@@ -373,7 +365,7 @@ public class QuerydslDemos {
     @SuppressWarnings("unchecked")
     public void queryUnion() {
         // 只需要保证和union后的别名一致即可
-        SQLQuery<DemoUser> query = queryFactory.select(qDemoUser)
+        Page<DemoUser> userPage = queryFactory.select(qDemoUser)
                 .from(SQLExpressions.unionAll(
                         SQLExpressions.selectFrom(qDemoUser)
                                 .where(qDemoUser.gender.eq(0)),
@@ -381,14 +373,15 @@ public class QuerydslDemos {
                                 .where(qDemoUser.gender.eq(1)),
                         SQLExpressions.selectFrom(qDemoUser)
                                 .where(qDemoUser.gender.eq(2))
-                ).as(qDemoUser));
-        System.out.println(QueryUtils.queryPage(query, new Pager()));
+                ).as(qDemoUser))
+                .fetchPage(new Pager());
+        System.out.println(userPage);
 
         // 复杂UNION，定义别名并使结果列和别名一致
         QDemoUser qDemoUserUnions = new QDemoUser("unions");
         QDemoAddress qDemoAddressUnions = new QDemoAddress("unions");
 
-        SQLQuery<DemoUserDetail> queryDetail = queryFactory.select(
+        Page<DemoUserDetail> detailPage = queryFactory.select(
                 QueryUtils.fitBean(DemoUserDetail.class,
                         qDemoUserUnions,
                         qDemoAddressUnions.name.as("addressName")))
@@ -401,8 +394,9 @@ public class QuerydslDemos {
                                 .leftJoin(qDemoAddress)
                                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                                 .where(qDemoUser.gender.eq(2)))
-                        .as("unions"));
-        System.out.println(QueryUtils.queryPage(queryDetail, new Pager()));
+                        .as("unions"))
+                .fetchPage(new Pager());
+        System.out.println(detailPage);
     }
 
     /**

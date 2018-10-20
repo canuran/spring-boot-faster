@@ -2,6 +2,7 @@ package ewing.query;
 
 import com.mysema.commons.lang.Assert;
 import com.querydsl.core.FetchableQuery;
+import com.querydsl.core.JoinExpression;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupExpression;
 import com.querydsl.core.types.*;
@@ -99,10 +100,10 @@ public class QueryUtils {
     private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_0-9]+)\\s*?(asc|desc)?");
 
     private static Matcher getOrderMatcher(String orderClause) {
-        Assert.hasText(orderClause, "Order clause missing.");
+        Assert.hasText(orderClause, "Order core missing.");
         orderClause = orderClause.trim().toLowerCase();
         Matcher matcher = ORDER_PATTERN.matcher(orderClause);
-        Assert.isTrue(matcher.matches(), "Illegal order clause.");
+        Assert.isTrue(matcher.matches(), "Illegal order core.");
         return matcher;
     }
 
@@ -219,9 +220,39 @@ public class QueryUtils {
                 for (Expression path : paths) {
                     matchBindings(expressionMap, properties, path);
                 }
-            } else if (expression != null) {
+            } else {
                 // 匹配单个路径表达式是否用的上
                 matchBindings(expressionMap, properties, expression);
+            }
+        }
+        return Projections.bean(type, expressionMap);
+    }
+
+
+    /**
+     * 使用与Bean属性匹配的JoinExpression（包括实体查询对象）参数查询Bean。
+     */
+    public static <T> QBean<T> fitBean(Class<? extends T> type, Collection<JoinExpression> joins) {
+        // 获取到Bean的所有属性
+        PropertyDescriptor[] properties;
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(type);
+            properties = beanInfo.getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        // 获取参数中能够用的上的表达式
+        Map<String, Expression<?>> expressionMap = new HashMap<>();
+        for (JoinExpression join : joins) {
+            if (join.getTarget() instanceof RelationalPathBase) {
+                // 逐个匹配实体查询对象中的路径
+                Expression[] paths = ((RelationalPathBase) join.getTarget()).all();
+                for (Expression path : paths) {
+                    matchBindings(expressionMap, properties, path);
+                }
+            } else {
+                // 匹配单个路径表达式是否用的上
+                matchBindings(expressionMap, properties, join.getTarget());
             }
         }
         return Projections.bean(type, expressionMap);

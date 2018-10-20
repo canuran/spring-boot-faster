@@ -8,6 +8,7 @@ import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.DictionaryDao;
 import ewing.faster.dao.entity.Dictionary;
+import ewing.query.BaseQueryFactory;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Autowired
     private DictionaryDao dictionaryDao;
+    @Autowired
+    private BaseQueryFactory queryFactory;
 
     @Override
     public Page<Dictionary> findWithSubDictionary(
@@ -43,7 +46,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         // 处理父字典和根字典的关系
         if (dictionary.getParentId() != null) {
-            Dictionary parent = dictionaryDao.selector()
+            Dictionary parent = queryFactory.selectFrom(qDictionary)
                     .where(qDictionary.dictionaryId.eq(dictionary.getParentId()))
                     .fetchOne();
             if (parent == null) {
@@ -54,7 +57,7 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
 
-        Checks.isTrue(dictionaryDao.selector()
+        Checks.isTrue(queryFactory.selectFrom(qDictionary)
                         .where(dictionary.getParentId() == null ?
                                 qDictionary.parentId.isNull() :
                                 qDictionary.parentId.eq(dictionary.getParentId()))
@@ -69,12 +72,12 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
         dictionary.setCreateTime(new Date());
         dictionary.setDictionaryId(GlobalIds.nextId());
-        dictionaryDao.insertBean(dictionary);
+        queryFactory.insert(qDictionary).insertBean(dictionary);
 
         // 没有父字典则自身就是根字典
         if (dictionary.getParentId() == null) {
             dictionary.setRootId(dictionary.getDictionaryId());
-            dictionaryDao.updaterByKey(dictionary.getDictionaryId())
+            queryFactory.update(qDictionary).whereKey(dictionary.getDictionaryId())
                     .set(qDictionary.rootId, dictionary.getRootId())
                     .execute();
         }
@@ -87,7 +90,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         Checks.hasText(dictionary.getName(), "字典名不能为空！");
         Checks.hasText(dictionary.getValue(), "字典值不能为空！");
 
-        Checks.isTrue(dictionaryDao.selector()
+        Checks.isTrue(queryFactory.selectFrom(qDictionary)
                         .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
                         .where(dictionary.getParentId() == null ?
                                 qDictionary.parentId.isNull() :
@@ -104,20 +107,20 @@ public class DictionaryServiceImpl implements DictionaryService {
         if (!StringUtils.hasText(dictionary.getDetail())) {
             dictionary.setDetail(null);
         }
-        dictionaryDao.updateBean(dictionary);
+        queryFactory.update(qDictionary).updateBean(dictionary);
     }
 
     @Override
     public void deleteDictionary(BigInteger dictionaryId) {
         Checks.notNull(dictionaryId, "字典ID不能为空！");
-        Checks.notNull(dictionaryDao.selectByKey(dictionaryId),
+        Checks.notNull(queryFactory.selectFrom(qDictionary).fetchByKey(dictionaryId),
                 "该字典不存在或已删除！");
-        Checks.isTrue(dictionaryDao.selector()
+        Checks.isTrue(queryFactory.selectFrom(qDictionary)
                         .where(qDictionary.parentId.eq(dictionaryId))
                         .fetchCount() < 1,
                 "请先删除该字典的所有子项！");
 
-        dictionaryDao.deleteByKey(dictionaryId);
+        queryFactory.delete(qDictionary).deleteByKey(dictionaryId);
     }
 
     @Override

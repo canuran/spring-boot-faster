@@ -1,7 +1,6 @@
 package ewing.query;
 
 import com.querydsl.sql.H2Templates;
-import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
 import ewing.query.support.ConnectionProvider;
@@ -32,13 +31,13 @@ public class QueryDaoConfig {
     }
 
     @Bean
-    public SQLQueryFactory queryFactory() {
+    public BaseQueryFactory queryFactory() {
         SQLTemplates templates = H2Templates.builder().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         configuration.addListener(new FriendlySQLLogger());
         configuration.addListener(new SafeSQLListener());
-        return new SQLQueryFactory(configuration, new ConnectionProvider(dataSource, configuration));
+        return new BaseQueryFactory(configuration, new ConnectionProvider(dataSource, configuration));
     }
 
 }

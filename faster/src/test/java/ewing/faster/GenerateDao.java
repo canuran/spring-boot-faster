@@ -3,8 +3,6 @@ package ewing.faster;
 import com.querydsl.maven.AbstractMetaDataExportMojo;
 import com.querydsl.maven.MetadataExportMojo;
 import com.querydsl.sql.codegen.support.NumericMapping;
-import ewing.faster.application.config.FasterBasisDao;
-import ewing.query.DaoGenerator;
 import org.apache.maven.project.MavenProject;
 
 import java.lang.reflect.Field;
@@ -49,25 +47,11 @@ public class GenerateDao {
         exporter.execute();
     }
 
-    /***
-     * 生成Dao层代码，生成Bean和QBean自动编译后再执行。
-     */
-    public static class Generate {
-        public static void main(String[] args) {
-            new DaoGenerator()
-                    .daoSuperClass(FasterBasisDao.class)
-                    .javaCodePath("faster/src/main/java")
-                    .daoPackage("ewing.faster.dao")
-                    .queryBeanPackage("ewing.faster.dao.query")
-                    .generate();
-        }
-    }
-
     /**
-     * 5位以下的整数统一使用Integer。
+     * 10位以下的整数统一使用Integer。
      */
     private static NumericMapping[] getNumericMappings() {
-        return IntStream.range(1, 5).mapToObj(i -> {
+        return IntStream.range(1, 10).mapToObj(i -> {
             NumericMapping mapping = new NumericMapping();
             mapping.setDecimal(0);
             mapping.setTotal(i);

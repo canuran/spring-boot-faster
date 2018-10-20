@@ -1,9 +1,9 @@
 package ewing.faster.application.config;
 
 import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
+import ewing.query.BaseQueryFactory;
 import ewing.query.support.ConnectionProvider;
 import ewing.query.support.FriendlySQLLogger;
 import ewing.query.support.SafeSQLListener;
@@ -32,13 +32,13 @@ public class FasterDaoConfig {
     }
 
     @Bean
-    public SQLQueryFactory queryFactory() {
+    public BaseQueryFactory queryFactory() {
         SQLTemplates templates = MySQLTemplates.builder().quote().build();
         com.querydsl.sql.Configuration configuration = new com.querydsl.sql.Configuration(templates);
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         configuration.addListener(new FriendlySQLLogger());
         configuration.addListener(new SafeSQLListener());
-        return new SQLQueryFactory(configuration, new ConnectionProvider(dataSource, configuration));
+        return new BaseQueryFactory(configuration, new ConnectionProvider(dataSource, configuration));
     }
 
 }

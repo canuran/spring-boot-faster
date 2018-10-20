@@ -2,19 +2,19 @@ package ewing.faster.user;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.When;
 import ewing.faster.dao.UserDao;
-import ewing.faster.dao.UserRoleDao;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;
 import ewing.faster.dao.entity.UserRole;
 import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
+import ewing.query.BaseQueryFactory;
 import ewing.query.Where;
 import ewing.query.paging.Page;
+import ewing.query.sqlclause.BaseUpdateClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
-    private UserRoleDao userRoleDao;
+    private BaseQueryFactory queryFactory;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -45,14 +45,14 @@ public class UserServiceImpl implements UserService {
         Checks.hasText(userWithRole.getNickname(), "昵称不能为空！");
         Checks.hasText(userWithRole.getPassword(), "密码不能为空！");
         Checks.hasText(userWithRole.getGender(), "性别不能为空！");
-        Checks.isTrue(userDao.selector()
+        Checks.isTrue(queryFactory.selectFrom(qUser)
                         .where(qUser.username.eq(userWithRole.getUsername()))
                         .fetchCount() < 1,
                 "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());
         userWithRole.setUserId(GlobalIds.nextId());
-        userDao.insertBean(userWithRole);
+        queryFactory.insert(qUser).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();
     }
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
                 userRole.setCreateTime(new Date());
                 userRoles.add(userRole);
             }
-            userRoleDao.insertBeans(userRoles);
+            queryFactory.insert(qUserRole).insertBeans(userRoles);
         }
     }
 
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(BigInteger userId) {
         Checks.notNull(userId, "用户ID不能为空！");
-        return userDao.selectByKey(userId);
+        return queryFactory.selectFrom(qUser).fetchByKey(userId);
     }
 
     @Override
@@ -87,13 +87,13 @@ public class UserServiceImpl implements UserService {
         Checks.notNull(userWithRole.getUserId(), "用户ID不能为空！");
 
         // 更新用户的角色列表
-        userRoleDao.deleter()
+        queryFactory.delete(qUserRole)
                 .where(qUserRole.userId.eq(userWithRole.getUserId()))
                 .execute();
         addUserRoles(userWithRole);
 
         // 更新用户
-        AbstractSQLUpdateClause<?> update = userDao.updaterByKey(userWithRole.getUserId());
+        BaseUpdateClause update = queryFactory.update(qUser).whereKey(userWithRole.getUserId());
 
         When.hasText(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
 
@@ -121,10 +121,10 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
         Checks.notNull(userId, "用户ID不能为空！");
-        userRoleDao.deleter()
+        queryFactory.delete(qUserRole)
                 .where(qUserRole.userId.eq(userId))
                 .execute();
-        return userDao.deleteByKey(userId);
+        return queryFactory.delete(qUser).deleteByKey(userId);
     }
 
 }

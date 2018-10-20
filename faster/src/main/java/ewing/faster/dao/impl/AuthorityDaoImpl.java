@@ -1,11 +1,10 @@
 package ewing.faster.dao.impl;
 
 import com.querydsl.core.types.Projections;
-import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.dao.AuthorityDao;
-import ewing.faster.dao.entity.Authority;
-import ewing.faster.dao.query.QAuthority;
 import ewing.faster.security.vo.AuthorityNode;
+import ewing.query.BaseQueryFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
@@ -15,12 +14,15 @@ import java.util.List;
  * 权限数据访问实现。
  */
 @Repository
-public class AuthorityDaoImpl extends FasterBasisDao<QAuthority, Authority> implements AuthorityDao {
+public class AuthorityDaoImpl implements AuthorityDao {
+
+    @Autowired
+    private BaseQueryFactory queryFactory;
 
     @Override
     public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
         // 用户->角色->权限
-        return getQueryFactory().selectDistinct(Projections
+        return queryFactory.selectDistinct(Projections
                 .bean(AuthorityNode.class, qAuthority.all()))
                 .from(qAuthority)
                 .join(qRoleAuthority)

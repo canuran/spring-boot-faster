@@ -1,15 +1,16 @@
 package ewing.faster.dao.impl;
 
-import com.querydsl.sql.SQLQuery;
-import ewing.faster.application.config.FasterBasisDao;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.DictionaryDao;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.faster.dao.query.QDictionary;
-import ewing.query.paging.Page;
+import ewing.query.BaseQueryFactory;
 import ewing.query.QueryUtils;
 import ewing.query.Where;
+import ewing.query.paging.Page;
+import ewing.query.sqlclause.BaseQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,14 +19,17 @@ import java.util.List;
  * 数据字典数据访问实现。
  */
 @Repository
-public class DictionaryDaoImpl extends FasterBasisDao<QDictionary, Dictionary> implements DictionaryDao {
+public class DictionaryDaoImpl implements DictionaryDao {
+
+    @Autowired
+    private BaseQueryFactory queryFactory;
 
     private QDictionary qAllDictionary = new QDictionary("all");
 
     @Override
     public Page<Dictionary> findWithSubDictionary(FindDictionaryParam findDictionaryParam) {
         // 结果条数以根字典为准
-        SQLQuery<Dictionary> rootQuery = getQueryFactory().selectDistinct(qDictionary)
+        BaseQuery<Dictionary> rootQuery = queryFactory.selectDistinct(qDictionary)
                 .from(qDictionary)
                 .leftJoin(qAllDictionary)
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
@@ -38,7 +42,7 @@ public class DictionaryDaoImpl extends FasterBasisDao<QDictionary, Dictionary> i
 
         // 关联查根字典下的所有子字典项
         rootQuery.limit(findDictionaryParam.getLimit()).offset(findDictionaryParam.getOffset());
-        List<Dictionary> dictionaries = getQueryFactory().selectDistinct(qAllDictionary)
+        List<Dictionary> dictionaries = queryFactory.selectDistinct(qAllDictionary)
                 .from(rootQuery.as(qDictionary))
                 .leftJoin(qAllDictionary)
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
@@ -49,7 +53,7 @@ public class DictionaryDaoImpl extends FasterBasisDao<QDictionary, Dictionary> i
 
     @Override
     public List<DictionaryNode> findRootSubDictionaries(String[] rootValues) {
-        return getQueryFactory().selectDistinct(
+        return queryFactory.selectDistinct(
                 QueryUtils.fitBean(DictionaryNode.class, qAllDictionary))
                 .from(qDictionary)
                 .join(qAllDictionary)
