@@ -129,7 +129,7 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
      */
     public <K> K insertWithKey(Object bean, Mapper<Object> mapper) {
         Path<K> keyPath = QueryUtils.getSinglePrimaryKey((RelationalPathBase) entity);
-        K value = populate(bean).executeWithKey(keyPath);
+        K value = populate(bean, mapper).executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
         return value;
     }
