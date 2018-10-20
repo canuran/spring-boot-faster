@@ -32,7 +32,7 @@ public class TreeUtils {
         }
         if (keyGetter == null || treeCreator == null || parentKeyGetter == null
                 || childrenGetter == null || childrenSetter == null) {
-            throw new IllegalArgumentException("Operate methods missing.");
+            throw new IllegalArgumentException("Operate methods missing");
         }
         C tree = treeCreator.get();
         boolean single;

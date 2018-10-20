@@ -77,9 +77,9 @@ public class QueryUtils {
      */
     @SuppressWarnings("unchecked")
     public static List<? extends Path<?>> getKeyPaths(RelationalPathBase pathBase) {
-        Assert.notNull(pathBase, "PathBase missing.");
+        Assert.notNull(pathBase, "PathBase missing");
         PrimaryKey primaryKey = pathBase.getPrimaryKey();
-        Assert.notNull(primaryKey, "PrimaryKey missing.");
+        Assert.notNull(primaryKey, "PrimaryKey missing");
         return primaryKey.getLocalColumns();
     }
 
@@ -89,8 +89,8 @@ public class QueryUtils {
     @SuppressWarnings("unchecked")
     public static <E> Path<E> getSinglePrimaryKey(RelationalPathBase pathBase) {
         List<? extends Path<?>> keyPaths = getKeyPaths(pathBase);
-        Assert.notNull(keyPaths, "Key paths missing.");
-        Assert.isTrue(keyPaths.size() == 1, "Multiple primary key.");
+        Assert.notNull(keyPaths, "Key paths missing");
+        Assert.isTrue(keyPaths.size() == 1, "Multiple primary key");
         return (Path<E>) keyPaths.get(0);
     }
 
@@ -100,7 +100,7 @@ public class QueryUtils {
     @SuppressWarnings("unchecked")
     public static BooleanExpression baseKeyEquals(RelationalPathBase pathBase, Object key) {
         List<? extends Path<?>> keyPaths = getKeyPaths(pathBase);
-        Assert.notEmpty(keyPaths, "Key paths missing.");
+        Assert.notEmpty(keyPaths, "Key paths missing");
         if (keyPaths.size() == 1) {
             return ((SimpleExpression) keyPaths.get(0)).eq(key);
         } else {
@@ -114,13 +114,13 @@ public class QueryUtils {
      */
     @SuppressWarnings("unchecked")
     public static BooleanExpression beanKeyEquals(List<? extends Path<?>> keyPaths, Object bean) {
-        Assert.notNull(bean, "Bean param missing.");
-        Assert.notEmpty(keyPaths, "Key paths missing.");
+        Assert.notNull(bean, "Bean param missing");
+        Assert.notEmpty(keyPaths, "Key paths missing");
         BooleanExpression equals = Expressions.FALSE;
         for (Path path : keyPaths) {
             String name = path.getMetadata().getName();
             Method getter = ReflectionUtils.getGetterOrNull(bean.getClass(), name);
-            Assert.notNull(getter, "Key property getter missing.");
+            Assert.notNull(getter, "Key property getter missing");
             try {
                 BooleanExpression keyEqual = ((SimpleExpression) path).eq(getter.invoke(bean));
                 equals = (equals == Expressions.FALSE ? keyEqual : equals.and(keyEqual));
@@ -136,7 +136,7 @@ public class QueryUtils {
      */
     @SuppressWarnings("unchecked")
     public static Method findSetter(Object bean, String name, Class type) {
-        Assert.notNull(bean, "Bean param missing.");
+        Assert.notNull(bean, "Bean param missing");
         String methodName = "set" + BeanUtils.capitalize(name);
         Class beanClass = bean.getClass();
         while (beanClass != null && !beanClass.equals(Object.class)) {
@@ -154,9 +154,9 @@ public class QueryUtils {
      * 给Bean设置属性值。
      */
     public static void setBeanProperty(Object bean, String name, Object value) {
-        Assert.notNull(value, "Property value missing.");
+        Assert.notNull(value, "Property value missing");
         Method setter = findSetter(bean, name, value.getClass());
-        Assert.notNull(setter, "Key setter missing.");
+        Assert.notNull(setter, "Key setter missing");
         try {
             setter.invoke(bean, value);
         } catch (ReflectiveOperationException e) {
@@ -266,10 +266,10 @@ public class QueryUtils {
     private static final Pattern ORDER_PATTERN = Pattern.compile("(?i)([a-z_0-9]+)\\s*?(asc|desc)?");
 
     private static Matcher getOrderMatcher(String orderClause) {
-        Assert.hasText(orderClause, "Order core missing.");
+        Assert.hasText(orderClause, "Order clause missing");
         orderClause = orderClause.trim().toLowerCase();
         Matcher matcher = ORDER_PATTERN.matcher(orderClause);
-        Assert.isTrue(matcher.matches(), "Illegal order core.");
+        Assert.isTrue(matcher.matches(), "Illegal order clause");
         return matcher;
     }
 
@@ -322,7 +322,7 @@ public class QueryUtils {
         if (qParent == null || qChild == null
                 || parentKeyGetter == null || childKeyGetter == null
                 || childrenGetter == null || childrenSetter == null) {
-            throw new IllegalArgumentException("Arguments missing.");
+            throw new IllegalArgumentException("Arguments missing");
         }
         // 取父对象并且根据父对象的Key去重
         Map<Serializable, PARENT> parentMap = new HashMap<>();

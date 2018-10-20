@@ -33,8 +33,8 @@ public class UserHasPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Serializable targetId, String targetType, Object action) {
-        Assert.notNull(targetId, "Target id missing.");
-        Assert.notNull(targetType, "Target type missing.");
+        Assert.notNull(targetId, "Target id missing");
+        Assert.notNull(targetType, "Target type missing");
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         return securityService.userHasPermission(securityUser.getUserId(),
                 action.toString(), targetType, targetId.toString());

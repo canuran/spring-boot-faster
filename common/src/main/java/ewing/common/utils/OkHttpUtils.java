@@ -276,7 +276,7 @@ public class OkHttpUtils {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonObject();
             } else if (!jsonBody.isJsonObject()) {
-                throw new RuntimeException("Only JsonObject can add param.");
+                throw new RuntimeException("Only JsonObject can add param");
             }
             String nameStr = String.valueOf(name);
             JsonObject jsonObject = (JsonObject) jsonBody;
@@ -300,7 +300,7 @@ public class OkHttpUtils {
             if (jsonBody.isJsonNull()) {
                 jsonBody = new JsonArray();
             } else if (!jsonBody.isJsonArray()) {
-                throw new RuntimeException("Only JsonArray can add element.");
+                throw new RuntimeException("Only JsonArray can add element");
             }
             JsonArray jsonArray = (JsonArray) jsonBody;
             if (value == null) {
@@ -420,7 +420,7 @@ public class OkHttpUtils {
                         + response.code() + " Message: " + response.message());
             }
         } catch (IOException e) {
-            throw new RuntimeException("Request IOException.", e);
+            throw new RuntimeException("Request IOException", e);
         }
     }
 
@@ -431,7 +431,7 @@ public class OkHttpUtils {
         try {
             return CLIENT.newCall(request).execute();
         } catch (IOException e) {
-            throw new RuntimeException("Request IOException.", e);
+            throw new RuntimeException("Request IOException", e);
         }
     }
 
@@ -445,7 +445,7 @@ public class OkHttpUtils {
             response.close(); // 内部静默关闭
             return result;
         } catch (IOException e) {
-            throw new RuntimeException("Request IOException.", e);
+            throw new RuntimeException("Request IOException", e);
         }
     }
 
@@ -459,7 +459,7 @@ public class OkHttpUtils {
             response.close(); // 内部静默关闭
             return result;
         } catch (IOException e) {
-            throw new RuntimeException("Request IOException.", e);
+            throw new RuntimeException("Request IOException", e);
         }
     }
 
