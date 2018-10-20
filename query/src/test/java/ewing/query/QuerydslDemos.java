@@ -10,6 +10,7 @@ import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import com.querydsl.sql.dml.DefaultMapper;
+import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
 import ewing.query.querydsldemo.entity.DemoAddress;
@@ -19,7 +20,6 @@ import ewing.query.querydsldemo.query.QDemoUser;
 import ewing.query.querydsldemo.vo.DemoAddressDetail;
 import ewing.query.querydsldemo.vo.DemoAddressUser;
 import ewing.query.querydsldemo.vo.DemoUserDetail;
-import ewing.query.sqlclause.BaseQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,7 +233,8 @@ public class QuerydslDemos {
                 .distinct()
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                .orderBy(qDemoUser.createTime.desc().nullsFirst());
+                .orderBy(qDemoUser.createTime.desc().nullsFirst())
+                .orderBy("username asc");
 
         // where可多次使用，相当于and，注意and优先级高于or
         query.where(qDemoUser.username.contains("元")

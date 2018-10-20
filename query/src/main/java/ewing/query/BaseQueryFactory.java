@@ -7,10 +7,10 @@ import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
-import ewing.query.sqlclause.BaseDeleteClause;
-import ewing.query.sqlclause.BaseInsertClause;
-import ewing.query.sqlclause.BaseQuery;
-import ewing.query.sqlclause.BaseUpdateClause;
+import ewing.query.clause.BaseDeleteClause;
+import ewing.query.clause.BaseInsertClause;
+import ewing.query.clause.BaseQuery;
+import ewing.query.clause.BaseUpdateClause;
 
 import javax.inject.Provider;
 import java.sql.Connection;

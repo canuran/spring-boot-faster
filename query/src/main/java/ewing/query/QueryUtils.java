@@ -71,41 +71,6 @@ public class QueryUtils {
         }
     }
 
-    /**
-     * 获取排序指定符，例如：name、name asc、name desc。
-     */
-    public static OrderSpecifier<?> getOrderSpecifier(RelationalPathBase<?> base, String orderClause) {
-        Matcher matcher = getOrderMatcher(orderClause);
-        String name = matcher.group(1);
-        for (Path path : base.all()) {
-            if (path instanceof ComparableExpressionBase && path.getMetadata().getName().equalsIgnoreCase(name)) {
-                ComparableExpressionBase expression = (ComparableExpressionBase) path;
-                return "desc".equals(matcher.group(2)) ? expression.desc() : expression.asc();
-            }
-        }
-        return new OrderSpecifier<Comparable>("desc".equals(matcher.group(2)) ?
-                Order.DESC : Order.ASC, Expressions.comparablePath(Comparable.class, name));
-    }
-
-    /**
-     * 获取排序指定符，例如：name、name asc、name desc。
-     */
-    public static OrderSpecifier<?> getOrderSpecifier(String orderClause) {
-        Matcher matcher = getOrderMatcher(orderClause);
-        String name = matcher.group(1);
-        return new OrderSpecifier<Comparable>("desc".equals(matcher.group(2)) ?
-                Order.DESC : Order.ASC, Expressions.comparablePath(Comparable.class, name));
-    }
-
-    private static final Pattern ORDER_PATTERN = Pattern.compile("([a-z_0-9]+)\\s*?(asc|desc)?");
-
-    private static Matcher getOrderMatcher(String orderClause) {
-        Assert.hasText(orderClause, "Order core missing.");
-        orderClause = orderClause.trim().toLowerCase();
-        Matcher matcher = ORDER_PATTERN.matcher(orderClause);
-        Assert.isTrue(matcher.matches(), "Illegal order core.");
-        return matcher;
-    }
 
     /**
      * 获取主键中的字段属性。
@@ -296,6 +261,42 @@ public class QueryUtils {
         } else {
             throw new IllegalArgumentException("Unsupported expression " + expression);
         }
+    }
+
+    private static final Pattern ORDER_PATTERN = Pattern.compile("(?i)([a-z_0-9]+)\\s*?(asc|desc)?");
+
+    private static Matcher getOrderMatcher(String orderClause) {
+        Assert.hasText(orderClause, "Order core missing.");
+        orderClause = orderClause.trim().toLowerCase();
+        Matcher matcher = ORDER_PATTERN.matcher(orderClause);
+        Assert.isTrue(matcher.matches(), "Illegal order core.");
+        return matcher;
+    }
+
+    /**
+     * 获取排序器，例如：name、name asc、name desc。
+     */
+    public static OrderSpecifier<?> getOrderSpecifier(Collection<JoinExpression> joins, String orderClause) {
+        Matcher matcher = getOrderMatcher(orderClause);
+        String name = matcher.group(1);
+        if (joins != null && !joins.isEmpty()) {
+            for (JoinExpression join : joins) {
+                if (join.getTarget() instanceof RelationalPathBase) {
+                    for (Path path : ((RelationalPathBase) join.getTarget()).all()) {
+                        if (path instanceof ComparableExpressionBase
+                                && path.getMetadata().getName().equalsIgnoreCase(name)) {
+                            ComparableExpressionBase expression = (ComparableExpressionBase) path;
+                            return "desc".equals(matcher.group(2)) ? expression.desc() : expression.asc();
+                        }
+                    }
+                } else if (join.getTarget() instanceof ComparableExpressionBase) {
+                    ComparableExpressionBase expression = (ComparableExpressionBase) join.getTarget();
+                    return "desc".equalsIgnoreCase(matcher.group(2)) ? expression.desc() : expression.asc();
+                }
+            }
+        }
+        return new OrderSpecifier<Comparable>("desc".equalsIgnoreCase(matcher.group(2)) ?
+                Order.DESC : Order.ASC, Expressions.comparablePath(Comparable.class, name));
     }
 
     /**

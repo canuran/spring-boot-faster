@@ -10,9 +10,9 @@ import ewing.faster.dao.entity.User;
 import ewing.faster.user.vo.UserWithRole;
 import ewing.query.BaseQueryFactory;
 import ewing.query.QueryUtils;
+import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
-import ewing.query.sqlclause.BaseQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

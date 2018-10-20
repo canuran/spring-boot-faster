@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
  * @author Ewing
  * @since 2018年05月21日
  */
-public class GenerateDao {
+public class GenerateQuery {
 
     /***
      * 生成Bean和QBean。

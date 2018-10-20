@@ -8,8 +8,8 @@ import ewing.faster.dao.query.QDictionary;
 import ewing.query.BaseQueryFactory;
 import ewing.query.QueryUtils;
 import ewing.query.Where;
+import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
-import ewing.query.sqlclause.BaseQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package ewing.query.sqlclause;
+package ewing.query.clause;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.sql.Configuration;

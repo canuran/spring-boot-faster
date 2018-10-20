@@ -1,4 +1,4 @@
-package ewing.query.sqlclause;
+package ewing.query.clause;
 
 import com.mysema.commons.lang.Assert;
 import com.querydsl.core.DefaultQueryMetadata;
@@ -71,6 +71,14 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
             }
         }
         throw new IllegalStateException("Primary key can not empty");
+    }
+
+    /**
+     * 添加排序，例如：name asc、age desc。
+     */
+    public BaseQuery<E> orderBy(String orderClause) {
+        orderBy(QueryUtils.getOrderSpecifier(getMetadata().getJoins(), orderClause));
+        return this;
     }
 
     /**
