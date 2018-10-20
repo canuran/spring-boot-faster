@@ -77,7 +77,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         // 没有父字典则自身就是根字典
         if (dictionary.getParentId() == null) {
             dictionary.setRootId(dictionary.getDictionaryId());
-            queryFactory.update(qDictionary).whereKey(dictionary.getDictionaryId())
+            queryFactory.update(qDictionary).whereEqKey(dictionary.getDictionaryId())
                     .set(qDictionary.rootId, dictionary.getRootId())
                     .execute();
         }

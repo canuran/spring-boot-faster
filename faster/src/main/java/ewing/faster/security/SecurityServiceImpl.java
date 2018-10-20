@@ -13,7 +13,6 @@ import ewing.faster.security.vo.AuthorityNode;
 import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
 import ewing.query.BaseQueryFactory;
-import ewing.query.Where;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -150,8 +149,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public Page<RoleWithAuthority> findRoleWithAuthority(FindRoleParam findRoleParam) {
-        return roleDao.findRoleWithAuthority(findRoleParam,
-                Where.hasText(findRoleParam.getSearch(), qRole.name::contains));
+        return roleDao.findRoleWithAuthority(findRoleParam);
     }
 
     @Override
@@ -242,7 +240,7 @@ public class SecurityServiceImpl implements SecurityService {
                 .where(qPermission.userId.eq(userId))
                 .where(qPermission.action.eq(action))
                 .where(qPermission.targetId.eq(targetId))
-                .where(Where.hasText(targetType, qPermission.targetType::eq))
+                .whereIfHasText(targetType, qPermission.targetType::eq)
                 .fetchCount() > 0;
     }
 

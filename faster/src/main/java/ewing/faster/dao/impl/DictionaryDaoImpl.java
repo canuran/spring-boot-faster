@@ -7,7 +7,6 @@ import ewing.faster.dao.entity.Dictionary;
 import ewing.faster.dao.query.QDictionary;
 import ewing.query.BaseQueryFactory;
 import ewing.query.QueryUtils;
-import ewing.query.Where;
 import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,8 @@ public class DictionaryDaoImpl implements DictionaryDao {
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(qDictionary.dictionaryId.eq(qDictionary.rootId))
                 // 搜索条件，支持子字典名称搜索
-                .where(Where.hasText(findDictionaryParam.getName(), qAllDictionary.name::contains))
-                .where(Where.hasText(findDictionaryParam.getValue(), qAllDictionary.value::contains));
+                .whereIfHasText(findDictionaryParam.getName(), qAllDictionary.name::contains)
+                .whereIfHasText(findDictionaryParam.getValue(), qAllDictionary.value::contains);
         // 先查询根字典的总数
         long total = rootQuery.fetchCount();
 

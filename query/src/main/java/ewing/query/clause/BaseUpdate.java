@@ -30,9 +30,51 @@ public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
     }
 
     /**
+     * 如果测试值为真则更新。
+     */
+    public <T extends CharSequence> BaseUpdate setIfTrue(boolean test, Path<T> path, T value) {
+        return test ? set(path, value) : this;
+    }
+
+    /**
+     * 如果值存在则更新。
+     */
+    public <T> BaseUpdate setIfNotNull(Path<T> path, T value) {
+        return value == null ? this : set(path, value);
+    }
+
+    /**
+     * 如果字符串有值则更新。
+     */
+    public <T extends CharSequence> BaseUpdate setIfHasLength(Path<T> path, T value) {
+        return value != null && value.length() > 0 ? set(path, value) : this;
+    }
+
+    /**
+     * 如果数组不为空则更新。
+     */
+    public <T> BaseUpdate setIfHasLength(Path<T[]> path, T[] value) {
+        return value != null && value.length > 0 ? set(path, value) : this;
+    }
+
+    /**
+     * 如果字符串不为空白字符则更新。
+     */
+    public <T extends CharSequence> BaseUpdate setIfHasText(Path<T> path, T value) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return set(path, value);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
      * 添加主键条件。
      */
-    public BaseUpdate whereKey(Object key) {
+    public BaseUpdate whereEqKey(Object key) {
         where(QueryUtils.baseKeyEquals((RelationalPathBase) entity, key));
         return this;
     }
@@ -71,6 +113,11 @@ public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
             return execute();
         }
         return 0L;
+    }
+
+    @Override
+    public long execute() {
+        return isEmpty() ? 0L : super.execute();
     }
 
 }

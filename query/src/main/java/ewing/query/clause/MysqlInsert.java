@@ -22,7 +22,7 @@ import java.util.*;
  * @author Ewing
  */
 @SuppressWarnings("unchecked")
-public class MysqlInsert extends BaseInsert<MysqlInsert> {
+public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
 
     public MysqlInsert(Connection connection, Configuration configuration, RelationalPath<?> entity, SQLQuery<?> subQuery) {
         super(connection, configuration, entity, subQuery);

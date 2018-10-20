@@ -23,7 +23,7 @@ import java.util.List;
  * @author Ewing
  */
 @SuppressWarnings("unchecked")
-public class BaseInsert<C extends BaseInsert> extends AbstractSQLInsertClause<BaseInsert<C>> {
+public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
 
     public BaseInsert(Connection connection, Configuration configuration, RelationalPath<?> entity, SQLQuery<?> subQuery) {
         super(connection, configuration, entity, subQuery);
@@ -39,6 +39,48 @@ public class BaseInsert<C extends BaseInsert> extends AbstractSQLInsertClause<Ba
 
     public BaseInsert(Provider<Connection> connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
+    }
+
+    /**
+     * 如果测试值为真则保存。
+     */
+    public <T extends CharSequence> BaseInsert setIfTrue(boolean test, Path<T> path, T value) {
+        return test ? set(path, value) : this;
+    }
+
+    /**
+     * 如果值存在则保存。
+     */
+    public <T> BaseInsert setIfNotNull(Path<T> path, T value) {
+        return value == null ? this : set(path, value);
+    }
+
+    /**
+     * 如果字符串有值则保存。
+     */
+    public <T extends CharSequence> BaseInsert setIfHasLength(Path<T> path, T value) {
+        return value != null && value.length() > 0 ? set(path, value) : this;
+    }
+
+    /**
+     * 如果数组不为空则保存。
+     */
+    public <T> BaseInsert setIfHasLength(Path<T[]> path, T[] value) {
+        return value != null && value.length > 0 ? set(path, value) : this;
+    }
+
+    /**
+     * 如果字符串不为空白字符则保存。
+     */
+    public <T extends CharSequence> BaseInsert setIfHasText(Path<T> path, T value) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return set(path, value);
+                }
+            }
+        }
+        return this;
     }
 
     /**
@@ -118,6 +160,11 @@ public class BaseInsert<C extends BaseInsert> extends AbstractSQLInsertClause<Ba
             return values;
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public long execute() {
+        return isEmpty() ? 0L : super.execute();
     }
 
 }

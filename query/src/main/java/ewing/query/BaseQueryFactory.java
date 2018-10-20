@@ -61,8 +61,8 @@ public class BaseQueryFactory extends AbstractSQLQueryFactory<BaseQuery<?>> {
         return select(path).from(path);
     }
 
-    public BaseInsert<BaseInsert> insert(RelationalPathBase<?> pathBase) {
-        return new BaseInsert<>(connection, configuration, pathBase);
+    public BaseInsert insert(RelationalPathBase<?> pathBase) {
+        return new BaseInsert(connection, configuration, pathBase);
     }
 
     public MysqlInsert insertMysql(RelationalPathBase<?> pathBase) {

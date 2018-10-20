@@ -162,7 +162,7 @@ public class QuerydslDemos {
         System.out.println(rows);
 
         // 更新实体，使用上下文参数
-        rows = queryFactory.update(qDemoUser).whereKey(userId)
+        rows = queryFactory.update(qDemoUser).whereEqKey(userId)
                 .set(qDemoUser.username, "元宝")
                 .set(qDemoUser.password, "123ABC")
                 // 使用字段表达式更新（在数据库事务下可保证一致性）
@@ -207,19 +207,18 @@ public class QuerydslDemos {
         BaseQuery<DemoUser> query = queryFactory.selectFrom(qDemoUser)
                 .distinct()
                 // 利用where(null)会被忽略的特性构建单行动态条件
-                .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
-                .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
-                .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq));
+                .whereIfNotNull(demoUser.getUsername(), qDemoUser.username::contains)
+                .whereIfNotNull(demoUser.getCreateTime(), qDemoUser.createTime::goe)
+                .whereIfNotNull(demoUser.getGender(), qDemoUser.gender::eq);
 
         Page<DemoUser> userPage = QueryUtils.queryPage(query, new Pager());
         System.out.println(userPage);
 
         // 简单封装动态条件、分页获取数据
         userPage = queryFactory.selectFrom(qDemoUser)
-                // 利用where(null)会被忽略的特性构建单行动态条件
-                .where(Where.notNull(demoUser.getUsername(), qDemoUser.username::contains))
-                .where(Where.notNull(demoUser.getCreateTime(), qDemoUser.createTime::goe))
-                .where(Where.notNull(demoUser.getGender(), qDemoUser.gender::eq))
+                .whereIfNotNull(demoUser.getUsername(), qDemoUser.username::contains)
+                .whereIfNotNull(demoUser.getCreateTime(), qDemoUser.createTime::goe)
+                .whereIfNotNull(demoUser.getGender(), qDemoUser.gender::eq)
                 .fetchPage(new Pager());
         System.out.println(userPage);
     }

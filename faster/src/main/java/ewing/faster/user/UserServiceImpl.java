@@ -1,10 +1,7 @@
 package ewing.faster.user;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import ewing.common.exception.Checks;
 import ewing.common.utils.GlobalIds;
-import ewing.common.utils.When;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;
@@ -12,8 +9,6 @@ import ewing.faster.dao.entity.UserRole;
 import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
 import ewing.query.BaseQueryFactory;
-import ewing.query.Where;
-import ewing.query.clause.BaseUpdate;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -93,27 +88,18 @@ public class UserServiceImpl implements UserService {
         addUserRoles(userWithRole);
 
         // 更新用户
-        BaseUpdate update = queryFactory.update(qUser).whereKey(userWithRole.getUserId());
-
-        When.hasText(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
-
-        When.hasText(userWithRole.getPassword(), value -> update.set(qUser.password, value));
-
-        When.hasText(userWithRole.getGender(), value -> update.set(qUser.gender, value));
-
-        When.notNull(userWithRole.getBirthday(), value -> update.set(qUser.birthday, value));
-
-        return update.isEmpty() ? 0L : update.execute();
+        return queryFactory.update(qUser)
+                .whereEqKey(userWithRole.getUserId())
+                .setIfHasText(qUser.nickname, userWithRole.getNickname())
+                .setIfHasText(qUser.password, userWithRole.getPassword())
+                .setIfHasText(qUser.gender, userWithRole.getGender())
+                .setIfNotNull(qUser.birthday, userWithRole.getBirthday())
+                .execute();
     }
 
     @Override
     public Page<UserWithRole> findUserWithRole(FindUserParam findUserParam) {
-        BooleanExpression expression = Expressions.TRUE;
-        // 用户名
-        expression = expression.and(Where.hasText(findUserParam.getUsername(), qUser.username::contains));
-        // 昵称
-        expression = expression.and(Where.hasText(findUserParam.getNickname(), qUser.nickname::contains));
-        return userDao.findUserWithRole(findUserParam, expression);
+        return userDao.findUserWithRole(findUserParam);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.querydsl.core.JoinExpression;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.AbstractSQLQuery;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPathBase;
@@ -15,7 +16,9 @@ import ewing.query.paging.Pager;
 
 import javax.inject.Provider;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 增强的查询类。
@@ -58,9 +61,58 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
+     * 如果测试值为真则添加条件。
+     */
+    public <T> BaseQuery<E> whereIfTrue(boolean test, T value, Function<T, Predicate> getPredicate) {
+        return test ? where(getPredicate.apply(value)) : this;
+    }
+
+    /**
+     * 如果值存在则添加条件。
+     */
+    public <T> BaseQuery<E> whereIfNotNull(T value, Function<T, Predicate> getPredicate) {
+        return value == null ? this : where(getPredicate.apply(value));
+    }
+
+    /**
+     * 如果字符串有值则添加条件。
+     */
+    public <T extends CharSequence> BaseQuery<E> whereIfHasLength(T value, Function<T, Predicate> getPredicate) {
+        return value != null && value.length() > 0 ? where(getPredicate.apply(value)) : this;
+    }
+
+    /**
+     * 如果数组不为空则添加条件。
+     */
+    public <T> BaseQuery<E> whereIfHasLength(T[] value, Function<T[], Predicate> getPredicate) {
+        return value != null && value.length > 0 ? where(getPredicate.apply(value)) : this;
+    }
+
+    /**
+     * 如果字符串不为空白字符则添加条件。
+     */
+    public <T extends CharSequence> BaseQuery<E> whereIfHasText(T value, Function<T, Predicate> getPredicate) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return where(getPredicate.apply(value));
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 如果集合不为空则添加条件。
+     */
+    public <T extends Collection<O>, O> BaseQuery<E> whereIfNotEmpty(T value, Function<T, Predicate> getPredicate) {
+        return value != null && value.size() > 0 ? where(getPredicate.apply(value)) : this;
+    }
+
+    /**
      * 添加主键条件。
      */
-    public BaseQuery<E> whereKey(Object key) {
+    public BaseQuery<E> whereEqKey(Object key) {
         Assert.notEmpty(getMetadata().getJoins(), "Paths can not empty");
         for (JoinExpression join : getMetadata().getJoins()) {
             if (join.getTarget() instanceof RelationalPathBase) {
@@ -95,7 +147,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     @SuppressWarnings("unchecked")
     public <T> T fetchByKey(Object key) {
-        return (T) whereKey(key).fetchOne();
+        return (T) whereEqKey(key).fetchOne();
     }
 
     /**
@@ -103,7 +155,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     @SuppressWarnings("unchecked")
     public <T> T fetchByKey(Object key, Class<T> type) {
-        return whereKey(key).fetchOne(type);
+        return whereEqKey(key).fetchOne(type);
     }
 
     /**
