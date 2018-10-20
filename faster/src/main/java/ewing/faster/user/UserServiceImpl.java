@@ -13,7 +13,7 @@ import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
 import ewing.query.BaseQueryFactory;
 import ewing.query.Where;
-import ewing.query.clause.BaseUpdateClause;
+import ewing.query.clause.BaseUpdate;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
         addUserRoles(userWithRole);
 
         // 更新用户
-        BaseUpdateClause update = queryFactory.update(qUser).whereKey(userWithRole.getUserId());
+        BaseUpdate update = queryFactory.update(qUser).whereKey(userWithRole.getUserId());
 
         When.hasText(userWithRole.getNickname(), value -> update.set(qUser.nickname, value));
 

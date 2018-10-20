@@ -19,20 +19,20 @@ import java.util.List;
  *
  * @author Ewing
  */
-public class BaseUpdateClause extends AbstractSQLUpdateClause<BaseUpdateClause> {
+public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
 
-    public BaseUpdateClause(Connection connection, Configuration configuration, RelationalPath<?> entity) {
+    public BaseUpdate(Connection connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }
 
-    public BaseUpdateClause(Provider<Connection> connection, Configuration configuration, RelationalPath<?> entity) {
+    public BaseUpdate(Provider<Connection> connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }
 
     /**
      * 添加主键条件。
      */
-    public BaseUpdateClause whereKey(Object key) {
+    public BaseUpdate whereKey(Object key) {
         where(QueryUtils.baseKeyEquals((RelationalPathBase) entity, key));
         return this;
     }

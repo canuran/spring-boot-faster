@@ -17,13 +17,13 @@ import java.util.List;
  *
  * @author Ewing
  */
-public class BaseDeleteClause extends AbstractSQLDeleteClause<BaseDeleteClause> {
+public class BaseDelete extends AbstractSQLDeleteClause<BaseDelete> {
 
-    public BaseDeleteClause(Connection connection, Configuration configuration, RelationalPath<?> entity) {
+    public BaseDelete(Connection connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }
 
-    public BaseDeleteClause(Provider<Connection> connection, Configuration configuration, RelationalPath<?> entity) {
+    public BaseDelete(Provider<Connection> connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }
 

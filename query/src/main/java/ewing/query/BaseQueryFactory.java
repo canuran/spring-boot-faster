@@ -7,10 +7,7 @@ import com.querydsl.sql.AbstractSQLQueryFactory;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
-import ewing.query.clause.BaseDeleteClause;
-import ewing.query.clause.BaseInsertClause;
-import ewing.query.clause.BaseQuery;
-import ewing.query.clause.BaseUpdateClause;
+import ewing.query.clause.*;
 
 import javax.inject.Provider;
 import java.sql.Connection;
@@ -64,16 +61,20 @@ public class BaseQueryFactory extends AbstractSQLQueryFactory<BaseQuery<?>> {
         return select(path).from(path);
     }
 
-    public BaseInsertClause insert(RelationalPathBase<?> pathBase) {
-        return new BaseInsertClause(connection, configuration, pathBase);
+    public BaseInsert<BaseInsert> insert(RelationalPathBase<?> pathBase) {
+        return new BaseInsert<>(connection, configuration, pathBase);
     }
 
-    public BaseUpdateClause update(RelationalPathBase<?> pathBase) {
-        return new BaseUpdateClause(connection, configuration, pathBase);
+    public MysqlInsert insertMysql(RelationalPathBase<?> pathBase) {
+        return new MysqlInsert(connection, configuration, pathBase);
     }
 
-    public BaseDeleteClause delete(RelationalPathBase<?> pathBase) {
-        return new BaseDeleteClause(connection, configuration, pathBase);
+    public BaseUpdate update(RelationalPathBase<?> pathBase) {
+        return new BaseUpdate(connection, configuration, pathBase);
+    }
+
+    public BaseDelete delete(RelationalPathBase<?> pathBase) {
+        return new BaseDelete(connection, configuration, pathBase);
     }
 
 }
