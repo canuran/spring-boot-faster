@@ -16,6 +16,8 @@ sslserver:
 
 # Spring配置
 spring:
+  profiles:
+    active: default
   http:
     multipart: #文件上传大小限制
       maxFileSize: 1024MB
