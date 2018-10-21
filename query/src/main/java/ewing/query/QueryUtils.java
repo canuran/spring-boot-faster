@@ -176,18 +176,28 @@ public class QueryUtils {
         } catch (IntrospectionException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        // 获取参数中能够用的上的表达式
         Map<String, Expression<?>> expressionMap = new HashMap<>();
-        for (Expression expression : expressions) {
-            if (expression instanceof RelationalPathBase) {
-                // 逐个匹配实体查询对象中的路径
-                Expression[] paths = ((RelationalPathBase) expression).all();
-                for (Expression path : paths) {
-                    matchBindings(expressionMap, properties, path);
+        for (PropertyDescriptor property : properties) {
+            if (property.getWriteMethod() != null) {
+                String name = property.getName();
+                for (Expression expression : expressions) {
+                    if (expression instanceof RelationalPathBase) {
+                        // 逐个匹配实体查询对象中的路径
+                        Path[] paths = ((RelationalPathBase) expression).all();
+                        for (Path path : paths) {
+                            matchBindings(expressionMap, name, path);
+                        }
+                    } else if (expression instanceof FactoryExpression) {
+                        // 逐个匹配FactoryExpression中的参数
+                        List args = ((FactoryExpression) expression).getArgs();
+                        for (Object arg : args) {
+                            matchBindings(expressionMap, name, (Expression) arg);
+                        }
+                    } else {
+                        // 匹配单个路径表达式是否用的上
+                        matchBindings(expressionMap, name, expression);
+                    }
                 }
-            } else {
-                // 匹配单个路径表达式是否用的上
-                matchBindings(expressionMap, properties, expression);
             }
         }
         return Projections.bean(type, expressionMap);
@@ -197,32 +207,23 @@ public class QueryUtils {
      * 根据属性匹配Expression并添加绑定到Map中。
      * 实现逻辑参考自QBean.createBindings方法。
      */
-    private static void matchBindings(
-            Map<String, Expression<?>> expressionMap,
-            PropertyDescriptor[] properties, Expression expression) {
+    private static void matchBindings(Map<String, Expression<?>> expressionMap,
+                                      String property, Expression expression) {
         if (expression instanceof Path<?>) {
             String name = ((Path<?>) expression).getMetadata().getName();
-            for (PropertyDescriptor property : properties) {
-                if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                    expressionMap.putIfAbsent(name, expression);
-                    break; // 匹配到属性结束内层循环
-                }
+            if (property.equals(name)) {
+                expressionMap.putIfAbsent(name, expression);
             }
         } else if (expression instanceof Operation<?>) {
             Operation<?> operation = (Operation<?>) expression;
-            if (operation.getOperator() == Ops.ALIAS
-                    && operation.getArg(1) instanceof Path<?>) {
+            if (operation.getOperator() == Ops.ALIAS && operation.getArg(1) instanceof Path<?>) {
                 String name = ((Path<?>) operation.getArg(1)).getMetadata().getName();
-                for (PropertyDescriptor property : properties) {
-                    if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                        Expression<?> express = operation.getArg(0);
-                        if (express instanceof FactoryExpression
-                                || express instanceof GroupExpression) {
-                            expressionMap.putIfAbsent(name, express);
-                        } else {
-                            expressionMap.putIfAbsent(name, operation);
-                        }
-                        break; // 匹配到属性结束内层循环
+                if (property.equals(name)) {
+                    Expression<?> express = operation.getArg(0);
+                    if (express instanceof FactoryExpression || express instanceof GroupExpression) {
+                        expressionMap.putIfAbsent(name, express);
+                    } else {
+                        expressionMap.putIfAbsent(name, operation);
                     }
                 }
             } else {
