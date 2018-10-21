@@ -166,7 +166,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
 
     public <T> List<T> fetch(Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
+        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
         return (List<T>) fetch();
     }
 
@@ -191,7 +191,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
 
     public <T> T fetchOne(Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
+        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
         return (T) fetchOne();
     }
 
@@ -200,7 +200,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
 
     public <T> T fetchFirst(Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
+        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
         return (T) fetchFirst();
     }
 
@@ -216,7 +216,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
 
     public <T> Page<T> fetchPage(Pager pager, Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
+        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
         return (Page<T>) QueryUtils.queryPage(this, pager);
     }
 

@@ -193,36 +193,6 @@ public class QueryUtils {
         return Projections.bean(type, expressionMap);
     }
 
-
-    /**
-     * 使用与Bean属性匹配的JoinExpression（包括实体查询对象）参数查询Bean。
-     */
-    public static <T> QBean<T> fitBean(Class<? extends T> type, Collection<JoinExpression> joins) {
-        // 获取到Bean的所有属性
-        PropertyDescriptor[] properties;
-        try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(type);
-            properties = beanInfo.getPropertyDescriptors();
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        // 获取参数中能够用的上的表达式
-        Map<String, Expression<?>> expressionMap = new HashMap<>();
-        for (JoinExpression join : joins) {
-            if (join.getTarget() instanceof RelationalPathBase) {
-                // 逐个匹配实体查询对象中的路径
-                Expression[] paths = ((RelationalPathBase) join.getTarget()).all();
-                for (Expression path : paths) {
-                    matchBindings(expressionMap, properties, path);
-                }
-            } else {
-                // 匹配单个路径表达式是否用的上
-                matchBindings(expressionMap, properties, join.getTarget());
-            }
-        }
-        return Projections.bean(type, expressionMap);
-    }
-
     /**
      * 根据属性匹配Expression并添加绑定到Map中。
      * 实现逻辑参考自QBean.createBindings方法。
