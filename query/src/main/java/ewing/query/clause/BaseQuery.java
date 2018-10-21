@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 增强的查询类。
@@ -63,8 +64,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 如果测试值为真则添加条件。
      */
-    public <T> BaseQuery<E> whereIfTrue(boolean test, T value, Function<T, Predicate> getPredicate) {
-        return test ? where(getPredicate.apply(value)) : this;
+    public BaseQuery<E> whereIfTrue(boolean test, Supplier<Predicate> getPredicate) {
+        return test ? where(getPredicate.get()) : this;
     }
 
     /**
@@ -79,13 +80,6 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     public <T extends CharSequence> BaseQuery<E> whereIfHasLength(T value, Function<T, Predicate> getPredicate) {
         return value != null && value.length() > 0 ? where(getPredicate.apply(value)) : this;
-    }
-
-    /**
-     * 如果数组不为空则添加条件。
-     */
-    public <T> BaseQuery<E> whereIfHasLength(T[] value, Function<T[], Predicate> getPredicate) {
-        return value != null && value.length > 0 ? where(getPredicate.apply(value)) : this;
     }
 
     /**
@@ -107,6 +101,41 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     public <T extends Collection<O>, O> BaseQuery<E> whereIfNotEmpty(T value, Function<T, Predicate> getPredicate) {
         return value != null && value.size() > 0 ? where(getPredicate.apply(value)) : this;
+    }
+
+    /**
+     * 如果测试值为真则添加ON条件。
+     */
+    public BaseQuery<E> onIfTrue(boolean test, Supplier<Predicate> getPredicate) {
+        return test ? on(getPredicate.get()) : this;
+    }
+
+    /**
+     * 如果值存在则添加ON条件。
+     */
+    public <T> BaseQuery<E> onIfNotNull(T value, Function<T, Predicate> getPredicate) {
+        return value == null ? this : on(getPredicate.apply(value));
+    }
+
+    /**
+     * 如果字符串不为空白字符则添加ON条件。
+     */
+    public <T extends CharSequence> BaseQuery<E> onIfHasText(T value, Function<T, Predicate> getPredicate) {
+        if (value != null && value.length() > 0) {
+            for (int i = 0; i < value.length(); ++i) {
+                if (!Character.isWhitespace(value.charAt(i))) {
+                    return on(getPredicate.apply(value));
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 如果集合不为空则添加ON条件。
+     */
+    public <T extends Collection<O>, O> BaseQuery<E> onIfNotEmpty(T value, Function<T, Predicate> getPredicate) {
+        return value != null && value.size() > 0 ? on(getPredicate.apply(value)) : this;
     }
 
     /**
