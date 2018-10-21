@@ -13,6 +13,7 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.BeanUtils;
 import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.PrimaryKey;
+import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import ewing.query.paging.Page;
 import ewing.query.paging.Pager;
@@ -168,39 +169,36 @@ public class QueryUtils {
      * 使用与Bean属性匹配的Expression（包括实体查询对象）参数查询Bean。
      */
     public static <T> QBean<T> fitBean(Class<? extends T> type, Expression... expressions) {
-        // 获取到Bean的所有属性
-        PropertyDescriptor[] properties;
         try {
+            // 获取到Bean的所有属性
             BeanInfo beanInfo = Introspector.getBeanInfo(type);
-            properties = beanInfo.getPropertyDescriptors();
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        Map<String, Expression<?>> expressionMap = new HashMap<>();
-        for (PropertyDescriptor property : properties) {
-            if (property.getWriteMethod() != null) {
-                String name = property.getName();
-                for (Expression expression : expressions) {
-                    if (expression instanceof RelationalPathBase) {
-                        // 逐个匹配实体查询对象中的路径
-                        Path[] paths = ((RelationalPathBase) expression).all();
-                        for (Path path : paths) {
-                            matchBindings(expressionMap, name, path);
+            PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
+            Map<String, Expression<?>> expressionMap = new HashMap<>();
+            for (PropertyDescriptor property : properties) {
+                if (property.getWriteMethod() != null) {
+                    String name = property.getName();
+                    for (Expression expression : expressions) {
+                        if (expression instanceof RelationalPath) {
+                            // 逐个匹配实体查询对象中的路径
+                            for (Object path : ((RelationalPath) expression).getColumns()) {
+                                matchBindings(expressionMap, name, (Expression) path);
+                            }
+                        } else if (expression instanceof FactoryExpression) {
+                            // 逐个匹配FactoryExpression中的参数
+                            for (Object arg : ((FactoryExpression) expression).getArgs()) {
+                                matchBindings(expressionMap, name, (Expression) arg);
+                            }
+                        } else {
+                            // 匹配单个路径表达式是否用的上
+                            matchBindings(expressionMap, name, expression);
                         }
-                    } else if (expression instanceof FactoryExpression) {
-                        // 逐个匹配FactoryExpression中的参数
-                        List args = ((FactoryExpression) expression).getArgs();
-                        for (Object arg : args) {
-                            matchBindings(expressionMap, name, (Expression) arg);
-                        }
-                    } else {
-                        // 匹配单个路径表达式是否用的上
-                        matchBindings(expressionMap, name, expression);
                     }
                 }
             }
+            return Projections.bean(type, expressionMap);
+        } catch (IntrospectionException e) {
+            throw new IllegalStateException(e.getMessage(), e);
         }
-        return Projections.bean(type, expressionMap);
     }
 
     /**
@@ -210,20 +208,19 @@ public class QueryUtils {
     private static void matchBindings(Map<String, Expression<?>> expressionMap,
                                       String property, Expression expression) {
         if (expression instanceof Path<?>) {
-            String name = ((Path<?>) expression).getMetadata().getName();
-            if (property.equals(name)) {
-                expressionMap.putIfAbsent(name, expression);
+            Path path = (Path<?>) expression;
+            if (property.equals(path.getMetadata().getName())) {
+                expressionMap.putIfAbsent(property, path);
             }
         } else if (expression instanceof Operation<?>) {
             Operation<?> operation = (Operation<?>) expression;
             if (operation.getOperator() == Ops.ALIAS && operation.getArg(1) instanceof Path<?>) {
-                String name = ((Path<?>) operation.getArg(1)).getMetadata().getName();
-                if (property.equals(name)) {
+                if (property.equals(((Path<?>) operation.getArg(1)).getMetadata().getName())) {
                     Expression<?> express = operation.getArg(0);
                     if (express instanceof FactoryExpression || express instanceof GroupExpression) {
-                        expressionMap.putIfAbsent(name, express);
+                        expressionMap.putIfAbsent(property, express);
                     } else {
-                        expressionMap.putIfAbsent(name, operation);
+                        expressionMap.putIfAbsent(property, operation);
                     }
                 }
             } else {
