@@ -26,6 +26,7 @@ import java.util.function.Supplier;
  *
  * @author Ewing
  */
+@SuppressWarnings("unchecked")
 public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     public BaseQuery(Connection conn, Configuration configuration) {
@@ -48,14 +49,12 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> BaseQuery<T> select(Expression<T> expression) {
         queryMixin.setProjection(expression);
         return (BaseQuery<T>) this;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public BaseQuery<Tuple> select(Expression<?>... expressions) {
         queryMixin.setProjection(expressions);
         return (BaseQuery<Tuple>) this;
@@ -165,7 +164,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 获取结果列表。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> List<T> fetch(Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
         return (List<T>) fetch();
@@ -174,7 +173,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 根据主键获取实体。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> T fetchByKey(Object key) {
         return (T) whereEqKey(key).fetchOne();
     }
@@ -182,7 +181,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 根据主键获取对象。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> T fetchByKey(Object key, Class<T> type) {
         return whereEqKey(key).fetchOne(type);
     }
@@ -190,7 +189,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 获取结果对象。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> T fetchOne(Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
         return (T) fetchOne();
@@ -199,7 +198,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 获取结果对象。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> T fetchFirst(Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
         return (T) fetchFirst();
@@ -215,7 +214,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 获取分页结果。
      */
-    @SuppressWarnings("unchecked")
+
     public <T> Page<T> fetchPage(Pager pager, Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getJoins()));
         return (Page<T>) QueryUtils.queryPage(this, pager);
