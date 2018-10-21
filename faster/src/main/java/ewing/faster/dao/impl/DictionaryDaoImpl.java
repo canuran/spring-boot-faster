@@ -6,7 +6,6 @@ import ewing.faster.dao.DictionaryDao;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.faster.dao.query.QDictionary;
 import ewing.query.BaseQueryFactory;
-import ewing.query.QueryUtils;
 import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +51,11 @@ public class DictionaryDaoImpl implements DictionaryDao {
 
     @Override
     public List<DictionaryNode> findRootSubDictionaries(String[] rootValues) {
-        return queryFactory.selectDistinct(
-                QueryUtils.fitBean(DictionaryNode.class, qAllDictionary))
+        return queryFactory.selectDistinct(qAllDictionary)
                 .from(qDictionary)
                 .join(qAllDictionary)
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(qDictionary.value.in(rootValues))
-                .fetch();
+                .fetch(DictionaryNode.class);
     }
 }

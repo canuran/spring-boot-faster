@@ -5,7 +5,6 @@ import ewing.common.utils.GlobalIds;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.AuthorityDao;
 import ewing.faster.dao.RoleDao;
-import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Authority;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.RoleAuthority;
@@ -31,8 +30,6 @@ import java.util.List;
 @Service
 public class SecurityServiceImpl implements SecurityService {
 
-    @Autowired
-    private UserDao userDao;
     @Autowired
     private AuthorityDao authorityDao;
     @Autowired

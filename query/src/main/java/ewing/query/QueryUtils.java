@@ -234,7 +234,7 @@ public class QueryUtils {
             String name = ((Path<?>) expression).getMetadata().getName();
             for (PropertyDescriptor property : properties) {
                 if (property.getName().equals(name) && property.getWriteMethod() != null) {
-                    expressionMap.put(name, expression);
+                    expressionMap.putIfAbsent(name, expression);
                     break; // 匹配到属性结束内层循环
                 }
             }
@@ -248,9 +248,9 @@ public class QueryUtils {
                         Expression<?> express = operation.getArg(0);
                         if (express instanceof FactoryExpression
                                 || express instanceof GroupExpression) {
-                            expressionMap.put(name, express);
+                            expressionMap.putIfAbsent(name, express);
                         } else {
-                            expressionMap.put(name, operation);
+                            expressionMap.putIfAbsent(name, operation);
                         }
                         break; // 匹配到属性结束内层循环
                     }
