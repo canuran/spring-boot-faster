@@ -73,7 +73,7 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                 if (date == null) {
                     jsonGenerator.writeNull();
                 } else {
-                    jsonGenerator.writeString(StringDateParser.dateTimeToString(date));
+                    jsonGenerator.writeString(StringDateParser.getDateTimeString(date));
                 }
             }
         });
@@ -126,19 +126,19 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
         registry.addConverter(new Converter<Timestamp, String>() {
             @Override
             public String convert(Timestamp source) {
-                return StringDateParser.timestampToString(source);
+                return StringDateParser.getTimestampString(source);
             }
         });
         registry.addConverter(new Converter<java.sql.Date, String>() {
             @Override
             public String convert(java.sql.Date source) {
-                return StringDateParser.sqlDateToString(source);
+                return StringDateParser.getDateString(source);
             }
         });
         registry.addConverter(new Converter<Date, String>() {
             @Override
             public String convert(Date source) {
-                return StringDateParser.dateTimeToString(source);
+                return StringDateParser.getDateTimeString(source);
             }
         });
         super.addFormatters(registry);

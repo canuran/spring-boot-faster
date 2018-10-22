@@ -1,6 +1,5 @@
 package ewing.common.utils;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -129,9 +128,46 @@ public class StringDateParser {
     }
 
     /**
-     * 通用日期序列化为字符串。
+     * 序列化为日期字符串。
      */
-    public static String dateTimeToString(Date source) {
+    public static String getDateString(Date source) {
+        if (source == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(source);
+        StringBuilder builder = new StringBuilder();
+        builder.append(calendar.get(Calendar.YEAR)).append('-');
+        int month = calendar.get(Calendar.MONTH) + 1;
+        appendDateField(builder, month).append('-');
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        appendDateField(builder, day);
+        return builder.toString();
+    }
+
+    /**
+     * 序列化为时间字符串。
+     */
+    public static String getTimeString(Date source) {
+        if (source == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(source);
+        StringBuilder builder = new StringBuilder();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        appendDateField(builder, hour).append(':');
+        int minute = calendar.get(Calendar.MINUTE);
+        appendDateField(builder, minute).append(':');
+        int second = calendar.get(Calendar.SECOND);
+        appendDateField(builder, second);
+        return builder.toString();
+    }
+
+    /**
+     * 序列化为日期时间字符串。
+     */
+    public static String getDateTimeString(Date source) {
         if (source == null) {
             return null;
         }
@@ -153,46 +189,9 @@ public class StringDateParser {
     }
 
     /**
-     * Sql日期序列化为字符串。
+     * 序列化为Timestamp字符串。
      */
-    public static String sqlDateToString(java.sql.Date source) {
-        if (source == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(source);
-        StringBuilder builder = new StringBuilder();
-        builder.append(calendar.get(Calendar.YEAR)).append('-');
-        int month = calendar.get(Calendar.MONTH) + 1;
-        appendDateField(builder, month).append('-');
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        appendDateField(builder, day);
-        return builder.toString();
-    }
-
-    /**
-     * Sql时间序列化为字符串。
-     */
-    public static String timeToString(Time source) {
-        if (source == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(source);
-        StringBuilder builder = new StringBuilder();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        appendDateField(builder, hour).append(':');
-        int minute = calendar.get(Calendar.MINUTE);
-        appendDateField(builder, minute).append(':');
-        int second = calendar.get(Calendar.SECOND);
-        appendDateField(builder, second);
-        return builder.toString();
-    }
-
-    /**
-     * Timestamp序列化为字符串。
-     */
-    public static String timestampToString(Timestamp source) {
+    public static String getTimestampString(Date source) {
         if (source == null) {
             return null;
         }
@@ -216,7 +215,7 @@ public class StringDateParser {
     }
 
     /**
-     * 追加日期字段，小时10在前面补0。
+     * 追加日期字段，小于10在前面补0。
      */
     private static StringBuilder appendDateField(StringBuilder builder, int field) {
         if (field < 10) {
