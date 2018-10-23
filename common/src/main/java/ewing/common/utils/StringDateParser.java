@@ -59,53 +59,7 @@ public class StringDateParser {
         if (source == null || source.isEmpty()) {
             return null;
         }
-        // 字段依次是年、月、日、时、分、秒、毫秒、时区时、时区分
-        int[] fields = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-        // 当前字段的位置
-        int index = 0;
-        // 当前字段的位数
-        int length = 0;
-        // 时区符号 1为正 -1为负
-        int tzSign = 0;
-        for (int i = 0; i < source.length() && index < fields.length; i++) {
-            char ch = source.charAt(i);
-            // 数字是有效时间值
-            if (ch >= '0' && ch <= '9') {
-                length++;
-                // 当前字段值有新数字则添加到末位
-                fields[index] = fields[index] * 10 + ch - '0';
-                // 解析时区字段时，默认为正时区
-                if (index == 7 && tzSign == 0) {
-                    tzSign = 1;
-                }
-                // 当前字段已满，切换下一个日期字段
-                if (length == LENGTHS[index]) {
-                    index++;
-                    length = 0;
-                }
-            } else {
-                // 小时字段之后，检测时区标志符
-                if (index > 2) {
-                    if (ch == 'Z') { // 标准时区
-                        tzSign = 1;
-                        break;
-                    } else if (ch == '+') { // 正时区
-                        index = 7;
-                        tzSign = 1;
-                        continue;
-                    } else if (ch == '-') { // 负时区
-                        index = 7;
-                        tzSign = -1;
-                        continue;
-                    }
-                }
-                // 遇到非数字视为分隔符，切换下一个日期字段
-                if (length > 0) {
-                    index++;
-                    length = 0;
-                }
-            }
-        }
+        int[] fields = getTimeFields(source);
         // 根据字段数值设置日期
         Calendar calendar = Calendar.getInstance();
         // 设置年，值从1开始，默认值为第1年
@@ -120,11 +74,60 @@ public class StringDateParser {
         calendar.set(Calendar.SECOND, fields[5]);
         calendar.set(Calendar.MILLISECOND, fields[6]);
         // 处理时区小时差和分差
-        if (tzSign != 0) {
+        if (fields[9] != 0) {
             int offset = fields[7] * 3600000 + fields[8] * 60000;
-            calendar.set(Calendar.ZONE_OFFSET, tzSign * offset);
+            calendar.set(Calendar.ZONE_OFFSET, fields[9] * offset);
         }
         return calendar;
+    }
+
+    private static int[] getTimeFields(String source) {
+        // 字段依次是年、月、日、时、分、秒、毫秒、时区时、时区分、时区符号
+        int[] fields = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        // 当前字段的位置
+        int index = 0;
+        // 当前字段的位数
+        int length = 0;
+        for (int i = 0; i < source.length() && index < fields.length; i++) {
+            char ch = source.charAt(i);
+            // 数字是有效时间值
+            if (ch >= '0' && ch <= '9') {
+                length++;
+                // 当前字段值有新数字则添加到末位
+                fields[index] = fields[index] * 10 + ch - '0';
+                // 解析时区字段时，默认为正时区
+                if (index == 7 && fields[9] == 0) {
+                    fields[9] = 1;
+                }
+                // 当前字段已满，切换下一个日期字段
+                if (length == LENGTHS[index]) {
+                    index++;
+                    length = 0;
+                }
+            } else {
+                // 小时字段之后，检测时区标志符
+                if (index > 2) {
+                    if (ch == 'Z') { // 标准时区
+                        fields[9] = 1;
+                        break;
+                    } else if (ch == '+') { // 正时区
+                        index = 7;
+                        fields[9] = 1;
+                        continue;
+                    } else if (ch == '-') { // 负时区
+                        index = 7;
+                        fields[9] = -1;
+                        continue;
+                    }
+                }
+                // 遇到非数字视为分隔符，切换下一个日期字段
+                if (length > 0) {
+                    index++;
+                    length = 0;
+                }
+            }
+        }
+        return fields;
     }
 
     /**
