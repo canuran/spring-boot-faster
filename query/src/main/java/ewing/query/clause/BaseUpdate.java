@@ -83,32 +83,43 @@ public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
      * 根据实体的主键更新实体。
      */
     public long updateBean(Object bean) {
-        return updateBean(bean, DefaultMapper.DEFAULT);
+        List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths((RelationalPathBase) entity);
+        return populate(bean)
+                .where(QueryUtils.beanKeyEquals(keyPaths, bean))
+                .execute();
     }
 
     /**
      * 根据实体的主键更新实体。
      */
-    public long updateBean(Object bean, Mapper<Object> mapper) {
+    public long updateWithNull(Object bean) {
         List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths((RelationalPathBase) entity);
-        return populate(bean, mapper).where(QueryUtils.beanKeyEquals(keyPaths, bean)).execute();
+        return populate(bean, DefaultMapper.WITH_NULL_BINDINGS)
+                .where(QueryUtils.beanKeyEquals(keyPaths, bean))
+                .execute();
     }
 
     /**
      * 批量根据实体的主键更新实体。
      */
     public long updateBeans(Collection<?> beans) {
-        return updateBeans(beans, DefaultMapper.DEFAULT);
+        return updatesByMapper(beans, DefaultMapper.DEFAULT);
     }
 
     /**
      * 批量根据实体的主键更新实体。
      */
-    public long updateBeans(Collection<?> beans, Mapper<Object> mapper) {
+    public long updatesWithNull(Collection<?> beans) {
+        return updatesByMapper(beans, DefaultMapper.WITH_NULL_BINDINGS);
+    }
+
+    private long updatesByMapper(Collection<?> beans, Mapper<Object> mapper) {
         if (beans != null && !beans.isEmpty()) {
             List<? extends Path<?>> keyPaths = QueryUtils.getKeyPaths((RelationalPathBase) entity);
             for (Object bean : beans) {
-                populate(bean, mapper).where(QueryUtils.beanKeyEquals(keyPaths, bean)).addBatch();
+                populate(bean, mapper)
+                        .where(QueryUtils.beanKeyEquals(keyPaths, bean))
+                        .addBatch();
             }
             return execute();
         }

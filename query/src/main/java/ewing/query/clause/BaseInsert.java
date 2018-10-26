@@ -93,24 +93,30 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
     /**
      * 保存实体对象。
      */
-    public long insertBean(Object bean, Mapper<Object> mapper) {
-        return populate(bean, mapper).execute();
+    public long insertWithNull(Object bean) {
+        return populate(bean, DefaultMapper.WITH_NULL_BINDINGS).execute();
     }
 
     /**
      * 批量保存实体。
      */
     public long insertBeans(Collection<?> beans) {
-        return insertBeans(beans, DefaultMapper.DEFAULT);
+        if (beans != null && !beans.isEmpty()) {
+            for (Object bean : beans) {
+                populate(bean).addBatch();
+            }
+            return execute();
+        }
+        return 0L;
     }
 
     /**
      * 批量保存实体。
      */
-    public long insertBeans(Collection<?> beans, Mapper<Object> mapper) {
+    public long insertsWithNull(Collection<?> beans) {
         if (beans != null && !beans.isEmpty()) {
             for (Object bean : beans) {
-                populate(bean, mapper).addBatch();
+                populate(bean, DefaultMapper.WITH_NULL_BINDINGS).addBatch();
             }
             return execute();
         }
@@ -120,16 +126,19 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
     /**
      * 保存实体并填充实体主键。
      */
-    public <K> K insertWithKey(Object bean) {
-        return insertWithKey(bean, DefaultMapper.DEFAULT);
+    public <K> K insertGetKey(Object bean) {
+        Path<K> keyPath = QueryUtils.getSinglePrimaryKey((RelationalPathBase) entity);
+        K value = populate(bean).executeWithKey(keyPath);
+        QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
+        return value;
     }
 
     /**
      * 保存实体并填充实体主键。
      */
-    public <K> K insertWithKey(Object bean, Mapper<Object> mapper) {
+    public <K> K insertWithNullGetKey(Object bean) {
         Path<K> keyPath = QueryUtils.getSinglePrimaryKey((RelationalPathBase) entity);
-        K value = populate(bean, mapper).executeWithKey(keyPath);
+        K value = populate(bean, DefaultMapper.WITH_NULL_BINDINGS).executeWithKey(keyPath);
         QueryUtils.setBeanProperty(bean, keyPath.getMetadata().getName(), value);
         return value;
     }
@@ -137,14 +146,18 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
     /**
      * 批量保存实体并填充实体主键。
      */
-    public <K> List<K> insertWithKeys(Collection<?> beans) {
-        return insertWithKeys(beans, DefaultMapper.DEFAULT);
+    public <K> List<K> insertsGetKey(Collection<?> beans) {
+        return insertsByMapperGetKey(beans, DefaultMapper.DEFAULT);
     }
 
     /**
      * 批量保存实体并填充实体主键。
      */
-    public <K> List<K> insertWithKeys(Collection<?> beans, Mapper<Object> mapper) {
+    public <K> List<K> insertsWithNullGetKey(Collection<?> beans) {
+        return insertsByMapperGetKey(beans, DefaultMapper.WITH_NULL_BINDINGS);
+    }
+
+    private <K> List<K> insertsByMapperGetKey(Collection<?> beans, Mapper<Object> mapper) {
         if (beans != null && !beans.isEmpty()) {
             Path<K> keyPath = QueryUtils.getSinglePrimaryKey((RelationalPathBase) entity);
             for (Object bean : beans) {

@@ -143,14 +143,14 @@ public class QuerydslDemos {
     public void simpleOperation() {
         DemoUser demoUser = newDemoUser();
         // 1.新增实体，并返回主键，主键也会被设置到Bean中
-        Integer userId = queryFactory.insert(qDemoUser).insertWithKey(demoUser);
+        Integer userId = queryFactory.insert(qDemoUser).insertGetKey(demoUser);
 
         System.out.println(userId);
         System.out.println(demoUser);
 
         // 批量新增实体
         List<DemoUser> newUsers = Arrays.asList(newDemoUser(), newDemoUser());
-        List<Integer> userIds = queryFactory.insert(qDemoUser).insertWithKeys(newUsers);
+        List<Integer> userIds = queryFactory.insert(qDemoUser).insertsGetKey(newUsers);
 
         System.out.println(userIds);
 
