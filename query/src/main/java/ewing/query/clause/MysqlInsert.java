@@ -75,7 +75,7 @@ public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
     /**
      * MySql专用保存实体并填充实体主键，如果唯一键已存在则更新。
      */
-    public <KEY> KEY insertDuplicateUpdateWithKey(Object bean, Path<?>... duplicatePaths) {
+    public <KEY> KEY insertDuplicateUpdateGetKey(Object bean, Path<?>... duplicatePaths) {
         Path<KEY> keyPath = QueryUtils.getSinglePrimaryKey((RelationalPathBase) entity);
         Map<Path<?>, Object> valuesMap = DefaultMapper.DEFAULT.createMap(entity, bean);
         valuesMap.forEach((key, value) -> set((Path<Object>) key, value));
