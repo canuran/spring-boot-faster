@@ -30,7 +30,7 @@ public class FriendlySQLLogger extends SQLBaseListener {
     @Override
     public void preExecute(SQLListenerContext context) {
         if (LOGGER.isInfoEnabled() && context != null && context.getAllSQLBindings() != null) {
-            StringBuilder sqlBuilder = new StringBuilder(128 * context.getAllSQLBindings().size());
+            StringBuilder sqlBuilder = new StringBuilder(32 * context.getAllSQLBindings().size());
             for (SQLBindings sqlBindings : context.getAllSQLBindings()) {
                 char[] sqlChars = sqlBindings.getSQL().toCharArray();
                 Iterator iterator = sqlBindings.getNullFriendlyBindings().iterator();
