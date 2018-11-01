@@ -120,7 +120,7 @@ public class QuerydslDemos {
 
         // 批量插入对象并获取主键
         List<DemoUser> newUsers = Arrays.asList(newDemoUser(), newDemoUser());
-        List<Integer> userIds = queryFactory.insert(qDemoUser).insertsGetKey(newUsers);
+        List<Integer> userIds = queryFactory.insert(qDemoUser).insertGetKeys(newUsers);
         System.out.println(userIds);
 
         // 2.更新实体，更多快捷方法见BaseUpdate类
