@@ -202,6 +202,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     /**
      * 获取分页结果。
+     * <p>
+     * 分页是多次查询，确保开启事务！
      */
     public Page<E> fetchPage(Pager pager) {
         return QueryUtils.queryPage(this, pager);
@@ -209,6 +211,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     /**
      * 获取分页结果。
+     * <p>
+     * 分页是多次查询，确保开启事务！
      */
     public <T> Page<T> fetchPage(Pager pager, Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));

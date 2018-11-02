@@ -49,6 +49,8 @@ public class QueryUtils {
 
     /**
      * 使用分页参数和查询对象进行分页查询。
+     * <p>
+     * 分页是多次查询，确保开启事务！
      */
     public static <T> Page<T> queryPage(FetchableQuery<T, ?> query, Pager pager) {
         if (pager == null) {
@@ -71,7 +73,6 @@ public class QueryUtils {
             return new Page<>(rows);
         }
     }
-
 
     /**
      * 获取主键中的字段属性。

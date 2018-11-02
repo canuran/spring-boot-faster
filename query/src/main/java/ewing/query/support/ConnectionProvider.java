@@ -13,6 +13,8 @@ import java.sql.SQLException;
 
 /**
  * 安全连接提供者及监听器，主动释放没有被Spring事务管理的连接。
+ * <p>
+ * 注意：仅当单次查询时可免事务，如果查询被多次使用，请开启Spring事务！
  *
  * @author caiyouyuan
  * @since 2018年06月18日
