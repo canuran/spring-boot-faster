@@ -35,6 +35,14 @@ public class Pager implements Serializable {
         this.count = count;
     }
 
+    public static Pager of(int page, int size) {
+        return new Pager(page * size - size, size);
+    }
+
+    public static Pager of(int page, int size, boolean count) {
+        return new Pager(page * size - size, size, count);
+    }
+
     public int getOffset() {
         return offset;
     }
