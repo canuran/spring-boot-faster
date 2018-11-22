@@ -27,6 +27,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -69,7 +72,7 @@ public class QuerydslDemos {
      * 原始API进行简单的CRUD操作。
      */
     @Test
-    public void originOperation() {
+    public void originOperation() throws Exception {
         DemoUser demoUser = newDemoUser();
 
         // 1.新增实体并返回主键
@@ -104,6 +107,17 @@ public class QuerydslDemos {
                 .where(qDemoUser.username.contains("元宝"))
                 .execute();
         System.out.println(deleteCount);
+
+        // 5.极端场景执行任意SQL（暂未遇到过）
+        String anySql = "select 123 from dual";
+        Connection connection = queryFactory.getConnection();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(anySql)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    System.out.println(resultSet.getInt(1));
+                }
+            }
+        }
     }
 
     /**
