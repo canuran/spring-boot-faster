@@ -2,6 +2,7 @@ package ewing.faster.application.config;
 
 import ewing.common.exception.ExceptionUtils;
 import ewing.common.exception.ResultException;
+import ewing.faster.FasterMain;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 public class ExceptionHandler implements HandlerExceptionResolver {
+
+    private String businessPackage = FasterMain.class.getPackage().getName();
 
     /**
      * RequestBody返回普通文本，否则返回错误视图。
@@ -48,7 +51,7 @@ public class ExceptionHandler implements HandlerExceptionResolver {
             } else {
                 view.addStaticAttribute("code", 0);
                 view.addStaticAttribute("message", "失败！");
-                view.addStaticAttribute("data", ExceptionUtils.getCauseTrace(e));
+                view.addStaticAttribute("data", ExceptionUtils.getBusinessTraces(e, businessPackage));
             }
             return new ModelAndView(view);
         } else {

@@ -1,5 +1,8 @@
 package ewing.common.exception;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 异常工具类。
  *
@@ -8,34 +11,23 @@ package ewing.common.exception;
 public class ExceptionUtils {
 
     /**
-     * 获取来源异常消息及堆栈信息。
+     * 获取异常根栈信息及业务链调用栈信息。
      */
-    public static ExceptionTrace getCauseTrace(Throwable throwable) {
-        // 获取最开始的异常
-        Throwable cause = getFirstCause(throwable);
-        // 获取异常消息及堆栈信息
-        ExceptionTrace exceptionTrace = new ExceptionTrace();
-        exceptionTrace.setMessage(cause.getMessage());
-        exceptionTrace.setException(cause.getClass().getName());
-        StackTraceElement[] traces = cause.getStackTrace();
+    public static List<StackTraceElement> getBusinessTraces(Throwable throwable, String businessPackage) {
+        StackTraceElement[] traces = throwable.getStackTrace();
+        List<StackTraceElement> businessTraces = new ArrayList<>();
         if (traces != null && traces.length > 0) {
-            StackTraceElement firstTrace = traces[0];
-            exceptionTrace.setAtClass(firstTrace.getClassName());
-            exceptionTrace.setAtMethod(firstTrace.getMethodName());
-            exceptionTrace.setAtLine(firstTrace.getLineNumber());
+            for (StackTraceElement trace : traces) {
+                if (businessTraces.isEmpty()) {
+                    // 添加来根栈信息
+                    businessTraces.add(trace);
+                } else if (trace != null && trace.getClassName().startsWith(businessPackage)) {
+                    // 添加业务链调用栈
+                    businessTraces.add(trace);
+                }
+            }
         }
-        return exceptionTrace;
-    }
-
-    /**
-     * 获取第一次导致的异常信息。
-     */
-    public static Throwable getFirstCause(Throwable throwable) {
-        Throwable cause = throwable;
-        while (cause.getCause() != null) {
-            cause = cause.getCause();
-        }
-        return cause;
+        return businessTraces;
     }
 
 }
