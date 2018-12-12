@@ -197,10 +197,23 @@ public class QuerydslDemos {
         String orderParam = "username asc";
 
         // 完全链式方法调用
-        Page<DemoUser> userPage = queryFactory.selectFrom(qDemoUser)
+        Page<Tuple> tuplePage = queryFactory.select(
+                // 指定字段与常用函数
+                qDemoUser.username,
+                qDemoUser.createTime,
+                qDemoUser.userId.avg(),
+                qDemoUser.userId.max(),
+                qDemoUser.userId.min(),
+                qDemoUser.userId.sum(),
+                qDemoUser.userId.count(),
+                qDemoUser.userId.multiply(2),
+                qDemoUser.userId.add(10),
+                qDemoUser.userId.subtract(10),
+                qDemoUser.userId.divide(2))
                 .distinct()
 
                 // 多表关联、动态关联条件
+                .from(qDemoUser)
                 .leftJoin(qDemoAddress)
                 .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
                 .onIfNotNull(address, qDemoAddress.name::contains)
@@ -228,7 +241,7 @@ public class QuerydslDemos {
 
                 // 获取结果
                 .fetchPage(Pager.of(1, 100));
-        System.out.println(userPage);
+        System.out.println(tuplePage);
     }
 
     /**
@@ -346,16 +359,6 @@ public class QuerydslDemos {
     @Test
     public void customSqlTemplate() throws Exception {
         BaseQuery<Tuple> query = queryFactory.select(
-                // 常用的函数
-                qDemoUser.userId.avg(),
-                qDemoUser.userId.max(),
-                qDemoUser.userId.min(),
-                qDemoUser.userId.sum(),
-                qDemoUser.userId.count(),
-                qDemoUser.userId.multiply(2),
-                qDemoUser.userId.add(10),
-                qDemoUser.userId.subtract(10),
-                qDemoUser.userId.divide(2),
                 Expressions.asNumber(2).sum(),
                 Expressions.asNumber(1).count(),
                 SQLExpressions.sum(Expressions.constant(3)),
@@ -377,16 +380,15 @@ public class QuerydslDemos {
                 Expressions.stringPath(qDemoUser.username.getMetadata()),
                 Expressions.numberPath(BigInteger.class, qDemoUser.userId.getMetadata()),
 
-                // 【不推荐】自定义列名和表达式
-                Expressions.numberTemplate(Integer.class, "user_id % {0}", 1000),
+                // 【慎用】自定义列名和表达式
                 Expressions.stringTemplate("group_concat({0})", qDemoUser.username))
 
                 .from(qDemoUser)
 
-                // 【不推荐】使用指定索引优化查询
+                // 【慎用】使用指定索引优化查询
                 .addFlag(QueryFlag.Position.BEFORE_FILTERS, " force index(ix_user_id) ")
 
-                // 【不推荐】自定义条件表达式
+                // 【慎用】自定义条件表达式
                 .where(Expressions.booleanTemplate(
                         "now() < {0} or now() > {0}", DateExpression.currentDate()))
 
