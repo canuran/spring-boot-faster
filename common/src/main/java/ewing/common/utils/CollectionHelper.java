@@ -164,4 +164,25 @@ public class CollectionHelper {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取集合中唯一的元素。
+     */
+    public static <C extends Collection<E>, E> E getUnique(C source) {
+        if (source == null || source.isEmpty() || source.size() > 1) {
+            throw new IllegalArgumentException("Collection is empty or element not unique.");
+        }
+        return source.iterator().next();
+    }
+
+    /**
+     * 获取集合中第一个元素。
+     */
+    public static <C extends Collection<E>, E> E getFirst(C source) {
+        if (isEmpty(source)) {
+            return null;
+        } else {
+            return source.iterator().next();
+        }
+    }
+
 }

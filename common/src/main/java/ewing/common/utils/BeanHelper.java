@@ -1,7 +1,5 @@
 package ewing.common.utils;
 
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.BeanInfo;
@@ -9,7 +7,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -40,26 +37,6 @@ public class BeanHelper {
             return invokeMethod(target, methodName, argTypes, args);
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    /**
-     * 获取集合中唯一的元素。
-     */
-    public static <C extends Collection<E>, E> E getUnique(C source) {
-        Assert.notEmpty(source, "集合不能为空！");
-        Assert.isTrue(source.size() == 1, "集合元素不唯一！");
-        return source.iterator().next();
-    }
-
-    /**
-     * 获取集合中第一个元素。
-     */
-    public static <C extends Collection<E>, E> E getFirst(C source) {
-        if (CollectionUtils.isEmpty(source)) {
-            return null;
-        } else {
-            return source.iterator().next();
         }
     }
 
