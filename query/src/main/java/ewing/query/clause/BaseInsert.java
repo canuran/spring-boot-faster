@@ -175,6 +175,11 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
         return Collections.emptyList();
     }
 
+    public BaseInsert batchToBulk() {
+        setBatchToBulk(true);
+        return this;
+    }
+
     @Override
     public long execute() {
         return isEmpty() ? 0L : super.execute();

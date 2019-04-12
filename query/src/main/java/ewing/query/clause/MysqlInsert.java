@@ -118,4 +118,9 @@ public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
         return insert;
     }
 
+    public MysqlInsert batchToBulk() {
+        setBatchToBulk(true);
+        return this;
+    }
+
 }
