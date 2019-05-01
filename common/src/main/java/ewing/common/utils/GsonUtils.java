@@ -13,6 +13,9 @@ import java.util.List;
  */
 public final class GsonUtils {
 
+    public static final JsonObject EMPTY_JSON_OBJECT = new JsonObject();
+    public static final JsonArray EMPTY_JSON_ARRAY = new JsonArray();
+
     private static final Gson gson = new GsonBuilder()
             .setLenient()
             .enableComplexMapKeySerialization()
@@ -46,9 +49,45 @@ public final class GsonUtils {
     }
 
     /**
+     * 将json字符串转成object，转换出错返回null。
+     */
+    public static <T> T forceToObject(String json, Class<T> type) {
+        try {
+            return gson.fromJson(json, type);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 将json字符串转成任意泛型object。
      */
     public static <T> T toObject(String json, TypeToken<T> typeToken) {
+        return gson.fromJson(json, typeToken.getType());
+    }
+
+    /**
+     * 将json字符串转成object。
+     */
+    public static <T> T toObject(JsonElement json, Class<T> type) {
+        return gson.fromJson(json, type);
+    }
+
+    /**
+     * 将json字符串转成object，转换出错返回null。
+     */
+    public static <T> T forceToObject(JsonElement json, Class<T> type) {
+        try {
+            return gson.fromJson(json, type);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 将json字符串转成任意泛型object。
+     */
+    public static <T> T toObject(JsonElement json, TypeToken<T> typeToken) {
         return gson.fromJson(json, typeToken.getType());
     }
 
@@ -59,6 +98,17 @@ public final class GsonUtils {
         List<T> list = new ArrayList<>();
         JsonArray array = new JsonParser().parse(arrayJson).getAsJsonArray();
         for (JsonElement elem : array) {
+            list.add(gson.fromJson(elem, type));
+        }
+        return list;
+    }
+
+    /**
+     * 将json字符串转成转成list。
+     */
+    public static <T> List<T> toList(JsonArray jsonArray, Class<T> type) {
+        List<T> list = new ArrayList<>();
+        for (JsonElement elem : jsonArray) {
             list.add(gson.fromJson(elem, type));
         }
         return list;
