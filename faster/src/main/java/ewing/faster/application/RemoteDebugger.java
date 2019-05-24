@@ -3,7 +3,6 @@ package ewing.faster.application;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import ewing.common.ResultMessage;
-import ewing.common.exception.BusinessException;
 import ewing.common.exception.Checks;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
@@ -41,11 +40,13 @@ public class RemoteDebugger {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)\\.([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
+    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
 
     @PostMapping("/methodExecute")
-    @ApiOperation(value = "根据Bean名称或类全名调用方法", notes = "例如：userServiceImpl.findUserWithRole({limit:2})" +
-            " 或：ewing.common.utils.TimeUtils.getDaysOfMonth(2018,5) 注意：无法区分重载且参数的Json相互兼容的方法")
+    @ApiOperation(value = "可执行项目中的任意方法", notes = "Spring Bean 方法调用：userServiceImpl.findUser({name:\"元宝\"})\n" +
+            "或直接复制方法引用：com.ewing.UserServiceImpl#findUser({name:\"元宝\"})\n" +
+            "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
+            "注意：如果方法重载的，参数Json也是兼容的，将无法确定调用哪个方法。")
     public ResultMessage methodExecute(@RequestBody String expression) {
         Checks.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
@@ -53,12 +54,12 @@ public class RemoteDebugger {
 
         // 根据名称获取Bean
         String classOrBeanName = matcher.group(1);
-        Object bean = getBean(classOrBeanName);
+        Object springBean = getSpringBean(classOrBeanName);
         Class clazz;
         try {
-            clazz = bean == null ? Class.forName(classOrBeanName) : AopProxyUtils.ultimateTargetClass(bean);
+            clazz = springBean == null ? Class.forName(classOrBeanName) : AopProxyUtils.ultimateTargetClass(springBean);
         } catch (Exception e) {
-            throw new BusinessException("初始化类失败！", e);
+            throw new RuntimeException("初始化类失败！", e);
         }
         Checks.notNull(clazz, "调用Class不能为空！");
 
@@ -67,7 +68,7 @@ public class RemoteDebugger {
 
         // 转换方法参数
         JsonArray params = getJsonArray("[" + matcher.group(3) + "]");
-        return new ResultMessage<>(executeFoundMethod(clazz, bean, mayMethods, params));
+        return new ResultMessage<>(GsonUtils.toJson(executeFoundMethod(clazz, springBean, mayMethods, params)));
     }
 
     private Object executeFoundMethod(Class clazz, Object bean, List<Method> mayMethods, JsonArray params) {
@@ -103,10 +104,18 @@ public class RemoteDebugger {
             if (Modifier.isStatic(foundMethod.getModifiers())) {
                 return foundMethod.invoke(clazz, args.toArray());
             } else {
-                return foundMethod.invoke(bean == null ? clazz.newInstance() : bean, args.toArray());
+                if (bean != null) {
+                    Class<?> methodClass = foundMethod.getDeclaringClass();
+                    if (!methodClass.equals(bean.getClass())) {
+                        foundMethod = bean.getClass().getDeclaredMethod(foundMethod.getName(), foundMethod.getParameterTypes());
+                    }
+                    return foundMethod.invoke(bean, args.toArray());
+                } else {
+                    return foundMethod.invoke(clazz.newInstance(), args.toArray());
+                }
             }
         } catch (Exception e) {
-            throw new BusinessException("调用方法失败！", e);
+            throw new RuntimeException("调用方法失败！", e);
         }
     }
 
@@ -114,7 +123,7 @@ public class RemoteDebugger {
         try {
             return GsonUtils.toObject(jsonParams, JsonArray.class);
         } catch (Exception e) {
-            throw new BusinessException("参数格式不正确！");
+            throw new RuntimeException("参数格式不正确！");
         }
     }
 
@@ -126,12 +135,15 @@ public class RemoteDebugger {
         return mayMethods;
     }
 
-    private Object getBean(String beanName) {
+    private Object getSpringBean(String beanName) {
         try {
             return applicationContext.getBean(beanName);
         } catch (Exception e) {
-            return null;
+            try {
+                return applicationContext.getBean(Class.forName(beanName));
+            } catch (Exception ex) {
+                return null;
+            }
         }
     }
-
 }
