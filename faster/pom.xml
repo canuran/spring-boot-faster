@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.15.RELEASE</version>
+                <version>1.5.21.RELEASE</version>
             </plugin>
             <!-- 跳过测试用例 -->
             <plugin>
@@ -57,7 +57,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.5.15.RELEASE</version>
+                <version>1.5.21.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
