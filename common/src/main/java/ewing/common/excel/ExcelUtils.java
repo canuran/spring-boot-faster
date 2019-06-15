@@ -93,11 +93,14 @@ public class ExcelUtils {
                     }
 
                     // 创建Sheet设置默认值
-                    Sheet sheet = excelSheet.value().isEmpty() ? workbook.createSheet() : workbook.createSheet(excelSheet.value());
+                    Sheet sheet = excelSheet.value().isEmpty() ? workbook.createSheet() :
+                            workbook.createSheet(excelSheet.value());
                     sheet.setDefaultColumnWidth(excelSheet.columnWidth());
                     if (excelSheet.freezeFirstRow() || excelSheet.freezeFirstColumn()) {
-                        sheet.createFreezePane(excelSheet.freezeFirstColumn() ? 1 : 0, excelSheet.freezeFirstRow() ? 1 : 0,
-                                excelSheet.freezeFirstColumn() ? 1 : 0, excelSheet.freezeFirstRow() ? 1 : 0);
+                        sheet.createFreezePane(excelSheet.freezeFirstColumn() ? 1 : 0,
+                                excelSheet.freezeFirstRow() ? 1 : 0,
+                                excelSheet.freezeFirstColumn() ? 1 : 0,
+                                excelSheet.freezeFirstRow() ? 1 : 0);
                     }
 
                     field.setAccessible(true);
