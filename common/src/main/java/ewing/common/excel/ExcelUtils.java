@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -57,11 +56,7 @@ public class ExcelUtils {
      */
     public static <T> void exportExcel(Class<T> type, List<T> data, String fileName, HttpServletResponse response) {
         Workbook workbook = exportExcel(type, data);
-        try {
-            writeWorkBookToResponse(fileName, response, workbook);
-        } catch (Exception e) {
-            throw new IllegalStateException("Write excel failure", e);
-        }
+        writeWorkBookToResponse(fileName, response, workbook);
     }
 
     /**
@@ -122,11 +117,7 @@ public class ExcelUtils {
      */
     public static <T> void exportMultiSheetExcel(Class<T> type, T data, String fileName, HttpServletResponse response) {
         Workbook workbook = exportMultiSheetExcel(type, data);
-        try {
-            writeWorkBookToResponse(fileName, response, workbook);
-        } catch (Exception e) {
-            throw new IllegalStateException("Write multi sheet excel failure", e);
-        }
+        writeWorkBookToResponse(fileName, response, workbook);
     }
 
     /**
@@ -190,12 +181,17 @@ public class ExcelUtils {
         }
     }
 
-    private static void writeWorkBookToResponse(String fileName, HttpServletResponse response, Workbook workbook) throws IOException {
-        response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-        ServletOutputStream outputStream = response.getOutputStream();
-        workbook.write(outputStream);
-        outputStream.flush();
+    private static void writeWorkBookToResponse(String fileName, HttpServletResponse response, Workbook workbook) {
+        try {
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            ServletOutputStream outputStream = null;
+            outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            outputStream.flush();
+        } catch (Exception e) {
+            throw new IllegalStateException("Write excel to response failure", e);
+        }
     }
 
 }
