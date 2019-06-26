@@ -10,9 +10,11 @@ import java.security.SecureRandom;
 import java.util.Enumeration;
 
 /**
- * 全局ID生成器，保持趋势递增，尾数均匀，每秒可获取4096000个全局唯一值。
- * 位值组成：毫秒（目前41位） + 24位机器标识 + 8位进程标识 + 12位累加数。
- * 使用26位10进制整数（MySql占12字节）可使用到2150年，到时扩展长度即可。
+ * 全局ID生成器，保持趋势递增，尾数均匀，每个运行实例每秒可获取4096000个全局唯一值。
+ *
+ * 位值组成：毫秒（目前41位） + 24位机器标识 + 8位进程标识 + 12位累加数（起始为随机数）。
+ *
+ * 目前26位10进制整数可使用到2150年，MySql用Decimal(27)占12字节，可以认为无限期使用。
  *
  * @author Ewing
  */
@@ -31,7 +33,7 @@ public class GlobalIds {
     // 时间戳 放在ID的最前面
     private static long timestamp = System.currentTimeMillis();
 
-    // 计数器 取后面的位
+    // 计数器 取后面的位 起始为随机数
     private static int counter = new SecureRandom().nextInt(COUNTER_MASK);
 
     // 游标 记录新的时间的计数器开始值
