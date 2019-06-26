@@ -1,11 +1,10 @@
 package ewing.faster;
 
-import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.maven.MetadataExportMojo;
 import com.querydsl.sql.codegen.support.NumericMapping;
 import org.apache.maven.project.MavenProject;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.stream.IntStream;
 
 /**
@@ -21,9 +20,9 @@ public class GenerateQuery {
      */
     public static void main(String[] args) throws Exception {
         // 配置参数并导出代码
-        MetadataExportMojo exporter = new MetadataExportMojo();
         MavenProject project = new MavenProject();
         project.getProperties().setProperty("project.build.sourceEncoding", "UTF-8");
+        MetadataExportMojo exporter = new MetadataExportMojo();
         exporter.setProject(project);
         exporter.setJdbcUrl("jdbc:mysql://localhost:3306/faster?useUnicode=true&characterEncoding=UTF-8");
         exporter.setJdbcDriver("com.mysql.jdbc.Driver");
@@ -35,8 +34,8 @@ public class GenerateQuery {
         exporter.setPackageName("ewing.faster.dao.query");
         exporter.setBeanPackageName("ewing.faster.dao.entity");
         exporter.setBeanInterfaces(new String[]{java.io.Serializable.class.getName()});
-        setFieldValue(exporter, "beanAddToString", true);
-        setFieldValue(exporter, "exportPrimaryKeys", true);
+        ReflectionTestUtils.setField(exporter, "beanAddToString", true);
+        ReflectionTestUtils.setField(exporter, "exportPrimaryKeys", true);
         exporter.setCustomTypes(new String[]{com.querydsl.sql.types.UtilDateType.class.getName()});
         exporter.setNumericMappings(getNumericMappings());
         exporter.setTableNamePattern("%");
@@ -54,19 +53,6 @@ public class GenerateQuery {
             mapping.setJavaType(Integer.class.getName());
             return mapping;
         }).toArray(NumericMapping[]::new);
-    }
-
-    /**
-     * 设置对象的属性值。
-     */
-    private static void setFieldValue(Object target, String fieldName, Object value) {
-        try {
-            Field field = ReflectionUtils.getFieldOrNull(target.getClass(), fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new IllegalStateException("Set field value fail", e);
-        }
     }
 
 }

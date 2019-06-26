@@ -81,7 +81,7 @@ public class Authority implements Serializable {
 
     @Override
     public String toString() {
-         return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", type = " + type;
+        return "authorityId = " + authorityId + ", code = " + code + ", content = " + content + ", createTime = " + createTime + ", name = " + name + ", parentId = " + parentId + ", type = " + type;
     }
 
 }

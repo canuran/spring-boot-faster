@@ -41,7 +41,7 @@ public class RoleAuthority implements Serializable {
 
     @Override
     public String toString() {
-         return "authorityId = " + authorityId + ", createTime = " + createTime + ", roleId = " + roleId;
+        return "authorityId = " + authorityId + ", createTime = " + createTime + ", roleId = " + roleId;
     }
 
 }

@@ -1,20 +1,17 @@
 package ewing.faster.dao.query;
 
-import static com.querydsl.core.types.PathMetadataFactory.*;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.PathMetadata;
+import com.querydsl.core.types.dsl.DateTimePath;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.sql.ColumnMetadata;
 import ewing.faster.dao.entity.Dictionary;
 
-
-import com.querydsl.core.types.dsl.*;
-
-import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
-import com.querydsl.core.types.Path;
-
-import com.querydsl.sql.ColumnMetadata;
 import java.sql.Types;
 
-
-
+import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
 /**
  * QDictionary is a Querydsl query type for Dictionary

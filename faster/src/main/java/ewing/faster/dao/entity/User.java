@@ -81,7 +81,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-         return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", nickname = " + nickname + ", password = " + password + ", userId = " + userId + ", username = " + username;
+        return "birthday = " + birthday + ", createTime = " + createTime + ", gender = " + gender + ", nickname = " + nickname + ", password = " + password + ", userId = " + userId + ", username = " + username;
     }
 
 }

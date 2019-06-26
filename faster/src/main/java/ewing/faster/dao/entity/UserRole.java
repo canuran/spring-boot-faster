@@ -41,7 +41,7 @@ public class UserRole implements Serializable {
 
     @Override
     public String toString() {
-         return "createTime = " + createTime + ", roleId = " + roleId + ", userId = " + userId;
+        return "createTime = " + createTime + ", roleId = " + roleId + ", userId = " + userId;
     }
 
 }

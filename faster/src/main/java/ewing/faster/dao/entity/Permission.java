@@ -71,7 +71,7 @@ public class Permission implements Serializable {
 
     @Override
     public String toString() {
-         return "action = " + action + ", createTime = " + createTime + ", permissionId = " + permissionId + ", targetId = " + targetId + ", targetType = " + targetType + ", userId = " + userId;
+        return "action = " + action + ", createTime = " + createTime + ", permissionId = " + permissionId + ", targetId = " + targetId + ", targetType = " + targetType + ", userId = " + userId;
     }
 
 }

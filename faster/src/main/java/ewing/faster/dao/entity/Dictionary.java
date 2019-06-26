@@ -81,7 +81,7 @@ public class Dictionary implements Serializable {
 
     @Override
     public String toString() {
-         return "createTime = " + createTime + ", detail = " + detail + ", dictionaryId = " + dictionaryId + ", name = " + name + ", parentId = " + parentId + ", rootId = " + rootId + ", value = " + value;
+        return "createTime = " + createTime + ", detail = " + detail + ", dictionaryId = " + dictionaryId + ", name = " + name + ", parentId = " + parentId + ", rootId = " + rootId + ", value = " + value;
     }
 
 }
