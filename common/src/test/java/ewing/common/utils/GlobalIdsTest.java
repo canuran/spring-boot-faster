@@ -50,10 +50,5 @@ public class GlobalIdsTest {
         Set<Object> ids = new HashSet<>(threads * perThread);
         ids.addAll(Arrays.asList(results));
         System.out.println("\n其中唯一值：" + ids.size() + " 个\n");
-
-        for (int i = 0; i < 10; i++) {
-            System.out.println(GlobalIds.nextId());
-            Thread.sleep(1);
-        }
     }
 }
