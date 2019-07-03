@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 
+import javax.net.ssl.*;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -52,12 +54,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class OkHttpUtils {
 
-    public static final OkHttpClient CLIENT = new OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.MINUTES).build();
-
     public static final MediaType STREAM = MediaType.parse("application/octet-stream");
+
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+    public static final TrustAnyManager TRUST_ANY_MANAGER = new TrustAnyManager();
+
+    public static final OkHttpClient CLIENT = new OkHttpClient.Builder()
+            .sslSocketFactory(getSSLSocketFactory(), TRUST_ANY_MANAGER)
+            .hostnameVerifier((hostname, session) -> true)
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.MINUTES)
+            .build();
+
+    private static SSLSocketFactory getSSLSocketFactory() {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(new KeyManager[0], new TrustManager[]{TRUST_ANY_MANAGER},
+                    new java.security.SecureRandom());
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            throw new IllegalStateException("Get SSLSocketFactory fail");
+        }
+    }
 
     /**
      * 私有化构造方法，禁止创建实例。
@@ -491,6 +510,24 @@ public class OkHttpUtils {
      */
     public static void callback(Request request, Callback callback) {
         CLIENT.newCall(request).enqueue(callback);
+    }
+
+    /**
+     * 信任任何证书的凭证管理器。
+     */
+    public static class TrustAnyManager implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
     }
 
 }
