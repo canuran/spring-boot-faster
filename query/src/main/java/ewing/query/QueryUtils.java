@@ -232,7 +232,7 @@ public class QueryUtils {
         }
     }
 
-    private static final Pattern ORDER_PATTERN = Pattern.compile("(?i)([a-z_0-9]+)\\s*?(asc|desc)?");
+    private static final Pattern ORDER_PATTERN = Pattern.compile("(?i)([a-z_0-9]{1,128})\\s*?(asc|desc)?");
 
     private static Matcher getOrderMatcher(String orderClause) {
         Assert.hasText(orderClause, "Order clause missing");
