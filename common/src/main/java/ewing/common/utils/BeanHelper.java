@@ -3,11 +3,13 @@ package ewing.common.utils;
 import org.springframework.util.StringUtils;
 
 import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class BeanHelper {
@@ -107,6 +109,47 @@ public class BeanHelper {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    private static final Pattern IGNORE_PATTERN = Pattern.compile("[_$]");
+
+    /**
+     * 相同含义字段名属性复制，即忽略字段名中的大小写、$和_，但字段类型必须兼容。
+     * <p>
+     * 该方法仅用于转换少于1000条的数据，比如返回给前端页面显示；追求效率时勿用。
+     */
+    public static <T> T copySynonymFields(Object source, T target) {
+        if (source == null || target == null) return target;
+
+        try {
+            BeanInfo sourceBeanInfo = Introspector.getBeanInfo(source.getClass());
+            BeanInfo targetBeanInfo = Introspector.getBeanInfo(target.getClass());
+
+            for (PropertyDescriptor targetProperty : targetBeanInfo.getPropertyDescriptors()) {
+                Method writeMethod = targetProperty.getWriteMethod();
+                if (writeMethod == null || targetProperty.getReadMethod() == null)
+                    continue;
+                String targetPropertyName = targetProperty.getName();
+
+                for (PropertyDescriptor sourceProperty : sourceBeanInfo.getPropertyDescriptors()) {
+                    Method readMethod = sourceProperty.getReadMethod();
+                    if (readMethod == null || sourceProperty.getWriteMethod() == null
+                            || !targetProperty.getPropertyType().isAssignableFrom(sourceProperty.getPropertyType()))
+                        continue;
+                    String sourcePropertyName = sourceProperty.getName();
+
+                    if (sourcePropertyName.equalsIgnoreCase(targetPropertyName)
+                            || IGNORE_PATTERN.matcher(sourcePropertyName).replaceAll("")
+                            .equalsIgnoreCase(IGNORE_PATTERN.matcher(targetPropertyName).replaceAll(""))) {
+                        writeMethod.invoke(target, readMethod.invoke(source));
+                        break;
+                    }
+                }
+            }
+        } catch (IntrospectionException | ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+        return target;
     }
 
 }
