@@ -1,15 +1,19 @@
 package ewing.common.utils;
 
-import org.springframework.util.StringUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.FileCopyUtils;
 
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class BeanHelper {
@@ -43,113 +47,76 @@ public class BeanHelper {
     }
 
     /**
-     * 转换代码生成器，属性的字母数字以及类型匹配上即可。
+     * 生成实体类属性转换器。
      */
-    public static void genConvertCodeUseBuilder(Class<?> from, Class<?> to, String fromArgName) {
-        if (from == null || to == null) {
+    public static void generateCopier(Class<?> source, Class<?> target) {
+        if (source == null || target == null) {
             return;
         }
 
-        try {
-            BeanInfo fromBeanInfo = Introspector.getBeanInfo(from);
-            BeanInfo toBeanInfo = Introspector.getBeanInfo(to);
+        URL resource = Objects.requireNonNull(target.getClassLoader().getResource(""));
+        String parent = new File(resource.getPath()).getParentFile().getParent();
+        String className = source.getSimpleName() + "To" + target.getSimpleName();
 
-            System.out.println(to.getSimpleName() + ".builder()");
+        String path = parent + File.separator +
+                "src" + File.separator +
+                "main" + File.separator +
+                "java" + File.separator +
+                target.getPackage().getName().replace(".", File.separator) + File.separator +
+                className + ".java";
 
-            Stream.of(toBeanInfo.getPropertyDescriptors())
-                    .filter(fpd -> !fpd.getName().equals("class"))
-                    .forEach(fpd -> {
-                        Optional<PropertyDescriptor> opd = Stream.of(fromBeanInfo.getPropertyDescriptors())
-                                .filter(pd -> pd.getPropertyType().equals(fpd.getPropertyType()) &&
-                                        fpd.getName().replaceAll("[^a-zA-Z0-9]", "")
-                                                .equalsIgnoreCase(pd.getName().replaceAll("[^a-zA-Z0-9]", "")))
-                                .findFirst();
-                        opd.ifPresent(pd -> System.out.println(
-                                "." + fpd.getName() + "(" + fromArgName + "." + pd.getReadMethod().getName() + "())"));
-                        if (!opd.isPresent()) {
-                            System.out.println("." + fpd.getName() + "(null)");
-                        }
-                    });
-            System.out.println(".build();");
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
+        File file = new File(path);
+        System.out.println("Generate code：");
+        System.out.println();
 
-    /**
-     * 转换代码生成器，属性的字母数字以及类型匹配上即可。
-     */
-    public static void genConvertCodeUseGetter(Class<?> from, Class<?> to, String fromArgName) {
-        if (from == null || to == null) {
-            return;
-        }
+        StringBuilder content = new StringBuilder();
+        content.append("package ").append(target.getPackage().getName()).append(";");
+        content.append("\n");
+        content.append("\nimport ").append(source.getName()).append(";");
+        content.append("\nimport ").append(target.getName()).append(";");
+        content.append("\n");
+        content.append("\npublic class ").append(className).append(" {");
+        content.append("\n");
+        content.append("\n    public static ").append(target.getSimpleName()).append(" copy(")
+                .append(source.getSimpleName()).append(" source, ").append(target.getSimpleName()).append(" target){");
+        content.append("\n        if(source == null || target == null)");
+        content.append("\n            return target;");
 
         try {
-            BeanInfo fromBeanInfo = Introspector.getBeanInfo(from);
-            BeanInfo toBeanInfo = Introspector.getBeanInfo(to);
+            BeanInfo sourceBeanInfo = Introspector.getBeanInfo(source);
+            BeanInfo targetBeanInfo = Introspector.getBeanInfo(target);
 
-            String varName = StringUtils.uncapitalize(to.getSimpleName());
-            System.out.println(to.getSimpleName() + " " + varName + " = new " + to.getSimpleName() + "();");
-
-            Stream.of(toBeanInfo.getPropertyDescriptors())
-                    .filter(fpd -> !fpd.getName().equals("class"))
-                    .forEach(fpd -> {
-                        Optional<PropertyDescriptor> opd = Stream.of(fromBeanInfo.getPropertyDescriptors())
-                                .filter(pd -> pd.getPropertyType().equals(fpd.getPropertyType()) &&
-                                        fpd.getName().replaceAll("[^a-zA-Z0-9]", "")
-                                                .equalsIgnoreCase(pd.getName().replaceAll("[^a-zA-Z0-9]", "")))
+            Stream.of(targetBeanInfo.getPropertyDescriptors())
+                    .filter(tpd -> tpd.getReadMethod() != null && tpd.getWriteMethod() != null)
+                    .forEach(tpd -> {
+                        Optional<PropertyDescriptor> opd = Stream.of(sourceBeanInfo.getPropertyDescriptors())
+                                .filter(pd -> pd.getPropertyType().equals(tpd.getPropertyType()))
+                                .filter(pd -> tpd.getName().replaceAll("[_$]", "")
+                                        .equalsIgnoreCase(pd.getName().replaceAll("[_$]", "")))
+                                .filter(pd -> ClassUtils.isAssignable(tpd.getPropertyType(), pd.getPropertyType()))
                                 .findFirst();
-                        opd.ifPresent(pd -> System.out.println(
-                                varName + "." + fpd.getWriteMethod().getName() + "(" +
-                                        fromArgName + "." + pd.getReadMethod().getName() + "());"));
-                        if (!opd.isPresent()) {
-                            System.out.println(varName + "." + fpd.getWriteMethod().getName() + "(null);");
-                        }
+                        opd.ifPresent(pd -> content.append("\n        target.").append(tpd.getWriteMethod().getName())
+                                .append("(").append("source.").append(pd.getReadMethod().getName()).append("());"));
                     });
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    private static final Pattern IGNORE_PATTERN = Pattern.compile("[_$]");
-
-    /**
-     * 相同含义字段名属性复制，即忽略字段名中的大小写、$和_，但字段类型必须兼容。
-     * <p>
-     * 该方法仅用于转换少于1000条的数据，比如返回给前端页面显示；追求效率时勿用。
-     */
-    public static <T> T copySynonymFields(Object source, T target) {
-        if (source == null || target == null) return target;
-
-        try {
-            BeanInfo sourceBeanInfo = Introspector.getBeanInfo(source.getClass());
-            BeanInfo targetBeanInfo = Introspector.getBeanInfo(target.getClass());
-
-            for (PropertyDescriptor targetProperty : targetBeanInfo.getPropertyDescriptors()) {
-                Method writeMethod = targetProperty.getWriteMethod();
-                if (writeMethod == null || targetProperty.getReadMethod() == null)
-                    continue;
-                String targetPropertyName = targetProperty.getName();
-
-                for (PropertyDescriptor sourceProperty : sourceBeanInfo.getPropertyDescriptors()) {
-                    Method readMethod = sourceProperty.getReadMethod();
-                    if (readMethod == null || sourceProperty.getWriteMethod() == null
-                            || !targetProperty.getPropertyType().isAssignableFrom(sourceProperty.getPropertyType()))
-                        continue;
-                    String sourcePropertyName = sourceProperty.getName();
-
-                    if (sourcePropertyName.equalsIgnoreCase(targetPropertyName)
-                            || IGNORE_PATTERN.matcher(sourcePropertyName).replaceAll("")
-                            .equalsIgnoreCase(IGNORE_PATTERN.matcher(targetPropertyName).replaceAll(""))) {
-                        writeMethod.invoke(target, readMethod.invoke(source));
-                        break;
-                    }
-                }
-            }
-        } catch (IntrospectionException | ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
-        return target;
+
+        content.append("\n        return target;");
+        content.append("\n    }");
+        content.append("\n");
+        content.append("\n}");
+
+        String fileContent = content.toString();
+        System.out.println(fileContent);
+        System.out.println();
+        try {
+            FileCopyUtils.copy(fileContent, new FileWriter(file));
+            System.out.println("Generate file：");
+            System.out.println(file.getAbsolutePath());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }

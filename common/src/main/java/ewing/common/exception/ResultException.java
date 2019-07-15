@@ -15,15 +15,11 @@ public interface ResultException {
         return 0;
     }
 
-    default ResultException setCode(int code) {
-        return this;
-    }
+    void setCode(int code);
 
     default Object getData() {
         return null;
     }
 
-    default ResultException setData(Object data) {
-        return this;
-    }
+    void setData(Object data);
 }

@@ -1,6 +1,5 @@
 package ewing.common.exception;
 
-
 import ewing.common.ResultMessage;
 
 /**
@@ -50,9 +49,8 @@ public class BusinessException extends RuntimeException implements ResultExcepti
     }
 
     @Override
-    public BusinessException setCode(int code) {
+    public void setCode(int code) {
         this.code = code;
-        return this;
     }
 
     @Override
@@ -61,9 +59,8 @@ public class BusinessException extends RuntimeException implements ResultExcepti
     }
 
     @Override
-    public BusinessException setData(Object data) {
+    public void setData(Object data) {
         this.data = data;
-        return this;
     }
 
 }
