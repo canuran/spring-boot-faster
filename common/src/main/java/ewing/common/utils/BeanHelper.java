@@ -42,9 +42,9 @@ public class BeanHelper {
     }
 
     /**
-     * 主要给单测用，填充对象中的简单的null属性。
+     * 主要给单测用，初始化对象中不为空的简单属性。
      */
-    public static <T> T setSimpleNullFields(T object) {
+    public static <T> T initSimpleFields(T object) {
         if (object == null) return null;
         Class cls = object.getClass();
         while (cls != null && !cls.equals(Object.class)) {
