@@ -7,6 +7,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
 
+@SuppressWarnings("unchecked")
 public class BeanHelper {
 
     private BeanHelper() {
@@ -15,7 +16,6 @@ public class BeanHelper {
     /**
      * 调用对象中的方法。
      */
-    @SuppressWarnings("unchecked")
     public static <E> E invokeMethod(Object target, String methodName, Class<?>[] argTypes, Object... args) {
         try {
             Method method = target.getClass().getDeclaredMethod(methodName, argTypes);
@@ -41,8 +41,8 @@ public class BeanHelper {
      * 给单测用，初始化对象中不为空的简单属性。
      */
     public static <T> T initSimpleFields(T object) {
-        // 存放类型生成的值以防止循环生成
-        Map<Class, Object> context = new HashMap<>();
+        // 存放类型生成过的类型
+        Set<Type> context = new HashSet<>();
         return (T) initSimpleFields(object, context);
     }
 
@@ -50,34 +50,34 @@ public class BeanHelper {
      * 给单测用，创建对象并初始化对象中不为空的简单属性。
      */
     public static <T> T generateInstance(Type type) {
-        // 存放类型生成的值以防止循环生成
-        Map<Class, Object> context = new HashMap<>();
+        // 存放类型生成过的类型
+        Set<Type> context = new HashSet<>();
         return (T) generateInstance(type, context);
     }
 
-    private static Object initSimpleFields(Object object, Map<Class, Object> context) {
+    private static Object initSimpleFields(Object object, Set<Type> context) {
         if (object == null) return null;
         Class cls = object.getClass();
         while (cls != null && !cls.equals(Object.class)) {
-            Field[] fields = cls.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                try {
+            try {
+                Field[] fields = cls.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
                     if (Modifier.isFinal(field.getModifiers()) || field.get(object) != null)
                         continue;
                     Object value = generateInstance(field.getGenericType(), context);
                     if (value != null)
                         field.set(object, value);
-                } catch (IllegalAccessException e) {
-                    continue;
                 }
+            } catch (Throwable e) {
+                System.out.println("Init " + object + " fail:" + e.getMessage());
             }
             cls = cls.getSuperclass();
         }
         return object;
     }
 
-    private static final Map<Class, Object> CONST_TYPE_VALUES = new HashMap<>();
+    private static final Map<Type, Object> CONST_TYPE_VALUES = new HashMap<>();
 
     static {
         long time = System.currentTimeMillis();
@@ -105,88 +105,74 @@ public class BeanHelper {
         CONST_TYPE_VALUES.put(Timestamp.class, new Timestamp(time));
     }
 
-    private static Object generateInstance(Type type, Map<Class, Object> context) {
+    private static Object generateInstance(Type type, Set<Type> context) {
+        if (type == null) return null;
+        // 常量池有则直接返回常量
+        Object result = CONST_TYPE_VALUES.get(type);
+        if (result != null) return result;
+
         if (type instanceof ParameterizedType) {
+            // 处理泛型类型
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type rawType = parameterizedType.getRawType();
+
             if (rawType == Collection.class || rawType == List.class || rawType == LinkedList.class) {
-                Object value = getSingleValue(parameterizedType.getActualTypeArguments(), context);
-                List<Object> objects = new LinkedList();
-                if (value != null) objects.add(value);
-                return objects;
+                return resolveCollection(new LinkedList(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == Set.class || rawType == HashSet.class) {
-                Object value = getSingleValue(parameterizedType.getActualTypeArguments(), context);
-                HashSet<Object> objects = new HashSet<>();
-                if (value != null) objects.add(value);
-                return objects;
+                return resolveCollection(new HashSet(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == SortedSet.class || rawType == TreeSet.class) {
-                Object value = getSingleValue(parameterizedType.getActualTypeArguments(), context);
-                TreeSet<Object> objects = new TreeSet<>();
-                if (value != null) objects.add(value);
-                return objects;
+                return resolveCollection(new TreeSet(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == LinkedHashSet.class) {
-                Object value = getSingleValue(parameterizedType.getActualTypeArguments(), context);
-                LinkedHashSet<Object> objects = new LinkedHashSet<>();
-                if (value != null) objects.add(value);
-                return objects;
+                return resolveCollection(new LinkedHashSet(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == ArrayList.class) {
-                Object value = getSingleValue(parameterizedType.getActualTypeArguments(), context);
-                ArrayList<Object> objects = new ArrayList<>();
-                if (value != null) objects.add(value);
-                return objects;
+                return resolveCollection(new ArrayList(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == Map.class || rawType == HashMap.class) {
-                AbstractMap.SimpleEntry entry = getPairValue(parameterizedType.getActualTypeArguments(), context);
-                Map map = new HashMap();
-                if (entry != null) map.put(entry.getKey(), entry.getValue());
-                return map;
+                return resolveMapValue(new HashMap(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == SortedMap.class || rawType == TreeMap.class) {
-                AbstractMap.SimpleEntry entry = getPairValue(parameterizedType.getActualTypeArguments(), context);
-                Map map = new TreeMap();
-                if (entry != null) map.put(entry.getKey(), entry.getValue());
-                return map;
+                return resolveMapValue(new TreeMap(), parameterizedType.getActualTypeArguments(), context);
             } else if (rawType == LinkedHashMap.class) {
-                AbstractMap.SimpleEntry entry = getPairValue(parameterizedType.getActualTypeArguments(), context);
-                Map map = new LinkedHashMap();
-                if (entry != null) map.put(entry.getKey(), entry.getValue());
-                return map;
+                return resolveMapValue(new LinkedHashMap(), parameterizedType.getActualTypeArguments(), context);
             } else {
-                return generateInstance(rawType, context);
+                result = generateInstance(rawType, context);
             }
         } else if (type instanceof Class) {
-            Object value = CONST_TYPE_VALUES.get(type);
-            if (value == null) {
-                value = context.get(type);
-                if (value == null)
-                    try {
-                        Class clazz = (Class) type;
-                        value = clazz.isEnum() ? clazz.getEnumConstants()[0] : clazz.newInstance();
-                        if (value != null) {
-                            initSimpleFields(value, context);
-                            context.put(clazz, value);
-                        }
-                    } catch (Exception e) {
-                        return null;
-                    }
+            // 避免循环生成所以只能生成一次
+            if (context.contains(type)) return null;
+            context.add(type);
+            try {
+                Class clazz = (Class) type;
+                result = clazz.isEnum() ? clazz.getEnumConstants()[0] : clazz.newInstance();
+                if (result != null)
+                    initSimpleFields(result, context);
+            } catch (Throwable e) {
+                return null;
             }
-            return value;
         }
-        return null;
+        return result;
     }
 
-    private static AbstractMap.SimpleEntry getPairValue(Type[] types, Map<Class, Object> context) {
+    private static <T extends Collection> T resolveCollection(T coll, Type[] types, Set<Type> context) {
+        if (types == null || types.length < 1) {
+            return coll;
+        } else {
+            Object object = generateInstance(types[0], context);
+            if (object != null) {
+                coll.add(object);
+            }
+            return coll;
+        }
+    }
+
+    private static <T extends Map> T resolveMapValue(T map, Type[] types, Set<Type> context) {
         if (types == null || types.length < 2) {
-            return null;
+            return map;
         } else {
-            return new AbstractMap.SimpleEntry(generateInstance(types[0], context),
-                    generateInstance(types[1], context));
-        }
-    }
-
-    private static Object getSingleValue(Type[] types, Map<Class, Object> context) {
-        if (types == null || types.length == 0) {
-            return null;
-        } else {
-            return generateInstance(types[0], context);
+            Object key = generateInstance(types[0], context);
+            Object object = generateInstance(types[1], context);
+            if (key != null && object != null) {
+                map.put(key, object);
+            }
+            return map;
         }
     }
 
