@@ -101,6 +101,7 @@ public class BeanHelper {
         CONST_TYPE_VALUES.put(BigDecimal.class, BigDecimal.ONE);
         CONST_TYPE_VALUES.put(BigInteger.class, BigInteger.ONE);
         CONST_TYPE_VALUES.put(Date.class, new Date(time));
+        CONST_TYPE_VALUES.put(java.sql.Date.class, new java.sql.Date(time));
         CONST_TYPE_VALUES.put(Time.class, new Time(time));
         CONST_TYPE_VALUES.put(Timestamp.class, new Timestamp(time));
     }
