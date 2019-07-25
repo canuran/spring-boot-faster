@@ -6,10 +6,10 @@ import javassist.CtMethod;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 /**
  * 对象属性复制工具类，生成赋值代码编译运行，和手动编写代码一样快。
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @author caiyouyuan
  * @since 2019年07月16日
  */
-public class FastCopy {
+public class BeanCopy {
 
     private static final ClassPool CLASS_POOL = ClassPool.getDefault();
 
@@ -47,7 +47,7 @@ public class FastCopy {
             return target;
         }
 
-        CopierKey copierKey = new CopierKey(source.getClass(), target.getClass(), synonym);
+        CopierKey copierKey = new CopierKey(source.getClass(), target.getClass());
         Copier copier = COPIER_MAP.computeIfAbsent(copierKey, key -> {
             String copyCode = generateCopyCode(key);
             try {
@@ -61,7 +61,7 @@ public class FastCopy {
                 throw new IllegalStateException(e);
             }
         });
-        return (T) copier.copy(source, target);
+        return (T) copier.copy(source, target, synonym);
     }
 
     private static String generateCopyCode(CopierKey copierKey) {
@@ -69,56 +69,66 @@ public class FastCopy {
             return "";
         }
         StringBuilder content = new StringBuilder();
-        content.append("\npublic Object copy(Object source, Object target) {");
-        content.append("\nif (source == null || target == null)");
-        content.append("\nreturn target;");
-        content.append("\n").append(copierKey.source.getName()).append(" src = (")
-                .append(copierKey.source.getName()).append(") source;");
-        content.append("\n").append(copierKey.target.getName()).append(" tar = (")
-                .append(copierKey.target.getName()).append(") target;");
+        content.append("public Object copy(Object source, Object target, boolean synonym) {")
+                .append("\nif (source == null || target == null)")
+                .append("\nreturn target;")
+                .append("\n").append(copierKey.source.getName()).append(" src = (")
+                .append(copierKey.source.getName()).append(") source;")
+                .append("\n").append(copierKey.target.getName()).append(" tar = (")
+                .append(copierKey.target.getName()).append(") target;")
+                .append("\nif (synonym) {");
 
+        StringBuilder sameBuilder = new StringBuilder();
         try {
             BeanInfo sourceBeanInfo = Introspector.getBeanInfo(copierKey.source);
             BeanInfo targetBeanInfo = Introspector.getBeanInfo(copierKey.target);
 
-            Stream.of(targetBeanInfo.getPropertyDescriptors())
-                    .filter(tpd -> tpd.getReadMethod() != null && tpd.getWriteMethod() != null)
-                    .forEach(tpd -> Stream.of(sourceBeanInfo.getPropertyDescriptors())
-                            .filter(pd -> tpd.getPropertyType().isAssignableFrom(pd.getPropertyType()))
-                            .filter(pd -> copierKey.synonym ?
-                                    tpd.getName().replace("_", "")
-                                            .equalsIgnoreCase(pd.getName().replace("_", ""))
-                                    : tpd.getName().equals(pd.getName()))
-                            .findFirst()
-                            .ifPresent(pd -> content.append("\ntar.").append(tpd.getWriteMethod().getName())
-                                    .append("(").append("src.").append(pd.getReadMethod().getName()).append("());")));
+            for (PropertyDescriptor tpd : targetBeanInfo.getPropertyDescriptors()) {
+                for (PropertyDescriptor spd : sourceBeanInfo.getPropertyDescriptors()) {
+                    if (spd.getReadMethod() != null && tpd.getWriteMethod() != null
+                            && tpd.getPropertyType().isAssignableFrom(spd.getPropertyType())) {
+                        // 同义属性复制
+                        if (tpd.getName().replace("_", "")
+                                .equalsIgnoreCase(spd.getName().replace("_", ""))) {
+                            content.append("\ntar.").append(tpd.getWriteMethod().getName())
+                                    .append("(").append("src.").append(spd.getReadMethod().getName()).append("());");
+                        }
+                        // 相同属性复制
+                        if (tpd.getName().equals(spd.getName())) {
+                            sameBuilder.append("\ntar.").append(tpd.getWriteMethod().getName())
+                                    .append("(").append("src.").append(spd.getReadMethod().getName()).append("());");
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
 
-        content.append("\nreturn target;");
-        content.append("\n}");
+        content.append("\n} else {")
+                .append(sameBuilder)
+                .append("\n}")
+                .append("\nreturn target;")
+                .append("\n}");
         return content.toString();
     }
 
     public interface Copier {
-        Object copy(Object source, Object target);
+        Object copy(Object source, Object target, boolean synonym);
     }
 
     private static class CopierKey {
         final Class source;
         final Class target;
-        final boolean synonym;
 
-        CopierKey(Class source, Class target, boolean synonym) {
+        CopierKey(Class source, Class target) {
             this.source = source;
             this.target = target;
-            this.synonym = synonym;
         }
 
         @Override
         public String toString() {
-            return synonym + "." + source.getName() + "." + target.getName();
+            return "copier." + source.getName() + "." + target.getName();
         }
 
         @Override
@@ -126,14 +136,13 @@ public class FastCopy {
             if (this == o) return true;
             if (!(o instanceof CopierKey)) return false;
             CopierKey copierKey = (CopierKey) o;
-            return synonym == copierKey.synonym &&
-                    Objects.equals(source, copierKey.source) &&
+            return Objects.equals(source, copierKey.source) &&
                     Objects.equals(target, copierKey.target);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(source, target, synonym);
+            return Objects.hash(source, target);
         }
     }
 
