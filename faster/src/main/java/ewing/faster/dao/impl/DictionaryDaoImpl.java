@@ -56,6 +56,7 @@ public class DictionaryDaoImpl implements DictionaryDao {
                 .join(qAllDictionary)
                 .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(qDictionary.value.in(rootValues))
-                .fetch(DictionaryNode.class);
+                .fitBean(DictionaryNode.class)
+                .fetch();
     }
 }

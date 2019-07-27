@@ -170,6 +170,7 @@ public class QueryUtils {
      * 使用与Bean属性匹配的Expression（包括实体查询对象）参数查询Bean。
      */
     public static <T> QBean<T> fitBean(Class<? extends T> type, Expression... expressions) {
+        Assert.notEmpty(expressions, "Expressions missing");
         try {
             // 获取到Bean的所有属性
             BeanInfo beanInfo = Introspector.getBeanInfo(type);

@@ -44,7 +44,8 @@ public class SecurityServiceImpl implements SecurityService {
         Checks.hasText(username, "用户名不能为空！");
         return queryFactory.selectFrom(qUser)
                 .where(qUser.username.eq(username))
-                .fetchOne(SecurityUser.class);
+                .fitBean(SecurityUser.class)
+                .fetchOne();
     }
 
     @Override
@@ -125,7 +126,10 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<AuthorityNode> getAuthorityTree() {
-        return TreeUtils.toTree(queryFactory.selectFrom(qAuthority).fetch(AuthorityNode.class),
+        List<AuthorityNode> nodes = queryFactory.selectFrom(qAuthority)
+                .fitBean(AuthorityNode.class)
+                .fetch();
+        return TreeUtils.toTree(nodes,
                 ArrayList::new,
                 AuthorityNode::getAuthorityId,
                 AuthorityNode::getParentId,

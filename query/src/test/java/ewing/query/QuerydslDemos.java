@@ -170,7 +170,8 @@ public class QuerydslDemos {
 
         // 字段自适应对象属性
         List<DemoUserSimple> demoUserSimples = queryFactory.selectFrom(qDemoUser)
-                .fetch(DemoUserSimple.class);
+                .fitBean(DemoUserSimple.class)
+                .fetch();
         System.out.println(demoUserSimples);
 
         // 关联查询取两个表的全部属性

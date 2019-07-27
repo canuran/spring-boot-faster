@@ -17,7 +17,6 @@ import ewing.query.paging.Pager;
 import javax.inject.Provider;
 import java.sql.Connection;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -162,11 +161,11 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
-     * 获取结果列表。
+     * 查询字段自动适配指定Bean的属性。
      */
-    public <T> List<T> fetch(Class<T> type) {
+    public <T> BaseQuery<T> fitBean(Class<T> type) {
         queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
-        return (List<T>) fetch();
+        return (BaseQuery<T>) this;
     }
 
     /**
@@ -178,45 +177,12 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
-     * 根据主键获取对象。
-     */
-    public <T> T fetchByKey(Object key, Class<T> type) {
-        return whereEqKey(key).fetchOne(type);
-    }
-
-    /**
-     * 获取结果对象。
-     */
-    public <T> T fetchOne(Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
-        return (T) fetchOne();
-    }
-
-    /**
-     * 获取结果对象。
-     */
-    public <T> T fetchFirst(Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
-        return (T) fetchFirst();
-    }
-
-    /**
      * 获取分页结果。
      * <p>
      * 分页是多次查询，确保开启事务！
      */
     public Page<E> fetchPage(Pager pager) {
         return QueryUtils.queryPage(this, pager);
-    }
-
-    /**
-     * 获取分页结果。
-     * <p>
-     * 分页是多次查询，确保开启事务！
-     */
-    public <T> Page<T> fetchPage(Pager pager, Class<T> type) {
-        queryMixin.setProjection(QueryUtils.fitBean(type, getMetadata().getProjection()));
-        return (Page<T>) QueryUtils.queryPage(this, pager);
     }
 
 }
