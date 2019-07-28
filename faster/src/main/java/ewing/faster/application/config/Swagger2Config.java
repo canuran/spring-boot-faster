@@ -1,5 +1,6 @@
 package ewing.faster.application.config;
 
+import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import ewing.faster.FasterMain;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @ConditionalOnProperty(name = "swagger.enable", havingValue = "true")
 @EnableSwagger2
+@EnableSwaggerBootstrapUI
 public class Swagger2Config {
 
     private String basePackage = FasterMain.class.getPackage().getName();
