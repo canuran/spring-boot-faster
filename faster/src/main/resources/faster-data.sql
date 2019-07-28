@@ -5,7 +5,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-07-18 12:37:16
+Date: 2019-07-18 12:37:16
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -41,7 +41,7 @@ INSERT INTO `authority` VALUES ('12345678903234567890123458', '角色修改', 'R
 INSERT INTO `authority` VALUES ('12345678903234567890123459', '角色删除', 'ROLE_DELETE', 'ACTION', null, '12345678903234567890123456', '2017-12-23 17:51:03');
 INSERT INTO `authority` VALUES ('12345678903234567890123460', '公共资源', 'COMMON_RESOURCE', 'MENU', '<a class=\"waves-effect\">\r\n  <i class=\"fa fa-th-large\"></i>公共资源\r\n  <i class=\"expand-menu fa fa-caret-right\"></i>\r\n</a>', null, '2018-01-16 18:25:55');
 INSERT INTO `authority` VALUES ('12345678903234567890123461', '数据字典', 'DICTIONARY_MANAGE', 'PAGE', '<a class=\"waves-effect\" onclick=\"addTab(\'数据字典\', \'common/dictionary.html\')\">\r\n  <i class=\"fa fa-th-list\"></i>数据字典\r\n</a>', '12345678903234567890123460', '2018-01-16 21:26:55');
-INSERT INTO `authority` VALUES ('12345678903234567890123462', '接口文档', 'API_DOCUMENT', 'PAGE', '<a class=\"waves-effect\" href=\"swagger-ui.html\" target=\"_blank\">\r\n  <i class=\"fa fa-file-text\"></i>接口文档\r\n</a>', null, '2018-01-16 22:28:04');
+INSERT INTO `authority` VALUES ('12345678903234567890123462', '接口文档', 'API_DOCUMENT', 'PAGE', '<a class=\"waves-effect\" href=\"doc.html\" target=\"_blank\">\r\n  <i class=\"fa fa-file-text\"></i>接口文档\r\n</a>', null, '2018-01-16 22:28:04');
 INSERT INTO `authority` VALUES ('12345678903234567890123463', '权限管理', 'AUTHORITY_MANAGE', 'PAGE', '<a class=\"waves-effect\" onclick=\"addTab(\'权限管理\', \'security/authority.html\')\">\n  <i class=\"fa fa-key\"></i>权限管理\n</a>', '12345678903234567890123451', '2017-12-23 17:48:55');
 INSERT INTO `authority` VALUES ('12345678903234567890123464', '权限新增', 'AUTHORITY_ADD', 'ACTION', null, '12345678903234567890123463', '2018-01-22 22:24:53');
 INSERT INTO `authority` VALUES ('12345678903234567890123465', '权限修改', 'AUTHORITY_UPDATE', 'ACTION', null, '12345678903234567890123463', '2018-01-22 21:27:00');
