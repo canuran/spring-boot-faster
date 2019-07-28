@@ -29,6 +29,7 @@ public class Swagger2Config {
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("服务接口文档")
                 .version("Release")
+                .description("服务接口文档")
                 .build();
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
