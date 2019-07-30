@@ -1,6 +1,5 @@
 package ewing.common.utils;
 
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.security.SecureRandom;
 
@@ -32,7 +31,7 @@ public class SnowflakeIds {
     private static final int INSTANCE_LENGTH = 16;
 
     /**
-     * 运行实例标识（IP和进程各取后8位）
+     * 运行实例标识（IP和纳秒各取后8位）
      */
     private static final long INSTANCE_IDENTIFY;
 
@@ -78,13 +77,10 @@ public class SnowflakeIds {
             byte[] ipBytes = ip.getAddress();
             int lastIP = ipBytes[ipBytes.length - 1] & 0b11111111;
 
-            // 获取进程后面的值
-            String processName = ManagementFactory.getRuntimeMXBean().getName();
-            int process = processName.contains("@") ?
-                    Integer.parseInt(processName.substring(0, processName.indexOf('@'))) :
-                    ManagementFactory.getRuntimeMXBean().getName().hashCode();
-            int instance = (process << 8) | lastIP;
-            int instanceMask = ~(-1 << INSTANCE_LENGTH);
+            // 获取当时纳秒时间后面的值
+            long process = System.nanoTime();
+            long instance = (process << 8) | lastIP;
+            long instanceMask = ~(-1L << INSTANCE_LENGTH);
             INSTANCE_IDENTIFY = (instance & instanceMask) << COUNTER_LENGTH;
             System.out.println(Long.toBinaryString(INSTANCE_IDENTIFY));
         } catch (Exception e) {
