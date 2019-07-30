@@ -1,7 +1,7 @@
 package ewing.common.utils;
 
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 
 /**
@@ -27,19 +27,19 @@ public class SnowflakeIds {
     private static final int TIMESTAMP_LENGTH = 42;
 
     /**
-     * 机器HOST后面的位数
+     * 运行实例标识长度
      */
-    private static final int HOST_LENGTH = 16;
+    private static final int INSTANCE_LENGTH = 16;
 
     /**
-     * 机器HOST后面的值
+     * 运行实例标识（IP和进程各取后8位）
      */
-    private static final long MACHINE_HOST;
+    private static final long INSTANCE_IDENTIFY;
 
     /**
-     * 自增器的长度：非符号位数63 - 时间截位数 - 机器HOST位数
+     * 自增器的长度：非符号位数63 - 时间截位数 - 运行实例标识长度
      */
-    private static final int COUNTER_LENGTH = 63 - TIMESTAMP_LENGTH - HOST_LENGTH;
+    private static final int COUNTER_LENGTH = 63 - TIMESTAMP_LENGTH - INSTANCE_LENGTH;
 
     /**
      * 自增器的掩码（自增器的长度个1）
@@ -49,7 +49,7 @@ public class SnowflakeIds {
     /**
      * 时间截向左移的位数
      */
-    private static final int TIMESTAMP_LEFT_SHIFT = COUNTER_LENGTH + HOST_LENGTH;
+    private static final int TIMESTAMP_LEFT_SHIFT = COUNTER_LENGTH + INSTANCE_LENGTH;
 
     /**
      * 初始值随机器
@@ -76,13 +76,19 @@ public class SnowflakeIds {
             // 取IP地址后面的值
             InetAddress ip = InetAddress.getLocalHost();
             byte[] ipBytes = ip.getAddress();
-            int last1 = ipBytes[ipBytes.length - 1];
-            int last2 = ipBytes[ipBytes.length - 2];
-            int lastIp = (last2 << 8) | last1;
-            int hostMask = ~(-1 << HOST_LENGTH);
-            MACHINE_HOST = (lastIp & hostMask) << COUNTER_LENGTH;
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            int lastIP = ipBytes[ipBytes.length - 1] & 0b11111111;
+
+            // 获取进程后面的值
+            String processName = ManagementFactory.getRuntimeMXBean().getName();
+            int process = processName.contains("@") ?
+                    Integer.parseInt(processName.substring(0, processName.indexOf('@'))) :
+                    ManagementFactory.getRuntimeMXBean().getName().hashCode();
+            int instance = (process << 8) | lastIP;
+            int instanceMask = ~(-1 << INSTANCE_LENGTH);
+            INSTANCE_IDENTIFY = (instance & instanceMask) << COUNTER_LENGTH;
+            System.out.println(Long.toBinaryString(INSTANCE_IDENTIFY));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -113,7 +119,7 @@ public class SnowflakeIds {
         lastTimestamp = timestamp;
 
         // 时间戳位 + 机器HOST位 + 计数器位
-        return ((timestamp - TWEPOCH) << TIMESTAMP_LEFT_SHIFT) | MACHINE_HOST | counter;
+        return ((timestamp - TWEPOCH) << TIMESTAMP_LEFT_SHIFT) | INSTANCE_IDENTIFY | counter;
     }
 
     /**
