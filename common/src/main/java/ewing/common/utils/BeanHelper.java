@@ -1,11 +1,17 @@
 package ewing.common.utils;
 
+import org.springframework.util.ClassUtils;
+
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unchecked")
 public class BeanHelper {
@@ -35,6 +41,49 @@ public class BeanHelper {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static final Map<AbstractMap.SimpleEntry<Class, Class>, List<AbstractMap.SimpleEntry<PropertyDescriptor, PropertyDescriptor>>> SYNONYM_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 相同含义字段名属性复制，即忽略字段名中的大小写和下划线。
+     * <p>
+     * 字段类型必须兼容，包装类型为null时不会复制到对应的基本类型。
+     */
+    public static <T> T copySynonymFields(Object source, T target) {
+        if (source == null || target == null) return target;
+        AbstractMap.SimpleEntry<Class, Class> classEntry = new AbstractMap.SimpleEntry<>(source.getClass(), target.getClass());
+        List<AbstractMap.SimpleEntry<PropertyDescriptor, PropertyDescriptor>> propertyEntries = SYNONYM_MAP.computeIfAbsent(classEntry, entry -> {
+            try {
+                PropertyDescriptor[] sourceProperties = Introspector.getBeanInfo(entry.getKey()).getPropertyDescriptors();
+                PropertyDescriptor[] targetProperties = Introspector.getBeanInfo(entry.getValue()).getPropertyDescriptors();
+                List<AbstractMap.SimpleEntry<PropertyDescriptor, PropertyDescriptor>> entries = new ArrayList<>();
+                for (PropertyDescriptor sourceProperty : sourceProperties) {
+                    for (PropertyDescriptor targetProperty : targetProperties) {
+                        if (sourceProperty.getReadMethod() != null && targetProperty.getWriteMethod() != null &&
+                                ClassUtils.isAssignable(targetProperty.getPropertyType(), sourceProperty.getPropertyType()) &&
+                                sourceProperty.getName().replace("_", "")
+                                        .equalsIgnoreCase(targetProperty.getName().replace("_", ""))) {
+                            entries.add(new AbstractMap.SimpleEntry<>(sourceProperty, targetProperty));
+                        }
+                    }
+                }
+                return entries;
+            } catch (IntrospectionException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        try {
+            for (AbstractMap.SimpleEntry<PropertyDescriptor, PropertyDescriptor> propertyEntry : propertyEntries) {
+                Object value = propertyEntry.getKey().getReadMethod().invoke(source);
+                if (value != null || !propertyEntry.getValue().getPropertyType().isPrimitive()) {
+                    propertyEntry.getValue().getWriteMethod().invoke(target, value);
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+        return target;
     }
 
     /**

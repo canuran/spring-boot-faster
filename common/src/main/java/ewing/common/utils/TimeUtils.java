@@ -502,4 +502,15 @@ public class TimeUtils {
         return monthAll;
     }
 
+    /**
+     * 休息毫秒。
+     */
+    public static void sleepMillis(int milliSecond) {
+        try {
+            Thread.sleep(milliSecond);
+        } catch (InterruptedException e) {
+            // Do nothing
+        }
+    }
+
 }
