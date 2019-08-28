@@ -44,17 +44,17 @@ public class AppMethodLogger {
             String methodDetail = operation == null ? methodName
                     : operation.value() + "：" + methodName;
             // 记录执行日志 方法名、参数、返回值、异常信息等
-            String invokeLog = "调用方法：" + methodDetail + argsToString(point.getArgs());
+            String invokeLog = "Invoke: " + methodDetail + argsToString(point.getArgs());
             long time = System.currentTimeMillis();
             try {
                 result = point.proceed();
             } catch (Throwable throwable) {
-                LOGGER.info(invokeLog + " 经过时间：" + (System.currentTimeMillis() - time)
-                        + "ms 发生异常：" + throwable.getMessage());
+                LOGGER.info(invokeLog + " At: " + (System.currentTimeMillis() - time)
+                        + "ms Throw: " + throwable.getMessage());
                 throw throwable; // 原来的异常继续抛出去
             }
-            String returnValue = method.getReturnType() == void.class ? "ms" : "ms 返回值：" + result;
-            LOGGER.info(invokeLog + " 执行耗时：" + (System.currentTimeMillis() - time) + returnValue);
+            String returnValue = method.getReturnType() == void.class ? "ms" : "ms Return: " + result;
+            LOGGER.info(invokeLog + " Cost: " + (System.currentTimeMillis() - time) + returnValue);
         } else {
             result = point.proceed();
         }

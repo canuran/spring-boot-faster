@@ -1,13 +1,11 @@
-package ewing.faster.application.config;
+package ewing.common.config;
 
 import ewing.common.exception.ExceptionUtils;
 import ewing.common.exception.ResultException;
-import ewing.faster.FasterMain;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -22,10 +20,13 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Ewing
  */
-@Component
 public class ExceptionHandler implements HandlerExceptionResolver {
 
-    private String businessPackage = FasterMain.class.getPackage().getName();
+    private String businessPackage;
+
+    public ExceptionHandler(String businessPackage) {
+        this.businessPackage = businessPackage;
+    }
 
     /**
      * RequestBody返回普通文本，否则返回错误视图。

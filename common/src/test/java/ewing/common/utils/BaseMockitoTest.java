@@ -64,12 +64,9 @@ public class BaseMockitoTest {
                 return invocation.getMock() == invocation.getArguments()[0] ? 0 : 1;
             }
             Type returnType = invocation.getMethod().getGenericReturnType();
-            return returnValueFor(returnType);
+            return BeanHelper.generateInstance(returnType);
         }
 
-        Object returnValueFor(Type type) {
-            return BeanHelper.generateInstance(type);
-        }
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -32,14 +32,17 @@ import java.util.Date;
 @Configuration
 public class WebAppConfigurer extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private MappingJackson2HttpMessageConverter converter;
+    @Autowired(required = false)
+    private AbstractJackson2HttpMessageConverter converter;
 
     /**
      * 注册Jackson配置。
      */
     @PostConstruct
     public void registerJsonModule() {
+        if (converter == null) {
+            return;
+        }
         SimpleModule simpleModule = new SimpleModule();
         // 大数字用字符串代替科学计数法
         simpleModule.addSerializer(BigDecimal.class, new JsonSerializer<BigDecimal>() {

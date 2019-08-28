@@ -3,6 +3,7 @@ package ewing.faster.application.config;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.SSLHostConfigCertificate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -23,6 +24,7 @@ import java.security.KeyStore;
  * @author Ewing
  */
 @Configuration
+@ConditionalOnProperty(name = "server.https.enable", havingValue = "true")
 @EnableConfigurationProperties(SSLWebConfigurer.SSLConnectorProperties.class)
 public class SSLWebConfigurer extends WebMvcConfigurerAdapter {
 
@@ -57,12 +59,12 @@ public class SSLWebConfigurer extends WebMvcConfigurerAdapter {
         return connector;
     }
 
-    @ConfigurationProperties(prefix = "sslserver")
+    @ConfigurationProperties(prefix = "server.https")
     public static class SSLConnectorProperties {
         private Integer port = 443;
-        private String keyStore;
-        private String keyStorePassword;
-        private String keyStoreType;
+        private String keyStore = ".keystore";
+        private String keyStorePassword = "changeit";
+        private String keyStoreType = "JKS";
 
         public Integer getPort() {
             return port;

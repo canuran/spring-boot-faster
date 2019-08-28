@@ -1,18 +1,13 @@
 # 服务配置
 server:
   port: 80
+  https:
+    enable: true
 
 # 启用Swagger文档
 swagger.enable: true
 # 启用全局方法日志
 appMethodLogger.enable: true
-
-# Https配置
-sslserver:
-  port: 443
-  keyStore: .keystore
-  keyStorePassword: changeit
-  keyStoreType: JKS
 
 # Spring配置
 spring:
