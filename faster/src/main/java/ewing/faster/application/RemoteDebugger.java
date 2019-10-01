@@ -48,7 +48,7 @@ public class RemoteDebugger {
     private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
 
     @RequestMapping("/debugger")
-    @ApiOperation(value = "后门界面")
+    @ApiOperation(value = "在线调试")
     public ResponseEntity home(@RequestParam(value = "expression", required = false)
                                        String expression) throws Exception {
         String page = "<!DOCTYPE html>\n" +
