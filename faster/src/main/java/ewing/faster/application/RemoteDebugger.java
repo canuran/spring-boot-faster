@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ import java.util.stream.Stream;
  * @since 2018年6月1日
  */
 @Controller
+@ConditionalOnProperty(name = "debugger.enable", havingValue = "true")
 @Api(tags = "debugger", description = "调试接口")
 public class RemoteDebugger {
 

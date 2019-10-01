@@ -6,6 +6,8 @@ server:
 
 # 启用Swagger文档
 swagger.enable: true
+# 启用debugger功能
+debugger.enable: true
 # 启用全局方法日志
 appMethodLogger.enable: true
 
