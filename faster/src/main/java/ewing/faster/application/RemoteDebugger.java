@@ -2,7 +2,6 @@ package ewing.faster.application;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import ewing.common.ResultMessage;
 import ewing.common.exception.Checks;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
@@ -10,9 +9,13 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -33,7 +36,7 @@ import java.util.stream.Stream;
  * @author Ewing
  * @since 2018年6月1日
  */
-@RestController("/debugger")
+@Controller
 @Api(tags = "debugger", description = "调试接口")
 public class RemoteDebugger {
 
@@ -42,12 +45,56 @@ public class RemoteDebugger {
 
     private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
 
-    @PostMapping("/methodExecute")
-    @ApiOperation(value = "可执行项目中的任意方法", notes = "Spring Bean 方法调用：userServiceImpl.findUser({name:\"元宝\"})\n" +
-            "或直接复制方法引用：com.ewing.UserServiceImpl#findUser({name:\"元宝\"})\n" +
-            "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
-            "注意：如果方法重载的，参数Json也是兼容的，将无法确定调用哪个方法。")
-    public ResultMessage methodExecute(@RequestBody String expression) {
+    @RequestMapping("/debugger")
+    @ApiOperation(value = "后门界面")
+    public ResponseEntity home(@RequestParam(value = "expression", required = false)
+                                       String expression) throws Exception {
+        String page = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>在线调试</title>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "\n" +
+                "<form method=\"post\" action=\"\">\n" +
+                "    <label>在线调试</label>\n" +
+                "    <br/>\n" +
+                "    <textarea rows=\"10\" cols=\"100\" name=\"expression\" placeholder=\"" +
+                "Spring Bean 方法调用：userServiceImpl.findUser({id:123})\n" +
+                "或直接复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
+                "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
+                "注意：如果方法重载的，参数Json也是兼容的，将无法确定调用哪个方法。\">";
+
+        // 写入参数
+        page += expression == null ? "" : expression.trim();
+
+        page += "</textarea>\n" +
+                "    <br/>\n" +
+                "    <input type=\"submit\"  value=\"　提　交　\"/>\n" +
+                "</form>\n" +
+                "<br/>\n" +
+                "<textarea rows=\"20\" cols=\"100\" id=\"result\" placeholder=\"调用返回的结果\">";
+
+        // 写入返回值
+        try {
+            if (StringUtils.hasText(expression)) {
+                page += methodExecute(expression);
+            }
+        } catch (Exception e) {
+            page += e.getMessage();
+        }
+
+        page += "</textarea>\n" +
+                "</body>\n" +
+                "</html>";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("text/html;charset=UTF-8"))
+                .body(page);
+    }
+
+    private String methodExecute(@RequestBody String expression) {
         Checks.hasText(expression, "表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
         Checks.isTrue(matcher.find(), "表达式格式不正确！");
@@ -68,7 +115,7 @@ public class RemoteDebugger {
 
         // 转换方法参数
         JsonArray params = getJsonArray("[" + matcher.group(3) + "]");
-        return new ResultMessage<>(GsonUtils.toJson(executeFoundMethod(clazz, springBean, mayMethods, params)));
+        return GsonUtils.toJson(executeFoundMethod(clazz, springBean, mayMethods, params));
     }
 
     private Object executeFoundMethod(Class clazz, Object bean, List<Method> mayMethods, JsonArray params) {
