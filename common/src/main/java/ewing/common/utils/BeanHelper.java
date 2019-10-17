@@ -81,7 +81,7 @@ public class BeanHelper {
         if (target == null) {
             return null;
         }
-        BeanUtils.copyProperties(source, targetCreator);
+        BeanUtils.copyProperties(source, target);
         return target;
     }
 
