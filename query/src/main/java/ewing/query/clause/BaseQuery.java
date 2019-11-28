@@ -116,24 +116,17 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
-     * 如果字符串不为空白字符则添加ON条件。
+     * 如果测试值为真则添加Have条件。
      */
-    public <T extends CharSequence> BaseQuery<E> onIfHasText(T value, Function<T, Predicate> getPredicate) {
-        if (value != null && value.length() > 0) {
-            for (int i = 0; i < value.length(); ++i) {
-                if (!Character.isWhitespace(value.charAt(i))) {
-                    return on(getPredicate.apply(value));
-                }
-            }
-        }
-        return this;
+    public BaseQuery<E> havingIfTrue(boolean test, Supplier<Predicate> getPredicate) {
+        return test ? having(getPredicate.get()) : this;
     }
 
     /**
-     * 如果集合不为空则添加ON条件。
+     * 如果值存在则添加Have条件。
      */
-    public <T extends Collection<O>, O> BaseQuery<E> onIfNotEmpty(T value, Function<T, Predicate> getPredicate) {
-        return value != null && value.size() > 0 ? on(getPredicate.apply(value)) : this;
+    public <T> BaseQuery<E> havingIfNotNull(T value, Function<T, Predicate> getPredicate) {
+        return value == null ? this : having(getPredicate.apply(value));
     }
 
     /**

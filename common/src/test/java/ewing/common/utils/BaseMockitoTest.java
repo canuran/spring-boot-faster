@@ -1,5 +1,7 @@
 package ewing.common.utils;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.mockito.configuration.DefaultMockitoConfiguration;
 import org.mockito.configuration.IMockitoConfiguration;
@@ -11,9 +13,9 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.mock.MockName;
 import org.mockito.stubbing.Answer;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
@@ -26,24 +28,34 @@ import java.lang.reflect.Type;
 public class BaseMockitoTest {
 
     private static final ReturnsDefaultValues DEFAULT_VALUES = new ReturnsDefaultValues();
-
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule rule = MockitoJUnit.rule();
 
-    protected static void printJson(Object... objects) {
-        System.out.println(GsonUtils.toJson(objects));
-    }
-
-    static {
-        GlobalConfiguration globalConfiguration = new GlobalConfiguration();
-        ThreadLocal<IMockitoConfiguration> threadLocal = (ThreadLocal<IMockitoConfiguration>)
-                ReflectionTestUtils.getField(globalConfiguration, "GLOBAL_CONFIGURATION");
-        threadLocal.set(new DefaultMockitoConfiguration() {
+    @BeforeClass
+    public static void useDefaultReturn() {
+        setMockitoConfiguration(new DefaultMockitoConfiguration() {
             @Override
             public Answer<Object> getDefaultAnswer() {
                 return DEFAULT_VALUES;
             }
         });
+    }
+
+    @AfterClass
+    public static void useEmptyReturn() {
+        setMockitoConfiguration(new DefaultMockitoConfiguration());
+    }
+
+    protected static void setMockitoConfiguration(IMockitoConfiguration configuration) {
+        GlobalConfiguration globalConfiguration = new GlobalConfiguration();
+        try {
+            Field configurationField = GlobalConfiguration.class.getDeclaredField("GLOBAL_CONFIGURATION");
+            configurationField.setAccessible(true);
+            ThreadLocal<IMockitoConfiguration> threadLocal = (ThreadLocal<IMockitoConfiguration>) configurationField.get(globalConfiguration);
+            threadLocal.set(configuration);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public static class ReturnsDefaultValues implements Answer<Object>, Serializable {
@@ -64,9 +76,12 @@ public class BaseMockitoTest {
                 return invocation.getMock() == invocation.getArguments()[0] ? 0 : 1;
             }
             Type returnType = invocation.getMethod().getGenericReturnType();
-            return BeanHelper.generateInstance(returnType);
+            return returnValueFor(returnType);
         }
 
+        Object returnValueFor(Type type) {
+            return BeanHelper.generateInstance(type);
+        }
     }
 
 }

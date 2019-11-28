@@ -3,9 +3,6 @@ package ewing.common.utils;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * GSON工具类。
  *
@@ -16,7 +13,7 @@ public final class GsonUtils {
     public static final JsonObject EMPTY_JSON_OBJECT = new JsonObject();
     public static final JsonArray EMPTY_JSON_ARRAY = new JsonArray();
 
-    private static final Gson gson = new GsonBuilder()
+    private static final Gson GSON = new GsonBuilder()
             .setLenient()
             .enableComplexMapKeySerialization()
             .serializeNulls()
@@ -31,29 +28,47 @@ public final class GsonUtils {
      * 公开可给外部使用。
      */
     public static Gson getGson() {
-        return gson;
+        return GSON;
     }
 
     /**
      * 将object对象转成json字符串。
      */
     public static String toJson(Object object) {
-        return gson.toJson(object);
+        return GSON.toJson(object);
+    }
+
+    /**
+     * 将object对象转成json对象。
+     */
+    public static JsonElement toJsonElement(Object object) {
+        return GSON.toJsonTree(object);
     }
 
     /**
      * 将json字符串转成object。
      */
     public static <T> T toObject(String json, Class<T> type) {
-        return gson.fromJson(json, type);
+        return GSON.fromJson(json, type);
     }
 
     /**
-     * 将json字符串转成object，转换出错返回null。
+     * 静默将json字符串转成object。
      */
-    public static <T> T forceToObject(String json, Class<T> type) {
+    public static <T> T toObjectSilence(String json, Class<T> type) {
         try {
-            return gson.fromJson(json, type);
+            return GSON.fromJson(json, type);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 静默将json字符串转成object。
+     */
+    public static <T> T toObjectSilence(String json, TypeToken<T> typeToken) {
+        try {
+            return GSON.fromJson(json, typeToken.getType());
         } catch (Exception e) {
             return null;
         }
@@ -63,22 +78,33 @@ public final class GsonUtils {
      * 将json字符串转成任意泛型object。
      */
     public static <T> T toObject(String json, TypeToken<T> typeToken) {
-        return gson.fromJson(json, typeToken.getType());
+        return GSON.fromJson(json, typeToken.getType());
     }
 
     /**
      * 将json字符串转成object。
      */
     public static <T> T toObject(JsonElement json, Class<T> type) {
-        return gson.fromJson(json, type);
+        return GSON.fromJson(json, type);
     }
 
     /**
-     * 将json字符串转成object，转换出错返回null。
+     * 静默将json字符串转成object。
      */
-    public static <T> T forceToObject(JsonElement json, Class<T> type) {
+    public static <T> T toObjectSilence(JsonElement json, Class<T> type) {
         try {
-            return gson.fromJson(json, type);
+            return GSON.fromJson(json, type);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 静默将json字符串转成object。
+     */
+    public static <T> T toObjectSilence(JsonElement json, TypeToken<T> typeToken) {
+        try {
+            return GSON.fromJson(json, typeToken.getType());
         } catch (Exception e) {
             return null;
         }
@@ -88,30 +114,27 @@ public final class GsonUtils {
      * 将json字符串转成任意泛型object。
      */
     public static <T> T toObject(JsonElement json, TypeToken<T> typeToken) {
-        return gson.fromJson(json, typeToken.getType());
+        return GSON.fromJson(json, typeToken.getType());
     }
 
     /**
-     * 将json字符串转成转成list。
+     * 通过json对象进行深度拷贝。
      */
-    public static <T> List<T> toList(String arrayJson, Class<T> type) {
-        List<T> list = new ArrayList<>();
-        JsonArray array = new JsonParser().parse(arrayJson).getAsJsonArray();
-        for (JsonElement elem : array) {
-            list.add(gson.fromJson(elem, type));
+    public static <T> T deepCopy(Object source, Class<T> type) {
+        if (source == null || type == null) {
+            return null;
         }
-        return list;
+        return GSON.fromJson(GSON.toJsonTree(source), type);
     }
 
     /**
-     * 将json字符串转成转成list。
+     * 通过json对象进行深度拷贝。
      */
-    public static <T> List<T> toList(JsonArray jsonArray, Class<T> type) {
-        List<T> list = new ArrayList<>();
-        for (JsonElement elem : jsonArray) {
-            list.add(gson.fromJson(elem, type));
+    public static <T> T deepCopy(Object source, TypeToken<T> typeToken) {
+        if (source == null || typeToken == null) {
+            return null;
         }
-        return list;
+        return GSON.fromJson(GSON.toJsonTree(source), typeToken.getType());
     }
 
     /**
@@ -134,7 +157,7 @@ public final class GsonUtils {
 
         @Override
         public String toString() {
-            return gson.toJson(source);
+            return GSON.toJson(source);
         }
     }
 
