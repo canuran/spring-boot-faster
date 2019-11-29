@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  *
  * @author Ewing
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class QueryUtils {
 
     private QueryUtils() {

@@ -154,6 +154,40 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
+     * 如果有排序语句添加排序。
+     */
+    public BaseQuery<E> orderByIfHasText(String orderClause) {
+        if (orderClause != null && orderClause.length() > 0) {
+            for (int i = 0; i < orderClause.length(); ++i) {
+                if (!Character.isWhitespace(orderClause.charAt(i))) {
+                    return orderBy(orderClause);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 如果有Limit条件添加Limit。
+     */
+    public BaseQuery<E> limitIfNotNull(Number limit) {
+        if (limit != null) {
+            limit(limit.longValue());
+        }
+        return this;
+    }
+
+    /**
+     * 如果有Offset条件添加Offset。
+     */
+    public BaseQuery<E> offsetIfNotNull(Number offset) {
+        if (offset != null) {
+            offset(offset.longValue());
+        }
+        return this;
+    }
+
+    /**
      * 查询字段自动适配指定Bean的属性。
      */
     public <T> BaseQuery<T> fitBean(Class<T> type) {
