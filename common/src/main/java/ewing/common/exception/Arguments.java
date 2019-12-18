@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
  * @author Ewing
  */
 @SuppressWarnings("unchecked")
-public class Asserts {
+public class Arguments {
 
     private static final Map<String, Pattern> patternCache = new ConcurrentHashMap<>();
 
-    private Asserts() {
+    private Arguments() {
     }
 
     public static <A extends Objects<A, O>, O> Objects<A, O> of(O object) {
