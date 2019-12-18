@@ -280,4 +280,90 @@ public class Arguments {
         }
     }
 
+    public static final class Maps<A extends Maps<A, O>, O extends Map<?, ?>> extends Objects<A, O> {
+        public Maps(O object) {
+            super(object);
+        }
+
+        private static boolean isEmpty(Map<?, ?> map) {
+            return map == null || map.isEmpty();
+        }
+
+        private static int getSize(Map<?, ?> map) {
+            return map == null ? 0 : map.size();
+        }
+
+        public A notEmpty() {
+            return notEmpty("Argument must not empty");
+        }
+
+        public A notEmpty(String message) {
+            if (isEmpty(object)) {
+                throw new IllegalArgumentException(message);
+            }
+            return (A) this;
+        }
+
+        public <E extends RuntimeException> A notEmpty(Supplier<E> exceptor) {
+            if (isEmpty(object)) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A size(int size) {
+            return size(size, "Argument size must be " + size);
+        }
+
+        public A size(int size, String message) {
+            if (getSize(object) == size) {
+                throw new IllegalArgumentException(message);
+            }
+            return (A) this;
+        }
+
+        public <E extends RuntimeException> A size(int size, Supplier<E> exceptor) {
+            if (getSize(object) == size) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A minSize(int minSize) {
+            return minSize(minSize, "Argument size must greater than " + minSize);
+        }
+
+        public A minSize(int minSize, String message) {
+            if (getSize(object) < minSize) {
+                throw new IllegalArgumentException(message);
+            }
+            return (A) this;
+        }
+
+        public <E extends RuntimeException> A minSize(int minSize, Supplier<E> exceptor) {
+            if (getSize(object) < minSize) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A maxSize(int maxSize) {
+            return maxSize(maxSize, "Argument size must less than " + maxSize);
+        }
+
+        public A maxSize(int maxSize, String message) {
+            if (getSize(object) > maxSize) {
+                throw new IllegalArgumentException(message);
+            }
+            return (A) this;
+        }
+
+        public <E extends RuntimeException> A maxSize(int maxSize, Supplier<E> exceptor) {
+            if (getSize(object) > maxSize) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+    }
+
 }
