@@ -23,8 +23,12 @@ public class Asserts {
         return new Objects<>(object);
     }
 
-    public static <A extends Chars<A, O>, O extends CharSequence> Chars<A, O> of(O object) {
-        return new Chars<>(object);
+    public static <A extends Chars<A, O>, O extends CharSequence> Chars<A, O> of(O chars) {
+        return new Chars<>(chars);
+    }
+
+    public static <A extends Collections<A, O>, O extends Collection<?>> Collections<A, O> of(O collection) {
+        return new Collections<>(collection);
     }
 
     public static class Objects<A extends Objects<A, O>, O> {
