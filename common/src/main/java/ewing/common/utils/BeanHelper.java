@@ -6,6 +6,7 @@ import org.springframework.util.ClassUtils;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -159,6 +160,19 @@ public class BeanHelper {
             throw new IllegalStateException(e);
         }
         return target;
+    }
+
+    /**
+     * 通过序列化深度复制对象。
+     */
+    public static <T extends Serializable> T deepCopySerializable(T source) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            new ObjectOutputStream(bos).writeObject(source);
+            return (T) new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
