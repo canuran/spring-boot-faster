@@ -3,6 +3,7 @@ package ewing.common.exception;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -73,6 +74,24 @@ public class Arguments {
 
         public <E extends RuntimeException> A notNull(Supplier<E> exceptor) {
             if (object == null) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A test(Predicate<O> predicate) {
+            return test(predicate, "Argument must not null");
+        }
+
+        public A test(Predicate<O> predicate, String message) {
+            if (predicate.test(object)) {
+                throw new IllegalArgumentException(message);
+            }
+            return (A) this;
+        }
+
+        public <E extends RuntimeException> A test(Predicate<O> predicate, Supplier<E> exceptor) {
+            if (predicate.test(object)) {
                 throw exceptor.get();
             }
             return (A) this;
