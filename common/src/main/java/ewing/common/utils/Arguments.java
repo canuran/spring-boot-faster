@@ -11,6 +11,18 @@ import java.util.regex.Pattern;
 /**
  * 检查应用参数。
  *
+ * <pre>
+ *  // 设置全局默认异常，只能设置一次，不设置默认抛出 IllegalArgumentException
+ *  Arguments.setDefaultExceptor(message -> () -> new IllegalArgumentException(message));
+ *
+ *  // 链式校验，根据参数不同提供不同校验方法，可自定义异常，或使用默认异常信息
+ *  Arguments.of("元宝")
+ *          .hasText("名称不能为空")
+ *          .maxLength(32, () -> new IllegalArgumentException("名称不能大于32字符"))
+ *          .matches("[A-Za-z0-9]+", "名称只能是字母和数字")
+ *          .get();
+ * </pre>
+ *
  * @author Ewing
  */
 public final class Arguments {
@@ -225,7 +237,7 @@ public final class Arguments {
         }
 
         public Strings length(int length, Supplier<RuntimeException> exceptor) {
-            if (getLength(object) == length) {
+            if (getLength(object) != length) {
                 throw exceptor.get();
             }
             return this;
