@@ -1,6 +1,8 @@
 package ewing.faster;
 
 import ewing.common.config.ExceptionHandler;
+import ewing.common.exception.BusinessException;
+import ewing.common.utils.Arguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -16,6 +18,7 @@ public class FasterMain {
 
     public static void main(String[] args) {
         SpringApplication.run(FasterMain.class, args);
+        Arguments.setDefaultExceptor(message -> () -> new BusinessException(message));
     }
 
     @Bean

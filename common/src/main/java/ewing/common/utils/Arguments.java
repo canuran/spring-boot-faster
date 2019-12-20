@@ -3,6 +3,7 @@ package ewing.common.utils;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -18,12 +19,25 @@ public final class Arguments {
         throw new AssertionError("Can not construct Arguments");
     }
 
+    private static final Function<String, Supplier<RuntimeException>> DEFAULT_EXCEPTOR = message -> () -> new IllegalArgumentException(message);
+    private static Function<String, Supplier<RuntimeException>> defaultExceptor = DEFAULT_EXCEPTOR;
+
+    /**
+     * 设置默认的参数异常产生器，只能设置一次。
+     */
+    public static synchronized void setDefaultExceptor(Function<String, Supplier<RuntimeException>> exceptor) {
+        if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
+            Arguments.defaultExceptor = exceptor;
+        }
+        throw new IllegalStateException("Can not reset default exceptor");
+    }
+
     public static <A extends Objects<A, O>, O> Objects<A, O> of(O object) {
         return new Objects<>(object);
     }
 
-    public static <O extends CharSequence> Chars<O> of(O chars) {
-        return new Chars<>(chars);
+    public static <A extends Comparables<A, O>, O extends Comparable<O>> Comparables<A, O> of(O comparable) {
+        return new Comparables<>(comparable);
     }
 
     public static <O extends Collection<?>> Collections<O> of(O collection) {
@@ -32,6 +46,18 @@ public final class Arguments {
 
     public static <O extends Map<?, ?>> Maps<O> of(O map) {
         return new Maps<>(map);
+    }
+
+    public static Strings of(String strings) {
+        return new Strings(strings);
+    }
+
+    public static Integers of(Integer integer) {
+        return new Integers(integer);
+    }
+
+    public static Longs of(Long value) {
+        return new Longs(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,10 +77,10 @@ public final class Arguments {
         }
 
         public A isNull(String message) {
-            return isNull(() -> new IllegalArgumentException(message));
+            return isNull(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> A isNull(Supplier<E> exceptor) {
+        public A isNull(Supplier<RuntimeException> exceptor) {
             if (object != null) {
                 throw exceptor.get();
             }
@@ -66,10 +92,10 @@ public final class Arguments {
         }
 
         public A notNull(String message) {
-            return notNull(() -> new IllegalArgumentException(message));
+            return notNull(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> A notNull(Supplier<E> exceptor) {
+        public A notNull(Supplier<RuntimeException> exceptor) {
             if (object == null) {
                 throw exceptor.get();
             }
@@ -81,10 +107,10 @@ public final class Arguments {
         }
 
         public A equalsTo(O other, String message) {
-            return equalsTo(other, () -> new IllegalArgumentException(message));
+            return equalsTo(other, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> A equalsTo(O other, Supplier<E> exceptor) {
+        public A equalsTo(O other, Supplier<RuntimeException> exceptor) {
             if ((object != other) && (object == null || !object.equals(other))) {
                 throw exceptor.get();
             }
@@ -96,10 +122,10 @@ public final class Arguments {
         }
 
         public A test(Predicate<O> predicate, String message) {
-            return test(predicate, () -> new IllegalArgumentException(message));
+            return test(predicate, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> A test(Predicate<O> predicate, Supplier<E> exceptor) {
+        public A test(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
             if (!predicate.test(object)) {
                 throw exceptor.get();
             }
@@ -107,25 +133,25 @@ public final class Arguments {
         }
     }
 
-    public static final class Chars<O extends CharSequence> extends Objects<Chars<O>, O> {
+    public static final class Strings extends Comparables<Strings, String> {
         private static final Map<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
-        public Chars(O object) {
+        public Strings(String object) {
             super(object);
         }
 
-        private static boolean isEmpty(CharSequence chars) {
-            return chars == null || chars.length() == 0;
+        private static boolean isEmpty(String strings) {
+            return strings == null || strings.length() == 0;
         }
 
-        private static int getLength(CharSequence chars) {
-            return chars == null ? 0 : chars.length();
+        private static int getLength(String strings) {
+            return strings == null ? 0 : strings.length();
         }
 
-        private static boolean hasText(CharSequence chars) {
-            if (chars != null && chars.length() > 0) {
-                for (int i = 0; i < chars.length(); ++i) {
-                    if (!Character.isWhitespace(chars.charAt(i))) {
+        private static boolean isHasText(String strings) {
+            if (strings != null && strings.length() > 0) {
+                for (int i = 0; i < strings.length(); ++i) {
+                    if (!Character.isWhitespace(strings.charAt(i))) {
                         return true;
                     }
                 }
@@ -133,102 +159,102 @@ public final class Arguments {
             return false;
         }
 
-        public Chars<O> notEmpty() {
+        public Strings notEmpty() {
             return notEmpty("Argument must not empty");
         }
 
-        public Chars<O> notEmpty(String message) {
-            return notEmpty(() -> new IllegalArgumentException(message));
+        public Strings notEmpty(String message) {
+            return notEmpty(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> notEmpty(Supplier<E> exceptor) {
+        public Strings notEmpty(Supplier<RuntimeException> exceptor) {
             if (isEmpty(object)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Chars<O> hasText() {
+        public Strings hasText() {
             return hasText("Argument must has text");
         }
 
-        public Chars<O> hasText(String message) {
-            return hasText(() -> new IllegalArgumentException(message));
+        public Strings hasText(String message) {
+            return hasText(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> hasText(Supplier<E> exceptor) {
-            if (!hasText(object)) {
+        public Strings hasText(Supplier<RuntimeException> exceptor) {
+            if (!isHasText(object)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Chars<O> match(String regexp) {
-            return match(regexp, "Argument must match regexp " + regexp);
+        public Strings matches(String regexp) {
+            return matches(regexp, "Argument must matches regexp " + regexp);
         }
 
-        public Chars<O> match(String regexp, String message) {
-            return match(PATTERN_CACHE.computeIfAbsent(regexp, Pattern::compile), message);
+        public Strings matches(String regexp, String message) {
+            return matches(PATTERN_CACHE.computeIfAbsent(regexp, Pattern::compile), message);
         }
 
-        public <E extends RuntimeException> Chars<O> match(String regexp, Supplier<E> exceptor) {
-            return match(PATTERN_CACHE.computeIfAbsent(regexp, Pattern::compile), exceptor);
+        public Strings matches(String regexp, Supplier<RuntimeException> exceptor) {
+            return matches(PATTERN_CACHE.computeIfAbsent(regexp, Pattern::compile), exceptor);
         }
 
-        public Chars<O> match(Pattern pattern) {
-            return match(pattern, "Argument must match pattern " + pattern);
+        public Strings matches(Pattern pattern) {
+            return matches(pattern, "Argument must matches pattern " + pattern);
         }
 
-        public Chars<O> match(Pattern regexp, String message) {
-            return match(regexp, () -> new IllegalArgumentException(message));
+        public Strings matches(Pattern regexp, String message) {
+            return matches(regexp, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> match(Pattern regexp, Supplier<E> exceptor) {
+        public Strings matches(Pattern regexp, Supplier<RuntimeException> exceptor) {
             if (object == null || !regexp.matcher(object).matches()) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Chars<O> length(int length) {
+        public Strings length(int length) {
             return length(length, "Argument length must be " + length);
         }
 
-        public Chars<O> length(int length, String message) {
-            return length(length, () -> new IllegalArgumentException(message));
+        public Strings length(int length, String message) {
+            return length(length, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> length(int length, Supplier<E> exceptor) {
+        public Strings length(int length, Supplier<RuntimeException> exceptor) {
             if (getLength(object) == length) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Chars<O> minLength(int minLength) {
+        public Strings minLength(int minLength) {
             return minLength(minLength, "Argument length must greater than " + minLength);
         }
 
-        public Chars<O> minLength(int minLength, String message) {
-            return minLength(minLength, () -> new IllegalArgumentException(message));
+        public Strings minLength(int minLength, String message) {
+            return minLength(minLength, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> minLength(int minLength, Supplier<E> exceptor) {
+        public Strings minLength(int minLength, Supplier<RuntimeException> exceptor) {
             if (getLength(object) < minLength) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Chars<O> maxLength(int maxLength) {
+        public Strings maxLength(int maxLength) {
             return maxLength(maxLength, "Argument length must less than " + maxLength);
         }
 
-        public Chars<O> maxLength(int maxLength, String message) {
-            return maxLength(maxLength, () -> new IllegalArgumentException(message));
+        public Strings maxLength(int maxLength, String message) {
+            return maxLength(maxLength, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Chars<O> maxLength(int maxLength, Supplier<E> exceptor) {
+        public Strings maxLength(int maxLength, Supplier<RuntimeException> exceptor) {
             if (getLength(object) > maxLength) {
                 throw exceptor.get();
             }
@@ -254,10 +280,10 @@ public final class Arguments {
         }
 
         public Collections<O> notEmpty(String message) {
-            return notEmpty(() -> new IllegalArgumentException(message));
+            return notEmpty(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> notEmpty(Supplier<E> exceptor) {
+        public Collections<O> notEmpty(Supplier<RuntimeException> exceptor) {
             if (isEmpty(object)) {
                 throw exceptor.get();
             }
@@ -269,10 +295,10 @@ public final class Arguments {
         }
 
         public Collections<O> size(int size, String message) {
-            return size(size, () -> new IllegalArgumentException(message));
+            return size(size, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> size(int size, Supplier<E> exceptor) {
+        public Collections<O> size(int size, Supplier<RuntimeException> exceptor) {
             if (getSize(object) != size) {
                 throw exceptor.get();
             }
@@ -284,10 +310,10 @@ public final class Arguments {
         }
 
         public Collections<O> minSize(int minSize, String message) {
-            return minSize(minSize, () -> new IllegalArgumentException(message));
+            return minSize(minSize, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> minSize(int minSize, Supplier<E> exceptor) {
+        public Collections<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) < minSize) {
                 throw exceptor.get();
             }
@@ -299,10 +325,10 @@ public final class Arguments {
         }
 
         public Collections<O> maxSize(int maxSize, String message) {
-            return maxSize(maxSize, () -> new IllegalArgumentException(message));
+            return maxSize(maxSize, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> maxSize(int maxSize, Supplier<E> exceptor) {
+        public Collections<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) > maxSize) {
                 throw exceptor.get();
             }
@@ -314,10 +340,10 @@ public final class Arguments {
         }
 
         public Collections<O> contains(Object other, String message) {
-            return contains(other, () -> new IllegalArgumentException(message));
+            return contains(other, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> contains(Object other, Supplier<E> exceptor) {
+        public Collections<O> contains(Object other, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.contains(other)) {
                 throw exceptor.get();
             }
@@ -329,10 +355,10 @@ public final class Arguments {
         }
 
         public Collections<O> containsAll(O other, String message) {
-            return containsAll(other, () -> new IllegalArgumentException(message));
+            return containsAll(other, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Collections<O> containsAll(O other, Supplier<E> exceptor) {
+        public Collections<O> containsAll(O other, Supplier<RuntimeException> exceptor) {
             if (!isEmpty(other) && (!isEmpty(object) && !object.containsAll(other))) {
                 throw exceptor.get();
             }
@@ -358,10 +384,10 @@ public final class Arguments {
         }
 
         public Maps<O> notEmpty(String message) {
-            return notEmpty(() -> new IllegalArgumentException(message));
+            return notEmpty(defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> notEmpty(Supplier<E> exceptor) {
+        public Maps<O> notEmpty(Supplier<RuntimeException> exceptor) {
             if (isEmpty(object)) {
                 throw exceptor.get();
             }
@@ -373,10 +399,10 @@ public final class Arguments {
         }
 
         public Maps<O> size(int size, String message) {
-            return size(size, () -> new IllegalArgumentException(message));
+            return size(size, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> size(int size, Supplier<E> exceptor) {
+        public Maps<O> size(int size, Supplier<RuntimeException> exceptor) {
             if (getSize(object) != size) {
                 throw exceptor.get();
             }
@@ -388,10 +414,10 @@ public final class Arguments {
         }
 
         public Maps<O> minSize(int minSize, String message) {
-            return minSize(minSize, () -> new IllegalArgumentException(message));
+            return minSize(minSize, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> minSize(int minSize, Supplier<E> exceptor) {
+        public Maps<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) < minSize) {
                 throw exceptor.get();
             }
@@ -403,10 +429,10 @@ public final class Arguments {
         }
 
         public Maps<O> maxSize(int maxSize, String message) {
-            return maxSize(maxSize, () -> new IllegalArgumentException(message));
+            return maxSize(maxSize, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> maxSize(int maxSize, Supplier<E> exceptor) {
+        public Maps<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) > maxSize) {
                 throw exceptor.get();
             }
@@ -418,10 +444,10 @@ public final class Arguments {
         }
 
         public Maps<O> containsKey(Object key, String message) {
-            return containsKey(key, () -> new IllegalArgumentException(message));
+            return containsKey(key, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> containsKey(Object key, Supplier<E> exceptor) {
+        public Maps<O> containsKey(Object key, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.containsKey(key)) {
                 throw exceptor.get();
             }
@@ -433,14 +459,212 @@ public final class Arguments {
         }
 
         public Maps<O> containsValue(Object value, String message) {
-            return containsValue(value, () -> new IllegalArgumentException(message));
+            return containsValue(value, defaultExceptor.apply(message));
         }
 
-        public <E extends RuntimeException> Maps<O> containsValue(Object value, Supplier<E> exceptor) {
+        public Maps<O> containsValue(Object value, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.containsValue(value)) {
                 throw exceptor.get();
             }
             return this;
+        }
+    }
+
+    public static final class Integers extends Objects<Integers, Integer> {
+        public Integers(Integer object) {
+            super(object);
+        }
+
+        public Integers greaterThan(int other) {
+            return greaterThan(other, "Argument must greater than " + other);
+        }
+
+        public Integers greaterThan(int other, String message) {
+            return greaterThan(other, defaultExceptor.apply(message));
+        }
+
+        public Integers greaterThan(int other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object <= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Integers lessThan(int other) {
+            return lessThan(other, "Argument must less than " + other);
+        }
+
+        public Integers lessThan(int other, String message) {
+            return lessThan(other, defaultExceptor.apply(message));
+        }
+
+        public Integers lessThan(int other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object >= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Integers greaterThanOrEquals(int other) {
+            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+        }
+
+        public Integers greaterThanOrEquals(int other, String message) {
+            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Integers greaterThanOrEquals(int other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object < other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Integers lessThanOrEquals(int other) {
+            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+        }
+
+        public Integers lessThanOrEquals(int other, String message) {
+            return lessThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Integers lessThanOrEquals(int other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object > other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+    }
+
+    public static final class Longs extends Objects<Longs, Long> {
+        public Longs(Long object) {
+            super(object);
+        }
+
+        public Longs greaterThan(long other) {
+            return greaterThan(other, "Argument must greater than " + other);
+        }
+
+        public Longs greaterThan(long other, String message) {
+            return greaterThan(other, defaultExceptor.apply(message));
+        }
+
+        public Longs greaterThan(long other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object <= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Longs lessThan(long other) {
+            return lessThan(other, "Argument must less than " + other);
+        }
+
+        public Longs lessThan(long other, String message) {
+            return lessThan(other, defaultExceptor.apply(message));
+        }
+
+        public Longs lessThan(long other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object >= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Longs greaterThanOrEquals(long other) {
+            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+        }
+
+        public Longs greaterThanOrEquals(long other, String message) {
+            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Longs greaterThanOrEquals(long other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object < other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Longs lessThanOrEquals(long other) {
+            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+        }
+
+        public Longs lessThanOrEquals(long other, String message) {
+            return lessThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Longs lessThanOrEquals(long other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object > other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+    }
+
+    public static class Comparables<A extends Comparables<A, O>, O extends Comparable<O>> extends Objects<A, O> {
+        public Comparables(O object) {
+            super(object);
+        }
+
+        public A greaterThan(O other) {
+            return greaterThan(other, "Argument must greater than other");
+        }
+
+        public A greaterThan(O other, String message) {
+            return greaterThan(other, defaultExceptor.apply(message));
+        }
+
+        public A greaterThan(O other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object.compareTo(other) <= 0) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A lessThan(O other) {
+            return lessThan(other, "Argument must less than other");
+        }
+
+        public A lessThan(O other, String message) {
+            return lessThan(other, defaultExceptor.apply(message));
+        }
+
+        public A lessThan(O other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object.compareTo(other) >= 0) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A greaterThanOrEquals(O other) {
+            return greaterThanOrEquals(other, "Argument must greater than or equals other");
+        }
+
+        public A greaterThanOrEquals(O other, String message) {
+            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public A greaterThanOrEquals(O other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object.compareTo(other) < 0) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A lessThanOrEquals(O other) {
+            return lessThanOrEquals(other, "Argument must less than or equals other");
+        }
+
+        public A lessThanOrEquals(O other, String message) {
+            return lessThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public A lessThanOrEquals(O other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object.compareTo(other) > 0) {
+                throw exceptor.get();
+            }
+            return (A) this;
         }
     }
 

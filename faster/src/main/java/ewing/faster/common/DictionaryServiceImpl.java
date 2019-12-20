@@ -1,7 +1,7 @@
 package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
-import ewing.common.exception.Checks;
+import ewing.common.utils.Arguments;
 import ewing.common.utils.GlobalIds;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
@@ -34,15 +34,17 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public Page<Dictionary> findWithSubDictionary(
             FindDictionaryParam findDictionaryParam) {
-        Checks.notNull(findDictionaryParam, "查询参数不能为空！");
+        Arguments.of(findDictionaryParam).notNull("查询参数不能为空！");
         return dictionaryDao.findWithSubDictionary(findDictionaryParam);
     }
 
     @Override
     public void addDictionary(Dictionary dictionary) {
-        Checks.notNull(dictionary, "字典项不能为空！");
-        Checks.hasText(dictionary.getName(), "字典名不能为空！");
-        Checks.hasText(dictionary.getValue(), "字典值不能为空！");
+        Arguments.of(dictionary).notNull("字典项不能为空！");
+        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
+                .maxLength(32, "字典名长度不能超过32字符！");
+        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
+                .maxLength(32, "字典值长度不能超过32字符！");
 
         // 处理父字典和根字典的关系
         if (dictionary.getParentId() != null) {
@@ -57,14 +59,14 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
 
-        Checks.isTrue(queryFactory.selectFrom(qDictionary)
-                        .where(dictionary.getParentId() == null ?
-                                qDictionary.parentId.isNull() :
-                                qDictionary.parentId.eq(dictionary.getParentId()))
-                        .where(qDictionary.name.eq(dictionary.getName())
-                                .or(qDictionary.value.eq(dictionary.getValue())))
-                        .fetchCount() < 1,
-                "相同位置下的字典名或值不能重复！");
+        Arguments.of(queryFactory.selectFrom(qDictionary)
+                .where(dictionary.getParentId() == null ?
+                        qDictionary.parentId.isNull() :
+                        qDictionary.parentId.eq(dictionary.getParentId()))
+                .where(qDictionary.name.eq(dictionary.getName())
+                        .or(qDictionary.value.eq(dictionary.getValue())))
+                .fetchCount())
+                .lessThan(1, "相同位置下的字典名或值不能重复！");
 
         // 详情不允许为空串
         if (!StringUtils.hasText(dictionary.getDetail())) {
@@ -85,20 +87,22 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void updateDictionary(Dictionary dictionary) {
-        Checks.notNull(dictionary, "字典项不能为空！");
-        Checks.notNull(dictionary.getDictionaryId(), "字典ID不能为空！");
-        Checks.hasText(dictionary.getName(), "字典名不能为空！");
-        Checks.hasText(dictionary.getValue(), "字典值不能为空！");
+        Arguments.of(dictionary).notNull("字典项不能为空！");
+        Arguments.of(dictionary.getDictionaryId()).notNull("字典ID不能为空！");
+        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
+                .maxLength(32, "字典名长度不能超过32字符");
+        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
+                .maxLength(32, "字典值长度不能超过32字符");
 
-        Checks.isTrue(queryFactory.selectFrom(qDictionary)
-                        .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
-                        .where(dictionary.getParentId() == null ?
-                                qDictionary.parentId.isNull() :
-                                qDictionary.parentId.eq(dictionary.getParentId()))
-                        .where(qDictionary.name.eq(dictionary.getName())
-                                .or(qDictionary.value.eq(dictionary.getValue())))
-                        .fetchCount() < 1,
-                "相同位置下的字典名或值不能重复！");
+        Arguments.of(queryFactory.selectFrom(qDictionary)
+                .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
+                .where(dictionary.getParentId() == null ?
+                        qDictionary.parentId.isNull() :
+                        qDictionary.parentId.eq(dictionary.getParentId()))
+                .where(qDictionary.name.eq(dictionary.getName())
+                        .or(qDictionary.value.eq(dictionary.getValue())))
+                .fetchCount())
+                .lessThan(1, "相同位置下的字典名或值不能重复！");
 
         // 不能修改父字典和根字典
         dictionary.setRootId(null);
@@ -112,20 +116,22 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void deleteDictionary(BigInteger dictionaryId) {
-        Checks.notNull(dictionaryId, "字典ID不能为空！");
-        Checks.notNull(queryFactory.selectFrom(qDictionary).fetchByKey(dictionaryId),
-                "该字典不存在或已删除！");
-        Checks.isTrue(queryFactory.selectFrom(qDictionary)
-                        .where(qDictionary.parentId.eq(dictionaryId))
-                        .fetchCount() < 1,
-                "请先删除该字典的所有子项！");
+        Arguments.of(dictionaryId).notNull("字典ID不能为空！");
+
+        Dictionary dictionary = queryFactory.selectFrom(qDictionary).fetchByKey(dictionaryId);
+        Arguments.of(dictionary).notNull("该字典不存在或已删除！");
+
+        Arguments.of(queryFactory.selectFrom(qDictionary)
+                .where(qDictionary.parentId.eq(dictionaryId))
+                .fetchCount())
+                .lessThan(1, "请先删除该字典的所有子项！");
 
         queryFactory.delete(qDictionary).deleteByKey(dictionaryId);
     }
 
     @Override
     public List<DictionaryNode> findDictionaryTrees(String[] rootValues) {
-        Checks.notNull(rootValues, "查询参数不能为空！");
+        Arguments.of(rootValues).notNull("查询参数不能为空！");
         List<DictionaryNode> dictionaries = dictionaryDao
                 .findRootSubDictionaries(rootValues);
         return TreeUtils.toTree(dictionaries,

@@ -1,6 +1,6 @@
 package ewing.faster.user;
 
-import ewing.common.exception.Checks;
+import ewing.common.utils.Arguments;
 import ewing.common.utils.GlobalIds;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
@@ -35,15 +35,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public BigInteger addUserWithRole(UserWithRole userWithRole) {
-        Checks.notNull(userWithRole, "用户不能为空！");
-        Checks.hasText(userWithRole.getUsername(), "用户名不能为空！");
-        Checks.hasText(userWithRole.getNickname(), "昵称不能为空！");
-        Checks.hasText(userWithRole.getPassword(), "密码不能为空！");
-        Checks.hasText(userWithRole.getGender(), "性别不能为空！");
-        Checks.isTrue(queryFactory.selectFrom(qUser)
-                        .where(qUser.username.eq(userWithRole.getUsername()))
-                        .fetchCount() < 1,
-                "用户名已被使用！");
+        Arguments.of(userWithRole).notNull("用户不能为空！");
+        Arguments.of(userWithRole.getUsername()).hasText("用户名不能为空！")
+                .maxLength(32, "用户名不能超过32字符！");
+        Arguments.of(userWithRole.getNickname()).hasText("昵称不能为空！")
+                .maxLength(32, "昵称不能超过32字符！");
+        Arguments.of(userWithRole.getPassword()).hasText("密码不能为空！")
+                .maxLength(32, "密码不能超过32字符！");
+        Arguments.of(userWithRole.getGender()).hasText("性别不能为空！")
+                .maxLength(2, "性别不能超过2字符！");
+        Arguments.of(queryFactory.selectFrom(qUser)
+                .where(qUser.username.eq(userWithRole.getUsername()))
+                .fetchCount())
+                .lessThan(1, "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());
         userWithRole.setUserId(GlobalIds.nextId());
@@ -70,7 +74,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(BigInteger userId) {
-        Checks.notNull(userId, "用户ID不能为空！");
+        Arguments.of(userId).notNull("用户ID不能为空！");
         return queryFactory.selectFrom(qUser).fetchByKey(userId);
     }
 
@@ -78,8 +82,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
     public long updateUserWithRole(UserWithRole userWithRole) {
-        Checks.notNull(userWithRole, "用户不能为空！");
-        Checks.notNull(userWithRole.getUserId(), "用户ID不能为空！");
+        Arguments.of(userWithRole).notNull("用户不能为空！");
+        Arguments.of(userWithRole.getUserId()).notNull("用户ID不能为空！");
 
         // 更新用户的角色列表
         queryFactory.delete(qUserRole)
@@ -106,7 +110,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
-        Checks.notNull(userId, "用户ID不能为空！");
+        Arguments.of(userId).notNull("用户ID不能为空！");
         queryFactory.delete(qUserRole)
                 .where(qUserRole.userId.eq(userId))
                 .execute();

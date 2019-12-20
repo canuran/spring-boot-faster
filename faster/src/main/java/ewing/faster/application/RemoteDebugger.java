@@ -2,7 +2,7 @@ package ewing.faster.application;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import ewing.common.exception.Checks;
+import ewing.common.utils.Arguments;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -97,9 +97,9 @@ public class RemoteDebugger {
     }
 
     private String methodExecute(@RequestBody String expression) {
-        Checks.hasText(expression, "表达式不能为空！");
+        Arguments.of(expression).hasText("表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        Checks.isTrue(matcher.find(), "表达式格式不正确！");
+        Arguments.of(expression).matches(BEAN_METHOD, "表达式格式不正确！");
 
         // 根据名称获取Bean
         String classOrBeanName = matcher.group(1);
@@ -110,7 +110,7 @@ public class RemoteDebugger {
         } catch (Exception e) {
             throw new RuntimeException("初始化类失败！", e);
         }
-        Checks.notNull(clazz, "调用Class不能为空！");
+        Arguments.of(clazz).notNull("调用Class不能为空！");
 
         // 根据名称获取方法列表
         List<Method> mayMethods = getMethods(clazz, matcher.group(2));
@@ -142,12 +142,12 @@ public class RemoteDebugger {
             } catch (Exception e) {
                 continue;
             }
-            Checks.isNull(foundMethod, "方法调用重复：" + foundMethod + " 和 " + method);
+            Arguments.of(foundMethod).isNull("方法调用重复：" + foundMethod + " 和 " + method);
             foundMethod = method;
         }
 
         // 调用方法并返回
-        Checks.notNull(foundMethod, "未找到满足参数的方法！");
+        Arguments.of(foundMethod).notNull("未找到满足参数的方法！");
         try {
             foundMethod.setAccessible(true);
             if (Modifier.isStatic(foundMethod.getModifiers())) {
@@ -180,7 +180,7 @@ public class RemoteDebugger {
         List<Method> mayMethods = Stream.of(clazz.getDeclaredMethods())
                 .filter(m -> methodName.equals(m.getName()))
                 .collect(Collectors.toList());
-        Checks.notEmpty(mayMethods, "未找到方法：" + methodName);
+        Arguments.of(mayMethods).notEmpty("未找到方法：" + methodName);
         return mayMethods;
     }
 

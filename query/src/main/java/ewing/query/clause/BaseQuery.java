@@ -199,8 +199,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      * 根据主键获取实体。
      */
 
-    public <T> T fetchByKey(Object key) {
-        return (T) whereEqKey(key).fetchOne();
+    public E fetchByKey(Object key) {
+        return whereEqKey(key).fetchOne();
     }
 
     /**
