@@ -275,6 +275,27 @@ public final class Arguments {
             return collection == null ? 0 : collection.size();
         }
 
+        public Collections<O> allNotNull() {
+            return allNotNull("Argument must not contains null");
+        }
+
+        public Collections<O> allNotNull(String message) {
+            return allNotNull(defaultExceptor.apply(message));
+        }
+
+        public Collections<O> allNotNull(Supplier<RuntimeException> exceptor) {
+            if (object == null) {
+                throw exceptor.get();
+            } else {
+                for (Object o : object) {
+                    if (o == null) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
         public Collections<O> notEmpty() {
             return notEmpty("Argument must not empty");
         }
