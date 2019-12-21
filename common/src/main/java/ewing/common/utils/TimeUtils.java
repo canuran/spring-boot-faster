@@ -20,6 +20,10 @@ public class TimeUtils {
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
+    private TimeUtils() {
+        throw new IllegalStateException("Can not construct TimeUtils");
+    }
+
     /**
      * 把日期类型格式化成字符串。
      */

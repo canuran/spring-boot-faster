@@ -60,8 +60,8 @@ public final class Arguments {
         return new Maps<>(map);
     }
 
-    public static Strings of(String strings) {
-        return new Strings(strings);
+    public static Strings of(String string) {
+        return new Strings(string);
     }
 
     public static Integers of(Integer integer) {

@@ -1,4 +1,4 @@
-package ewing.common.utils;
+package ewing.common.test;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -80,7 +80,7 @@ public class BaseMockitoTest {
         }
 
         Object returnValueFor(Type type) {
-            return BeanHelper.generateInstance(type);
+            return BeanTestUtils.generateInstance(type);
         }
     }
 

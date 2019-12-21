@@ -11,6 +11,9 @@ import java.util.function.*;
  */
 @SuppressWarnings("unchecked")
 public class TreeUtils {
+    private TreeUtils() {
+        throw new IllegalStateException("Can not construct TreeUtils");
+    }
 
     /**
      * 树节点集合转换为树形结构，使用函数式接口操作树节点。

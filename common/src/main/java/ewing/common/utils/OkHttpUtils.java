@@ -82,6 +82,7 @@ public class OkHttpUtils {
      * 私有化构造方法，禁止创建实例。
      */
     private OkHttpUtils() {
+        throw new IllegalStateException("Can not construct OkHttpUtils");
     }
 
     /**

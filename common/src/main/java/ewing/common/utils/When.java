@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 public final class When {
 
     private When() {
+        throw new IllegalStateException("Can not construct When");
     }
 
     public static void isTrue(boolean value, Runnable execute) {

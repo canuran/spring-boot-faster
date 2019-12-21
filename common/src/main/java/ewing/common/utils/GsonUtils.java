@@ -22,6 +22,7 @@ public final class GsonUtils {
             .create();
 
     private GsonUtils() {
+        throw new IllegalStateException("Can not construct GsonUtils");
     }
 
     /**

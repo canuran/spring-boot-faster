@@ -17,6 +17,7 @@ public class StringDateParser {
      * 该类不可实例化。
      */
     private StringDateParser() {
+        throw new IllegalStateException("Can not construct StringDateParser");
     }
 
     /**

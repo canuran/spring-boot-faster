@@ -18,6 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2019年07月16日
  */
 public class BeanCopy {
+    private BeanCopy() {
+        throw new IllegalStateException("Can not construct BeanCopy");
+    }
 
     private static final ClassPool CLASS_POOL = ClassPool.getDefault();
 

@@ -3,13 +3,14 @@ package ewing.common.utils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Objects;
 
 /**
  * RSA加解密。
@@ -28,72 +29,83 @@ public class RSAEncryptor {
     private static final String PROVIDER = "BC";
 
     // 加密公钥
-    private static RSAPublicKey publicKey;
+    private final RSAPublicKey publicKey;
 
     // 加密私钥
-    private static RSAPrivateKey privateKey;
+    private final RSAPrivateKey privateKey;
 
     static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    public RSAEncryptor() {
         try {
-            Security.addProvider(new BouncyCastleProvider());
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
             keyPairGen.initialize(256, new SecureRandom());
             KeyPair keyPair = keyPairGen.generateKeyPair();
             publicKey = (RSAPublicKey) keyPair.getPublic();
             privateKey = (RSAPrivateKey) keyPair.getPrivate();
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            throw new RuntimeException("初始化加密工具失败！");
+            throw new IllegalStateException("初始化加密工具失败！");
         }
+    }
+
+    public RSAEncryptor(RSAPublicKey publicKey) {
+        this(publicKey, null);
+    }
+
+    public RSAEncryptor(RSAPrivateKey privateKey) {
+        this(null, privateKey);
+    }
+
+    public RSAEncryptor(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
+        if (publicKey == null && privateKey == null) {
+            throw new IllegalArgumentException("公钥和私钥不能都为空");
+        }
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
     }
 
     /**
      * 用公钥加密任意数组。
      * Cipher是线程不安全的。
      */
-    public static byte[] encrypt(byte[] bytes) {
+    public byte[] encrypt(byte[] bytes) {
         try {
             Cipher cipher = Cipher.getInstance(PADDING, PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, Objects.requireNonNull(publicKey, "必须拥有公钥才能加密"));
             return cipher.doFinal(bytes);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
     /**
      * 用公钥加密字符串。
      */
-    public static String encryptString(String text) {
-        try {
-            return byteToHexStr(encrypt(text.getBytes("UTF-8")));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+    public String encryptString(String text) {
+        return byteToHexStr(encrypt(text.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
      * 使用私钥解密加密后的数组。
      * Cipher是线程不安全的。
      */
-    public static byte[] decrypt(byte[] text) {
+    public byte[] decrypt(byte[] text) {
         try {
             Cipher cipher = Cipher.getInstance(PADDING, PROVIDER);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, Objects.requireNonNull(privateKey, "必须拥有私钥才能解密"));
             return cipher.doFinal(text);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
     /**
      * 使用私钥解密字符串。
      */
-    public static String decryptString(String str) {
-        try {
-            return new String(decrypt(hexStrToByte(str)), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+    public String decryptString(String str) {
+        return new String(decrypt(hexStrToByte(str)), StandardCharsets.UTF_8);
     }
 
     /**
@@ -134,21 +146,21 @@ public class RSAEncryptor {
     /**
      * 获取整数公私钥共用模。
      */
-    public static BigInteger getModulus() {
-        return publicKey.getModulus();
+    public BigInteger getModulus() {
+        return publicKey == null ? privateKey.getModulus() : publicKey.getModulus();
     }
 
     /**
      * 获取整数公钥指数。
      */
-    public static BigInteger getPublicExponent() {
+    public BigInteger getPublicExponent() {
         return publicKey.getPublicExponent();
     }
 
     /**
      * 获取整数私钥指数。
      */
-    public static BigInteger getPrivateExponent() {
+    public BigInteger getPrivateExponent() {
         return privateKey.getPrivateExponent();
     }
 
@@ -183,18 +195,19 @@ public class RSAEncryptor {
      */
     public static void main(String[] args) {
         try {
-            System.out.println(privateKey.getModulus().equals(publicKey.getModulus()) + "\n");
+            RSAEncryptor encryptor = new RSAEncryptor();
+            System.out.println(encryptor.publicKey.getModulus().equals(encryptor.privateKey.getModulus()) + "\n");
             for (int i = 0; i < 10; i++) {
                 String originalText = "123456789012345678901234567890" + i;
                 System.out.println("原始：" + originalText);
 
                 // 加密
-                byte[] cipherText = encrypt(originalText.getBytes("UTF-8"));
+                byte[] cipherText = encryptor.encrypt(originalText.getBytes("UTF-8"));
                 String hex = byteToHexStr(cipherText);
                 System.out.println("加密：" + hex);
 
                 // 解密
-                String plainText = new String(decrypt(hexStrToByte(hex)), "UTF-8");
+                String plainText = new String(encryptor.decrypt(hexStrToByte(hex)), "UTF-8");
                 System.out.println("解密：" + plainText + "\n");
             }
         } catch (Exception e) {

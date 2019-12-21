@@ -43,6 +43,7 @@ public class GlobalIds {
      * 私有化构造方法。
      */
     private GlobalIds() {
+        throw new IllegalStateException("Can not construct GlobalIds");
     }
 
     /**

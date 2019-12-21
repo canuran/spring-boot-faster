@@ -11,6 +11,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CollectionHelper {
+    private CollectionHelper() {
+        throw new IllegalStateException("Can not construct CollectionHelper");
+    }
 
     public static boolean isEmpty(Collection<?> coll) {
         return coll == null || coll.isEmpty();

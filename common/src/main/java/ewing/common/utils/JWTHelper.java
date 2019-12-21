@@ -13,9 +13,13 @@ import java.util.Map;
  *
  * @author Ewing
  */
-public class JWTUtils {
+public class JWTHelper {
 
-    private static String secret = "1234567890ABCDEF";
+    private final String secret;
+
+    public JWTHelper(String secret) {
+        this.secret = secret;
+    }
 
     /**
      * 根据Map参数生成Token，若没有指定失效时间，默认为一个月。
@@ -23,7 +27,7 @@ public class JWTUtils {
      * @param claims Map参数。
      * @return 生成的Token。
      */
-    public static String generateToken(Map<String, Object> claims) {
+    public String generateToken(Map<String, Object> claims) {
         if (!claims.containsKey("exp")) {
             claims.put("exp", monthExp());
         }
@@ -39,7 +43,7 @@ public class JWTUtils {
      * @param keyValues 键值对：key1,values1,key2,values2等。
      * @return 根据参数生成的Token。
      */
-    public static String generateToken(Object... keyValues) {
+    public String generateToken(Object... keyValues) {
         if (keyValues.length == (keyValues.length | 1)) {
             throw new IllegalArgumentException("键值必须是偶数个！");
         }
@@ -57,7 +61,7 @@ public class JWTUtils {
      * @param keyValues 键值对，已存在则覆盖。
      * @return 存放数据后的Token。
      */
-    public static String putClaimsData(String token, Object... keyValues) {
+    public String putClaimsData(String token, Object... keyValues) {
         Claims claims = getClaimsValidate(token);
         if (keyValues.length == (keyValues.length | 1)) {
             throw new IllegalArgumentException("键值必须是偶数个！");
@@ -74,7 +78,7 @@ public class JWTUtils {
      * @param token Token。
      * @return 负载信息。
      */
-    public static Claims getTokenClaims(String token) {
+    public Claims getTokenClaims(String token) {
         try {
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
@@ -94,7 +98,7 @@ public class JWTUtils {
      * @param token Token。
      * @return 负载信息。
      */
-    public static Claims getClaimsValidate(String token) {
+    public Claims getClaimsValidate(String token) {
         Claims claims = getTokenClaims(token);
         // 存在exp在解析时会自动校验
         if (claims == null || !claims.containsKey("exp")) {
@@ -106,7 +110,7 @@ public class JWTUtils {
     /**
      * 从Token中获取负载中的值，适用于只取一个值的情况。
      */
-    public static <T> T getFromToken(String token, String key) {
+    public <T> T getFromToken(String token, String key) {
         return (T) getClaimsValidate(token).get(key);
     }
 

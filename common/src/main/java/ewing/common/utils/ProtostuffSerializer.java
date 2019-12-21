@@ -20,6 +20,7 @@ public class ProtostuffSerializer {
      * 私有化构造方法。
      */
     private ProtostuffSerializer() {
+        throw new IllegalStateException("Can not construct ProtostuffSerializer");
     }
 
     /**
