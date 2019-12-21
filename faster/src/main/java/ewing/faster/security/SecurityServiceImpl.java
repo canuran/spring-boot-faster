@@ -55,11 +55,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void addAuthority(Authority authority) {
-        Arguments.of(authority).notNull("权限信息不能为空！");
-        Arguments.of(authority.getName()).equalsTo("").hasText("权限名称不能为空！");
-        Arguments.of(authority.getCode()).matches(CODE_REGEXP,
-                "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        Arguments.of(authority.getType()).hasText("权限类型不能为空！");
+        checkCommonSave(authority);
 
         Arguments.of(queryFactory.selectFrom(qAuthority)
                 .where(qAuthority.name.eq(authority.getName()))
@@ -81,14 +77,18 @@ public class SecurityServiceImpl implements SecurityService {
         queryFactory.insert(qAuthority).insertBean(authority);
     }
 
-    @Override
-    public void updateAuthority(Authority authority) {
+    private void checkCommonSave(Authority authority) {
         Arguments.of(authority).notNull("权限信息不能为空！");
-        Arguments.of(authority.getAuthorityId()).notNull("权限ID不能为空！");
-        Arguments.of(authority.getName()).hasText("权限名称不能为空！");
+        Arguments.of(authority.getName()).equalsTo("").hasText("权限名称不能为空！");
         Arguments.of(authority.getCode()).matches(CODE_REGEXP,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
         Arguments.of(authority.getType()).hasText("权限类型不能为空！");
+    }
+
+    @Override
+    public void updateAuthority(Authority authority) {
+        checkCommonSave(authority);
+        Arguments.of(authority.getAuthorityId()).notNull("权限ID不能为空！");
 
         Arguments.of(queryFactory.selectFrom(qAuthority)
                 .where(qAuthority.name.eq(authority.getName()))

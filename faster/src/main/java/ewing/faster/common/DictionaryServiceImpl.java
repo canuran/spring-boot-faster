@@ -12,7 +12,6 @@ import ewing.query.BaseQueryFactory;
 import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -40,11 +39,16 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void addDictionary(Dictionary dictionary) {
-        Arguments.of(dictionary).notNull("字典项不能为空！");
-        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
-                .maxLength(32, "字典名长度不能超过32字符！");
-        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
-                .maxLength(32, "字典值长度不能超过32字符！");
+        checkCommonSave(dictionary);
+
+        Arguments.of(queryFactory.selectFrom(qDictionary)
+                .where(dictionary.getParentId() == null ?
+                        qDictionary.parentId.isNull() :
+                        qDictionary.parentId.eq(dictionary.getParentId()))
+                .where(qDictionary.name.eq(dictionary.getName())
+                        .or(qDictionary.value.eq(dictionary.getValue())))
+                .fetchCount())
+                .lessThan(1, "相同位置下的字典名或值不能重复！");
 
         // 处理父字典和根字典的关系
         if (dictionary.getParentId() != null) {
@@ -59,19 +63,6 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
 
-        Arguments.of(queryFactory.selectFrom(qDictionary)
-                .where(dictionary.getParentId() == null ?
-                        qDictionary.parentId.isNull() :
-                        qDictionary.parentId.eq(dictionary.getParentId()))
-                .where(qDictionary.name.eq(dictionary.getName())
-                        .or(qDictionary.value.eq(dictionary.getValue())))
-                .fetchCount())
-                .lessThan(1, "相同位置下的字典名或值不能重复！");
-
-        // 详情不允许为空串
-        if (!StringUtils.hasText(dictionary.getDetail())) {
-            dictionary.setDetail(null);
-        }
         dictionary.setCreateTime(new Date());
         dictionary.setDictionaryId(GlobalIds.nextId());
         queryFactory.insert(qDictionary).insertBean(dictionary);
@@ -85,14 +76,18 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
     }
 
+    private void checkCommonSave(Dictionary dictionary) {
+        Arguments.of(dictionary).notNull("字典项不能为空！");
+        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
+                .maxLength(32, "字典名长度不能超过32字符！");
+        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
+                .maxLength(32, "字典值长度不能超过32字符！");
+    }
+
     @Override
     public void updateDictionary(Dictionary dictionary) {
-        Arguments.of(dictionary).notNull("字典项不能为空！");
+        checkCommonSave(dictionary);
         Arguments.of(dictionary.getDictionaryId()).notNull("字典ID不能为空！");
-        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
-                .maxLength(32, "字典名长度不能超过32字符");
-        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
-                .maxLength(32, "字典值长度不能超过32字符");
 
         Arguments.of(queryFactory.selectFrom(qDictionary)
                 .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
@@ -107,10 +102,6 @@ public class DictionaryServiceImpl implements DictionaryService {
         // 不能修改父字典和根字典
         dictionary.setRootId(null);
         dictionary.setParentId(null);
-        // 详情不允许为空串
-        if (!StringUtils.hasText(dictionary.getDetail())) {
-            dictionary.setDetail(null);
-        }
         queryFactory.update(qDictionary).updateBean(dictionary);
     }
 

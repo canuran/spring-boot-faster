@@ -35,15 +35,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public BigInteger addUserWithRole(UserWithRole userWithRole) {
-        Arguments.of(userWithRole).notNull("用户不能为空！");
+        checkCommonSave(userWithRole);
+
         Arguments.of(userWithRole.getUsername()).hasText("用户名不能为空！")
                 .maxLength(32, "用户名不能超过32字符！");
-        Arguments.of(userWithRole.getNickname()).hasText("昵称不能为空！")
-                .maxLength(32, "昵称不能超过32字符！");
-        Arguments.of(userWithRole.getPassword()).hasText("密码不能为空！")
-                .maxLength(32, "密码不能超过32字符！");
-        Arguments.of(userWithRole.getGender()).hasText("性别不能为空！")
-                .maxLength(2, "性别不能超过2字符！");
+
         Arguments.of(queryFactory.selectFrom(qUser)
                 .where(qUser.username.eq(userWithRole.getUsername()))
                 .fetchCount())
@@ -54,6 +50,16 @@ public class UserServiceImpl implements UserService {
         queryFactory.insert(qUser).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();
+    }
+
+    private void checkCommonSave(UserWithRole userWithRole) {
+        Arguments.of(userWithRole).notNull("用户不能为空！");
+        Arguments.of(userWithRole.getNickname()).hasText("昵称不能为空！")
+                .maxLength(32, "昵称不能超过32字符！");
+        Arguments.of(userWithRole.getPassword()).hasText("密码不能为空！")
+                .maxLength(32, "密码不能超过32字符！");
+        Arguments.of(userWithRole.getGender()).hasText("性别不能为空！")
+                .maxLength(8, "性别不能超过8字符！");
     }
 
     private void addUserRoles(UserWithRole userWithRole) {
@@ -82,7 +88,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
     public long updateUserWithRole(UserWithRole userWithRole) {
-        Arguments.of(userWithRole).notNull("用户不能为空！");
+        checkCommonSave(userWithRole);
         Arguments.of(userWithRole.getUserId()).notNull("用户ID不能为空！");
 
         // 更新用户的角色列表
