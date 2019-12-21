@@ -40,8 +40,9 @@ public final class Arguments {
     public static synchronized void setDefaultExceptor(Function<String, Supplier<RuntimeException>> exceptor) {
         if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
             Arguments.defaultExceptor = exceptor;
+        } else {
+            throw new IllegalStateException("Can not reset default exceptor");
         }
-        throw new IllegalStateException("Can not reset default exceptor");
     }
 
     public static <A extends Objects<A, O>, O> Objects<A, O> of(O object) {

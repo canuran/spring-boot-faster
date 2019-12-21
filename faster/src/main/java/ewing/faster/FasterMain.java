@@ -9,6 +9,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
+
 @EnableCaching
 @EnableScheduling
 @SpringBootApplication
@@ -18,6 +20,10 @@ public class FasterMain {
 
     public static void main(String[] args) {
         SpringApplication.run(FasterMain.class, args);
+    }
+
+    @PostConstruct
+    public void globalSettings() {
         Arguments.setDefaultExceptor(message -> () -> new BusinessException(message));
     }
 
