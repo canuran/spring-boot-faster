@@ -14,7 +14,7 @@ import io.protostuff.runtime.RuntimeSchema;
  */
 public class ProtostuffSerializer {
 
-    private static Schema<Content> schema = RuntimeSchema.getSchema(Content.class);
+    private static final Schema<Content> schema = RuntimeSchema.getSchema(Content.class);
 
     /**
      * 私有化构造方法。

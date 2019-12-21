@@ -10,7 +10,7 @@ import java.security.SecureRandom;
  */
 public class RandomString {
 
-    private static char[] chars = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+    private static final char[] CHARS = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
             'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
             'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
@@ -27,8 +27,8 @@ public class RandomString {
     public static String randomString(int length) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            int number = new SecureRandom().nextInt(chars.length);
-            stringBuilder.append(chars[number]);
+            int number = new SecureRandom().nextInt(CHARS.length);
+            stringBuilder.append(CHARS[number]);
         }
         return stringBuilder.toString();
     }

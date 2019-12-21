@@ -20,7 +20,7 @@ public final class Values {
     public static final Double ZERO_DOUBLE = 0D;
 
     private Values() {
-        throw new IllegalStateException("Can not construct TreeUtils");
+        throw new IllegalStateException("Can not construct Values");
     }
 
     public static String emptyIfNull(String value) {
