@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -84,6 +85,11 @@ public final class Arguments {
 
         public O get() {
             return object;
+        }
+
+        public A consume(Consumer<O> consumer) {
+            consumer.accept(object);
+            return (A) this;
         }
 
         public A isNull() {
@@ -212,10 +218,10 @@ public final class Arguments {
         }
 
         public Strings utf8Basic(String message) {
-            return utf8Basic(message, defaultExceptor.apply(message));
+            return utf8Basic(defaultExceptor.apply(message));
         }
 
-        public Strings utf8Basic(String message, Supplier<RuntimeException> exceptor) {
+        public Strings utf8Basic(Supplier<RuntimeException> exceptor) {
             if (object != null && object.length() > 0) {
                 for (byte aByte : object.getBytes(StandardCharsets.UTF_8)) {
                     if ((aByte & 0b11110000) == 0b11110000) {
