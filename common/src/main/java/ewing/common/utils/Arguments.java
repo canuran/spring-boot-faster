@@ -1,5 +1,6 @@
 package ewing.common.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -198,6 +199,29 @@ public final class Arguments {
         public Strings hasText(Supplier<RuntimeException> exceptor) {
             if (!isHasText(object)) {
                 throw exceptor.get();
+            }
+            return this;
+        }
+
+        /**
+         * 判断字符串里只有UTF8基本定义字符，最大长度为3字节，常用于mysql普通字符校验。
+         * 1111 开头的字节只会出现在16位以上的字符中，非基本定义范围，详见UTF-8的规范。
+         */
+        public Strings utf8Basic() {
+            return utf8Basic("Argument must in utf8 basic codes");
+        }
+
+        public Strings utf8Basic(String message) {
+            return utf8Basic(message, defaultExceptor.apply(message));
+        }
+
+        public Strings utf8Basic(String message, Supplier<RuntimeException> exceptor) {
+            if (object != null && object.length() > 0) {
+                for (byte aByte : object.getBytes(StandardCharsets.UTF_8)) {
+                    if ((aByte & 0b11110000) == 0b11110000) {
+                        throw exceptor.get();
+                    }
+                }
             }
             return this;
         }
