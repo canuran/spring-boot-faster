@@ -87,6 +87,10 @@ public final class Arguments {
             this.object = object;
         }
 
+        private boolean isEquals(O other) {
+            return (object == other) || (object != null && object.equals(other));
+        }
+
         public O get() {
             return object;
         }
@@ -135,22 +139,86 @@ public final class Arguments {
         }
 
         public A equalsTo(O other, Supplier<RuntimeException> exceptor) {
-            if ((object != other) && (object == null || !object.equals(other))) {
+            if (!isEquals(other)) {
                 throw exceptor.get();
             }
             return (A) this;
         }
 
-        public A test(Predicate<O> predicate) {
-            return test(predicate, "Argument must test true");
+        public A notEquals(O other) {
+            return notEquals(other, "Argument must not equals the other");
         }
 
-        public A test(Predicate<O> predicate, String message) {
-            return test(predicate, defaultExceptor.apply(message));
+        public A notEquals(O other, String message) {
+            return notEquals(other, defaultExceptor.apply(message));
         }
 
-        public A test(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
+        public A notEquals(O other, Supplier<RuntimeException> exceptor) {
+            if (isEquals(other)) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public <I extends Iterable<O>> A in(I others) {
+            return in(others, "Argument must in the others");
+        }
+
+        public <I extends Iterable<O>> A in(I others, String message) {
+            return in(others, defaultExceptor.apply(message));
+        }
+
+        public <I extends Iterable<O>> A in(I others, Supplier<RuntimeException> exceptor) {
+            for (O other : others) {
+                if (isEquals(other)) {
+                    return (A) this;
+                }
+            }
+            throw exceptor.get();
+        }
+
+        public <I extends Iterable<O>> A notIn(I others) {
+            return notIn(others, "Argument must not in the others");
+        }
+
+        public <I extends Iterable<O>> A notIn(I others, String message) {
+            return notIn(others, defaultExceptor.apply(message));
+        }
+
+        public <I extends Iterable<O>> A notIn(I others, Supplier<RuntimeException> exceptor) {
+            for (O other : others) {
+                if (isEquals(other)) {
+                    throw exceptor.get();
+                }
+            }
+            return (A) this;
+        }
+
+        public A isTrue(Predicate<O> predicate) {
+            return isTrue(predicate, "Argument must test true");
+        }
+
+        public A isTrue(Predicate<O> predicate, String message) {
+            return isTrue(predicate, defaultExceptor.apply(message));
+        }
+
+        public A isTrue(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
             if (!predicate.test(object)) {
+                throw exceptor.get();
+            }
+            return (A) this;
+        }
+
+        public A isFalse(Predicate<O> predicate) {
+            return isFalse(predicate, "Argument must test false");
+        }
+
+        public A isFalse(Predicate<O> predicate, String message) {
+            return isFalse(predicate, defaultExceptor.apply(message));
+        }
+
+        public A isFalse(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
+            if (predicate.test(object)) {
                 throw exceptor.get();
             }
             return (A) this;
@@ -164,18 +232,18 @@ public final class Arguments {
             super(object);
         }
 
-        private static boolean isEmpty(String strings) {
-            return strings == null || strings.length() == 0;
+        private boolean isEmpty() {
+            return this.object == null || this.object.length() == 0;
         }
 
-        private static int getLength(String strings) {
-            return strings == null ? 0 : strings.length();
+        private int getLength() {
+            return this.object == null ? 0 : this.object.length();
         }
 
-        private static boolean isHasText(String strings) {
-            if (strings != null && strings.length() > 0) {
-                for (int i = 0; i < strings.length(); ++i) {
-                    if (!Character.isWhitespace(strings.charAt(i))) {
+        private boolean isHasText() {
+            if (this.object != null && this.object.length() > 0) {
+                for (int i = 0; i < this.object.length(); ++i) {
+                    if (!Character.isWhitespace(this.object.charAt(i))) {
                         return true;
                     }
                 }
@@ -192,7 +260,7 @@ public final class Arguments {
         }
 
         public Strings notEmpty(Supplier<RuntimeException> exceptor) {
-            if (isEmpty(object)) {
+            if (isEmpty()) {
                 throw exceptor.get();
             }
             return this;
@@ -207,7 +275,7 @@ public final class Arguments {
         }
 
         public Strings hasText(Supplier<RuntimeException> exceptor) {
-            if (!isHasText(object)) {
+            if (!isHasText()) {
                 throw exceptor.get();
             }
             return this;
@@ -272,7 +340,7 @@ public final class Arguments {
         }
 
         public Strings length(int length, Supplier<RuntimeException> exceptor) {
-            if (getLength(object) != length) {
+            if (getLength() != length) {
                 throw exceptor.get();
             }
             return this;
@@ -287,7 +355,7 @@ public final class Arguments {
         }
 
         public Strings minLength(int minLength, Supplier<RuntimeException> exceptor) {
-            if (getLength(object) < minLength) {
+            if (getLength() < minLength) {
                 throw exceptor.get();
             }
             return this;
@@ -302,7 +370,7 @@ public final class Arguments {
         }
 
         public Strings maxLength(int maxLength, Supplier<RuntimeException> exceptor) {
-            if (getLength(object) > maxLength) {
+            if (getLength() > maxLength) {
                 throw exceptor.get();
             }
             return this;
