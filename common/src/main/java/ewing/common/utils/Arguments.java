@@ -75,6 +75,10 @@ public final class Arguments {
         return new Longs(value);
     }
 
+    public static Doubles of(Double value) {
+        return new Doubles(value);
+    }
+
     @SuppressWarnings("unchecked")
     public static class Objects<A extends Objects<A, O>, O> {
         protected final O object;
@@ -539,6 +543,18 @@ public final class Arguments {
             super(object);
         }
 
+        public Integers positive() {
+            return positive("Argument must be positive");
+        }
+
+        public Integers positive(String message) {
+            return positive(defaultExceptor.apply(message));
+        }
+
+        public Integers positive(Supplier<RuntimeException> exceptor) {
+            return greaterThan(0, exceptor);
+        }
+
         public Integers greaterThan(int other) {
             return greaterThan(other, "Argument must greater than " + other);
         }
@@ -605,6 +621,18 @@ public final class Arguments {
             super(object);
         }
 
+        public Longs positive() {
+            return positive("Argument must be positive");
+        }
+
+        public Longs positive(String message) {
+            return positive(defaultExceptor.apply(message));
+        }
+
+        public Longs positive(Supplier<RuntimeException> exceptor) {
+            return greaterThan(0L, exceptor);
+        }
+
         public Longs greaterThan(long other) {
             return greaterThan(other, "Argument must greater than " + other);
         }
@@ -659,6 +687,84 @@ public final class Arguments {
         }
 
         public Longs lessThanOrEquals(long other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object > other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+    }
+
+    public static final class Doubles extends Objects<Doubles, Double> {
+        public Doubles(Double object) {
+            super(object);
+        }
+
+        public Doubles positive() {
+            return positive("Argument must be positive");
+        }
+
+        public Doubles positive(String message) {
+            return positive(defaultExceptor.apply(message));
+        }
+
+        public Doubles positive(Supplier<RuntimeException> exceptor) {
+            return greaterThan(0.0, exceptor);
+        }
+
+        public Doubles greaterThan(double other) {
+            return greaterThan(other, "Argument must greater than " + other);
+        }
+
+        public Doubles greaterThan(double other, String message) {
+            return greaterThan(other, defaultExceptor.apply(message));
+        }
+
+        public Doubles greaterThan(double other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object <= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Doubles lessThan(double other) {
+            return lessThan(other, "Argument must less than " + other);
+        }
+
+        public Doubles lessThan(double other, String message) {
+            return lessThan(other, defaultExceptor.apply(message));
+        }
+
+        public Doubles lessThan(double other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object >= other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Doubles greaterThanOrEquals(double other) {
+            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+        }
+
+        public Doubles greaterThanOrEquals(double other, String message) {
+            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Doubles greaterThanOrEquals(double other, Supplier<RuntimeException> exceptor) {
+            if (object == null || object < other) {
+                throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Doubles lessThanOrEquals(double other) {
+            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+        }
+
+        public Doubles lessThanOrEquals(double other, String message) {
+            return lessThanOrEquals(other, defaultExceptor.apply(message));
+        }
+
+        public Doubles lessThanOrEquals(double other, Supplier<RuntimeException> exceptor) {
             if (object == null || object > other) {
                 throw exceptor.get();
             }
