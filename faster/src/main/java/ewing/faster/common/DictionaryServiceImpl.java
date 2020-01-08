@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ewing.faster.dao.query.QDictionary.dictionary;
+
 /**
  * 数据字典服务实现。
  * 字典有父字典ID和根字典ID，根字典ID用来取所有同类字典值，可以避免递归查询。
@@ -38,86 +40,86 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
-    public void addDictionary(Dictionary dictionary) {
-        checkCommonSave(dictionary);
+    public void addDictionary(Dictionary dictionaryParam) {
+        checkCommonSave(dictionaryParam);
 
-        Arguments.of(queryFactory.selectFrom(qDictionary)
-                .where(dictionary.getParentId() == null ?
-                        qDictionary.parentId.isNull() :
-                        qDictionary.parentId.eq(dictionary.getParentId()))
-                .where(qDictionary.name.eq(dictionary.getName())
-                        .or(qDictionary.value.eq(dictionary.getValue())))
+        Arguments.of(queryFactory.selectFrom(dictionary)
+                .where(dictionaryParam.getParentId() == null ?
+                        dictionary.parentId.isNull() :
+                        dictionary.parentId.eq(dictionaryParam.getParentId()))
+                .where(dictionary.name.eq(dictionaryParam.getName())
+                        .or(dictionary.value.eq(dictionaryParam.getValue())))
                 .fetchCount())
                 .lessThan(1, "相同位置下的字典名或值不能重复！");
 
         // 处理父字典和根字典的关系
-        if (dictionary.getParentId() != null) {
-            Dictionary parent = queryFactory.selectFrom(qDictionary)
-                    .where(qDictionary.dictionaryId.eq(dictionary.getParentId()))
+        if (dictionaryParam.getParentId() != null) {
+            Dictionary parent = queryFactory.selectFrom(dictionary)
+                    .where(dictionary.dictionaryId.eq(dictionaryParam.getParentId()))
                     .fetchOne();
             if (parent == null) {
                 throw new BusinessException("父字典项不存在！");
             } else {
                 // 父字典存在则根字典继承自父字典
-                dictionary.setRootId(parent.getRootId());
+                dictionaryParam.setRootId(parent.getRootId());
             }
         }
 
-        dictionary.setCreateTime(new Date());
-        dictionary.setDictionaryId(GlobalIds.nextId());
-        queryFactory.insert(qDictionary).insertBean(dictionary);
+        dictionaryParam.setCreateTime(new Date());
+        dictionaryParam.setDictionaryId(GlobalIds.nextId());
+        queryFactory.insert(dictionary).insertBean(dictionaryParam);
 
         // 没有父字典则自身就是根字典
-        if (dictionary.getParentId() == null) {
-            dictionary.setRootId(dictionary.getDictionaryId());
-            queryFactory.update(qDictionary).whereEqKey(dictionary.getDictionaryId())
-                    .set(qDictionary.rootId, dictionary.getRootId())
+        if (dictionaryParam.getParentId() == null) {
+            dictionaryParam.setRootId(dictionaryParam.getDictionaryId());
+            queryFactory.update(dictionary).whereEqKey(dictionaryParam.getDictionaryId())
+                    .set(dictionary.rootId, dictionaryParam.getRootId())
                     .execute();
         }
     }
 
-    private void checkCommonSave(Dictionary dictionary) {
-        Arguments.of(dictionary).notNull("字典项不能为空！");
-        Arguments.of(dictionary.getName()).hasText("字典名不能为空！")
+    private void checkCommonSave(Dictionary dictionaryParam) {
+        Arguments.of(dictionaryParam).notNull("字典项不能为空！");
+        Arguments.of(dictionaryParam.getName()).hasText("字典名不能为空！")
                 .maxLength(32, "字典名长度不能超过32字符！");
-        Arguments.of(dictionary.getValue()).hasText("字典值不能为空！")
+        Arguments.of(dictionaryParam.getValue()).hasText("字典值不能为空！")
                 .maxLength(32, "字典值长度不能超过32字符！");
     }
 
     @Override
-    public void updateDictionary(Dictionary dictionary) {
-        checkCommonSave(dictionary);
-        Arguments.of(dictionary.getDictionaryId()).notNull("字典ID不能为空！");
+    public void updateDictionary(Dictionary dictionaryParam) {
+        checkCommonSave(dictionaryParam);
+        Arguments.of(dictionaryParam.getDictionaryId()).notNull("字典ID不能为空！");
 
-        Arguments.of(queryFactory.selectFrom(qDictionary)
-                .where(qDictionary.dictionaryId.ne(dictionary.getDictionaryId()))
-                .where(dictionary.getParentId() == null ?
-                        qDictionary.parentId.isNull() :
-                        qDictionary.parentId.eq(dictionary.getParentId()))
-                .where(qDictionary.name.eq(dictionary.getName())
-                        .or(qDictionary.value.eq(dictionary.getValue())))
+        Arguments.of(queryFactory.selectFrom(dictionary)
+                .where(dictionary.dictionaryId.ne(dictionaryParam.getDictionaryId()))
+                .where(dictionaryParam.getParentId() == null ?
+                        dictionary.parentId.isNull() :
+                        dictionary.parentId.eq(dictionaryParam.getParentId()))
+                .where(dictionary.name.eq(dictionaryParam.getName())
+                        .or(dictionary.value.eq(dictionaryParam.getValue())))
                 .fetchCount())
                 .lessThan(1, "相同位置下的字典名或值不能重复！");
 
         // 不能修改父字典和根字典
-        dictionary.setRootId(null);
-        dictionary.setParentId(null);
-        queryFactory.update(qDictionary).updateBean(dictionary);
+        dictionaryParam.setRootId(null);
+        dictionaryParam.setParentId(null);
+        queryFactory.update(dictionary).updateBean(dictionaryParam);
     }
 
     @Override
     public void deleteDictionary(BigInteger dictionaryId) {
         Arguments.of(dictionaryId).notNull("字典ID不能为空！");
 
-        Dictionary dictionary = queryFactory.selectFrom(qDictionary).fetchByKey(dictionaryId);
-        Arguments.of(dictionary).notNull("该字典不存在或已删除！");
+        Dictionary dictionaryDto = queryFactory.selectFrom(dictionary).fetchByKey(dictionaryId);
+        Arguments.of(dictionaryDto).notNull("该字典不存在或已删除！");
 
-        Arguments.of(queryFactory.selectFrom(qDictionary)
-                .where(qDictionary.parentId.eq(dictionaryId))
+        Arguments.of(queryFactory.selectFrom(dictionary)
+                .where(dictionary.parentId.eq(dictionaryId))
                 .fetchCount())
                 .lessThan(1, "请先删除该字典的所有子项！");
 
-        queryFactory.delete(qDictionary).deleteByKey(dictionaryId);
+        queryFactory.delete(dictionary).deleteByKey(dictionaryId);
     }
 
     @Override

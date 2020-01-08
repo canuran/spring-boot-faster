@@ -24,6 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ewing.faster.dao.query.QAuthority.authority;
+import static ewing.faster.dao.query.QPermission.permission;
+import static ewing.faster.dao.query.QRole.role;
+import static ewing.faster.dao.query.QRoleAuthority.roleAuthority;
+import static ewing.faster.dao.query.QUser.user;
+import static ewing.faster.dao.query.QUserRole.userRole;
+
 /**
  * 安全服务实现。
  **/
@@ -42,93 +49,93 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public SecurityUser getSecurityUser(String username) {
         Arguments.of(username).hasText("用户名不能为空！");
-        return queryFactory.selectFrom(qUser)
-                .where(qUser.username.eq(username))
+        return queryFactory.selectFrom(user)
+                .where(user.username.eq(username))
                 .fitBean(SecurityUser.class)
                 .fetchOne();
     }
 
     @Override
     public List<Authority> getAllAuthority() {
-        return queryFactory.selectFrom(qAuthority).fetch();
+        return queryFactory.selectFrom(authority).fetch();
     }
 
     @Override
-    public void addAuthority(Authority authority) {
-        checkCommonSave(authority);
+    public void addAuthority(Authority authorityParam) {
+        checkCommonSave(authorityParam);
 
-        Arguments.of(queryFactory.selectFrom(qAuthority)
-                .where(qAuthority.name.eq(authority.getName()))
+        Arguments.of(queryFactory.selectFrom(authority)
+                .where(authority.name.eq(authorityParam.getName()))
                 .fetchCount())
-                .lessThan(1, "权限名称 " + authority.getName() + " 已存在！");
+                .lessThan(1, "权限名称 " + authorityParam.getName() + " 已存在！");
 
-        Arguments.of(queryFactory.selectFrom(qAuthority)
-                .where(qAuthority.code.eq(authority.getCode()))
+        Arguments.of(queryFactory.selectFrom(authority)
+                .where(authority.code.eq(authorityParam.getCode()))
                 .fetchCount())
-                .lessThan(1, "权限编码 " + authority.getCode() + " 已存在！");
+                .lessThan(1, "权限编码 " + authorityParam.getCode() + " 已存在！");
 
         // 内容不允许为空串
-        if (!StringUtils.hasText(authority.getContent())) {
-            authority.setContent(null);
+        if (!StringUtils.hasText(authorityParam.getContent())) {
+            authorityParam.setContent(null);
         }
-        authority.setCode(authority.getCode().toUpperCase());
-        authority.setCreateTime(new Date());
-        authority.setAuthorityId(GlobalIds.nextId());
-        queryFactory.insert(qAuthority).insertBean(authority);
+        authorityParam.setCode(authorityParam.getCode().toUpperCase());
+        authorityParam.setCreateTime(new Date());
+        authorityParam.setAuthorityId(GlobalIds.nextId());
+        queryFactory.insert(authority).insertBean(authorityParam);
     }
 
-    private void checkCommonSave(Authority authority) {
-        Arguments.of(authority).notNull("权限信息不能为空！");
-        Arguments.of(authority.getName()).equalsTo("").hasText("权限名称不能为空！");
-        Arguments.of(authority.getCode()).matches(CODE_REGEXP,
+    private void checkCommonSave(Authority authorityParam) {
+        Arguments.of(authorityParam).notNull("权限信息不能为空！");
+        Arguments.of(authorityParam.getName()).equalsTo("").hasText("权限名称不能为空！");
+        Arguments.of(authorityParam.getCode()).matches(CODE_REGEXP,
                 "权限编码应由字母、数字和下划线组成，以字母开头、字母或数字结束！");
-        Arguments.of(authority.getType()).hasText("权限类型不能为空！");
+        Arguments.of(authorityParam.getType()).hasText("权限类型不能为空！");
     }
 
     @Override
-    public void updateAuthority(Authority authority) {
-        checkCommonSave(authority);
-        Arguments.of(authority.getAuthorityId()).notNull("权限ID不能为空！");
+    public void updateAuthority(Authority authorityParam) {
+        checkCommonSave(authorityParam);
+        Arguments.of(authorityParam.getAuthorityId()).notNull("权限ID不能为空！");
 
-        Arguments.of(queryFactory.selectFrom(qAuthority)
-                .where(qAuthority.name.eq(authority.getName()))
-                .where(qAuthority.authorityId.ne(authority.getAuthorityId()))
+        Arguments.of(queryFactory.selectFrom(authority)
+                .where(authority.name.eq(authorityParam.getName()))
+                .where(authority.authorityId.ne(authorityParam.getAuthorityId()))
                 .fetchCount())
-                .lessThan(1, "权限名称 " + authority.getName() + " 已存在！");
+                .lessThan(1, "权限名称 " + authorityParam.getName() + " 已存在！");
 
-        Arguments.of(queryFactory.selectFrom(qAuthority)
-                .where(qAuthority.code.eq(authority.getCode()))
-                .where(qAuthority.authorityId.ne(authority.getAuthorityId()))
+        Arguments.of(queryFactory.selectFrom(authority)
+                .where(authority.code.eq(authorityParam.getCode()))
+                .where(authority.authorityId.ne(authorityParam.getAuthorityId()))
                 .fetchCount())
-                .lessThan(1, "权限编码 " + authority.getCode() + " 已存在！");
+                .lessThan(1, "权限编码 " + authorityParam.getCode() + " 已存在！");
 
         // 内容不允许为空串
-        if (!StringUtils.hasText(authority.getContent())) {
-            authority.setContent(null);
+        if (!StringUtils.hasText(authorityParam.getContent())) {
+            authorityParam.setContent(null);
         }
-        authority.setCode(authority.getCode().toUpperCase());
-        queryFactory.update(qAuthority).updateBean(authority);
+        authorityParam.setCode(authorityParam.getCode().toUpperCase());
+        queryFactory.update(authority).updateBean(authorityParam);
     }
 
     @Override
     public void deleteAuthority(BigInteger authorityId) {
         Arguments.of(authorityId).notNull("权限ID不能为空！");
 
-        Arguments.of(queryFactory.selectFrom(qAuthority)
-                .where(qAuthority.parentId.eq(authorityId))
+        Arguments.of(queryFactory.selectFrom(authority)
+                .where(authority.parentId.eq(authorityId))
                 .fetchCount()).lessThan(1, "请先删除所有子权限！");
 
-        Arguments.of(queryFactory.selectFrom(qRoleAuthority)
-                .where(qRoleAuthority.authorityId.eq(authorityId))
+        Arguments.of(queryFactory.selectFrom(roleAuthority)
+                .where(roleAuthority.authorityId.eq(authorityId))
                 .fetchCount())
                 .lessThan(1, "该权限有角色正在使用！");
 
-        queryFactory.delete(qAuthority).deleteByKey(authorityId);
+        queryFactory.delete(authority).deleteByKey(authorityId);
     }
 
     @Override
     public List<AuthorityNode> getAuthorityTree() {
-        List<AuthorityNode> nodes = queryFactory.selectFrom(qAuthority)
+        List<AuthorityNode> nodes = queryFactory.selectFrom(authority)
                 .fitBean(AuthorityNode.class)
                 .fetch();
         return TreeUtils.toTree(nodes,
@@ -147,7 +154,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Role> getAllRoles() {
-        return queryFactory.selectFrom(qRole).fetch();
+        return queryFactory.selectFrom(role).fetch();
     }
 
     @Override
@@ -161,15 +168,15 @@ public class SecurityServiceImpl implements SecurityService {
         Arguments.of(roleWithAuthority).notNull("角色对象不能为空。");
         Arguments.of(roleWithAuthority.getName()).notNull("角色名不能为空。");
 
-        Arguments.of(queryFactory.selectFrom(qRole)
-                .where(qRole.name.eq(roleWithAuthority.getName()))
+        Arguments.of(queryFactory.selectFrom(role)
+                .where(role.name.eq(roleWithAuthority.getName()))
                 .fetchCount())
                 .lessThan(1, "角色名已被使用。");
 
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
         roleWithAuthority.setRoleId(GlobalIds.nextId());
-        queryFactory.insert(qRole).insertBean(roleWithAuthority);
+        queryFactory.insert(role).insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系
         addRoleAuthorities(roleWithAuthority);
@@ -183,18 +190,18 @@ public class SecurityServiceImpl implements SecurityService {
         Arguments.of(roleWithAuthority.getName()).notNull("角色名不能为空。");
 
         // 名称存在并且不是自己
-        Arguments.of(queryFactory.selectFrom(qRole)
-                .where(qRole.name.eq(roleWithAuthority.getName()))
-                .where(qRole.roleId.ne(roleWithAuthority.getRoleId()))
+        Arguments.of(queryFactory.selectFrom(role)
+                .where(role.name.eq(roleWithAuthority.getName()))
+                .where(role.roleId.ne(roleWithAuthority.getRoleId()))
                 .fetchCount())
                 .lessThan(1, "角色名已被使用。");
 
         // 使用自定义VO更新角色
-        queryFactory.update(qRole).updateBean(roleWithAuthority);
+        queryFactory.update(role).updateBean(roleWithAuthority);
 
         // 清空角色权限关系
-        queryFactory.delete(qRoleAuthority)
-                .where(qRoleAuthority.roleId.eq(roleWithAuthority.getRoleId()))
+        queryFactory.delete(roleAuthority)
+                .where(roleAuthority.roleId.eq(roleWithAuthority.getRoleId()))
                 .execute();
 
         // 批量建立新的角色权限关系
@@ -206,17 +213,17 @@ public class SecurityServiceImpl implements SecurityService {
     public void deleteRole(BigInteger roleId) {
         Arguments.of(roleId).notNull("角色ID不能为空。");
 
-        Arguments.of(queryFactory.selectFrom(qUserRole)
-                .where(qUserRole.roleId.eq(roleId))
+        Arguments.of(queryFactory.selectFrom(userRole)
+                .where(userRole.roleId.eq(roleId))
                 .fetchCount())
                 .lessThan(1, "该角色有用户正在使用！");
 
         // 清空角色权限关系
-        queryFactory.delete(qRoleAuthority)
-                .where(qRoleAuthority.roleId.eq(roleId))
+        queryFactory.delete(roleAuthority)
+                .where(roleAuthority.roleId.eq(roleId))
                 .execute();
 
-        queryFactory.delete(qRole).deleteByKey(roleId);
+        queryFactory.delete(role).deleteByKey(roleId);
     }
 
     private void addRoleAuthorities(RoleWithAuthority roleWithAuthority) {
@@ -231,7 +238,7 @@ public class SecurityServiceImpl implements SecurityService {
                 roleAuthority.setCreateTime(new Date());
                 roleAuthorities.add(roleAuthority);
             }
-            queryFactory.insert(qRoleAuthority).insertBeans(roleAuthorities);
+            queryFactory.insert(roleAuthority).insertBeans(roleAuthorities);
         }
     }
 
@@ -242,11 +249,11 @@ public class SecurityServiceImpl implements SecurityService {
         Arguments.of(userId).notNull("用户ID不能为空！");
         Arguments.of(action).hasText("权限操作不能为空！");
         Arguments.of(targetId).hasText("资源ID不能为空！");
-        return queryFactory.selectFrom(qPermission)
-                .where(qPermission.userId.eq(userId))
-                .where(qPermission.action.eq(action))
-                .where(qPermission.targetId.eq(targetId))
-                .whereIfHasText(targetType, qPermission.targetType::eq)
+        return queryFactory.selectFrom(permission)
+                .where(permission.userId.eq(userId))
+                .where(permission.action.eq(action))
+                .where(permission.targetId.eq(targetId))
+                .whereIfHasText(targetType, permission.targetType::eq)
                 .fetchCount() > 0;
     }
 

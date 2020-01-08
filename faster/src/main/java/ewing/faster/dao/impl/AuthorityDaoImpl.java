@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigInteger;
 import java.util.List;
 
+import static ewing.faster.dao.query.QAuthority.authority;
+import static ewing.faster.dao.query.QRoleAuthority.roleAuthority;
+import static ewing.faster.dao.query.QUserRole.userRole;
+
 /**
  * 权限数据访问实现。
  */
@@ -21,13 +25,13 @@ public class AuthorityDaoImpl implements AuthorityDao {
     @Override
     public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
         // 用户->角色->权限
-        return queryFactory.selectDistinct(qAuthority)
-                .from(qAuthority)
-                .join(qRoleAuthority)
-                .on(qAuthority.authorityId.eq(qRoleAuthority.authorityId))
-                .join(qUserRole)
-                .on(qRoleAuthority.roleId.eq(qUserRole.roleId))
-                .where(qUserRole.userId.eq(userId))
+        return queryFactory.selectDistinct(authority)
+                .from(authority)
+                .join(roleAuthority)
+                .on(authority.authorityId.eq(roleAuthority.authorityId))
+                .join(userRole)
+                .on(roleAuthority.roleId.eq(userRole.roleId))
+                .where(userRole.userId.eq(userId))
                 .fitBean(AuthorityNode.class)
                 .fetch();
     }

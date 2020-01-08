@@ -56,17 +56,18 @@ public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
      */
     public long insertDuplicateUpdates(Collection<?> beans, Path<?>... duplicatePaths) {
         // 把相同的SQL合并成批量模式
-        Map<Collection<Path<?>>, AbstractSQLInsertClause<?>> updatePathsInsertMap = new HashMap<>();
+        Map<Collection<Path<?>>, MysqlInsert> updatePathsInsertMap = new HashMap<>();
         for (Object bean : beans) {
             Map<Path<?>, Object> valuesMap = DefaultMapper.DEFAULT.createMap(entity, bean);
             Collection<Path<?>> duplicates = filterUpdatePaths(valuesMap.keySet(), duplicatePaths);
 
-            AbstractSQLInsertClause<?> insert = updatePathsInsertMap.computeIfAbsent(
-                    duplicates, (paths) -> onDuplicateUpdates(
-                            new MysqlInsert(connection(), configuration, entity), paths));
+            MysqlInsert mysqlInsert = updatePathsInsertMap.computeIfAbsent(duplicates, paths -> {
+                MysqlInsert insert = new MysqlInsert(connection(), configuration, entity);
+                return onDuplicateUpdates(insert, paths).batchToBulk();
+            });
 
-            valuesMap.forEach((key, value) -> insert.set((Path<Object>) key, value));
-            insert.addBatch();
+            valuesMap.forEach((key, value) -> mysqlInsert.set((Path<Object>) key, value));
+            mysqlInsert.addBatch();
         }
         return updatePathsInsertMap.values().stream()
                 .mapToLong(AbstractSQLInsertClause::execute).sum();
@@ -105,7 +106,7 @@ public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
         }
     }
 
-    private AbstractSQLInsertClause<?> onDuplicateUpdates(AbstractSQLInsertClause<?> insert, Collection<Path<?>> duplicates) {
+    private MysqlInsert onDuplicateUpdates(MysqlInsert insert, Collection<Path<?>> duplicates) {
         if (duplicates != null && !duplicates.isEmpty()) {
             insert.addFlag(QueryFlag.Position.END, " ON DUPLICATE KEY UPDATE ");
             boolean first = true;

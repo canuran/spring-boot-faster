@@ -17,6 +17,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static ewing.faster.dao.query.QAuthority.authority;
+import static ewing.faster.dao.query.QRole.role;
+import static ewing.faster.dao.query.QRoleAuthority.roleAuthority;
+
 /**
  * 角色数据访问实现。
  */
@@ -27,25 +31,25 @@ public class RoleDaoImpl implements RoleDao {
     private BaseQueryFactory queryFactory;
 
     private QBean<RoleWithAuthority> qRoleWithAuthority = Projections
-            .bean(RoleWithAuthority.class, qRole.all());
+            .bean(RoleWithAuthority.class, role.all());
 
     @Override
     public Page<RoleWithAuthority> findRoleWithAuthority(FindRoleParam findRoleParam) {
         // 查询角色总数
-        BaseQuery<Role> roleQuery = queryFactory.selectFrom(qRole)
-                .whereIfHasText(findRoleParam.getSearch(), qRole.name::contains);
+        BaseQuery<Role> roleQuery = queryFactory.selectFrom(role)
+                .whereIfHasText(findRoleParam.getSearch(), role.name::contains);
         long total = roleQuery.fetchCount();
 
         // 分页查询并附带权限
         roleQuery.limit(findRoleParam.getLimit()).offset(findRoleParam.getOffset());
-        List<Tuple> rows = queryFactory.select(qRoleWithAuthority, qAuthority)
-                .from(roleQuery.as(qRole))
-                .leftJoin(qRoleAuthority).on(qRole.roleId.eq(qRoleAuthority.roleId))
-                .leftJoin(qAuthority).on(qRoleAuthority.authorityId.eq(qAuthority.authorityId))
+        List<Tuple> rows = queryFactory.select(qRoleWithAuthority, authority)
+                .from(roleQuery.as(role))
+                .leftJoin(roleAuthority).on(role.roleId.eq(roleAuthority.roleId))
+                .leftJoin(authority).on(roleAuthority.authorityId.eq(authority.authorityId))
                 .fetch();
 
         return new Page<>(total, QueryUtils.rowsToTree(
-                rows, qRoleWithAuthority, qAuthority,
+                rows, qRoleWithAuthority, authority,
                 RoleWithAuthority::getRoleId,
                 Authority::getAuthorityId,
                 RoleWithAuthority::getAuthorities,

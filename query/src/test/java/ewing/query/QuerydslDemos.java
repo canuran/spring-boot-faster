@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static ewing.query.querydsldemo.query.QDemoAddress.demoAddress;
+import static ewing.query.querydsldemo.query.QDemoUser.demoUser;
+
 /**
  * Querydsl查询测试案例，可作为参考。
  * 测试使用Spring Boot配置的H2内存数据库。
@@ -47,15 +50,13 @@ public class QuerydslDemos {
     private BaseQueryFactory queryFactory;
 
     /**
+     * 用做别名的表，当同一个SQL中重复使用这个表时才会用上，否则使用静态导入。
+     * <p>
      * 表映射对象、路径、表达式等都是只会被读取（线程安全）的，可定义为全局的。
      * 它们提供的操作方法都会返回新的对象，原对象不变，所以要使用方法的返回值。
      */
-    private QDemoUser qDemoUser = QDemoUser.demoUser;
-    private QDemoAddress qDemoAddress = QDemoAddress.demoAddress;
-
-    // 用做别名的表
     private QDemoUser subDemoUser = new QDemoUser("subDemoUser");
-    private QDemoAddress qSubAddress = new QDemoAddress("subAddress");
+    private QDemoAddress subAddress = new QDemoAddress("subAddress");
 
     /**
      * 创建新对象。
@@ -75,29 +76,29 @@ public class QuerydslDemos {
      */
     @Test
     public void insertDemo() {
-        DemoUser demoUser = newDemoUser();
+        DemoUser demoUserDo = newDemoUser();
 
         // 新增实体、并获取主键
-        Integer userId = queryFactory.insert(qDemoUser).insertGetKey(demoUser);
+        Integer userId = queryFactory.insert(demoUser).insertGetKey(demoUserDo);
         System.out.println(userId);
-        System.out.println(demoUser);
+        System.out.println(demoUserDo);
 
         // 新增实体、包含null属性
-        demoUser = newDemoUser();
-        demoUser.setGender(null);
-        userId = queryFactory.insert(qDemoUser).insertWithNullGetKey(demoUser);
+        demoUserDo = newDemoUser();
+        demoUserDo.setGender(null);
+        userId = queryFactory.insert(demoUser).insertWithNullGetKey(demoUserDo);
         System.out.println(userId);
 
         // 批量插入对象并获取主键
         List<DemoUser> newUsers = Arrays.asList(newDemoUser(), newDemoUser());
-        List<Integer> userIds = queryFactory.insert(qDemoUser).insertGetKeys(newUsers);
+        List<Integer> userIds = queryFactory.insert(demoUser).insertGetKeys(newUsers);
         System.out.println(userIds);
 
         // 自定义字段、动态字段
-        long rows = queryFactory.insert(qDemoUser)
-                .set(qDemoUser.username, demoUser.getUsername())
-                .set(qDemoUser.createTime, demoUser.getCreateTime())
-                .setIfHasText(qDemoUser.password, demoUser.getPassword())
+        long rows = queryFactory.insert(demoUser)
+                .set(demoUser.username, demoUserDo.getUsername())
+                .set(demoUser.createTime, demoUserDo.getCreateTime())
+                .setIfHasText(demoUser.password, demoUserDo.getPassword())
                 .execute();
         System.out.println(rows);
     }
@@ -107,20 +108,20 @@ public class QuerydslDemos {
      */
     @Test
     public void updateDemo() {
-        DemoUser demoUser = queryFactory.selectFrom(qDemoUser).fetchFirst();
+        DemoUser demoUserDo = queryFactory.selectFrom(demoUser).fetchFirst();
 
         // 更新实体、忽略null属性
-        long rows = queryFactory.update(qDemoUser).updateBean(demoUser);
+        long rows = queryFactory.update(demoUser).updateBean(demoUserDo);
         System.out.println(rows);
 
         // 更新实体、包含null属性
-        rows = queryFactory.update(qDemoUser).updateWithNull(demoUser);
+        rows = queryFactory.update(demoUser).updateWithNull(demoUserDo);
         System.out.println(rows);
 
         // 条件更新、动态字段
-        rows = queryFactory.update(qDemoUser).whereEqKey(demoUser.getUserId())
-                .setIfHasText(qDemoUser.username, "元宝")
-                .setIfNotNull(qDemoUser.createTime, new Date())
+        rows = queryFactory.update(demoUser).whereEqKey(demoUserDo.getUserId())
+                .setIfHasText(demoUser.username, "元宝")
+                .setIfNotNull(demoUser.createTime, new Date())
                 .execute();
         System.out.println(rows);
     }
@@ -130,20 +131,20 @@ public class QuerydslDemos {
      */
     @Test
     public void deleteDemo() {
-        DemoUser demoUser = queryFactory.selectFrom(qDemoUser).fetchFirst();
+        DemoUser demoUserDo = queryFactory.selectFrom(demoUser).fetchFirst();
 
         // 通过ID删除
-        long rows = queryFactory.delete(qDemoUser).deleteByKey(demoUser.getUserId());
+        long rows = queryFactory.delete(demoUser).deleteByKey(demoUserDo.getUserId());
         System.out.println(rows);
 
         // 删除实体
-        rows = queryFactory.delete(qDemoUser).deleteBean(demoUser);
+        rows = queryFactory.delete(demoUser).deleteBean(demoUserDo);
         System.out.println(rows);
 
         // 条件删除、动态条件
-        rows = queryFactory.delete(qDemoUser)
-                .where(qDemoUser.userId.goe(demoUser.getUserId()))
-                .whereIfHasText(demoUser.getUsername(), qDemoUser.username::contains)
+        rows = queryFactory.delete(demoUser)
+                .where(demoUser.userId.goe(demoUserDo.getUserId()))
+                .whereIfHasText(demoUserDo.getUsername(), demoUser.username::contains)
                 .execute();
         System.out.println(rows);
     }
@@ -154,32 +155,32 @@ public class QuerydslDemos {
     @Test
     public void simpleQuery() {
         // 根据ID查询
-        DemoUser demoUser = queryFactory.selectFrom(qDemoUser).fetchByKey(1);
-        System.out.println(demoUser);
+        DemoUser demoUserDo = queryFactory.selectFrom(demoUser).fetchByKey(1);
+        System.out.println(demoUserDo);
 
         // 查询列表
-        List<DemoUser> demoUsers = queryFactory.selectFrom(qDemoUser)
-                .where(qDemoUser.userId.gt(0L))
+        List<DemoUser> demoUsers = queryFactory.selectFrom(demoUser)
+                .where(demoUser.userId.gt(0L))
                 .fetch();
         System.out.println(demoUsers);
 
         // 查询分页
-        Page<DemoUser> demoUserPage = queryFactory.selectFrom(qDemoUser)
+        Page<DemoUser> demoUserPage = queryFactory.selectFrom(demoUser)
                 .fetchPage(Pager.of(1, 100));
         System.out.println(demoUserPage);
 
         // 字段自适应对象属性
-        List<DemoUserSimple> demoUserSimples = queryFactory.selectFrom(qDemoUser)
+        List<DemoUserSimple> demoUserSimples = queryFactory.selectFrom(demoUser)
                 .fitBean(DemoUserSimple.class)
                 .fetch();
         System.out.println(demoUserSimples);
 
         // 关联查询取两个表的全部属性
         List<Tuple> addressAndUser = queryFactory
-                .select(qDemoAddress, qDemoUser)
-                .from(qDemoAddress)
-                .leftJoin(qDemoUser)
-                .on(qDemoAddress.addressId.eq(qDemoUser.addressId))
+                .select(demoAddress, demoUser)
+                .from(demoAddress)
+                .leftJoin(demoUser)
+                .on(demoAddress.addressId.eq(demoUser.addressId))
                 .fetch();
         System.out.println(addressAndUser);
     }
@@ -190,8 +191,8 @@ public class QuerydslDemos {
     @Test
     public void advanceQuery() {
         // 准备参数
-        DemoUser demoUser = newDemoUser();
-        Integer userId = queryFactory.insert(qDemoUser).insertGetKey(demoUser);
+        DemoUser demoUserDo = newDemoUser();
+        Integer userId = queryFactory.insert(demoUser).insertGetKey(demoUserDo);
         String address = "上海";
         Date startDate = new Date(System.currentTimeMillis() - 36000000L);
         Date endDate = new Date();
@@ -200,43 +201,43 @@ public class QuerydslDemos {
         // 完全链式方法调用
         Page<Tuple> tuplePage = queryFactory.select(
                 // 指定字段与常用函数
-                qDemoUser.username,
-                qDemoUser.createTime,
-                qDemoUser.userId.avg(),
-                qDemoUser.userId.max(),
-                qDemoUser.userId.min(),
-                qDemoUser.userId.sum(),
-                qDemoUser.userId.count(),
-                qDemoUser.userId.multiply(2),
-                qDemoUser.userId.add(10),
-                qDemoUser.userId.subtract(10),
-                qDemoUser.userId.divide(2))
+                demoUser.username,
+                demoUser.createTime,
+                demoUser.userId.avg(),
+                demoUser.userId.max(),
+                demoUser.userId.min(),
+                demoUser.userId.sum(),
+                demoUser.userId.count(),
+                demoUser.userId.multiply(2),
+                demoUser.userId.add(10),
+                demoUser.userId.subtract(10),
+                demoUser.userId.divide(2))
                 .distinct()
 
                 // 多表关联、动态关联条件
-                .from(qDemoUser)
-                .leftJoin(qDemoAddress)
-                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                .onIfNotNull(address, qDemoAddress.name::contains)
+                .from(demoUser)
+                .leftJoin(demoAddress)
+                .on(demoUser.addressId.eq(demoAddress.addressId))
+                .onIfNotNull(address, demoAddress.name::contains)
 
                 // 简单动态条件
-                .whereIfNotNull(demoUser.getUsername(), qDemoUser.username::contains)
-                .whereIfNotNull(demoUser.getCreateTime(), qDemoUser.createTime::goe)
-                .whereIfNotNull(demoUser.getGender(), qDemoUser.gender::eq)
+                .whereIfNotNull(demoUserDo.getUsername(), demoUser.username::contains)
+                .whereIfNotNull(demoUserDo.getCreateTime(), demoUser.createTime::goe)
+                .whereIfNotNull(demoUserDo.getGender(), demoUser.gender::eq)
                 // 万能动态条件
-                .whereIfTrue(userId != null && userId > 0, () -> qDemoUser.userId.goe(userId))
+                .whereIfTrue(userId != null && userId > 0, () -> demoUser.userId.goe(userId))
 
                 // 复杂条件组合
-                .where(qDemoUser.username.contains("元").or(qDemoUser.username.contains("宝"))
-                        .and(qDemoUser.createTime.goe(startDate).or(qDemoUser.createTime.loe(endDate))))
+                .where(demoUser.username.contains("元").or(demoUser.username.contains("宝"))
+                        .and(demoUser.createTime.goe(startDate).or(demoUser.createTime.loe(endDate))))
 
                 // 分组
-                .groupBy(qDemoUser.gender)
+                .groupBy(demoUser.gender)
                 // 分组条件
-                .having(qDemoUser.userId.count().gt(0))
+                .having(demoUser.userId.count().gt(0))
 
                 // 原生的排序方法
-                .orderBy(qDemoUser.createTime.desc().nullsFirst())
+                .orderBy(demoUser.createTime.desc().nullsFirst())
                 // 根据传入参数自动排序
                 .orderBy(orderParam)
 
@@ -252,17 +253,17 @@ public class QuerydslDemos {
     public void selectSubQuery() {
         List<String> names = queryFactory
                 // 结果中使用子查询
-                .select(SQLExpressions.select(qDemoUser.username)
-                        .from(qDemoUser)
-                        .where(qDemoUser.userId.eq(subDemoUser.userId)))
+                .select(SQLExpressions.select(demoUser.username)
+                        .from(demoUser)
+                        .where(demoUser.userId.eq(subDemoUser.userId)))
                 // 嵌套子查询
-                .from(SQLExpressions.selectFrom(qDemoUser)
-                        .where(qDemoUser.userId.eq(1))
+                .from(SQLExpressions.selectFrom(demoUser)
+                        .where(demoUser.userId.eq(1))
                         .as(subDemoUser))
                 // 条件中使用子查询、EXISTS
                 .where(SQLExpressions.selectOne()
-                        .from(qDemoUser)
-                        .where(qDemoUser.userId.eq(subDemoUser.userId))
+                        .from(demoUser)
+                        .where(demoUser.userId.eq(subDemoUser.userId))
                         .exists())
                 .fetch();
         System.out.println(names);
@@ -275,15 +276,15 @@ public class QuerydslDemos {
     @SuppressWarnings("unchecked")
     public void aliasAndUnion() {
         // 只需要保证和union后的别名一致即可
-        Page<DemoUser> userPage = queryFactory.select(qDemoUser)
+        Page<DemoUser> userPage = queryFactory.select(demoUser)
                 .from(SQLExpressions.unionAll(
-                        SQLExpressions.selectFrom(qDemoUser)
-                                .where(qDemoUser.gender.eq(0)),
-                        SQLExpressions.selectFrom(qDemoUser)
-                                .where(qDemoUser.gender.eq(1)),
-                        SQLExpressions.selectFrom(qDemoUser)
-                                .where(qDemoUser.gender.eq(2))
-                ).as(qDemoUser))
+                        SQLExpressions.selectFrom(demoUser)
+                                .where(demoUser.gender.eq(0)),
+                        SQLExpressions.selectFrom(demoUser)
+                                .where(demoUser.gender.eq(1)),
+                        SQLExpressions.selectFrom(demoUser)
+                                .where(demoUser.gender.eq(2))
+                ).as(demoUser))
                 .fetchPage(new Pager());
         System.out.println(userPage);
 
@@ -297,14 +298,14 @@ public class QuerydslDemos {
                         qDemoUserUnions,
                         qDemoAddressUnions.name.as("addressName")))
                 .from(SQLExpressions.union(
-                        SQLExpressions.select(qDemoUser, qDemoAddress.name).from(qDemoUser)
-                                .leftJoin(qDemoAddress)
-                                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                                .where(qDemoUser.gender.eq(1)),
-                        SQLExpressions.select(qDemoUser, qDemoAddress.name).from(qDemoUser)
-                                .leftJoin(qDemoAddress)
-                                .on(qDemoUser.addressId.eq(qDemoAddress.addressId))
-                                .where(qDemoUser.gender.eq(2)))
+                        SQLExpressions.select(demoUser, demoAddress.name).from(demoUser)
+                                .leftJoin(demoAddress)
+                                .on(demoUser.addressId.eq(demoAddress.addressId))
+                                .where(demoUser.gender.eq(1)),
+                        SQLExpressions.select(demoUser, demoAddress.name).from(demoUser)
+                                .leftJoin(demoAddress)
+                                .on(demoUser.addressId.eq(demoAddress.addressId))
+                                .where(demoUser.gender.eq(2)))
                         .as(aliasName))
                 .fetchPage(new Pager());
         System.out.println(detailPage);
@@ -316,13 +317,13 @@ public class QuerydslDemos {
     @Test
     public void executeBatch() {
         // 批量更新，插入和删除操作类似，设置参数后调用addBatch即可
-        AbstractSQLUpdateClause<?> update = queryFactory.update(qDemoUser);
+        AbstractSQLUpdateClause<?> update = queryFactory.update(demoUser);
 
-        update.set(qDemoUser.username, qDemoUser.username.append("哥哥"))
-                .where(qDemoUser.gender.eq(1)).addBatch();
+        update.set(demoUser.username, demoUser.username.append("哥哥"))
+                .where(demoUser.gender.eq(1)).addBatch();
 
-        update.set(qDemoUser.username, qDemoUser.username.append("妹妹"))
-                .where(qDemoUser.gender.eq(2)).addBatch();
+        update.set(demoUser.username, demoUser.username.append("妹妹"))
+                .where(demoUser.gender.eq(2)).addBatch();
 
         System.out.println(update.execute());
     }
@@ -334,18 +335,18 @@ public class QuerydslDemos {
     public void queryOneToMany() {
         // 先关联查询自动封装成并列的对象
         QBean<DemoAddressDetail> qAddressDetail = Projections
-                .bean(DemoAddressDetail.class, qDemoAddress.all());
+                .bean(DemoAddressDetail.class, demoAddress.all());
         List<Tuple> rows = queryFactory.select(
-                qAddressDetail, qSubAddress)
-                .from(qDemoAddress)
-                .leftJoin(qSubAddress)
-                .on(qDemoAddress.addressId.eq(qSubAddress.parentId))
-                .where(qDemoAddress.parentId.isNull())
+                qAddressDetail, subAddress)
+                .from(demoAddress)
+                .leftJoin(subAddress)
+                .on(demoAddress.addressId.eq(subAddress.parentId))
+                .where(demoAddress.parentId.isNull())
                 .fetch();
 
         // 将并列的对象转换成一对多层级对象
         List<DemoAddressDetail> addressDetails = QueryUtils.rowsToTree(
-                rows, qAddressDetail, qSubAddress,
+                rows, qAddressDetail, subAddress,
                 DemoAddressDetail::getAddressId,
                 DemoAddress::getAddressId,
                 DemoAddressDetail::getSubAddresses,
@@ -365,26 +366,26 @@ public class QuerydslDemos {
                 SQLExpressions.sum(Expressions.constant(3)),
 
                 // CASE选择语句
-                qDemoUser.gender.when(1).then("男")
+                demoUser.gender.when(1).then("男")
                         .when(2).then("女")
                         .otherwise("保密")
                         .as("genderName"),
 
                 // CASE判断语句
                 Expressions.cases().when(
-                        qDemoUser.gender.eq(qDemoUser.gender))
+                        demoUser.gender.eq(demoUser.gender))
                         .then("性别相同")
                         .otherwise("性别不同")
                         .as("sameGender"),
 
                 // 使用元信息作为别名
-                Expressions.stringPath(qDemoUser.username.getMetadata()),
-                Expressions.numberPath(BigInteger.class, qDemoUser.userId.getMetadata()),
+                Expressions.stringPath(demoUser.username.getMetadata()),
+                Expressions.numberPath(BigInteger.class, demoUser.userId.getMetadata()),
 
                 // 【慎用】自定义列名和表达式
-                Expressions.stringTemplate("group_concat({0})", qDemoUser.username))
+                Expressions.stringTemplate("group_concat({0})", demoUser.username))
 
-                .from(qDemoUser)
+                .from(demoUser)
 
                 // 【慎用】使用指定索引优化查询
                 .addFlag(QueryFlag.Position.BEFORE_FILTERS, " force index(ix_user_id) ")
@@ -393,7 +394,7 @@ public class QuerydslDemos {
                 .where(Expressions.booleanTemplate(
                         "now() < {0} or now() > {0}", DateExpression.currentDate()))
 
-                .groupBy(qDemoUser.userId);
+                .groupBy(demoUser.userId);
 
         System.out.println(query.getSQL().getSQL());
 

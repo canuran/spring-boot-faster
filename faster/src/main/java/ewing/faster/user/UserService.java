@@ -10,7 +10,7 @@ import java.math.BigInteger;
 /**
  * 用户服务接口。
  **/
-public interface UserService extends UserBeans {
+public interface UserService {
 
     User getUser(BigInteger userId);
 

@@ -88,7 +88,7 @@ public class OkHttpUtils {
     /**
      * 请求器。
      */
-    private abstract static class Requester<R extends Requester> {
+    private abstract static class Requester<R extends Requester<R>> {
         protected Request.Builder builder = new Request.Builder();
 
         public R header(String name, String value) {

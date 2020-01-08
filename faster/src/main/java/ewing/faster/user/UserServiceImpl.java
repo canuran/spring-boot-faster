@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ewing.faster.dao.query.QUser.user;
+import static ewing.faster.dao.query.QUserRole.userRole;
+
 /**
  * 用户服务实现。
  **/
@@ -40,14 +43,14 @@ public class UserServiceImpl implements UserService {
         Arguments.of(userWithRole.getUsername()).hasText("用户名不能为空！")
                 .maxLength(32, "用户名不能超过32字符！");
 
-        Arguments.of(queryFactory.selectFrom(qUser)
-                .where(qUser.username.eq(userWithRole.getUsername()))
+        Arguments.of(queryFactory.selectFrom(user)
+                .where(user.username.eq(userWithRole.getUsername()))
                 .fetchCount())
                 .lessThan(1, "用户名已被使用！");
 
         userWithRole.setCreateTime(new Date());
         userWithRole.setUserId(GlobalIds.nextId());
-        queryFactory.insert(qUser).insertBean(userWithRole);
+        queryFactory.insert(user).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();
     }
@@ -66,14 +69,14 @@ public class UserServiceImpl implements UserService {
         List<Role> roles = userWithRole.getRoles();
         if (roles != null && !roles.isEmpty()) {
             List<UserRole> userRoles = new ArrayList<>(roles.size());
-            for (Role role : roles) {
+            for (Role roleDto : roles) {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(userWithRole.getUserId());
-                userRole.setRoleId(role.getRoleId());
+                userRole.setRoleId(roleDto.getRoleId());
                 userRole.setCreateTime(new Date());
                 userRoles.add(userRole);
             }
-            queryFactory.insert(qUserRole).insertBeans(userRoles);
+            queryFactory.insert(userRole).insertBeans(userRoles);
         }
     }
 
@@ -81,7 +84,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(BigInteger userId) {
         Arguments.of(userId).notNull("用户ID不能为空！");
-        return queryFactory.selectFrom(qUser).fetchByKey(userId);
+        return queryFactory.selectFrom(user).fetchByKey(userId);
     }
 
     @Override
@@ -92,18 +95,18 @@ public class UserServiceImpl implements UserService {
         Arguments.of(userWithRole.getUserId()).notNull("用户ID不能为空！");
 
         // 更新用户的角色列表
-        queryFactory.delete(qUserRole)
-                .where(qUserRole.userId.eq(userWithRole.getUserId()))
+        queryFactory.delete(userRole)
+                .where(userRole.userId.eq(userWithRole.getUserId()))
                 .execute();
         addUserRoles(userWithRole);
 
         // 更新用户
-        return queryFactory.update(qUser)
+        return queryFactory.update(user)
                 .whereEqKey(userWithRole.getUserId())
-                .setIfHasText(qUser.nickname, userWithRole.getNickname())
-                .setIfHasText(qUser.password, userWithRole.getPassword())
-                .setIfHasText(qUser.gender, userWithRole.getGender())
-                .setIfNotNull(qUser.birthday, userWithRole.getBirthday())
+                .setIfHasText(user.nickname, userWithRole.getNickname())
+                .setIfHasText(user.password, userWithRole.getPassword())
+                .setIfHasText(user.gender, userWithRole.getGender())
+                .setIfNotNull(user.birthday, userWithRole.getBirthday())
                 .execute();
     }
 
@@ -117,10 +120,10 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
         Arguments.of(userId).notNull("用户ID不能为空！");
-        queryFactory.delete(qUserRole)
-                .where(qUserRole.userId.eq(userId))
+        queryFactory.delete(userRole)
+                .where(userRole.userId.eq(userId))
                 .execute();
-        return queryFactory.delete(qUser).deleteByKey(userId);
+        return queryFactory.delete(user).deleteByKey(userId);
     }
 
 }

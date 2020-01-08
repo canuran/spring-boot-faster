@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static ewing.faster.dao.query.QDictionary.dictionary;
+
 /**
  * 数据字典数据访问实现。
  */
@@ -22,16 +24,16 @@ public class DictionaryDaoImpl implements DictionaryDao {
     @Autowired
     private BaseQueryFactory queryFactory;
 
-    private QDictionary qAllDictionary = new QDictionary("all");
+    private static final QDictionary qAllDictionary = new QDictionary("all");
 
     @Override
     public Page<Dictionary> findWithSubDictionary(FindDictionaryParam findDictionaryParam) {
         // 结果条数以根字典为准
-        BaseQuery<Dictionary> rootQuery = queryFactory.selectDistinct(qDictionary)
-                .from(qDictionary)
+        BaseQuery<Dictionary> rootQuery = queryFactory.selectDistinct(dictionary)
+                .from(dictionary)
                 .leftJoin(qAllDictionary)
-                .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
-                .where(qDictionary.dictionaryId.eq(qDictionary.rootId))
+                .on(dictionary.dictionaryId.eq(qAllDictionary.rootId))
+                .where(dictionary.dictionaryId.eq(dictionary.rootId))
                 // 搜索条件，支持子字典名称搜索
                 .whereIfHasText(findDictionaryParam.getName(), qAllDictionary.name::contains)
                 .whereIfHasText(findDictionaryParam.getValue(), qAllDictionary.value::contains);
@@ -41,9 +43,9 @@ public class DictionaryDaoImpl implements DictionaryDao {
         // 关联查根字典下的所有子字典项
         rootQuery.limit(findDictionaryParam.getLimit()).offset(findDictionaryParam.getOffset());
         List<Dictionary> dictionaries = queryFactory.selectDistinct(qAllDictionary)
-                .from(rootQuery.as(qDictionary))
+                .from(rootQuery.as(dictionary))
                 .leftJoin(qAllDictionary)
-                .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
+                .on(dictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .fetch();
 
         return new Page<>(total, dictionaries);
@@ -52,10 +54,10 @@ public class DictionaryDaoImpl implements DictionaryDao {
     @Override
     public List<DictionaryNode> findRootSubDictionaries(String[] rootValues) {
         return queryFactory.selectDistinct(qAllDictionary)
-                .from(qDictionary)
+                .from(dictionary)
                 .join(qAllDictionary)
-                .on(qDictionary.dictionaryId.eq(qAllDictionary.rootId))
-                .where(qDictionary.value.in(rootValues))
+                .on(dictionary.dictionaryId.eq(qAllDictionary.rootId))
+                .where(dictionary.value.in(rootValues))
                 .fitBean(DictionaryNode.class)
                 .fetch();
     }
