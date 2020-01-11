@@ -33,8 +33,26 @@ public final class Arguments {
         throw new AssertionError("Can not construct Arguments");
     }
 
-    private static final Function<String, Supplier<RuntimeException>> DEFAULT_EXCEPTOR = message -> () -> new IllegalArgumentException(message);
+    public interface LocalMessager {
+        default String canNotResetDefaultExceptor() {
+            return "Can not reset default exceptor";
+        }
+
+        default String canNotResetDefaultMessager() {
+            return "Can not reset default messager";
+        }
+    }
+
+    private static final LocalMessager EN_MESSAGES = new LocalMessager() {
+    };
+
+    private static LocalMessager localMessager = EN_MESSAGES;
+
+    private static final Function<String, Supplier<RuntimeException>> DEFAULT_EXCEPTOR =
+            message -> () -> new IllegalArgumentException(message);
+
     private static Function<String, Supplier<RuntimeException>> defaultExceptor = DEFAULT_EXCEPTOR;
+
 
     /**
      * 设置默认的参数异常产生器，只能设置一次。
@@ -43,7 +61,18 @@ public final class Arguments {
         if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
             Arguments.defaultExceptor = exceptor;
         } else {
-            throw new IllegalStateException("Can not reset default exceptor");
+            throw new IllegalStateException(localMessager.canNotResetDefaultExceptor());
+        }
+    }
+
+    /**
+     * 设置默认的参数消息语言，只能设置一次。
+     */
+    public static synchronized void setDefaultMessager(LocalMessager messager) {
+        if (Arguments.localMessager == EN_MESSAGES) {
+            Arguments.localMessager = messager;
+        } else {
+            throw new IllegalStateException(localMessager.canNotResetDefaultMessager());
         }
     }
 
@@ -222,6 +251,39 @@ public final class Arguments {
                 throw exceptor.get();
             }
             return (A) this;
+        }
+
+        public Objects mapToObjects(Function<O, Object> mapping) {
+            return new Objects(mapping.apply(object));
+        }
+
+        public <C extends Comparables<C, E>, E extends Comparable<E>> Comparables<C, E> mapToComparables(
+                Function<O, E> mapping) {
+            return new Comparables(mapping.apply(object));
+        }
+
+        public Integers mapToIntegers(Function<O, Integer> mapping) {
+            return new Integers(mapping.apply(object));
+        }
+
+        public Longs mapToLongs(Function<O, Long> mapping) {
+            return new Longs(mapping.apply(object));
+        }
+
+        public Doubles mapToDoubles(Function<O, Double> mapping) {
+            return new Doubles(mapping.apply(object));
+        }
+
+        public Strings mapToStrings(Function<O, String> mapping) {
+            return new Strings(mapping.apply(object));
+        }
+
+        public <C extends Collection<?>> Collections<C> mapToCollections(Function<O, C> mapping) {
+            return new Collections(mapping.apply(object));
+        }
+
+        public <M extends Map<?, ?>> Maps<M> mapToMaps(Function<O, M> mapping) {
+            return new Maps(mapping.apply(object));
         }
     }
 

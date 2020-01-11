@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
         checkCommonSave(userWithRole);
 
         Arguments.of(userWithRole.getUsername()).hasText("用户名不能为空！")
+                .utf8Basic("用户名不能包含特殊字符！")
                 .maxLength(32, "用户名不能超过32字符！");
 
         Arguments.of(queryFactory.selectFrom(user)
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService {
     private void checkCommonSave(UserWithRole userWithRole) {
         Arguments.of(userWithRole).notNull("用户不能为空！");
         Arguments.of(userWithRole.getNickname()).hasText("昵称不能为空！")
+                .utf8Basic("昵称不能包含特殊字符！")
                 .maxLength(32, "昵称不能超过32字符！");
         Arguments.of(userWithRole.getPassword()).hasText("密码不能为空！")
                 .maxLength(32, "密码不能超过32字符！");
