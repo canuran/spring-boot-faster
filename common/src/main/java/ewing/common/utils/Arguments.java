@@ -105,10 +105,11 @@ public final class Arguments {
     @SuppressWarnings("unchecked")
     public static class Objects<A extends Objects<A, O>, O> {
         protected final O object;
-        protected String name = localMessager.defaultArgumentName();
+        protected String name;
 
         public Objects(O object) {
             this.object = object;
+            this.name = localMessager.defaultArgumentName();
         }
 
         private boolean isEquals(O other) {
