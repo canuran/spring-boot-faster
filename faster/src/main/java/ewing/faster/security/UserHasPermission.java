@@ -1,10 +1,10 @@
 package ewing.faster.security;
 
+import ewing.common.utils.Arguments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.io.Serializable;
 
@@ -33,8 +33,9 @@ public class UserHasPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication,
                                  Serializable targetId, String targetType, Object action) {
-        Assert.notNull(targetId, "Target id missing");
-        Assert.notNull(targetType, "Target type missing");
+        Arguments.of(targetId).name("资源ID").notNull();
+        Arguments.of(targetType).name("资源类型").notNull();
+
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         return securityService.userHasPermission(securityUser.getUserId(),
                 action.toString(), targetType, targetId.toString());

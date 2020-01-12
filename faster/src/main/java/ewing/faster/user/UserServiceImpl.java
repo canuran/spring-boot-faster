@@ -40,14 +40,13 @@ public class UserServiceImpl implements UserService {
     public BigInteger addUserWithRole(UserWithRole userWithRole) {
         checkCommonSave(userWithRole);
 
-        Arguments.of(userWithRole.getUsername()).hasText("用户名不能为空！")
-                .utf8Basic("用户名不能包含特殊字符！")
-                .maxLength(32, "用户名不能超过32字符！");
+        Arguments.of(userWithRole.getUsername()).name("用户名")
+                .hasText().minLength(2).maxLength(32).lettersOrDigits();
 
         Arguments.of(queryFactory.selectFrom(user)
                 .where(user.username.eq(userWithRole.getUsername()))
                 .fetchCount())
-                .lessThan(1, "用户名已被使用！");
+                .lessThan(1, "用户名已被使用");
 
         userWithRole.setCreateTime(new Date());
         userWithRole.setUserId(GlobalIds.nextId());
@@ -57,14 +56,16 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkCommonSave(UserWithRole userWithRole) {
-        Arguments.of(userWithRole).notNull("用户不能为空！");
-        Arguments.of(userWithRole.getNickname()).hasText("昵称不能为空！")
-                .utf8Basic("昵称不能包含特殊字符！")
-                .maxLength(32, "昵称不能超过32字符！");
-        Arguments.of(userWithRole.getPassword()).hasText("密码不能为空！")
-                .maxLength(32, "密码不能超过32字符！");
-        Arguments.of(userWithRole.getGender()).hasText("性别不能为空！")
-                .maxLength(8, "性别不能超过8字符！");
+        Arguments.of(userWithRole).name("用户").notNull();
+
+        Arguments.of(userWithRole.getNickname()).name("昵称")
+                .hasText().minLength(2).maxLength(32).normalChars();
+
+        Arguments.of(userWithRole.getPassword()).name("密码")
+                .hasText().minLength(2).maxLength(32).lettersOrDigits();
+
+        Arguments.of(userWithRole.getGender()).name("性别")
+                .hasText().minLength(1).maxLength(8).letters();
     }
 
     private void addUserRoles(UserWithRole userWithRole) {
@@ -85,7 +86,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(BigInteger userId) {
-        Arguments.of(userId).notNull("用户ID不能为空！");
+        Arguments.of(userId).name("用户ID").notNull();
+
         return queryFactory.selectFrom(user).fetchByKey(userId);
     }
 
@@ -94,7 +96,8 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(cacheNames = "UserCache", key = "#userWithRole.userId")
     public long updateUserWithRole(UserWithRole userWithRole) {
         checkCommonSave(userWithRole);
-        Arguments.of(userWithRole.getUserId()).notNull("用户ID不能为空！");
+
+        Arguments.of(userWithRole.getUserId()).name("用户ID").notNull();
 
         // 更新用户的角色列表
         queryFactory.delete(userRole)
@@ -121,7 +124,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(BigInteger userId) {
-        Arguments.of(userId).notNull("用户ID不能为空！");
+        Arguments.of(userId).name("用户ID").notNull();
+
         queryFactory.delete(userRole)
                 .where(userRole.userId.eq(userId))
                 .execute();

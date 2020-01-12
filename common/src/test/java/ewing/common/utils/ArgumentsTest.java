@@ -1,5 +1,6 @@
 package ewing.common.utils;
 
+import ewing.common.exception.BusinessException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -14,9 +15,9 @@ import java.util.List;
  */
 public class ArgumentsTest {
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = BusinessException.class)
     public void exception() {
-        Arguments.setDefaultExceptor(message -> () -> new IllegalStateException(message));
+        Arguments.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
         Arguments.of("哈哈").matches("\\d+");
     }
 

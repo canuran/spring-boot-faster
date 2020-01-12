@@ -35,7 +35,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public Page<Dictionary> findWithSubDictionary(
             FindDictionaryParam findDictionaryParam) {
-        Arguments.of(findDictionaryParam).notNull("查询参数不能为空！");
+        Arguments.of(findDictionaryParam).name("查询字典参数").notNull();
+
         return dictionaryDao.findWithSubDictionary(findDictionaryParam);
     }
 
@@ -50,7 +51,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                 .where(dictionary.name.eq(dictionaryParam.getName())
                         .or(dictionary.value.eq(dictionaryParam.getValue())))
                 .fetchCount())
-                .lessThan(1, "相同位置下的字典名或值不能重复！");
+                .lessThan(1, "相同位置下的字典名或值不能重复");
 
         // 处理父字典和根字典的关系
         if (dictionaryParam.getParentId() != null) {
@@ -58,7 +59,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                     .where(dictionary.dictionaryId.eq(dictionaryParam.getParentId()))
                     .fetchOne();
             if (parent == null) {
-                throw new BusinessException("父字典项不存在！");
+                throw new BusinessException("父字典项不存在");
             } else {
                 // 父字典存在则根字典继承自父字典
                 dictionaryParam.setRootId(parent.getRootId());
@@ -79,17 +80,19 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     private void checkCommonSave(Dictionary dictionaryParam) {
-        Arguments.of(dictionaryParam).notNull("字典项不能为空！");
-        Arguments.of(dictionaryParam.getName()).hasText("字典名不能为空！")
-                .maxLength(32, "字典名长度不能超过32字符！");
-        Arguments.of(dictionaryParam.getValue()).hasText("字典值不能为空！")
-                .maxLength(32, "字典值长度不能超过32字符！");
+        Arguments.of(dictionaryParam).name("字典项").notNull();
+
+        Arguments.of(dictionaryParam.getName()).name("字典名")
+                .hasText().minLength(2).maxLength(32).normalChars();
+
+        Arguments.of(dictionaryParam.getValue()).name("字典值")
+                .hasText().minLength(2).maxLength(32).normalChars();
     }
 
     @Override
     public void updateDictionary(Dictionary dictionaryParam) {
         checkCommonSave(dictionaryParam);
-        Arguments.of(dictionaryParam.getDictionaryId()).notNull("字典ID不能为空！");
+        Arguments.of(dictionaryParam.getDictionaryId()).name("字典ID").notNull();
 
         Arguments.of(queryFactory.selectFrom(dictionary)
                 .where(dictionary.dictionaryId.ne(dictionaryParam.getDictionaryId()))
@@ -99,7 +102,7 @@ public class DictionaryServiceImpl implements DictionaryService {
                 .where(dictionary.name.eq(dictionaryParam.getName())
                         .or(dictionary.value.eq(dictionaryParam.getValue())))
                 .fetchCount())
-                .lessThan(1, "相同位置下的字典名或值不能重复！");
+                .lessThan(1, "相同位置下的字典名或值不能重复");
 
         // 不能修改父字典和根字典
         dictionaryParam.setRootId(null);
@@ -109,22 +112,23 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void deleteDictionary(BigInteger dictionaryId) {
-        Arguments.of(dictionaryId).notNull("字典ID不能为空！");
+        Arguments.of(dictionaryId).name("字典ID").notNull();
 
         Dictionary dictionaryDto = queryFactory.selectFrom(dictionary).fetchByKey(dictionaryId);
-        Arguments.of(dictionaryDto).notNull("该字典不存在或已删除！");
+        Arguments.of(dictionaryDto).notNull("该字典不存在或已删除");
 
         Arguments.of(queryFactory.selectFrom(dictionary)
                 .where(dictionary.parentId.eq(dictionaryId))
                 .fetchCount())
-                .lessThan(1, "请先删除该字典的所有子项！");
+                .lessThan(1, "请先删除该字典的所有子项");
 
         queryFactory.delete(dictionary).deleteByKey(dictionaryId);
     }
 
     @Override
     public List<DictionaryNode> findDictionaryTrees(String[] rootValues) {
-        Arguments.of(rootValues).notNull("查询参数不能为空！");
+        Arguments.of(rootValues).name("查询参数").notNull();
+
         List<DictionaryNode> dictionaries = dictionaryDao
                 .findRootSubDictionaries(rootValues);
         return TreeUtils.toTree(dictionaries,

@@ -24,7 +24,8 @@ public class FasterMain {
 
     @PostConstruct
     public void globalSettings() {
-        Arguments.setDefaultExceptor(message -> () -> new BusinessException(message));
+        Arguments.setDefaultMessager(Arguments.CN_MESSAGER);
+        Arguments.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
     }
 
     @Bean

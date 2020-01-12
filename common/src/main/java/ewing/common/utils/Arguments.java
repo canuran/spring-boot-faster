@@ -11,68 +11,62 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
- * 检查应用参数。
+ * 检查应用参数并抛出相应的异常。
  *
  * <pre>
- *  // 设置全局默认异常，只能设置一次，不设置默认抛出 IllegalArgumentException
+ *  // 设置全局默认消息产生器，默认为英文消息
+ *  Arguments.setDefaultMessager(Arguments.CN_MESSAGER);
+ *
+ *  // 设置全局默认异常产生器，默认为IllegalArgumentException
  *  Arguments.setDefaultExceptor(message -> () -> new IllegalArgumentException(message));
  *
  *  // 链式校验，根据参数不同提供不同校验方法，可自定义异常，或使用默认异常信息
- *  Arguments.of("元宝")
- *          .hasText("名称不能为空")
- *          .maxLength(32, () -> new IllegalArgumentException("名称不能大于32字符"))
- *          .matches("[A-Za-z0-9]+", "名称只能是字母和数字")
+ *  Arguments.of("18888888888")
+ *          .name("手机号")
+ *          .hasText()
+ *          .maxLength(15)
+ *          .matches(".{11,15}", "手机号必须是11至15位")
+ *          .normalChars(() -> new IllegalArgumentException("手机号填错了"))
+ *          .digits()
  *          .get();
  * </pre>
  *
  * @author Ewing
  */
 public final class Arguments {
-
     private Arguments() {
         throw new AssertionError("Can not construct Arguments");
     }
 
-    public interface LocalMessager {
-        default String canNotResetDefaultExceptor() {
-            return "Can not reset default exceptor";
-        }
+    public static final LocalMessager EN_MESSAGER = new EnMessager();
+    public static final LocalMessager CN_MESSAGER = new CnMessager();
 
-        default String canNotResetDefaultMessager() {
-            return "Can not reset default messager";
-        }
-    }
+    private static LocalMessager localMessager = EN_MESSAGER;
 
-    private static final LocalMessager EN_MESSAGES = new LocalMessager() {
-    };
+    private static final Function<Supplier<String>, Supplier<RuntimeException>> DEFAULT_EXCEPTOR =
+            messager -> () -> new IllegalArgumentException(messager.get());
 
-    private static LocalMessager localMessager = EN_MESSAGES;
-
-    private static final Function<String, Supplier<RuntimeException>> DEFAULT_EXCEPTOR =
-            message -> () -> new IllegalArgumentException(message);
-
-    private static Function<String, Supplier<RuntimeException>> defaultExceptor = DEFAULT_EXCEPTOR;
-
-
-    /**
-     * 设置默认的参数异常产生器，只能设置一次。
-     */
-    public static synchronized void setDefaultExceptor(Function<String, Supplier<RuntimeException>> exceptor) {
-        if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
-            Arguments.defaultExceptor = exceptor;
-        } else {
-            throw new IllegalStateException(localMessager.canNotResetDefaultExceptor());
-        }
-    }
+    private static Function<Supplier<String>, Supplier<RuntimeException>> defaultExceptor = DEFAULT_EXCEPTOR;
 
     /**
      * 设置默认的参数消息语言，只能设置一次。
      */
     public static synchronized void setDefaultMessager(LocalMessager messager) {
-        if (Arguments.localMessager == EN_MESSAGES) {
+        if (Arguments.localMessager == EN_MESSAGER) {
             Arguments.localMessager = messager;
         } else {
             throw new IllegalStateException(localMessager.canNotResetDefaultMessager());
+        }
+    }
+
+    /**
+     * 设置默认的参数异常产生器，只能设置一次。
+     */
+    public static synchronized void setDefaultExceptor(Function<Supplier<String>, Supplier<RuntimeException>> exceptor) {
+        if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
+            Arguments.defaultExceptor = exceptor;
+        } else {
+            throw new IllegalStateException(localMessager.canNotResetDefaultExceptor());
         }
     }
 
@@ -111,6 +105,7 @@ public final class Arguments {
     @SuppressWarnings("unchecked")
     public static class Objects<A extends Objects<A, O>, O> {
         protected final O object;
+        protected String name = localMessager.defaultArgumentName();
 
         public Objects(O object) {
             this.object = object;
@@ -118,6 +113,11 @@ public final class Arguments {
 
         private boolean isEquals(O other) {
             return (object == other) || (object != null && object.equals(other));
+        }
+
+        public A name(String name) {
+            this.name = name;
+            return (A) this;
         }
 
         public O get() {
@@ -130,11 +130,11 @@ public final class Arguments {
         }
 
         public A isNull() {
-            return isNull("Argument must be null");
+            return isNull(defaultExceptor.apply(() -> localMessager.mustBeNull(name)));
         }
 
         public A isNull(String message) {
-            return isNull(defaultExceptor.apply(message));
+            return isNull(defaultExceptor.apply(() -> message));
         }
 
         public A isNull(Supplier<RuntimeException> exceptor) {
@@ -145,11 +145,11 @@ public final class Arguments {
         }
 
         public A notNull() {
-            return notNull("Argument must not null");
+            return notNull(defaultExceptor.apply(() -> localMessager.canNotNull(name)));
         }
 
         public A notNull(String message) {
-            return notNull(defaultExceptor.apply(message));
+            return notNull(defaultExceptor.apply(() -> message));
         }
 
         public A notNull(Supplier<RuntimeException> exceptor) {
@@ -160,11 +160,11 @@ public final class Arguments {
         }
 
         public A equalsTo(O other) {
-            return equalsTo(other, "Argument must equals the other");
+            return equalsTo(other, defaultExceptor.apply(() -> localMessager.mustEqualsTheOther(name)));
         }
 
         public A equalsTo(O other, String message) {
-            return equalsTo(other, defaultExceptor.apply(message));
+            return equalsTo(other, defaultExceptor.apply(() -> message));
         }
 
         public A equalsTo(O other, Supplier<RuntimeException> exceptor) {
@@ -175,11 +175,11 @@ public final class Arguments {
         }
 
         public A notEquals(O other) {
-            return notEquals(other, "Argument must not equals the other");
+            return notEquals(other, defaultExceptor.apply(() -> localMessager.mustNotEqualsTheOther(name)));
         }
 
         public A notEquals(O other, String message) {
-            return notEquals(other, defaultExceptor.apply(message));
+            return notEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public A notEquals(O other, Supplier<RuntimeException> exceptor) {
@@ -190,11 +190,11 @@ public final class Arguments {
         }
 
         public <I extends Iterable<O>> A in(I others) {
-            return in(others, "Argument must in the others");
+            return in(others, defaultExceptor.apply(() -> localMessager.mustInTheOthers(name)));
         }
 
         public <I extends Iterable<O>> A in(I others, String message) {
-            return in(others, defaultExceptor.apply(message));
+            return in(others, defaultExceptor.apply(() -> message));
         }
 
         public <I extends Iterable<O>> A in(I others, Supplier<RuntimeException> exceptor) {
@@ -207,11 +207,11 @@ public final class Arguments {
         }
 
         public <I extends Iterable<O>> A notIn(I others) {
-            return notIn(others, "Argument must not in the others");
+            return notIn(others, defaultExceptor.apply(() -> localMessager.mustNotInTheOthers(name)));
         }
 
         public <I extends Iterable<O>> A notIn(I others, String message) {
-            return notIn(others, defaultExceptor.apply(message));
+            return notIn(others, defaultExceptor.apply(() -> message));
         }
 
         public <I extends Iterable<O>> A notIn(I others, Supplier<RuntimeException> exceptor) {
@@ -224,11 +224,11 @@ public final class Arguments {
         }
 
         public A isTrue(Predicate<O> predicate) {
-            return isTrue(predicate, "Argument must test true");
+            return isTrue(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
         }
 
         public A isTrue(Predicate<O> predicate, String message) {
-            return isTrue(predicate, defaultExceptor.apply(message));
+            return isTrue(predicate, defaultExceptor.apply(() -> message));
         }
 
         public A isTrue(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
@@ -239,11 +239,11 @@ public final class Arguments {
         }
 
         public A isFalse(Predicate<O> predicate) {
-            return isFalse(predicate, "Argument must test false");
+            return isFalse(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
         }
 
         public A isFalse(Predicate<O> predicate, String message) {
-            return isFalse(predicate, defaultExceptor.apply(message));
+            return isFalse(predicate, defaultExceptor.apply(() -> message));
         }
 
         public A isFalse(Predicate<O> predicate, Supplier<RuntimeException> exceptor) {
@@ -314,11 +314,11 @@ public final class Arguments {
         }
 
         public Strings notEmpty() {
-            return notEmpty("Argument must not empty");
+            return notEmpty(defaultExceptor.apply(() -> localMessager.canNotEmpty(name)));
         }
 
         public Strings notEmpty(String message) {
-            return notEmpty(defaultExceptor.apply(message));
+            return notEmpty(defaultExceptor.apply(() -> message));
         }
 
         public Strings notEmpty(Supplier<RuntimeException> exceptor) {
@@ -329,11 +329,11 @@ public final class Arguments {
         }
 
         public Strings hasText() {
-            return hasText("Argument must has text");
+            return hasText(defaultExceptor.apply(() -> localMessager.mustHasText(name)));
         }
 
         public Strings hasText(String message) {
-            return hasText(defaultExceptor.apply(message));
+            return hasText(defaultExceptor.apply(() -> message));
         }
 
         public Strings hasText(Supplier<RuntimeException> exceptor) {
@@ -344,18 +344,18 @@ public final class Arguments {
         }
 
         /**
-         * 判断字符串里只有UTF8基本定义字符，最大长度为3字节，常用于mysql普通字符校验。
+         * 判断字符串里只有普通UTF8字符，基本定义范围，最长为3字节，常用于mysql字符集。
          * 1111 开头的字节只会出现在16位以上的字符中，非基本定义范围，详见UTF-8的规范。
          */
-        public Strings utf8Basic() {
-            return utf8Basic("Argument must in utf8 basic codes");
+        public Strings normalChars() {
+            return normalChars(defaultExceptor.apply(() -> localMessager.canNotContainSpecialCharacters(name)));
         }
 
-        public Strings utf8Basic(String message) {
-            return utf8Basic(defaultExceptor.apply(message));
+        public Strings normalChars(String message) {
+            return normalChars(defaultExceptor.apply(() -> message));
         }
 
-        public Strings utf8Basic(Supplier<RuntimeException> exceptor) {
+        public Strings normalChars(Supplier<RuntimeException> exceptor) {
             if (object != null && object.length() > 0) {
                 for (byte aByte : object.getBytes(StandardCharsets.UTF_8)) {
                     if ((aByte & 0b11110000) == 0b11110000) {
@@ -366,12 +366,69 @@ public final class Arguments {
             return this;
         }
 
+        public Strings letters() {
+            return letters(defaultExceptor.apply(() -> localMessager.mustComposeWithLetters(name)));
+        }
+
+        public Strings letters(String message) {
+            return letters(defaultExceptor.apply(() -> message));
+        }
+
+        public Strings letters(Supplier<RuntimeException> exceptor) {
+            if (object != null && object.length() > 0) {
+                for (char aChar : object.toCharArray()) {
+                    if (!Character.isLetter(aChar)) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Strings digits() {
+            return digits(defaultExceptor.apply(() -> localMessager.mustComposeWithDigits(name)));
+        }
+
+        public Strings digits(String message) {
+            return digits(defaultExceptor.apply(() -> message));
+        }
+
+        public Strings digits(Supplier<RuntimeException> exceptor) {
+            if (object != null && object.length() > 0) {
+                for (char aChar : object.toCharArray()) {
+                    if (!Character.isDigit(aChar)) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Strings lettersOrDigits() {
+            return lettersOrDigits(defaultExceptor.apply(() -> localMessager.mustComposeWithLettersOrDigits(name)));
+        }
+
+        public Strings lettersOrDigits(String message) {
+            return lettersOrDigits(defaultExceptor.apply(() -> message));
+        }
+
+        public Strings lettersOrDigits(Supplier<RuntimeException> exceptor) {
+            if (object != null && object.length() > 0) {
+                for (char aChar : object.toCharArray()) {
+                    if (!Character.isLetterOrDigit(aChar)) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
         public Strings matches(String regexp) {
-            return matches(regexp, "Argument must matches regexp " + regexp);
+            return matches(regexp, defaultExceptor.apply(() -> localMessager.mustMatchesPattern(name)));
         }
 
         public Strings matches(String regexp, String message) {
-            return matches(PATTERN_CACHE.computeIfAbsent(regexp, Pattern::compile), message);
+            return matches(regexp, defaultExceptor.apply(() -> message));
         }
 
         public Strings matches(String regexp, Supplier<RuntimeException> exceptor) {
@@ -379,11 +436,11 @@ public final class Arguments {
         }
 
         public Strings matches(Pattern pattern) {
-            return matches(pattern, "Argument must matches pattern " + pattern);
+            return matches(pattern, defaultExceptor.apply(() -> localMessager.mustMatchesPattern(name)));
         }
 
         public Strings matches(Pattern regexp, String message) {
-            return matches(regexp, defaultExceptor.apply(message));
+            return matches(regexp, defaultExceptor.apply(() -> message));
         }
 
         public Strings matches(Pattern regexp, Supplier<RuntimeException> exceptor) {
@@ -394,11 +451,11 @@ public final class Arguments {
         }
 
         public Strings length(int length) {
-            return length(length, "Argument length must be " + length);
+            return length(length, defaultExceptor.apply(() -> localMessager.lengthMustBe(name, length)));
         }
 
         public Strings length(int length, String message) {
-            return length(length, defaultExceptor.apply(message));
+            return length(length, defaultExceptor.apply(() -> message));
         }
 
         public Strings length(int length, Supplier<RuntimeException> exceptor) {
@@ -409,11 +466,11 @@ public final class Arguments {
         }
 
         public Strings minLength(int minLength) {
-            return minLength(minLength, "Argument length must greater than " + minLength);
+            return minLength(minLength, defaultExceptor.apply(() -> localMessager.lengthMustGreaterThan(name, minLength)));
         }
 
         public Strings minLength(int minLength, String message) {
-            return minLength(minLength, defaultExceptor.apply(message));
+            return minLength(minLength, defaultExceptor.apply(() -> message));
         }
 
         public Strings minLength(int minLength, Supplier<RuntimeException> exceptor) {
@@ -424,11 +481,11 @@ public final class Arguments {
         }
 
         public Strings maxLength(int maxLength) {
-            return maxLength(maxLength, "Argument length must less than " + maxLength);
+            return maxLength(maxLength, defaultExceptor.apply(() -> localMessager.lengthMustLessThan(name, maxLength)));
         }
 
         public Strings maxLength(int maxLength, String message) {
-            return maxLength(maxLength, defaultExceptor.apply(message));
+            return maxLength(maxLength, defaultExceptor.apply(() -> message));
         }
 
         public Strings maxLength(int maxLength, Supplier<RuntimeException> exceptor) {
@@ -453,11 +510,11 @@ public final class Arguments {
         }
 
         public Collections<O> allNotNull() {
-            return allNotNull("Argument must not contains null");
+            return allNotNull(defaultExceptor.apply(() -> localMessager.canNotContainsNull(name)));
         }
 
         public Collections<O> allNotNull(String message) {
-            return allNotNull(defaultExceptor.apply(message));
+            return allNotNull(defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> allNotNull(Supplier<RuntimeException> exceptor) {
@@ -474,11 +531,11 @@ public final class Arguments {
         }
 
         public Collections<O> notEmpty() {
-            return notEmpty("Argument must not empty");
+            return notEmpty(defaultExceptor.apply(() -> localMessager.canNotEmpty(name)));
         }
 
         public Collections<O> notEmpty(String message) {
-            return notEmpty(defaultExceptor.apply(message));
+            return notEmpty(defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> notEmpty(Supplier<RuntimeException> exceptor) {
@@ -489,11 +546,11 @@ public final class Arguments {
         }
 
         public Collections<O> size(int size) {
-            return size(size, "Argument size must be " + size);
+            return size(size, defaultExceptor.apply(() -> localMessager.sizeMustBe(name, size)));
         }
 
         public Collections<O> size(int size, String message) {
-            return size(size, defaultExceptor.apply(message));
+            return size(size, defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> size(int size, Supplier<RuntimeException> exceptor) {
@@ -504,11 +561,11 @@ public final class Arguments {
         }
 
         public Collections<O> minSize(int minSize) {
-            return minSize(minSize, "Argument size must greater than " + minSize);
+            return minSize(minSize, defaultExceptor.apply(() -> localMessager.sizeMustGreaterThan(name, minSize)));
         }
 
         public Collections<O> minSize(int minSize, String message) {
-            return minSize(minSize, defaultExceptor.apply(message));
+            return minSize(minSize, defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
@@ -519,11 +576,11 @@ public final class Arguments {
         }
 
         public Collections<O> maxSize(int maxSize) {
-            return maxSize(maxSize, "Argument size must less than " + maxSize);
+            return maxSize(maxSize, defaultExceptor.apply(() -> localMessager.sizeMustLessThan(name, maxSize)));
         }
 
         public Collections<O> maxSize(int maxSize, String message) {
-            return maxSize(maxSize, defaultExceptor.apply(message));
+            return maxSize(maxSize, defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
@@ -534,11 +591,11 @@ public final class Arguments {
         }
 
         public Collections<O> contains(Object other) {
-            return contains(other, "Argument must contains other");
+            return contains(other, defaultExceptor.apply(() -> localMessager.mustContainsOther(name)));
         }
 
         public Collections<O> contains(Object other, String message) {
-            return contains(other, defaultExceptor.apply(message));
+            return contains(other, defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> contains(Object other, Supplier<RuntimeException> exceptor) {
@@ -549,11 +606,11 @@ public final class Arguments {
         }
 
         public Collections<O> containsAll(O other) {
-            return containsAll(other, "Argument must contains all other");
+            return containsAll(other, defaultExceptor.apply(() -> localMessager.mustContainsAllOthers(name)));
         }
 
         public Collections<O> containsAll(O other, String message) {
-            return containsAll(other, defaultExceptor.apply(message));
+            return containsAll(other, defaultExceptor.apply(() -> message));
         }
 
         public Collections<O> containsAll(O other, Supplier<RuntimeException> exceptor) {
@@ -578,11 +635,11 @@ public final class Arguments {
         }
 
         public Maps<O> notEmpty() {
-            return notEmpty("Argument must not empty");
+            return notEmpty(defaultExceptor.apply(() -> localMessager.canNotEmpty(name)));
         }
 
         public Maps<O> notEmpty(String message) {
-            return notEmpty(defaultExceptor.apply(message));
+            return notEmpty(defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> notEmpty(Supplier<RuntimeException> exceptor) {
@@ -593,11 +650,11 @@ public final class Arguments {
         }
 
         public Maps<O> size(int size) {
-            return size(size, "Argument size must be " + size);
+            return size(size, defaultExceptor.apply(() -> localMessager.sizeMustBe(name, size)));
         }
 
         public Maps<O> size(int size, String message) {
-            return size(size, defaultExceptor.apply(message));
+            return size(size, defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> size(int size, Supplier<RuntimeException> exceptor) {
@@ -608,11 +665,11 @@ public final class Arguments {
         }
 
         public Maps<O> minSize(int minSize) {
-            return minSize(minSize, "Argument size must greater than " + minSize);
+            return minSize(minSize, defaultExceptor.apply(() -> localMessager.sizeMustGreaterThan(name, minSize)));
         }
 
         public Maps<O> minSize(int minSize, String message) {
-            return minSize(minSize, defaultExceptor.apply(message));
+            return minSize(minSize, defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
@@ -623,11 +680,11 @@ public final class Arguments {
         }
 
         public Maps<O> maxSize(int maxSize) {
-            return maxSize(maxSize, "Argument size must less than " + maxSize);
+            return maxSize(maxSize, defaultExceptor.apply(() -> localMessager.sizeMustLessThan(name, maxSize)));
         }
 
         public Maps<O> maxSize(int maxSize, String message) {
-            return maxSize(maxSize, defaultExceptor.apply(message));
+            return maxSize(maxSize, defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
@@ -638,11 +695,11 @@ public final class Arguments {
         }
 
         public Maps<O> containsKey(Object key) {
-            return containsKey(key, "Argument must contains key");
+            return containsKey(key, defaultExceptor.apply(() -> localMessager.mustContainsKey(name)));
         }
 
         public Maps<O> containsKey(Object key, String message) {
-            return containsKey(key, defaultExceptor.apply(message));
+            return containsKey(key, defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> containsKey(Object key, Supplier<RuntimeException> exceptor) {
@@ -653,11 +710,11 @@ public final class Arguments {
         }
 
         public Maps<O> containsValue(Object value) {
-            return containsValue(value, "Argument must contains value");
+            return containsValue(value, defaultExceptor.apply(() -> localMessager.mustContainsValue(name)));
         }
 
         public Maps<O> containsValue(Object value, String message) {
-            return containsValue(value, defaultExceptor.apply(message));
+            return containsValue(value, defaultExceptor.apply(() -> message));
         }
 
         public Maps<O> containsValue(Object value, Supplier<RuntimeException> exceptor) {
@@ -674,11 +731,11 @@ public final class Arguments {
         }
 
         public Integers positive() {
-            return positive("Argument must be positive");
+            return positive(defaultExceptor.apply(() -> localMessager.mustBePositive(name)));
         }
 
         public Integers positive(String message) {
-            return positive(defaultExceptor.apply(message));
+            return positive(defaultExceptor.apply(() -> message));
         }
 
         public Integers positive(Supplier<RuntimeException> exceptor) {
@@ -686,11 +743,11 @@ public final class Arguments {
         }
 
         public Integers greaterThan(int other) {
-            return greaterThan(other, "Argument must greater than " + other);
+            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThan(name, other)));
         }
 
         public Integers greaterThan(int other, String message) {
-            return greaterThan(other, defaultExceptor.apply(message));
+            return greaterThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Integers greaterThan(int other, Supplier<RuntimeException> exceptor) {
@@ -701,11 +758,11 @@ public final class Arguments {
         }
 
         public Integers lessThan(int other) {
-            return lessThan(other, "Argument must less than " + other);
+            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThan(name, other)));
         }
 
         public Integers lessThan(int other, String message) {
-            return lessThan(other, defaultExceptor.apply(message));
+            return lessThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Integers lessThan(int other, Supplier<RuntimeException> exceptor) {
@@ -716,11 +773,11 @@ public final class Arguments {
         }
 
         public Integers greaterThanOrEquals(int other) {
-            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEquals(name, other)));
         }
 
         public Integers greaterThanOrEquals(int other, String message) {
-            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Integers greaterThanOrEquals(int other, Supplier<RuntimeException> exceptor) {
@@ -731,11 +788,11 @@ public final class Arguments {
         }
 
         public Integers lessThanOrEquals(int other) {
-            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEquals(name, other)));
         }
 
         public Integers lessThanOrEquals(int other, String message) {
-            return lessThanOrEquals(other, defaultExceptor.apply(message));
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Integers lessThanOrEquals(int other, Supplier<RuntimeException> exceptor) {
@@ -752,11 +809,11 @@ public final class Arguments {
         }
 
         public Longs positive() {
-            return positive("Argument must be positive");
+            return positive(defaultExceptor.apply(() -> localMessager.mustBePositive(name)));
         }
 
         public Longs positive(String message) {
-            return positive(defaultExceptor.apply(message));
+            return positive(defaultExceptor.apply(() -> message));
         }
 
         public Longs positive(Supplier<RuntimeException> exceptor) {
@@ -764,11 +821,11 @@ public final class Arguments {
         }
 
         public Longs greaterThan(long other) {
-            return greaterThan(other, "Argument must greater than " + other);
+            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThan(name, other)));
         }
 
         public Longs greaterThan(long other, String message) {
-            return greaterThan(other, defaultExceptor.apply(message));
+            return greaterThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Longs greaterThan(long other, Supplier<RuntimeException> exceptor) {
@@ -779,11 +836,11 @@ public final class Arguments {
         }
 
         public Longs lessThan(long other) {
-            return lessThan(other, "Argument must less than " + other);
+            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThan(name, other)));
         }
 
         public Longs lessThan(long other, String message) {
-            return lessThan(other, defaultExceptor.apply(message));
+            return lessThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Longs lessThan(long other, Supplier<RuntimeException> exceptor) {
@@ -794,11 +851,11 @@ public final class Arguments {
         }
 
         public Longs greaterThanOrEquals(long other) {
-            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEquals(name, other)));
         }
 
         public Longs greaterThanOrEquals(long other, String message) {
-            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Longs greaterThanOrEquals(long other, Supplier<RuntimeException> exceptor) {
@@ -809,11 +866,11 @@ public final class Arguments {
         }
 
         public Longs lessThanOrEquals(long other) {
-            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEquals(name, other)));
         }
 
         public Longs lessThanOrEquals(long other, String message) {
-            return lessThanOrEquals(other, defaultExceptor.apply(message));
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Longs lessThanOrEquals(long other, Supplier<RuntimeException> exceptor) {
@@ -830,11 +887,11 @@ public final class Arguments {
         }
 
         public Doubles positive() {
-            return positive("Argument must be positive");
+            return positive(defaultExceptor.apply(() -> localMessager.mustBePositive(name)));
         }
 
         public Doubles positive(String message) {
-            return positive(defaultExceptor.apply(message));
+            return positive(defaultExceptor.apply(() -> message));
         }
 
         public Doubles positive(Supplier<RuntimeException> exceptor) {
@@ -842,11 +899,11 @@ public final class Arguments {
         }
 
         public Doubles greaterThan(double other) {
-            return greaterThan(other, "Argument must greater than " + other);
+            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThan(name, other)));
         }
 
         public Doubles greaterThan(double other, String message) {
-            return greaterThan(other, defaultExceptor.apply(message));
+            return greaterThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Doubles greaterThan(double other, Supplier<RuntimeException> exceptor) {
@@ -857,11 +914,11 @@ public final class Arguments {
         }
 
         public Doubles lessThan(double other) {
-            return lessThan(other, "Argument must less than " + other);
+            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThan(name, other)));
         }
 
         public Doubles lessThan(double other, String message) {
-            return lessThan(other, defaultExceptor.apply(message));
+            return lessThan(other, defaultExceptor.apply(() -> message));
         }
 
         public Doubles lessThan(double other, Supplier<RuntimeException> exceptor) {
@@ -872,11 +929,11 @@ public final class Arguments {
         }
 
         public Doubles greaterThanOrEquals(double other) {
-            return greaterThanOrEquals(other, "Argument must greater than or equals " + other);
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEquals(name, other)));
         }
 
         public Doubles greaterThanOrEquals(double other, String message) {
-            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Doubles greaterThanOrEquals(double other, Supplier<RuntimeException> exceptor) {
@@ -887,11 +944,11 @@ public final class Arguments {
         }
 
         public Doubles lessThanOrEquals(double other) {
-            return lessThanOrEquals(other, "Argument must less than or equals " + other);
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEquals(name, other)));
         }
 
         public Doubles lessThanOrEquals(double other, String message) {
-            return lessThanOrEquals(other, defaultExceptor.apply(message));
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public Doubles lessThanOrEquals(double other, Supplier<RuntimeException> exceptor) {
@@ -908,11 +965,11 @@ public final class Arguments {
         }
 
         public A greaterThan(O other) {
-            return greaterThan(other, "Argument must greater than other");
+            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOther(name)));
         }
 
         public A greaterThan(O other, String message) {
-            return greaterThan(other, defaultExceptor.apply(message));
+            return greaterThan(other, defaultExceptor.apply(() -> message));
         }
 
         public A greaterThan(O other, Supplier<RuntimeException> exceptor) {
@@ -923,11 +980,11 @@ public final class Arguments {
         }
 
         public A lessThan(O other) {
-            return lessThan(other, "Argument must less than other");
+            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThanOther(name)));
         }
 
         public A lessThan(O other, String message) {
-            return lessThan(other, defaultExceptor.apply(message));
+            return lessThan(other, defaultExceptor.apply(() -> message));
         }
 
         public A lessThan(O other, Supplier<RuntimeException> exceptor) {
@@ -938,11 +995,11 @@ public final class Arguments {
         }
 
         public A greaterThanOrEquals(O other) {
-            return greaterThanOrEquals(other, "Argument must greater than or equals other");
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEqualsOther(name)));
         }
 
         public A greaterThanOrEquals(O other, String message) {
-            return greaterThanOrEquals(other, defaultExceptor.apply(message));
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public A greaterThanOrEquals(O other, Supplier<RuntimeException> exceptor) {
@@ -953,11 +1010,11 @@ public final class Arguments {
         }
 
         public A lessThanOrEquals(O other) {
-            return lessThanOrEquals(other, "Argument must less than or equals other");
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEqualsOther(name)));
         }
 
         public A lessThanOrEquals(O other, String message) {
-            return lessThanOrEquals(other, defaultExceptor.apply(message));
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> message));
         }
 
         public A lessThanOrEquals(O other, Supplier<RuntimeException> exceptor) {
@@ -965,6 +1022,341 @@ public final class Arguments {
                 throw exceptor.get();
             }
             return (A) this;
+        }
+    }
+
+    public interface LocalMessager {
+        default String defaultArgumentName() {
+            return "Argument";
+        }
+
+        default String canNotResetDefaultExceptor() {
+            return "Can not reset default exceptor";
+        }
+
+        default String canNotResetDefaultMessager() {
+            return "Can not reset default messager";
+        }
+
+        default String mustBeNull(String name) {
+            return name + " must be null";
+        }
+
+        default String canNotNull(String name) {
+            return name + " can not null";
+        }
+
+        default String mustEqualsTheOther(String name) {
+            return name + " must equals the other";
+        }
+
+        default String mustNotEqualsTheOther(String name) {
+            return name + " must not equals the other";
+        }
+
+        default String mustInTheOthers(String name) {
+            return name + " must in the others";
+        }
+
+        default String mustNotInTheOthers(String name) {
+            return name + " must not in the others";
+        }
+
+        default String notMeetTheCondition(String name) {
+            return name + " not meet the predicate";
+        }
+
+        default String canNotEmpty(String name) {
+            return name + " can not empty";
+        }
+
+        default String mustHasText(String name) {
+            return name + " must has text";
+        }
+
+        default String canNotContainSpecialCharacters(String name) {
+            return name + " can not contain special characters";
+        }
+
+        default String mustComposeWithLetters(String name) {
+            return name + " must compose with letters";
+        }
+
+        default String mustComposeWithDigits(String name) {
+            return name + " must compose with digits";
+        }
+
+        default String mustComposeWithLettersOrDigits(String name) {
+            return name + " must compose with letters or digits";
+        }
+
+        default String mustMatchesPattern(String name) {
+            return name + " must matches the pattern";
+        }
+
+        default String lengthMustBe(String name, int length) {
+            return name + " length must be " + length;
+        }
+
+        default String lengthMustGreaterThan(String name, int minLength) {
+            return name + " length must greater than " + minLength;
+        }
+
+        default String lengthMustLessThan(String name, int maxLength) {
+            return name + " length must less than " + maxLength;
+        }
+
+        default String canNotContainsNull(String name) {
+            return name + " can not contains null";
+        }
+
+        default String sizeMustBe(String name, int size) {
+            return name + " size must be " + size;
+        }
+
+        default String sizeMustGreaterThan(String name, int minSize) {
+            return name + " size must greater than " + minSize;
+        }
+
+        default String sizeMustLessThan(String name, int maxSize) {
+            return name + " size must less than " + maxSize;
+        }
+
+        default String mustContainsOther(String name) {
+            return name + " must contains other";
+        }
+
+        default String mustContainsAllOthers(String name) {
+            return name + " must contains all others";
+        }
+
+        default String mustContainsKey(String name) {
+            return name + " must contains key";
+        }
+
+        default String mustContainsValue(String name) {
+            return name + " must contains value";
+        }
+
+        default String mustBePositive(String name) {
+            return name + " must be positive";
+        }
+
+        default String mustGreaterThan(String name, long other) {
+            return name + " must greater than " + other;
+        }
+
+        default String mustLessThan(String name, long other) {
+            return name + " must less than " + other;
+        }
+
+        default String mustGreaterThanOrEquals(String name, long other) {
+            return name + " must greater than or equals " + other;
+        }
+
+        default String mustLessThanOrEquals(String name, long other) {
+            return name + " must less than or equals " + other;
+        }
+
+        default String mustGreaterThan(String name, double other) {
+            return name + " must greater than " + other;
+        }
+
+        default String mustLessThan(String name, double other) {
+            return name + " must less than " + other;
+        }
+
+        default String mustGreaterThanOrEquals(String name, double other) {
+            return name + " must greater than or equals " + other;
+        }
+
+        default String mustLessThanOrEquals(String name, double other) {
+            return name + " must less than or equals " + other;
+        }
+
+        default String mustGreaterThanOther(String name) {
+            return name + " must greater than other";
+        }
+
+        default String mustLessThanOther(String name) {
+            return name + " must less than other";
+        }
+
+        default String mustGreaterThanOrEqualsOther(String name) {
+            return name + " must greater than or equals other";
+        }
+
+        default String mustLessThanOrEqualsOther(String name) {
+            return name + " must less than or equals other";
+        }
+    }
+
+    private static class EnMessager implements LocalMessager {
+    }
+
+    private static class CnMessager implements LocalMessager {
+        public String defaultArgumentName() {
+            return "参数";
+        }
+
+        public String canNotResetDefaultExceptor() {
+            return "默认异常产生器不能重复设置";
+        }
+
+        public String canNotResetDefaultMessager() {
+            return "默认消息产生器不能重复设置";
+        }
+
+        public String mustBeNull(String name) {
+            return name + "必须为空";
+        }
+
+        public String canNotNull(String name) {
+            return name + "不能为空";
+        }
+
+        public String mustEqualsTheOther(String name) {
+            return name + "必须相等";
+        }
+
+        public String mustNotEqualsTheOther(String name) {
+            return name + "不能相等";
+        }
+
+        public String mustInTheOthers(String name) {
+            return name + "必须在它们中";
+        }
+
+        public String mustNotInTheOthers(String name) {
+            return name + "不能在它们中";
+        }
+
+        public String notMeetTheCondition(String name) {
+            return name + "不满足条件";
+        }
+
+        public String canNotEmpty(String name) {
+            return name + "不能为空";
+        }
+
+        public String mustHasText(String name) {
+            return name + "必须包含文字";
+        }
+
+        public String canNotContainSpecialCharacters(String name) {
+            return name + "不能包含特殊字符";
+        }
+
+        public String mustComposeWithLetters(String name) {
+            return name + "必须由字母组成";
+        }
+
+        public String mustComposeWithDigits(String name) {
+            return name + "必须由数字组成";
+        }
+
+        public String mustComposeWithLettersOrDigits(String name) {
+            return name + "必须由字母或数字组成";
+        }
+
+        public String mustMatchesPattern(String name) {
+            return name + "必须符合格式";
+        }
+
+        public String lengthMustBe(String name, int length) {
+            return name + "长度必须为" + length;
+        }
+
+        public String lengthMustGreaterThan(String name, int minLength) {
+            return name + "长度必须大于" + minLength;
+        }
+
+        public String lengthMustLessThan(String name, int maxLength) {
+            return name + "长度必须小于" + maxLength;
+        }
+
+        public String canNotContainsNull(String name) {
+            return name + "不能包含空";
+        }
+
+        public String sizeMustBe(String name, int size) {
+            return name + "大小必须为" + size;
+        }
+
+        public String sizeMustGreaterThan(String name, int minSize) {
+            return name + "大小必须大于" + minSize;
+        }
+
+        public String sizeMustLessThan(String name, int maxSize) {
+            return name + "大小必须小于" + maxSize;
+        }
+
+        public String mustContainsOther(String name) {
+            return name + "必须包含它";
+        }
+
+        public String mustContainsAllOthers(String name) {
+            return name + "必须包含它们";
+        }
+
+        public String mustContainsKey(String name) {
+            return name + "必须包含该键";
+        }
+
+        public String mustContainsValue(String name) {
+            return name + "必须包含该值";
+        }
+
+        public String mustBePositive(String name) {
+            return name + "必须为正值";
+        }
+
+        public String mustGreaterThan(String name, long other) {
+            return name + "必须大于" + other;
+        }
+
+        public String mustLessThan(String name, long other) {
+            return name + "必须小于" + other;
+        }
+
+        public String mustGreaterThanOrEquals(String name, long other) {
+            return name + "必须大于或等于" + other;
+        }
+
+        public String mustLessThanOrEquals(String name, long other) {
+            return name + "必须小于或等于" + other;
+        }
+
+        public String mustGreaterThan(String name, double other) {
+            return name + "必须大于" + other;
+        }
+
+        public String mustLessThan(String name, double other) {
+            return name + "必须小于" + other;
+        }
+
+        public String mustGreaterThanOrEquals(String name, double other) {
+            return name + "必须大于或等于" + other;
+        }
+
+        public String mustLessThanOrEquals(String name, double other) {
+            return name + "必须小于或等于" + other;
+        }
+
+        public String mustGreaterThanOther(String name) {
+            return name + "必须大于它";
+        }
+
+        public String mustLessThanOther(String name) {
+            return name + "必须小于它";
+        }
+
+        public String mustGreaterThanOrEqualsOther(String name) {
+            return name + "必须大于等于它";
+        }
+
+        public String mustLessThanOrEqualsOther(String name) {
+            return name + "必须小于等于它";
         }
     }
 

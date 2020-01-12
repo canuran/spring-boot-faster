@@ -1,5 +1,6 @@
 package ewing.faster.security;
 
+import ewing.common.utils.Arguments;
 import ewing.faster.security.vo.AuthorityNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +24,7 @@ public class SecurityUserService implements UserDetailsService {
             throws UsernameNotFoundException {
         // 获取用户信息
         SecurityUser securityUser = securityService.getSecurityUser(username);
-        if (securityUser == null) {
-            throw new UsernameNotFoundException("用户名不存在或已删除。");
-        }
+        Arguments.of(securityUser).name("用户").notNull(() -> new UsernameNotFoundException("用户名不存在或已删除"));
 
         // 获取用户功能权限
         List<AuthorityNode> authorities = securityService.getUserAuthorities(securityUser.getUserId());
