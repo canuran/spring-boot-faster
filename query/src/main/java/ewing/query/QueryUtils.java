@@ -1,7 +1,6 @@
 package ewing.query;
 
 import com.mysema.commons.lang.Assert;
-import com.querydsl.core.FetchableQuery;
 import com.querydsl.core.JoinExpression;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupExpression;
@@ -15,8 +14,6 @@ import com.querydsl.core.util.ReflectionUtils;
 import com.querydsl.sql.PrimaryKey;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
-import ewing.query.paging.Page;
-import ewing.query.paging.Pager;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -46,33 +43,6 @@ public class QueryUtils {
      */
     public static <T> Expression<T> constant(T value) {
         return value == null ? Expressions.nullExpression() : Expressions.constant(value);
-    }
-
-    /**
-     * 使用分页参数和查询对象进行分页查询。
-     * <p>
-     * 分页是多次查询，确保开启事务！
-     */
-    public static <T> Page<T> queryPage(FetchableQuery<T, ?> query, Pager pager) {
-        if (pager == null) {
-            return new Page<>(query.fetch());
-        } else if (pager.isCount()) {
-            Page<T> page = new Page<>();
-            page.setTotal(query.fetchCount());
-            // 能查到数据才进行查询
-            if (pager.getLimit() > 0 && page.getTotal() > 0 && page.getTotal() > pager.getOffset()) {
-                query.limit(pager.getLimit()).offset(pager.getOffset());
-                page.setRows(query.fetch());
-                return page;
-            } else {
-                page.setRows(Collections.emptyList());
-                return page;
-            }
-        } else {
-            List<T> rows = pager.getLimit() > 0 ? query.limit(pager.getLimit())
-                    .offset(pager.getOffset()).fetch() : Collections.emptyList();
-            return new Page<>(rows);
-        }
     }
 
     /**

@@ -10,7 +10,6 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import ewing.query.clause.BaseQuery;
 import ewing.query.paging.Page;
-import ewing.query.paging.Pager;
 import ewing.query.querydsldemo.entity.DemoAddress;
 import ewing.query.querydsldemo.entity.DemoUser;
 import ewing.query.querydsldemo.query.QDemoAddress;
@@ -164,11 +163,6 @@ public class QuerydslDemos {
                 .fetch();
         System.out.println(demoUsers);
 
-        // 查询分页
-        Page<DemoUser> demoUserPage = queryFactory.selectFrom(demoUser)
-                .fetchPage(Pager.of(1, 100));
-        System.out.println(demoUserPage);
-
         // 字段自适应对象属性
         List<DemoUserSimple> demoUserSimples = queryFactory.selectFrom(demoUser)
                 .fitBean(DemoUserSimple.class)
@@ -183,6 +177,41 @@ public class QuerydslDemos {
                 .on(demoAddress.addressId.eq(demoUser.addressId))
                 .fetch();
         System.out.println(addressAndUser);
+    }
+
+    /**
+     * 分页查询，更多详见BaseQuery类。
+     */
+    @Test
+    public void queryPage() {
+        // 查询分页
+        Page<DemoUser> demoUserPage = queryFactory.selectFrom(demoUser)
+                .pageIfNotnull(1, 1)
+                .fetchPage();
+        System.out.println(demoUserPage);
+
+        // 只统计总数
+        demoUserPage = queryFactory.selectFrom(demoUser)
+                .limit(0)
+                .fetchPage();
+        System.out.println(demoUserPage);
+
+        // 只查询数据
+        demoUserPage = queryFactory.selectFrom(demoUser)
+                .countIfNotNull(false)
+                .fetchPage();
+        System.out.println(demoUserPage);
+
+        // 查询全部
+        demoUserPage = queryFactory.selectFrom(demoUser)
+                .fetchPage();
+        System.out.println(demoUserPage);
+
+        // 当没有更多数据时，只做统计，不再查询数据
+        demoUserPage = queryFactory.selectFrom(demoUser)
+                .offset(100)
+                .fetchPage();
+        System.out.println(demoUserPage);
     }
 
     /**
@@ -242,7 +271,8 @@ public class QuerydslDemos {
                 .orderBy(orderParam)
 
                 // 获取结果
-                .fetchPage(Pager.of(1, 100));
+                .pageIfNotnull(1, 100)
+                .fetchPage();
         System.out.println(tuplePage);
     }
 
@@ -285,7 +315,8 @@ public class QuerydslDemos {
                         SQLExpressions.selectFrom(demoUser)
                                 .where(demoUser.gender.eq(2))
                 ).as(demoUser))
-                .fetchPage(new Pager());
+                .limit(10)
+                .fetchPage();
         System.out.println(userPage);
 
         // 复杂UNION，定义别名并使结果列和别名一致
@@ -307,7 +338,8 @@ public class QuerydslDemos {
                                 .on(demoUser.addressId.eq(demoAddress.addressId))
                                 .where(demoUser.gender.eq(2)))
                         .as(aliasName))
-                .fetchPage(new Pager());
+
+                .fetchPage();
         System.out.println(detailPage);
     }
 

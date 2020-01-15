@@ -52,6 +52,10 @@ public class Page<T> implements Serializable {
         return this;
     }
 
+    public static <E> Page<E> emptyPage() {
+        return new Page<>();
+    }
+
     @Override
     public String toString() {
         return "Page{" +

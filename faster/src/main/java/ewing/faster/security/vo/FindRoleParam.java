@@ -1,8 +1,8 @@
 package ewing.faster.security.vo;
 
-import ewing.query.paging.Pager;
+import ewing.query.paging.BasePager;
 
-public class FindRoleParam extends Pager {
+public class FindRoleParam extends BasePager {
 
     private String search;
 

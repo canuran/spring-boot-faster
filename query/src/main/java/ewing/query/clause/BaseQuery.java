@@ -1,22 +1,22 @@
 package ewing.query.clause;
 
 import com.mysema.commons.lang.Assert;
-import com.querydsl.core.DefaultQueryMetadata;
-import com.querydsl.core.JoinExpression;
-import com.querydsl.core.QueryMetadata;
-import com.querydsl.core.Tuple;
+import com.querydsl.core.*;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.AbstractSQLQuery;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPathBase;
+import com.querydsl.sql.SQLTemplates;
 import ewing.query.QueryUtils;
 import ewing.query.paging.Page;
-import ewing.query.paging.Pager;
+import ewing.query.paging.Paging;
 
 import javax.inject.Provider;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,6 +27,15 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("unchecked")
 public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
+    private static final Configuration DEFAULT_CONFIG = new Configuration(SQLTemplates.DEFAULT);
+
+    private boolean pageCount = true;
+    private long pageLimit = Integer.MAX_VALUE;
+    private Provider<Connection> connProvider;
+
+    public BaseQuery() {
+        super((Connection) null, DEFAULT_CONFIG, new DefaultQueryMetadata());
+    }
 
     public BaseQuery(Connection conn, Configuration configuration) {
         super(conn, configuration, new DefaultQueryMetadata());
@@ -34,6 +43,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     public BaseQuery(Provider<Connection> connProvider, Configuration configuration) {
         super(connProvider, configuration, new DefaultQueryMetadata());
+        this.connProvider = connProvider;
     }
 
     public BaseQuery(Connection conn, Configuration configuration, QueryMetadata metadata) {
@@ -43,6 +53,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     @Override
     public BaseQuery<E> clone(Connection conn) {
         BaseQuery<E> query = new BaseQuery<>(conn, getConfiguration(), getMetadata().clone());
+        query.connProvider = connProvider;
+        query.pageCount = pageCount;
+        query.pageLimit = pageLimit;
         query.clone(this);
         return query;
     }
@@ -168,6 +181,51 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     }
 
     /**
+     * 动态设置分页参数。
+     */
+    public BaseQuery<E> pageIfNotnull(Number page, Number size) {
+        if (page != null && size != null) {
+            long limit = size.longValue();
+            offset(page.longValue() * limit - limit).limit(limit);
+        }
+        return this;
+    }
+
+    /**
+     * 动态设置分页对象参数。
+     */
+    public BaseQuery<E> pagingIfNotnull(Paging paging) {
+        if (paging != null) {
+            this.pageCount = paging.isCount();
+            offset(paging.getOffset()).limit(paging.getLimit());
+        }
+        return this;
+    }
+
+    /**
+     * 设置分页时是否统计总数，默认统计总数。
+     */
+    public BaseQuery<E> countIfNotNull(Boolean count) {
+        if (count != null) {
+            this.pageCount = count;
+        }
+        return this;
+    }
+
+    /**
+     * 设置查询数量，大于0分页时才查询数据。
+     */
+    public BaseQuery<E> limit(long limit) {
+        if (limit > 0) {
+            super.limit(limit);
+        } else if (limit < 0) {
+            throw new IllegalArgumentException("Limit can not be negative");
+        }
+        this.pageLimit = limit;
+        return this;
+    }
+
+    /**
      * 如果有Limit条件添加Limit。
      */
     public BaseQuery<E> limitIfNotNull(Number limit) {
@@ -205,11 +263,27 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     /**
      * 获取分页结果。
-     * <p>
-     * 分页是多次查询，确保开启事务！
      */
-    public Page<E> fetchPage(Pager pager) {
-        return QueryUtils.queryPage(this, pager);
+    public Page<E> fetchPage() {
+        if (pageCount) {
+            long total = fetchCount();
+            if (pageLimit > 0L) {
+                QueryModifiers qm = getMetadata().getModifiers();
+                long offset = qm == null || qm.getOffset() == null ? 0L : qm.getOffset();
+                if (total > 0L && total > offset) {
+                    Connection conn = Objects.requireNonNull(connProvider,
+                            "No connection provided").get();
+                    return new Page<>(total, clone(conn).fetch());
+                }
+            }
+            return new Page<>(total, Collections.emptyList());
+        } else {
+            if (pageLimit > 0L) {
+                return new Page<>(fetch());
+            } else {
+                return Page.emptyPage();
+            }
+        }
     }
 
 }
