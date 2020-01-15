@@ -7,25 +7,25 @@ import java.io.Serializable;
  *
  * @author Ewing
  **/
-public class BasePager implements Serializable, Paging {
+public class OffsetPager implements Serializable, Paging {
     private static final long serialVersionUID = 1L;
 
-    public static final BasePager COUNT_ONLY = new BasePager(0, 0, true);
-    public static final BasePager ROWS_ONLY = new BasePager(0, Integer.MAX_VALUE, false);
+    public static final OffsetPager COUNT_ONLY = new OffsetPager(0, 0, true);
+    public static final OffsetPager ROWS_ONLY = new OffsetPager(0, Integer.MAX_VALUE, false);
 
     private long offset = 0;
     private long limit = 100;
     private boolean count = true;
 
-    public BasePager() {
+    public OffsetPager() {
     }
 
-    public BasePager(long offset, long limit) {
+    public OffsetPager(long offset, long limit) {
         this.offset = offset;
         this.limit = limit;
     }
 
-    public BasePager(long offset, long limit, boolean count) {
+    public OffsetPager(long offset, long limit, boolean count) {
         this.offset = offset;
         this.limit = limit;
         this.count = count;
@@ -57,7 +57,7 @@ public class BasePager implements Serializable, Paging {
 
     @Override
     public String toString() {
-        return "BasePager{" +
+        return "OffsetPager{" +
                 "offset=" + offset +
                 ", limit=" + limit +
                 ", count=" + count +
