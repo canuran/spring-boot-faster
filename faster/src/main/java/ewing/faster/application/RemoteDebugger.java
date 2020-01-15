@@ -99,7 +99,7 @@ public class RemoteDebugger {
     private String methodExecute(@RequestBody String expression) {
         Arguments.of(expression).hasText("表达式不能为空！");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        Arguments.of(expression).matches(BEAN_METHOD, "表达式格式不正确！");
+        Arguments.of(matcher.matches()).equalsTo(true, "表达式格式不正确！");
 
         // 根据名称获取Bean
         String classOrBeanName = matcher.group(1);
