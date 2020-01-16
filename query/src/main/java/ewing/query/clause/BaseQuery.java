@@ -28,9 +28,10 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     private static final Configuration DEFAULT_CONFIG = new Configuration(SQLTemplates.DEFAULT);
+    private static final long NO_LIMIT = Integer.MAX_VALUE;
 
     private boolean pageCount = true;
-    private long pageLimit = Integer.MAX_VALUE;
+    private long pageLimit = NO_LIMIT;
     private Provider<Connection> connProvider;
 
     public BaseQuery() {
@@ -266,8 +267,10 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     public Page<E> fetchPage() {
         if (pageCount) {
-            long total = fetchCount();
-            if (pageLimit > 0L) {
+            if (pageLimit >= NO_LIMIT) {
+                return new Page<>(fetch());
+            } else if (pageLimit > 0L) {
+                long total = fetchCount();
                 QueryModifiers qm = getMetadata().getModifiers();
                 long offset = qm == null || qm.getOffset() == null ? 0L : qm.getOffset();
                 if (total > 0L && total > offset) {
@@ -276,13 +279,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
                     return new Page<>(total, clone(conn).fetch());
                 }
             }
-            return new Page<>(total, Collections.emptyList());
+            return new Page<>(fetchCount(), Collections.emptyList());
         } else {
-            if (pageLimit > 0L) {
-                return new Page<>(fetch());
-            } else {
-                return Page.emptyPage();
-            }
+            return pageLimit > 0L ? new Page<>(fetch()) : Page.emptyPage();
         }
     }
 
