@@ -186,7 +186,7 @@ public class QuerydslDemos {
     public void queryPage() {
         // 查询分页
         Page<DemoUser> demoUserPage = queryFactory.selectFrom(demoUser)
-                .pageIfNotnull(1, 1)
+                .pagingIfNotnull(1, 1)
                 .fetchPage();
         System.out.println(demoUserPage);
 
@@ -271,7 +271,7 @@ public class QuerydslDemos {
                 .orderBy(orderParam)
 
                 // 获取结果
-                .pageIfNotnull(1, 100)
+                .pagingIfNotnull(1, 100)
                 .fetchPage();
         System.out.println(tuplePage);
     }

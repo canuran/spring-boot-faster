@@ -183,7 +183,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 动态设置分页参数。
      */
-    public BaseQuery<E> pageIfNotnull(Number page, Number size) {
+    public BaseQuery<E> pagingIfNotnull(Number page, Number size) {
         if (page != null && size != null) {
             long limit = size.longValue();
             offset(page.longValue() * limit - limit).limit(limit);
