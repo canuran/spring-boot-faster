@@ -216,9 +216,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 设置分页时是否查询数据，默认查询数据。
      */
-    public BaseQuery<E> pageFetchRows(Boolean pageCountRows) {
-        if (pageCountRows != null) {
-            this.pageCountRows = pageCountRows;
+    public BaseQuery<E> pageFetchRows(Boolean pageFetchRows) {
+        if (pageFetchRows != null) {
+            this.pageFetchRows = pageFetchRows;
         }
         return this;
     }
