@@ -1,7 +1,7 @@
 package ewing.query.paging;
 
 /**
- * 请输入描述说明。
+ * 分页接口。
  *
  * @author caiyouyuan
  * @since 2020年01月16日
