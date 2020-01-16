@@ -10,12 +10,13 @@ import java.io.Serializable;
 public class OffsetPager implements Serializable, Paging {
     private static final long serialVersionUID = 1L;
 
-    public static final OffsetPager COUNT_ONLY = new OffsetPager(0, 0, true);
-    public static final OffsetPager ROWS_ONLY = new OffsetPager(0, Integer.MAX_VALUE, false);
+    public static final OffsetPager COUNT_ONLY = new OffsetPager(0, 0, true, false);
+    public static final OffsetPager ROWS_ONLY = new OffsetPager(0, 0, false, true);
 
     private long offset = 0;
     private long limit = 100;
-    private boolean count = true;
+    private boolean countRows = true;
+    private boolean fetchRows = true;
 
     public OffsetPager() {
     }
@@ -25,12 +26,14 @@ public class OffsetPager implements Serializable, Paging {
         this.limit = limit;
     }
 
-    public OffsetPager(long offset, long limit, boolean count) {
+    public OffsetPager(long offset, long limit, boolean countRows, boolean fetchRows) {
         this.offset = offset;
         this.limit = limit;
-        this.count = count;
+        this.countRows = countRows;
+        this.fetchRows = fetchRows;
     }
 
+    @Override
     public long getOffset() {
         return offset;
     }
@@ -39,6 +42,7 @@ public class OffsetPager implements Serializable, Paging {
         this.offset = offset;
     }
 
+    @Override
     public long getLimit() {
         return limit;
     }
@@ -47,12 +51,22 @@ public class OffsetPager implements Serializable, Paging {
         this.limit = limit;
     }
 
-    public boolean isCount() {
-        return count;
+    @Override
+    public boolean isCountRows() {
+        return countRows;
     }
 
-    public void setCount(boolean count) {
-        this.count = count;
+    public void setCountRows(boolean countRows) {
+        this.countRows = countRows;
+    }
+
+    @Override
+    public boolean isFetchRows() {
+        return fetchRows;
+    }
+
+    public void setFetchRows(boolean fetchRows) {
+        this.fetchRows = fetchRows;
     }
 
     @Override
@@ -60,7 +74,8 @@ public class OffsetPager implements Serializable, Paging {
         return "OffsetPager{" +
                 "offset=" + offset +
                 ", limit=" + limit +
-                ", count=" + count +
+                ", countRows=" + countRows +
+                ", fetchRows=" + fetchRows +
                 '}';
     }
 }

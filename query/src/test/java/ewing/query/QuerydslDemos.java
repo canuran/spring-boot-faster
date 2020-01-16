@@ -192,13 +192,13 @@ public class QuerydslDemos {
 
         // 只统计总数
         demoUserPage = queryFactory.selectFrom(demoUser)
-                .limit(0)
+                .pageFetchRows(false)
                 .fetchPage();
         System.out.println(demoUserPage);
 
         // 只查询数据
         demoUserPage = queryFactory.selectFrom(demoUser)
-                .countIfNotNull(false)
+                .pageCountRows(false)
                 .fetchPage();
         System.out.println(demoUserPage);
 

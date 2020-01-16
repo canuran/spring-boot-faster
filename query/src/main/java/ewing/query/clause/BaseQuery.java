@@ -28,10 +28,9 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     private static final Configuration DEFAULT_CONFIG = new Configuration(SQLTemplates.DEFAULT);
-    private static final long NO_LIMIT = Integer.MAX_VALUE;
 
-    private boolean pageCount = true;
-    private long pageLimit = NO_LIMIT;
+    private boolean pageCountRows = true;
+    private boolean pageFetchRows = true;
     private Provider<Connection> connProvider;
 
     public BaseQuery() {
@@ -55,8 +54,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     public BaseQuery<E> clone(Connection conn) {
         BaseQuery<E> query = new BaseQuery<>(conn, getConfiguration(), getMetadata().clone());
         query.connProvider = connProvider;
-        query.pageCount = pageCount;
-        query.pageLimit = pageLimit;
+        query.pageCountRows = pageCountRows;
+        query.pageFetchRows = pageFetchRows;
         query.clone(this);
         return query;
     }
@@ -197,7 +196,8 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      */
     public BaseQuery<E> pagingIfNotnull(Paging paging) {
         if (paging != null) {
-            this.pageCount = paging.isCount();
+            this.pageCountRows = paging.isCountRows();
+            this.pageFetchRows = paging.isFetchRows();
             offset(paging.getOffset()).limit(paging.getLimit());
         }
         return this;
@@ -206,23 +206,30 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     /**
      * 设置分页时是否统计总数，默认统计总数。
      */
-    public BaseQuery<E> countIfNotNull(Boolean count) {
-        if (count != null) {
-            this.pageCount = count;
+    public BaseQuery<E> pageCountRows(Boolean pageCountRows) {
+        if (pageCountRows != null) {
+            this.pageCountRows = pageCountRows;
         }
         return this;
     }
 
     /**
-     * 设置查询数量，大于0分页时才查询数据。
+     * 设置分页时是否查询数据，默认查询数据。
+     */
+    public BaseQuery<E> pageFetchRows(Boolean pageCountRows) {
+        if (pageCountRows != null) {
+            this.pageCountRows = pageCountRows;
+        }
+        return this;
+    }
+
+    /**
+     * 设置查询的数量。
      */
     public BaseQuery<E> limit(long limit) {
         if (limit > 0) {
             super.limit(limit);
-        } else if (limit < 0) {
-            throw new IllegalArgumentException("Limit can not be negative");
         }
-        this.pageLimit = limit;
         return this;
     }
 
@@ -266,11 +273,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
      * 获取分页结果。
      */
     public Page<E> fetchPage() {
-        if (pageCount) {
-            if (pageLimit >= NO_LIMIT) {
-                return new Page<>(fetch());
-            } else if (pageLimit > 0L) {
-                long total = fetchCount();
+        if (pageCountRows) {
+            long total = fetchCount();
+            if (pageFetchRows) {
                 QueryModifiers qm = getMetadata().getModifiers();
                 long offset = qm == null || qm.getOffset() == null ? 0L : qm.getOffset();
                 if (total > 0L && total > offset) {
@@ -279,9 +284,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
                     return new Page<>(total, clone(conn).fetch());
                 }
             }
-            return new Page<>(fetchCount(), Collections.emptyList());
+            return new Page<>(total, Collections.emptyList());
         } else {
-            return pageLimit > 0L ? new Page<>(fetch()) : Page.emptyPage();
+            return pageFetchRows ? new Page<>(fetch()) : Page.emptyPage();
         }
     }
 

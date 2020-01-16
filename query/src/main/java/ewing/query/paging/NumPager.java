@@ -10,12 +10,13 @@ import java.io.Serializable;
 public class NumPager implements Serializable, Paging {
     private static final long serialVersionUID = 1L;
 
-    public static final NumPager COUNT_ONLY = new NumPager(1, 0, true);
-    public static final NumPager ROWS_ONLY = new NumPager(1, Integer.MAX_VALUE, false);
+    public static final NumPager COUNT_ONLY = new NumPager(1, 0, true, false);
+    public static final NumPager ROWS_ONLY = new NumPager(1, 0, false, true);
 
     private long page = 1;
     private long size = 100;
-    private boolean count = true;
+    private boolean countRows = true;
+    private boolean fetchRows = true;
 
     public NumPager() {
     }
@@ -25,26 +26,39 @@ public class NumPager implements Serializable, Paging {
         this.size = size;
     }
 
-    public NumPager(long page, long size, boolean count) {
+    public NumPager(long page, long size, boolean countRows, boolean fetchRows) {
         this.page = page;
         this.size = size;
-        this.count = count;
+        this.countRows = countRows;
+        this.fetchRows = fetchRows;
     }
 
+    @Override
     public long getOffset() {
         return page * size - size;
     }
 
+    @Override
     public long getLimit() {
         return size;
     }
 
-    public boolean isCount() {
-        return count;
+    @Override
+    public boolean isCountRows() {
+        return countRows;
     }
 
-    public void setCount(boolean count) {
-        this.count = count;
+    public void setCountRows(boolean countRows) {
+        this.countRows = countRows;
+    }
+
+    @Override
+    public boolean isFetchRows() {
+        return fetchRows;
+    }
+
+    public void setFetchRows(boolean fetchRows) {
+        this.fetchRows = fetchRows;
     }
 
     public long getPage() {
@@ -68,7 +82,8 @@ public class NumPager implements Serializable, Paging {
         return "NumPager{" +
                 "page=" + page +
                 ", size=" + size +
-                ", count=" + count +
+                ", countRows=" + countRows +
+                ", fetchRows=" + fetchRows +
                 '}';
     }
 }

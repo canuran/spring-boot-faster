@@ -8,7 +8,11 @@ package ewing.query.paging;
  */
 public interface Paging {
 
-    default boolean isCount() {
+    default boolean isCountRows() {
+        return true;
+    }
+
+    default boolean isFetchRows() {
         return true;
     }
 
