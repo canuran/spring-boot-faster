@@ -46,38 +46,37 @@ public class RemoteDebugger {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)\\((.*)\\)", Pattern.DOTALL);
+    private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)[（(](.*)[)）](\\d*)", Pattern.DOTALL);
 
     @RequestMapping("/debugger")
     @ApiOperation(value = "在线调试")
-    public ResponseEntity home(@RequestParam(value = "expression", required = false)
-                                       String expression) throws Exception {
+    public ResponseEntity home(@RequestParam(value = "expression", required = false) String expression) {
         String page = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
+                "<html lang='en'>\n" +
                 "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta charset='UTF-8'>\n" +
                 "    <title>在线调试</title>\n" +
                 "</head>\n" +
                 "<body>\n" +
                 "\n" +
-                "<form method=\"post\" action=\"\">\n" +
+                "<form method='post' action=''>\n" +
                 "    <label>在线调试</label>\n" +
                 "    <br/>\n" +
-                "    <textarea rows=\"10\" cols=\"100\" name=\"expression\" placeholder=\"" +
-                "Spring Bean 方法调用：userServiceImpl.findUser({id:123})\n" +
-                "用 IDEA 复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
+                "    <textarea rows='10' cols='120' name='expression' placeholder='" +
+                "用 Spring bean name 调用：userServiceImpl.findUser({id:123})\n" +
+                "用 IDEA 右键复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
                 "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
-                "方法参数为去掉中括号的JSON数组\">";
+                "方法参数为去掉中括号的JSON数组，多个方法匹配则在表达式最后加数字指定调用哪个方法'>";
 
         // 写入参数
         page += expression == null ? "" : expression.trim();
 
         page += "</textarea>\n" +
                 "    <br/>\n" +
-                "    <input type=\"submit\"  value=\"　提　交　\"/>\n" +
+                "    <input type='submit'  value='调用方法' style='width:863px'/>\n" +
                 "</form>\n" +
                 "<br/>\n" +
-                "<textarea rows=\"20\" cols=\"100\" id=\"result\" placeholder=\"调用返回的结果\">";
+                "<textarea rows='20' cols='120' placeholder='调用返回的结果'>";
 
         // 写入返回值
         try {
@@ -85,7 +84,7 @@ public class RemoteDebugger {
                 page += methodExecute(expression);
             }
         } catch (Exception e) {
-            page += e.getMessage();
+            page += "调用异常：" + e.getMessage();
         }
 
         page += "</textarea>\n" +
@@ -97,6 +96,14 @@ public class RemoteDebugger {
                 .body(page);
     }
 
+    /***
+     * 可执行项目中的任意方法，优先调用 Spring 代理的方法。
+     *
+     * @param expression 用 Spring bean name 调用：userServiceImpl.findUser({name:"元宝"})
+     *                   用 IDEA 右键复制方法引用：com.ewing.UserServiceImpl#findUser({name:"元宝"})
+     *                   静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)
+     *                   方法参数为去掉中括号的JSON数组，多个方法匹配则在表达式最后加数字指定调用哪个方法。
+     */
     private String methodExecute(String expression) {
         Arguments.of(expression).hasText("表达式不能为空");
         Matcher matcher = BEAN_METHOD.matcher(expression);
@@ -105,63 +112,94 @@ public class RemoteDebugger {
         String classOrBeanName = matcher.group(1);
         String methodName = matcher.group(2);
         JsonArray arguments = getJsonArray("[" + matcher.group(3) + "]");
+        String indexGroup = matcher.group(4);
+        boolean hasIndexGroup = StringUtils.hasText(indexGroup);
+        int methodIndex = hasIndexGroup ? Integer.valueOf(indexGroup) : 0;
 
         // 根据名称获取Bean
         TargetInstance targetInstance = getTargetInstance(classOrBeanName);
 
-        TargetInvoker targetInvoker = getTargetInvoker(targetInstance.advisedTargetClass, methodName, arguments);
-        if (targetInvoker.method != null) {
-            return GsonUtils.toJson(targetInvoker.invoke(targetInstance.advisedTarget));
-        } else {
-            targetInvoker = getTargetInvoker(targetInstance.targetClass, methodName, arguments);
-            Arguments.of(targetInvoker.method).notNull("找不到满足参数的方法：" + methodName);
-            return GsonUtils.toJson(targetInvoker.invoke(targetInstance.target));
+        List<TargetInvoker> targetInvokers = getTargetInvokers(targetInstance, methodName, arguments);
+
+        if (targetInvokers.size() > 1 && !hasIndexGroup) {
+            StringBuilder resultBuilder = new StringBuilder("请在输入表达式之后加以下数字来选择调用的方法：");
+            for (int i = 0; i < targetInvokers.size(); i++) {
+                resultBuilder.append('\n').append(i).append(':').append(targetInvokers.get(i).method);
+            }
+            return resultBuilder.toString();
+        }
+
+        Arguments.of(targetInvokers).notEmpty("找不到满足参数的方法：" + methodName)
+                .minSize(methodIndex + 1, "没有第 " + methodIndex + " 个可调用的方法");
+
+        Object result = targetInvokers.get(methodIndex).invoke();
+        try {
+            return GsonUtils.toJson(result);
+        } catch (Exception e) {
+            return result.toString();
         }
     }
 
     private static class TargetInstance {
-        Object target;
+        Object originTarget;
         Object advisedTarget;
-        Class<?> targetClass;
-        Class<?> advisedTargetClass;
+        Class originTargetClass;
+        Class advisedTargetClass;
     }
 
-    private TargetInvoker getTargetInvoker(Class<?> clazz, String methodName, JsonArray arguments) {
-        TargetInvoker targetInvoker = new TargetInvoker();
-        if (clazz == null) {
-            return targetInvoker;
+    private List<TargetInvoker> getTargetInvokers(TargetInstance targetInstance, String methodName, JsonArray arguments) {
+        List<TargetInvoker> targetInvokers = new ArrayList<>();
+        if (targetInstance == null) {
+            return targetInvokers;
         }
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getName().equals(methodName)) {
-                Type[] types = method.getGenericParameterTypes();
-                if (types.length == arguments.size()) {
-                    // 参数转换无异常表示参数匹配
-                    Iterator<JsonElement> elementIterator = arguments.iterator();
-                    try {
-                        List<Object> args = new ArrayList<>(types.length);
-                        for (Type type : types) {
-                            Object arg = GsonUtils.getGson().fromJson(elementIterator.next(), type);
-                            args.add(arg);
-                        }
-                        targetInvoker.arguments = args;
-                    } catch (Exception e) {
-                        continue;
-                    }
-                    Arguments.of(targetInvoker.method).isNull("有多个可调用的方法：" + methodName);
-                    targetInvoker.method = method;
+
+        Object[] targets = {targetInstance.advisedTarget, targetInstance.originTarget};
+        Class[] classes = {targetInstance.advisedTargetClass, targetInstance.originTargetClass};
+
+        for (int i = 0; i < classes.length && targetInvokers.isEmpty(); i++) {
+            Class clazz = classes[i];
+            if (clazz == null) {
+                continue;
+            }
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (!method.getName().equals(methodName)) {
+                    continue;
                 }
+                Type[] types = method.getGenericParameterTypes();
+                if (types.length != arguments.size()) {
+                    continue;
+                }
+                // 参数转换无异常表示参数匹配
+                Iterator<JsonElement> elementIterator = arguments.iterator();
+                try {
+                    List<Object> args = new ArrayList<>(types.length);
+                    for (Type type : types) {
+                        Object arg = GsonUtils.getGson().fromJson(elementIterator.next(), type);
+                        args.add(arg);
+                    }
+
+                    TargetInvoker targetInvoker = new TargetInvoker();
+                    targetInvoker.arguments = args;
+                    targetInvoker.method = method;
+                    targetInvoker.target = targets[i];
+                    targetInvokers.add(targetInvoker);
+                } catch (Exception e) {
+                    // 继续判断下一个方法是否满足条件
+                }
+
             }
         }
-        return targetInvoker;
+        return targetInvokers;
     }
 
     private static class TargetInvoker {
         Method method;
+        Object target;
         List<Object> arguments;
 
-        Object invoke(Object target) {
+        Object invoke() {
             Method methodPresent = Objects.requireNonNull(this.method, "方法不能为空");
-            Object invokeTarget = target;
+            Object invokeTarget = this.target;
             try {
                 if (Modifier.isStatic(methodPresent.getModifiers())) {
                     invokeTarget = methodPresent.getDeclaringClass();
@@ -171,9 +209,11 @@ public class RemoteDebugger {
                 Object targetPresent = Objects.requireNonNull(invokeTarget, "实例不能为空");
 
                 methodPresent.setAccessible(true);
-                return arguments == null || arguments.isEmpty() ?
+                Object result = arguments == null || arguments.isEmpty() ?
                         methodPresent.invoke(targetPresent) :
                         methodPresent.invoke(targetPresent, arguments.toArray());
+
+                return methodPresent.getReturnType().equals(Void.TYPE) ? "调用成功，该方法无返回值" : result;
             } catch (ReflectiveOperationException e) {
                 LOGGER.error("调用方法失败", e);
                 throw new RuntimeException(e);
@@ -199,14 +239,14 @@ public class RemoteDebugger {
 
         if (targetInstance.advisedTarget == null) {
             try {
-                targetInstance.targetClass = Class.forName(classOrBeanName);
+                targetInstance.originTargetClass = Class.forName(classOrBeanName);
             } catch (Exception e) {
                 throw new RuntimeException("找不到类：" + classOrBeanName);
             }
         } else {
             targetInstance.advisedTargetClass = targetInstance.advisedTarget.getClass();
-            targetInstance.target = AopProxyUtils.getSingletonTarget(targetInstance.advisedTarget);
-            targetInstance.targetClass = AopProxyUtils.ultimateTargetClass(targetInstance.advisedTarget);
+            targetInstance.originTarget = AopProxyUtils.getSingletonTarget(targetInstance.advisedTarget);
+            targetInstance.originTargetClass = AopProxyUtils.ultimateTargetClass(targetInstance.advisedTarget);
         }
         return targetInstance;
     }
