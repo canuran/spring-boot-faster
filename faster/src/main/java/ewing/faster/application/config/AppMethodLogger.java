@@ -26,10 +26,7 @@ public class AppMethodLogger {
             .getLogger(AppMethodLogger.class.getSimpleName());
 
     @Around("execution(* ewing.faster..*.*(..))" +
-            " && (@within(org.springframework.stereotype.Component)" +
-            " || @within(org.springframework.stereotype.Controller)" +
-            " || @within(org.springframework.stereotype.Service)" +
-            " || @within(org.springframework.stereotype.Repository)" +
+            " && (@within(org.springframework.stereotype.Controller)" +
             " || @within(org.springframework.web.bind.annotation.RestController))")
     public Object logging(ProceedingJoinPoint point) throws Throwable {
         Object result;
