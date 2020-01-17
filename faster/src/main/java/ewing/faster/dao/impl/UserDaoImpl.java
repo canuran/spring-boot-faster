@@ -49,6 +49,7 @@ public class UserDaoImpl implements UserDao {
                 .leftJoin(role).on(userRole.roleId.eq(role.roleId))
                 .fetch();
 
+
         return new Page<>(total, QueryUtils.rowsToTree(
                 rows, qUserWithRole, role,
                 User::getUserId,

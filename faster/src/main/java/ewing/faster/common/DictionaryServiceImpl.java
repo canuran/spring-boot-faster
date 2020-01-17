@@ -83,10 +83,10 @@ public class DictionaryServiceImpl implements DictionaryService {
         Arguments.of(dictionaryParam).name("字典项").notNull();
 
         Arguments.of(dictionaryParam.getName()).name("字典名")
-                .hasText().minLength(2).maxLength(32).normalChars();
+                .hasText().minLength(1).maxLength(32).normalChars();
 
         Arguments.of(dictionaryParam.getValue()).name("字典值")
-                .hasText().minLength(2).maxLength(32).normalChars();
+                .hasText().minLength(1).maxLength(32).normalChars();
     }
 
     @Override
