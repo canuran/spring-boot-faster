@@ -134,9 +134,9 @@ public class RemoteDebugger {
 
         Object result = targetInvokers.get(methodIndex).invoke();
         try {
-            return GsonUtils.toJson(result);
+            return result instanceof String ? (String) result : GsonUtils.toJson(result);
         } catch (Exception e) {
-            return result.toString();
+            return String.valueOf(result);
         }
     }
 
