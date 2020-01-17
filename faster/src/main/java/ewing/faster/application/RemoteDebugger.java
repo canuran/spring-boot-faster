@@ -6,6 +6,8 @@ import ewing.common.utils.Arguments;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -24,10 +25,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 调试工具，可调用项目中的任意方法。
@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(name = "debugger.enable", havingValue = "true")
 @Api(tags = "debugger", description = "调试接口")
 public class RemoteDebugger {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteDebugger.class);
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -64,9 +65,9 @@ public class RemoteDebugger {
                 "    <br/>\n" +
                 "    <textarea rows=\"10\" cols=\"100\" name=\"expression\" placeholder=\"" +
                 "Spring Bean 方法调用：userServiceImpl.findUser({id:123})\n" +
-                "或直接复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
+                "用 IDEA 复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
                 "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
-                "注意：如果方法重载的，参数Json也是兼容的，将无法确定调用哪个方法。\">";
+                "方法参数为去掉中括号的JSON数组\">";
 
         // 写入参数
         page += expression == null ? "" : expression.trim();
@@ -96,103 +97,125 @@ public class RemoteDebugger {
                 .body(page);
     }
 
-    private String methodExecute(@RequestBody String expression) {
-        Arguments.of(expression).hasText("表达式不能为空！");
+    private String methodExecute(String expression) {
+        Arguments.of(expression).hasText("表达式不能为空");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        Arguments.of(matcher.matches()).equalsTo(true, "表达式格式不正确！");
+        Arguments.of(matcher.matches()).equalsTo(true, "表达式格式不正确");
+
+        String classOrBeanName = matcher.group(1);
+        String methodName = matcher.group(2);
+        JsonArray arguments = getJsonArray("[" + matcher.group(3) + "]");
 
         // 根据名称获取Bean
-        String classOrBeanName = matcher.group(1);
-        Object springBean = getSpringBean(classOrBeanName);
-        Class clazz;
-        try {
-            clazz = springBean == null ? Class.forName(classOrBeanName) : AopProxyUtils.ultimateTargetClass(springBean);
-        } catch (Exception e) {
-            throw new RuntimeException("初始化类失败！", e);
+        TargetInstance targetInstance = getTargetInstance(classOrBeanName);
+
+        TargetInvoker targetInvoker = getTargetInvoker(targetInstance.advisedTargetClass, methodName, arguments);
+        if (targetInvoker.method != null) {
+            return GsonUtils.toJson(targetInvoker.invoke(targetInstance.advisedTarget));
+        } else {
+            targetInvoker = getTargetInvoker(targetInstance.targetClass, methodName, arguments);
+            Arguments.of(targetInvoker.method).notNull("找不到满足参数的方法：" + methodName);
+            return GsonUtils.toJson(targetInvoker.invoke(targetInstance.target));
         }
-        Arguments.of(clazz).notNull("调用Class不能为空！");
-
-        // 根据名称获取方法列表
-        List<Method> mayMethods = getMethods(clazz, matcher.group(2));
-
-        // 转换方法参数
-        JsonArray params = getJsonArray("[" + matcher.group(3) + "]");
-        return GsonUtils.toJson(executeFoundMethod(clazz, springBean, mayMethods, params));
     }
 
-    private Object executeFoundMethod(Class clazz, Object bean, List<Method> mayMethods, JsonArray params) {
-        // 根据参数锁定方法
-        List<Object> args = new ArrayList<>();
-        Method foundMethod = null;
-        for (Method method : mayMethods) {
-            if (!args.isEmpty()) {
-                args.clear();
-            }
-            Type[] types = method.getGenericParameterTypes();
-            if (types.length != params.size()) {
-                continue;
-            }
-            // 参数转换，无异常表示匹配
-            Iterator<JsonElement> paramIterator = params.iterator();
-            try {
-                for (Type type : types) {
-                    Object arg = GsonUtils.getGson().fromJson(paramIterator.next(), type);
-                    args.add(arg);
+    private static class TargetInstance {
+        Object target;
+        Object advisedTarget;
+        Class<?> targetClass;
+        Class<?> advisedTargetClass;
+    }
+
+    private TargetInvoker getTargetInvoker(Class<?> clazz, String methodName, JsonArray arguments) {
+        TargetInvoker targetInvoker = new TargetInvoker();
+        if (clazz == null) {
+            return targetInvoker;
+        }
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) {
+                Type[] types = method.getGenericParameterTypes();
+                if (types.length == arguments.size()) {
+                    // 参数转换无异常表示参数匹配
+                    Iterator<JsonElement> elementIterator = arguments.iterator();
+                    try {
+                        List<Object> args = new ArrayList<>(types.length);
+                        for (Type type : types) {
+                            Object arg = GsonUtils.getGson().fromJson(elementIterator.next(), type);
+                            args.add(arg);
+                        }
+                        targetInvoker.arguments = args;
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    Arguments.of(targetInvoker.method).isNull("有多个可调用的方法：" + methodName);
+                    targetInvoker.method = method;
                 }
-            } catch (Exception e) {
-                continue;
             }
-            Arguments.of(foundMethod).isNull("方法调用重复：" + foundMethod + " 和 " + method);
-            foundMethod = method;
+        }
+        return targetInvoker;
+    }
+
+    private static class TargetInvoker {
+        Method method;
+        List<Object> arguments;
+
+        Object invoke(Object target) {
+            Method methodPresent = Objects.requireNonNull(this.method, "方法不能为空");
+            Object invokeTarget = target;
+            try {
+                if (Modifier.isStatic(methodPresent.getModifiers())) {
+                    invokeTarget = methodPresent.getDeclaringClass();
+                } else if (invokeTarget == null) {
+                    invokeTarget = methodPresent.getDeclaringClass().newInstance();
+                }
+                Object targetPresent = Objects.requireNonNull(invokeTarget, "实例不能为空");
+
+                methodPresent.setAccessible(true);
+                return arguments == null || arguments.isEmpty() ?
+                        methodPresent.invoke(targetPresent) :
+                        methodPresent.invoke(targetPresent, arguments.toArray());
+            } catch (ReflectiveOperationException e) {
+                LOGGER.error("调用方法失败", e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private TargetInstance getTargetInstance(String classOrBeanName) {
+        TargetInstance targetInstance = new TargetInstance();
+        try {
+            targetInstance.advisedTarget = applicationContext.getBean(classOrBeanName);
+        } catch (Exception e) {
+            LOGGER.info("Get spring bean name {} error: {}", classOrBeanName, e.getMessage());
         }
 
-        // 调用方法并返回
-        Arguments.of(foundMethod).notNull("未找到满足参数的方法！");
-        try {
-            foundMethod.setAccessible(true);
-            if (Modifier.isStatic(foundMethod.getModifiers())) {
-                return foundMethod.invoke(clazz, args.toArray());
-            } else {
-                if (bean != null) {
-                    Class<?> methodClass = foundMethod.getDeclaringClass();
-                    if (!methodClass.equals(bean.getClass())) {
-                        foundMethod = bean.getClass().getDeclaredMethod(foundMethod.getName(), foundMethod.getParameterTypes());
-                    }
-                    return foundMethod.invoke(bean, args.toArray());
-                } else {
-                    return foundMethod.invoke(clazz.newInstance(), args.toArray());
-                }
+        if (targetInstance.advisedTarget == null) {
+            try {
+                targetInstance.advisedTarget = applicationContext.getBean(Class.forName(classOrBeanName));
+            } catch (Exception e) {
+                LOGGER.info("Get spring bean class {} error: {}", classOrBeanName, e.getMessage());
             }
-        } catch (Exception e) {
-            throw new RuntimeException("调用方法失败！", e);
         }
+
+        if (targetInstance.advisedTarget == null) {
+            try {
+                targetInstance.targetClass = Class.forName(classOrBeanName);
+            } catch (Exception e) {
+                throw new RuntimeException("找不到类：" + classOrBeanName);
+            }
+        } else {
+            targetInstance.advisedTargetClass = targetInstance.advisedTarget.getClass();
+            targetInstance.target = AopProxyUtils.getSingletonTarget(targetInstance.advisedTarget);
+            targetInstance.targetClass = AopProxyUtils.ultimateTargetClass(targetInstance.advisedTarget);
+        }
+        return targetInstance;
     }
 
     private JsonArray getJsonArray(String jsonParams) {
         try {
             return GsonUtils.toObject(jsonParams, JsonArray.class);
         } catch (Exception e) {
-            throw new RuntimeException("参数格式不正确！");
-        }
-    }
-
-    private List<Method> getMethods(Class clazz, String methodName) {
-        List<Method> mayMethods = Stream.of(clazz.getDeclaredMethods())
-                .filter(m -> methodName.equals(m.getName()))
-                .collect(Collectors.toList());
-        Arguments.of(mayMethods).notEmpty("未找到方法：" + methodName);
-        return mayMethods;
-    }
-
-    private Object getSpringBean(String beanName) {
-        try {
-            return applicationContext.getBean(beanName);
-        } catch (Exception e) {
-            try {
-                return applicationContext.getBean(Class.forName(beanName));
-            } catch (Exception ex) {
-                return null;
-            }
+            throw new RuntimeException("方法参数格式不正确");
         }
     }
 }

@@ -31,7 +31,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
 
     private boolean pageCountRows = true;
     private boolean pageFetchRows = true;
-    private Provider<Connection> connProvider;
+    private Provider<Connection> connectionProvider;
 
     public BaseQuery() {
         super((Connection) null, DEFAULT_CONFIG, new DefaultQueryMetadata());
@@ -41,9 +41,9 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
         super(conn, configuration, new DefaultQueryMetadata());
     }
 
-    public BaseQuery(Provider<Connection> connProvider, Configuration configuration) {
-        super(connProvider, configuration, new DefaultQueryMetadata());
-        this.connProvider = connProvider;
+    public BaseQuery(Provider<Connection> connectionProvider, Configuration configuration) {
+        super(connectionProvider, configuration, new DefaultQueryMetadata());
+        this.connectionProvider = connectionProvider;
     }
 
     public BaseQuery(Connection conn, Configuration configuration, QueryMetadata metadata) {
@@ -53,7 +53,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
     @Override
     public BaseQuery<E> clone(Connection conn) {
         BaseQuery<E> query = new BaseQuery<>(conn, getConfiguration(), getMetadata().clone());
-        query.connProvider = connProvider;
+        query.connectionProvider = connectionProvider;
         query.pageCountRows = pageCountRows;
         query.pageFetchRows = pageFetchRows;
         query.clone(this);
@@ -279,7 +279,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
                 QueryModifiers qm = getMetadata().getModifiers();
                 long offset = qm == null || qm.getOffset() == null ? 0L : qm.getOffset();
                 if (total > 0L && total > offset) {
-                    Connection conn = Objects.requireNonNull(connProvider,
+                    Connection conn = Objects.requireNonNull(connectionProvider,
                             "No connection provided").get();
                     return new Page<>(total, clone(conn).fetch());
                 }
