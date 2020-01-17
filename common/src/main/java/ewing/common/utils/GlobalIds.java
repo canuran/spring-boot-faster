@@ -3,41 +3,42 @@ package ewing.common.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.management.ManagementFactory;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Enumeration;
 
 /**
- * 全局ID生成器，保持趋势递增，尾数均匀，每个运行实例每秒可获取4096000个全局唯一值。
- *
- * 位值组成：毫秒（目前41位） + 24位机器标识 + 8位进程标识 + 12位累加数（起始为随机数）。
- *
- * 目前26位10进制整数可使用到2150年，MySql用Decimal(27)占12字节，可以认为无限期使用。
+ * 全局ID生成器，保持趋势递增，尾数均匀，每个运行实例每秒可获取2048000个全局唯一值。
+ * <p>
+ * 位值组成：毫秒（目前41位） + 32位网络及运行环境 + 12位累加数（累加数循环不重置）。
+ * <p>
+ * 使用到2150年为26位整数，使用到3770年为27位整数，Mysql中27位Decimal占用12字节。
  *
  * @author Ewing
  */
 public class GlobalIds {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalIds.class);
 
-    // 机器标识位 + 进程标识位
-    private static final String MAC_PROC_BIT;
+    // 网络及运行环境
+    private static final String ENVIRONMENT_BIT;
 
-    // 计数器掩码 用于取计数器后面的位
-    private static final int COUNTER_MASK = 0b111111111111;
+    // 计数器最小值
+    private static final int COUNTER_MIN = 0b100000000000;
 
-    // 标志位 防止高位为0时转成字符串被去掉
-    private static final int COUNTER_FLAG = COUNTER_MASK + 1;
+    // 计数器最大值
+    private static final int COUNTER_MAX = 0b111111111111;
 
     // 时间戳 放在ID的最前面
     private static long timestamp = System.currentTimeMillis();
 
-    // 计数器 取后面的位 起始为随机数
-    private static int counter = new SecureRandom().nextInt(COUNTER_MASK);
+    // 初始化计数器的值
+    private static int counter = new SecureRandom().nextInt() & COUNTER_MAX | COUNTER_MIN;
 
-    // 游标 记录新的时间的计数器开始值
-    private static int cursor = counter;
+    // 记录新的时间的计数器初始值
+    private static int start = counter;
 
     /**
      * 私有化构造方法。
@@ -47,17 +48,13 @@ public class GlobalIds {
     }
 
     /**
-     * 初始化机器标识及进程标识。
+     * 初始化网络及运行环境标识。
      */
     static {
-        // 保证一定是24位机器ID + 8位进程ID
-        int machineMask = 0b111111111111111111111111;
-        int processMask = 0b11111111;
-        int machineId = getMachineIdentifier() & machineMask | (machineMask + 1);
-        int processId = getProcessIdentifier() & processMask | (processMask + 1);
-        String machineIdBit = Integer.toBinaryString(machineId).substring(1);
-        String processIdBit = Integer.toBinaryString(processId).substring(1);
-        MAC_PROC_BIT = machineIdBit + processIdBit;
+        // 保证一定是32位网络及运行环境标识
+        int environmentFlag = 1 << 31;
+        int environmentIdentifier = getEnvironmentIdentifier();
+        ENVIRONMENT_BIT = Integer.toBinaryString(environmentIdentifier | environmentFlag);
     }
 
     /**
@@ -66,22 +63,22 @@ public class GlobalIds {
     public static synchronized BigInteger nextId() {
         long currentTime = System.currentTimeMillis();
 
-        // 计数器自增 并取低位
-        counter = ++counter & COUNTER_MASK;
+        // 计数器自增 并保证在范围内
+        counter = ++counter & COUNTER_MAX | COUNTER_MIN;
 
         if (currentTime > timestamp) {
-            // 时间更新 同时更新游标
+            // 时间更新 同时更新标记值
             timestamp = currentTime;
-            cursor = counter;
+            start = counter;
         } else if (currentTime == timestamp) {
-            // 时间相等 没到游标处不用处理
-            if (counter == cursor) {
-                // 到了游标处表示该毫秒的计数已用完 等下一毫秒
+            // 时间相等 没到标记值不用处理
+            if (counter == start) {
+                // 到了标记值表示该毫秒的计数已用完 等下一毫秒
                 while (timestamp == currentTime) {
                     timestamp = System.currentTimeMillis();
                 }
             }
-        } else if (currentTime - timestamp > 1000) {
+        } else if (currentTime - timestamp > 100) {
             // 机器时间后退太多
             throw new IllegalStateException("Time gone back too much!");
         } else {
@@ -92,52 +89,43 @@ public class GlobalIds {
         }
 
         // 时间位 + 机器与进程位 + 计数器位
-        String idBit = Long.toBinaryString(timestamp) + MAC_PROC_BIT +
-                Integer.toBinaryString(counter | COUNTER_FLAG).substring(1);
-
-        return new BigInteger(idBit, 2);
+        String binary = Long.toBinaryString(timestamp) + ENVIRONMENT_BIT + Integer.toBinaryString(counter);
+        return new BigInteger(binary, 2);
     }
 
     /**
-     * 获取机器标识的HashCode。
+     * 获取运行环境标识，基于MAC地址、IP和进程ID。
      */
-    private static int getMachineIdentifier() {
+    private static int getEnvironmentIdentifier() {
         try {
-            StringBuilder sb = new StringBuilder();
-            Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
-            while (eni.hasMoreElements()) {
-                NetworkInterface ni = eni.nextElement();
-                byte[] mac = ni.getHardwareAddress();
-                if (mac != null && mac.length > 1) {
-                    ByteBuffer bb = ByteBuffer.wrap(mac);
-                    while (bb.remaining() > 1) {
-                        sb.append(bb.getChar());
+            StringBuilder stringBuilder = new StringBuilder();
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                byte[] macAddresses = networkInterface.getHardwareAddress();
+                if (macAddresses != null) {
+                    for (byte macAddress : macAddresses) {
+                        stringBuilder.append(macAddress);
+                    }
+                }
+                Enumeration<InetAddress> netAddresses = networkInterface.getInetAddresses();
+                while (netAddresses.hasMoreElements()) {
+                    InetAddress netAddress = netAddresses.nextElement();
+                    byte[] addressBytes = netAddress.getAddress();
+                    if (addressBytes != null) {
+                        for (byte addressByte : addressBytes) {
+                            stringBuilder.append(addressByte);
+                        }
                     }
                 }
             }
-            if (sb.length() < 3) {
-                throw new IllegalStateException("Get mac address incorrect!");
+            stringBuilder.append(ManagementFactory.getRuntimeMXBean().getName());
+            if (stringBuilder.length() < 16) {
+                throw new IllegalStateException("Environment info missing!");
             }
-            return sb.toString().hashCode();
+            return stringBuilder.toString().hashCode();
         } catch (Throwable throwable) {
-            LOGGER.warn("Use random number instead mac address!", throwable);
-            return new SecureRandom().nextInt();
-        }
-    }
-
-    /**
-     * 获取进程标识，转换双字节型。
-     */
-    private static int getProcessIdentifier() {
-        try {
-            String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-            if (processName.contains("@")) {
-                return Integer.parseInt(processName.substring(0, processName.indexOf('@')));
-            } else {
-                return java.lang.management.ManagementFactory.getRuntimeMXBean().getName().hashCode();
-            }
-        } catch (Throwable throwable) {
-            LOGGER.warn("Use random number instead process id!", throwable);
+            LOGGER.warn("Use random number instead environment identifier!", throwable);
             return new SecureRandom().nextInt();
         }
     }

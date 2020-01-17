@@ -22,7 +22,7 @@ public class GlobalIdsTest {
         BigInteger id = GlobalIds.nextId();
         System.out.println("\n当前时间的值是：" + id + "\n转换成2进制： " + id.toString(2));
         // 使用日期与长度测试 模拟位值的长度
-        String date = "2150年";
+        String date = "3770年";
         Long time = StringDateParser.stringToDate(date).getTime();
         id = new BigInteger(Long.toBinaryString(time) +
                 Long.toBinaryString(0b11111111111111111111111111111111111111111111L), 2);
