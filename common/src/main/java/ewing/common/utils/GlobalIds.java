@@ -47,9 +47,6 @@ public class GlobalIds {
         throw new IllegalStateException("Can not construct GlobalIds");
     }
 
-    /**
-     * 初始化网络及运行环境标识。
-     */
     static {
         // 保证一定是32位网络及运行环境标识
         int environmentFlag = 1 << 31;
