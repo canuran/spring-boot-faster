@@ -305,19 +305,16 @@ public class QuerydslDemos {
     @Test
     @SuppressWarnings("unchecked")
     public void aliasAndUnion() {
-        // 只需要保证和union后的别名一致即可
-        Page<DemoUser> userPage = queryFactory.select(demoUser)
-                .from(SQLExpressions.unionAll(
-                        SQLExpressions.selectFrom(demoUser)
+        // 简单UNION查询
+        List<DemoUser> demoUsers = queryFactory.query()
+                .union(SQLExpressions.selectFrom(demoUser)
                                 .where(demoUser.gender.eq(0)),
                         SQLExpressions.selectFrom(demoUser)
                                 .where(demoUser.gender.eq(1)),
                         SQLExpressions.selectFrom(demoUser)
-                                .where(demoUser.gender.eq(2))
-                ).as(demoUser))
-                .limit(10)
-                .fetchPage();
-        System.out.println(userPage);
+                                .where(demoUser.gender.eq(2)))
+                .fetch();
+        System.out.println(demoUsers);
 
         // 复杂UNION，定义别名并使结果列和别名一致
         String aliasName = "alias";
@@ -338,7 +335,6 @@ public class QuerydslDemos {
                                 .on(demoUser.addressId.eq(demoAddress.addressId))
                                 .where(demoUser.gender.eq(2)))
                         .as(aliasName))
-
                 .fetchPage();
         System.out.println(detailPage);
     }
