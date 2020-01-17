@@ -9,6 +9,9 @@ import java.util.List;
  * @author Ewing
  */
 public class ExceptionUtils {
+    private ExceptionUtils() {
+        throw new IllegalStateException("Can not construct ExceptionUtils");
+    }
 
     /**
      * 获取异常根栈信息及业务链调用栈信息。
@@ -30,4 +33,15 @@ public class ExceptionUtils {
         return businessTraces;
     }
 
+    /**
+     * 获取根源异常。
+     */
+    public static Throwable getRootCause(Throwable throwable) {
+        Throwable cause = throwable;
+        while (throwable != null) {
+            cause = throwable;
+            throwable = cause.getCause();
+        }
+        return cause;
+    }
 }

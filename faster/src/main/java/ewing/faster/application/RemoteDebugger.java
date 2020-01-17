@@ -2,6 +2,7 @@ package ewing.faster.application;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import ewing.common.exception.ExceptionUtils;
 import ewing.common.utils.Arguments;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
@@ -84,7 +85,7 @@ public class RemoteDebugger {
                 page += methodExecute(expression);
             }
         } catch (Exception e) {
-            page += "调用异常：" + e.getMessage();
+            page += "调用异常：" + ExceptionUtils.getRootCause(e).getMessage();
         }
 
         page += "</textarea>\n" +
