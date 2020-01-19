@@ -68,6 +68,18 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
                 }
             }
         });
+        // 大数字用字符串代替科学计数法
+        simpleModule.addSerializer(Long.class, new JsonSerializer<Long>() {
+            @Override
+            public void serialize(Long aLong, JsonGenerator jsonGenerator,
+                                  SerializerProvider serializerProvider) throws IOException {
+                if (aLong == null) {
+                    jsonGenerator.writeNull();
+                } else {
+                    jsonGenerator.writeString(aLong.toString());
+                }
+            }
+        });
         // 支持序列化多种格式的Date
         simpleModule.addSerializer(Date.class, new JsonSerializer<Date>() {
             @Override
