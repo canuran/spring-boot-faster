@@ -18,11 +18,15 @@ public class SnowflakeIdsTest {
      */
     public static void main(String[] args) throws Exception {
         // 预览测试
-        System.out.println("预览：" + SnowflakeIds.nextId());
+        for (int i = 0; i < 10; i++) {
+            SnowflakeIdWorker idWorker = new SnowflakeIdWorker(i);
+            System.out.println("预览：" + idWorker.nextId());
+        }
 
         // 高并发性能测试
-        int threads = 1000;
-        int perThread = 32;
+        int threads = 100;
+        int perThread = 10000;
+        SnowflakeIdWorker idWorker = new SnowflakeIdWorker(255);
         CountDownLatch latch = new CountDownLatch(threads);
         Object[] results = new Object[threads * perThread];
         final AtomicInteger index = new AtomicInteger();
@@ -30,7 +34,7 @@ public class SnowflakeIdsTest {
         for (int i = 0; i < threads; i++) {
             new Thread(() -> {
                 for (int n = 0; n < perThread; n++)
-                    results[index.getAndIncrement()] = SnowflakeIds.nextId();
+                    results[index.getAndIncrement()] = idWorker.nextId();
                 latch.countDown();
             }).start();
         }
