@@ -1,8 +1,8 @@
 package ewing.common.utils;
 
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 单实例每秒最多获取128000个ID，单机也可以创建多个实例，全局最多4096个实例，总共可每秒最多5亿多个ID。
@@ -12,7 +12,7 @@ import java.util.Set;
  * @author Ewing
  */
 public class SnowflakeIdWorker {
-    private static final Set<Integer> INSTANCES = new HashSet<>();
+    private static final Map<Integer, SnowflakeIdWorker> INSTANCE_MAP = new ConcurrentHashMap<>();
     // 各组成部分的数位长度
     private static final int CLUSTER_LENGTH = 6;
     private static final int SERVER_LENGTH = 6;
@@ -35,6 +35,20 @@ public class SnowflakeIdWorker {
     private long lastTime = System.currentTimeMillis();
 
     /**
+     * 根据集群编号和服务编号获取或创建一个新的实例。
+     */
+    public static SnowflakeIdWorker getInstance(int cluster, int server) {
+        return getInstance(cluster << CLUSTER_LENGTH | server);
+    }
+
+    /**
+     * 根据全局唯一的实例编号获取或创建一个新的实例。
+     */
+    public static SnowflakeIdWorker getInstance(int instance) {
+        return INSTANCE_MAP.computeIfAbsent(instance, SnowflakeIdWorker::new);
+    }
+
+    /**
      * @param cluster 服务集群编号。
      * @param server  集群内的服务编号。
      */
@@ -43,8 +57,8 @@ public class SnowflakeIdWorker {
         validate(server >= 0 && server < MAX_SERVER, "Wrong server");
 
         this.instance = cluster << CLUSTER_LENGTH | server;
-        validate(!INSTANCES.contains(instance), "Duplicate instance");
-        INSTANCES.add(instance);
+        validate(!INSTANCE_MAP.containsKey(instance), "Duplicate instance");
+        INSTANCE_MAP.put(instance, this);
     }
 
     /**
@@ -53,8 +67,8 @@ public class SnowflakeIdWorker {
     public SnowflakeIdWorker(int instance) {
         validate(instance >= 0 && instance < MAX_INSTANCE, "Wrong instance");
         this.instance = instance;
-        validate(!INSTANCES.contains(instance), "Duplicate instance");
-        INSTANCES.add(instance);
+        validate(!INSTANCE_MAP.containsKey(instance), "Duplicate instance");
+        INSTANCE_MAP.put(instance, this);
     }
 
     /**
