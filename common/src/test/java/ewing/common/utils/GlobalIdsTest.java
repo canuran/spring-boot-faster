@@ -21,12 +21,6 @@ public class GlobalIdsTest {
         // 当前时间测试
         BigInteger id = GlobalIds.nextId();
         System.out.println("\n当前时间的值是：" + id + "\n转换成2进制： " + id.toString(2));
-        // 使用日期与长度测试 模拟位值的长度
-        String date = "3770年";
-        Long time = StringDateParser.stringToDate(date).getTime();
-        id = new BigInteger(Long.toBinaryString(time) +
-                Long.toBinaryString(0b11111111111111111111111111111111111111111111L), 2);
-        System.out.println("\n使用到" + date + "的值是：" + id + "\n转换成2进制： " + id.toString(2));
 
         // 高并发性能测试
         int threads = 100;
@@ -34,7 +28,7 @@ public class GlobalIdsTest {
         CountDownLatch latch = new CountDownLatch(threads);
         Object[] results = new Object[threads * perThread];
         final AtomicInteger index = new AtomicInteger();
-        time = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         for (int i = 0; i < threads; i++) {
             new Thread(() -> {
                 for (int n = 0; n < perThread; n++)
