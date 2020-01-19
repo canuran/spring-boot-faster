@@ -37,7 +37,7 @@ public class FasterMain {
 
     @Bean
     public SnowflakeIdWorker snowflakeIdWorker() {
-        return new SnowflakeIdWorker(new SecureRandom().nextInt(SnowflakeIdWorker.MAX_INSTANCE));
+        return SnowflakeIdWorker.getInstance(new SecureRandom().nextInt(SnowflakeIdWorker.MAX_INSTANCE));
     }
 
 }

@@ -19,14 +19,13 @@ public class SnowflakeIdsTest {
     public static void main(String[] args) throws Exception {
         // 预览测试
         for (int i = 0; i < 10; i++) {
-            SnowflakeIdWorker idWorker = new SnowflakeIdWorker(i);
+            SnowflakeIdWorker idWorker = SnowflakeIdWorker.getInstance(i);
             System.out.println("预览：" + idWorker.nextId());
         }
 
         // 高并发性能测试
         int threads = 100;
         int perThread = 10000;
-        SnowflakeIdWorker idWorker = new SnowflakeIdWorker(255);
         CountDownLatch latch = new CountDownLatch(threads);
         Object[] results = new Object[threads * perThread];
         final AtomicInteger index = new AtomicInteger();
@@ -34,7 +33,9 @@ public class SnowflakeIdsTest {
         for (int i = 0; i < threads; i++) {
             new Thread(() -> {
                 for (int n = 0; n < perThread; n++)
-                    results[index.getAndIncrement()] = idWorker.nextId();
+                    results[index.getAndIncrement()] = SnowflakeIdWorker
+                            .getInstance(index.get() % SnowflakeIdWorker.MAX_INSTANCE)
+                            .nextId();
                 latch.countDown();
             }).start();
         }

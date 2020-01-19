@@ -36,8 +36,13 @@ public class SnowflakeIdWorker {
 
     /**
      * 根据集群编号和服务编号获取或创建一个新的实例。
+     *
+     * @param cluster 服务集群编号。
+     * @param server  集群内的服务编号。
      */
     public static SnowflakeIdWorker getInstance(int cluster, int server) {
+        validate(cluster >= 0 && cluster < MAX_CLUSTER, "Wrong cluster");
+        validate(server >= 0 && server < MAX_SERVER, "Wrong server");
         return getInstance(cluster << CLUSTER_LENGTH | server);
     }
 
@@ -49,26 +54,11 @@ public class SnowflakeIdWorker {
     }
 
     /**
-     * @param cluster 服务集群编号。
-     * @param server  集群内的服务编号。
+     * 根据全局唯一的实例编号获取或创建一个新的实例。
      */
-    public SnowflakeIdWorker(int cluster, int server) {
-        validate(cluster >= 0 && cluster < MAX_CLUSTER, "Wrong cluster");
-        validate(server >= 0 && server < MAX_SERVER, "Wrong server");
-
-        this.instance = cluster << CLUSTER_LENGTH | server;
-        validate(!INSTANCE_MAP.containsKey(instance), "Duplicate instance");
-        INSTANCE_MAP.put(instance, this);
-    }
-
-    /**
-     * @param instance 全局唯一的实例编号。
-     */
-    public SnowflakeIdWorker(int instance) {
+    private SnowflakeIdWorker(int instance) {
         validate(instance >= 0 && instance < MAX_INSTANCE, "Wrong instance");
         this.instance = instance;
-        validate(!INSTANCE_MAP.containsKey(instance), "Duplicate instance");
-        INSTANCE_MAP.put(instance, this);
     }
 
     /**
