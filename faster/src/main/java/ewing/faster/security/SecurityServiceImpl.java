@@ -1,7 +1,7 @@
 package ewing.faster.security;
 
 import ewing.common.utils.Arguments;
-import ewing.common.utils.GlobalIds;
+import ewing.common.utils.SnowflakeIdWorker;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.AuthorityDao;
 import ewing.faster.dao.RoleDao;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +42,8 @@ public class SecurityServiceImpl implements SecurityService {
     private RoleDao roleDao;
     @Autowired
     private BaseQueryFactory queryFactory;
+    @Autowired
+    private SnowflakeIdWorker snowflakeIdWorker;
 
     public static final String CODE_REGEXP = "[a-zA-Z]|([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])";
 
@@ -81,7 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         authorityParam.setCreateTime(new Date());
-        authorityParam.setAuthorityId(GlobalIds.nextId());
+        authorityParam.setAuthorityId(snowflakeIdWorker.nextId());
         queryFactory.insert(authority).insertBean(authorityParam);
     }
 
@@ -124,7 +125,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void deleteAuthority(BigInteger authorityId) {
+    public void deleteAuthority(Long authorityId) {
         Arguments.of(authorityId).name("权限ID").notNull();
 
         Arguments.of(queryFactory.selectFrom(authority)
@@ -153,7 +154,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
+    public List<AuthorityNode> getUserAuthorities(Long userId) {
         Arguments.of(userId).name("用户ID").notNull();
 
         return authorityDao.getUserAuthorities(userId);
@@ -184,7 +185,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleWithAuthority.setRoleId(GlobalIds.nextId());
+        roleWithAuthority.setRoleId(snowflakeIdWorker.nextId());
         queryFactory.insert(role).insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系
@@ -222,7 +223,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void deleteRole(BigInteger roleId) {
+    public void deleteRole(Long roleId) {
         Arguments.of(roleId).name("角色ID").notNull();
 
         Arguments.of(queryFactory.selectFrom(userRole)
@@ -257,7 +258,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     @Cacheable(cacheNames = "PermissionCache", key = "#userId.toString() + #action + #targetType + #targetId")
-    public boolean userHasPermission(BigInteger userId, String action,
+    public boolean userHasPermission(Long userId, String action,
                                      String targetType, String targetId) {
         Arguments.of(userId).name("用户ID").notNull();
         Arguments.of(action).name("权限操作").hasText();

@@ -2,16 +2,15 @@ package ewing.faster.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class DictionaryNode {
 
-    private BigInteger dictionaryId;
+    private Long dictionaryId;
 
-    private BigInteger parentId;
+    private Long parentId;
 
-    private BigInteger rootId;
+    private Long rootId;
 
     private String name;
 
@@ -19,28 +18,28 @@ public class DictionaryNode {
 
     private List<DictionaryNode> children;
 
-    public BigInteger getDictionaryId() {
+    public Long getDictionaryId() {
         return dictionaryId;
     }
 
-    public void setDictionaryId(BigInteger dictionaryId) {
+    public void setDictionaryId(Long dictionaryId) {
         this.dictionaryId = dictionaryId;
     }
 
-    public BigInteger getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(BigInteger parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
     @JsonIgnore
-    public BigInteger getRootId() {
+    public Long getRootId() {
         return rootId;
     }
 
-    public void setRootId(BigInteger rootId) {
+    public void setRootId(Long rootId) {
         this.rootId = rootId;
     }
 

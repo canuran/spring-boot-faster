@@ -2,7 +2,6 @@ package ewing.faster.dao;
 
 import ewing.faster.security.vo.AuthorityNode;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -10,6 +9,6 @@ import java.util.List;
  */
 public interface AuthorityDao {
 
-    List<AuthorityNode> getUserAuthorities(BigInteger userId);
+    List<AuthorityNode> getUserAuthorities(Long userId);
 
 }

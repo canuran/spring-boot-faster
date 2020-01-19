@@ -6,7 +6,6 @@ import ewing.query.BaseQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import static ewing.faster.dao.query.QAuthority.authority;
@@ -23,7 +22,7 @@ public class AuthorityDaoImpl implements AuthorityDao {
     private BaseQueryFactory queryFactory;
 
     @Override
-    public List<AuthorityNode> getUserAuthorities(BigInteger userId) {
+    public List<AuthorityNode> getUserAuthorities(Long userId) {
         // 用户->角色->权限
         return queryFactory.selectDistinct(authority)
                 .from(authority)

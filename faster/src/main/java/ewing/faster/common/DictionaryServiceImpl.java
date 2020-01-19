@@ -2,7 +2,7 @@ package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
 import ewing.common.utils.Arguments;
-import ewing.common.utils.GlobalIds;
+import ewing.common.utils.SnowflakeIdWorker;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
@@ -13,7 +13,6 @@ import ewing.query.paging.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +30,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     private DictionaryDao dictionaryDao;
     @Autowired
     private BaseQueryFactory queryFactory;
+    @Autowired
+    private SnowflakeIdWorker snowflakeIdWorker;
 
     @Override
     public Page<Dictionary> findWithSubDictionary(
@@ -67,7 +68,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
 
         dictionaryParam.setCreateTime(new Date());
-        dictionaryParam.setDictionaryId(GlobalIds.nextId());
+        dictionaryParam.setDictionaryId(snowflakeIdWorker.nextId());
         queryFactory.insert(dictionary).insertBean(dictionaryParam);
 
         // 没有父字典则自身就是根字典
@@ -111,7 +112,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
-    public void deleteDictionary(BigInteger dictionaryId) {
+    public void deleteDictionary(Long dictionaryId) {
         Arguments.of(dictionaryId).name("字典ID").notNull();
 
         Dictionary dictionaryDto = queryFactory.selectFrom(dictionary).fetchByKey(dictionaryId);

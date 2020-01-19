@@ -5,7 +5,6 @@ import ewing.faster.common.vo.FindDictionaryParam;
 import ewing.faster.dao.entity.Dictionary;
 import ewing.query.paging.Page;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ public interface DictionaryService {
 
     void updateDictionary(Dictionary dictionary);
 
-    void deleteDictionary(BigInteger dictionaryId);
+    void deleteDictionary(Long dictionaryId);
 
     List<DictionaryNode> findDictionaryTrees(String[] rootValues);
 }

@@ -21,10 +21,10 @@ public class SnowflakeIdWorker {
     private static final int TIME_LEFT_SHIFT = INSTANCE_LENGTH + COUNTER_LENGTH;
 
     // 各部分对应的最大值
+    public static final int MAX_CLUSTER = (1 << CLUSTER_LENGTH) - 1;
+    public static final int MAX_SERVER = (1 << SERVER_LENGTH) - 1;
+    public static final int MAX_INSTANCE = (1 << INSTANCE_LENGTH) - 1;
     private static final long MAX_TIME = (1L << 63 - TIME_LEFT_SHIFT) - 1;
-    private static final int MAX_CLUSTER = (1 << CLUSTER_LENGTH) - 1;
-    private static final int MAX_SERVER = (1 << SERVER_LENGTH) - 1;
-    private static final int MAX_INSTANCE = (1 << INSTANCE_LENGTH) - 1;
     private static final int MAX_COUNTER = (1 << COUNTER_LENGTH) - 1;
 
     // 对象实例的私有变量

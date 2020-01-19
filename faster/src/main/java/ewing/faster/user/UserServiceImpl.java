@@ -1,7 +1,7 @@
 package ewing.faster.user;
 
 import ewing.common.utils.Arguments;
-import ewing.common.utils.GlobalIds;
+import ewing.common.utils.SnowflakeIdWorker;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;
@@ -16,7 +16,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,10 +33,12 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     @Autowired
     private BaseQueryFactory queryFactory;
+    @Autowired
+    private SnowflakeIdWorker snowflakeIdWorker;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public BigInteger addUserWithRole(UserWithRole userWithRole) {
+    public Long addUserWithRole(UserWithRole userWithRole) {
         checkCommonSave(userWithRole);
 
         Arguments.of(userWithRole.getUsername()).name("用户名")
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 .lessThan(1, "用户名已被使用");
 
         userWithRole.setCreateTime(new Date());
-        userWithRole.setUserId(GlobalIds.nextId());
+        userWithRole.setUserId(snowflakeIdWorker.nextId());
         queryFactory.insert(user).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();
@@ -85,7 +86,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
-    public User getUser(BigInteger userId) {
+    public User getUser(Long userId) {
         Arguments.of(userId).name("用户ID").notNull();
 
         return queryFactory.selectFrom(user).fetchByKey(userId);
@@ -123,7 +124,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
-    public long deleteUser(BigInteger userId) {
+    public long deleteUser(Long userId) {
         Arguments.of(userId).name("用户ID").notNull();
 
         queryFactory.delete(userRole)

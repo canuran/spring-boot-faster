@@ -7,7 +7,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigInteger;
+
 
 /**
  * 获取用户请求对象及上下文、国际化消息转换类。
@@ -44,7 +44,7 @@ public class RequestUtils {
     /**
      * 获取当前登录的用户。
      */
-    public static BigInteger getCurrentUserId() {
+    public static Long getCurrentUserId() {
         return getCurrentUser().getUserId();
     }
 

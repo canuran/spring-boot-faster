@@ -5,21 +5,21 @@ import ewing.faster.user.vo.FindUserParam;
 import ewing.faster.user.vo.UserWithRole;
 import ewing.query.paging.Page;
 
-import java.math.BigInteger;
+
 
 /**
  * 用户服务接口。
  **/
 public interface UserService {
 
-    User getUser(BigInteger userId);
+    User getUser(Long userId);
 
-    BigInteger addUserWithRole(UserWithRole userWithRole);
+    Long addUserWithRole(UserWithRole userWithRole);
 
     long updateUserWithRole(UserWithRole userWithRole);
 
     Page<UserWithRole> findUserWithRole(FindUserParam findUserParam);
 
-    long deleteUser(BigInteger userId);
+    long deleteUser(Long userId);
 
 }

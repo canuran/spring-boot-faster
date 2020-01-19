@@ -13,7 +13,7 @@ public class Role implements Serializable {
 
     private String name;
 
-    private java.math.BigInteger roleId;
+    private Long roleId;
 
     public java.util.Date getCreateTime() {
         return createTime;
@@ -31,11 +31,11 @@ public class Role implements Serializable {
         this.name = name;
     }
 
-    public java.math.BigInteger getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(java.math.BigInteger roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 

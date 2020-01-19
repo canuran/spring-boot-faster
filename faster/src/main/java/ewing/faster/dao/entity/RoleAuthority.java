@@ -9,17 +9,17 @@ import java.io.Serializable;
 @Generated("com.querydsl.codegen.BeanSerializer")
 public class RoleAuthority implements Serializable {
 
-    private java.math.BigInteger authorityId;
+    private Long authorityId;
 
     private java.util.Date createTime;
 
-    private java.math.BigInteger roleId;
+    private Long roleId;
 
-    public java.math.BigInteger getAuthorityId() {
+    public Long getAuthorityId() {
         return authorityId;
     }
 
-    public void setAuthorityId(java.math.BigInteger authorityId) {
+    public void setAuthorityId(Long authorityId) {
         this.authorityId = authorityId;
     }
 
@@ -31,11 +31,11 @@ public class RoleAuthority implements Serializable {
         this.createTime = createTime;
     }
 
-    public java.math.BigInteger getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(java.math.BigInteger roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 

@@ -7,7 +7,6 @@ import ewing.faster.security.vo.FindRoleParam;
 import ewing.faster.security.vo.RoleWithAuthority;
 import ewing.query.paging.Page;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -23,11 +22,11 @@ public interface SecurityService {
 
     void updateAuthority(Authority authority);
 
-    void deleteAuthority(BigInteger authorityId);
+    void deleteAuthority(Long authorityId);
 
     List<AuthorityNode> getAuthorityTree();
 
-    List<AuthorityNode> getUserAuthorities(BigInteger userId);
+    List<AuthorityNode> getUserAuthorities(Long userId);
 
     List<Role> getAllRoles();
 
@@ -37,7 +36,7 @@ public interface SecurityService {
 
     void updateRoleWithAuthority(RoleWithAuthority roleWithAuthority);
 
-    void deleteRole(BigInteger roleId);
+    void deleteRole(Long roleId);
 
-    boolean userHasPermission(BigInteger userId, String action, String targetType, String targetId);
+    boolean userHasPermission(Long userId, String action, String targetType, String targetId);
 }

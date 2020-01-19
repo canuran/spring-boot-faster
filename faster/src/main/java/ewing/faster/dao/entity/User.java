@@ -19,7 +19,7 @@ public class User implements Serializable {
 
     private String password;
 
-    private java.math.BigInteger userId;
+    private Long userId;
 
     private String username;
 
@@ -63,11 +63,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public java.math.BigInteger getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(java.math.BigInteger userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

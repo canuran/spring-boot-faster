@@ -13,6 +13,7 @@ import java.sql.Types;
 
 import static com.querydsl.core.types.PathMetadataFactory.forVariable;
 
+
 /**
  * QRole is a Querydsl query type for Role
  */
@@ -27,7 +28,7 @@ public class QRole extends com.querydsl.sql.RelationalPathBase<Role> {
 
     public final StringPath name = createString("name");
 
-    public final NumberPath<java.math.BigInteger> roleId = createNumber("roleId", java.math.BigInteger.class);
+    public final NumberPath<Long> roleId = createNumber("roleId", Long.class);
 
     public final com.querydsl.sql.PrimaryKey<Role> primary = createPrimaryKey(roleId);
 
@@ -59,7 +60,7 @@ public class QRole extends com.querydsl.sql.RelationalPathBase<Role> {
     public void addMetadata() {
         addMetadata(createTime, ColumnMetadata.named("create_time").withIndex(3).ofType(Types.TIMESTAMP).withSize(19).notNull());
         addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(64).notNull());
-        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.DECIMAL).withSize(26).notNull());
+        addMetadata(roleId, ColumnMetadata.named("role_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
     }
 
 }

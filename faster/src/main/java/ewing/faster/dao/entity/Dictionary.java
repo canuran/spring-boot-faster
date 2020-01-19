@@ -13,13 +13,13 @@ public class Dictionary implements Serializable {
 
     private String detail;
 
-    private java.math.BigInteger dictionaryId;
+    private Long dictionaryId;
 
     private String name;
 
-    private java.math.BigInteger parentId;
+    private Long parentId;
 
-    private java.math.BigInteger rootId;
+    private Long rootId;
 
     private String value;
 
@@ -39,11 +39,11 @@ public class Dictionary implements Serializable {
         this.detail = detail;
     }
 
-    public java.math.BigInteger getDictionaryId() {
+    public Long getDictionaryId() {
         return dictionaryId;
     }
 
-    public void setDictionaryId(java.math.BigInteger dictionaryId) {
+    public void setDictionaryId(Long dictionaryId) {
         this.dictionaryId = dictionaryId;
     }
 
@@ -55,19 +55,19 @@ public class Dictionary implements Serializable {
         this.name = name;
     }
 
-    public java.math.BigInteger getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(java.math.BigInteger parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
-    public java.math.BigInteger getRootId() {
+    public Long getRootId() {
         return rootId;
     }
 
-    public void setRootId(java.math.BigInteger rootId) {
+    public void setRootId(Long rootId) {
         this.rootId = rootId;
     }
 
