@@ -1,13 +1,12 @@
 package ewing.common.utils;
 
+import ewing.common.test.MultiThreadTester;
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 全局ID测试类。
@@ -21,7 +20,7 @@ public class GlobalIdsTest {
      * 测试方法。
      */
     @Test
-    public void nextIdTest() throws Exception {
+    public void nextIdTest() {
         // 测试当前的ID
         for (int i = 0; i < 5; i++) {
             BigInteger id = GlobalIds.nextId();
@@ -29,31 +28,26 @@ public class GlobalIdsTest {
         }
 
         // 高并发性能测试
-        int threads = 100;
-        int perThread = 10000;
-        CountDownLatch latch = new CountDownLatch(threads);
-        Object[] results = new Object[threads * perThread];
-        final AtomicInteger index = new AtomicInteger();
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < threads; i++) {
-            new Thread(() -> {
-                for (int n = 0; n < perThread; n++)
-                    results[index.getAndIncrement()] = GlobalIds.nextId();
-                latch.countDown();
-            }).start();
-        }
-        latch.await();
-        System.out.print("\n" + threads + "个线程线程各生成" + perThread + "个用时："
-                + (System.currentTimeMillis() - time) + " 毫秒\n" + "共：" + index.get() + " 个");
+        MultiThreadTester<Object[]> tester = new MultiThreadTester<Object[]>()
+                .threadTotal(100)
+                .loopPerThread(10000);
+
+        long costTime = tester.context(new Object[tester.getLoopTotal()])
+                .testerConsumer((threadTester, thread, threadLoop, currentTotalLoop) ->
+                        threadTester.getContext()[currentTotalLoop] = GlobalIds.nextId())
+                .startTest();
+
+        System.out.print("\n" + tester.getThreadTotal() + "个线程线程各生成" + tester.getLoopPerThread() + "个用时："
+                + costTime + " 毫秒\n" + "共：" + tester.getLoopTotal() + " 个");
 
         // 验证是否唯一
-        Set<Object> ids = new HashSet<>(threads * perThread);
-        ids.addAll(Arrays.asList(results));
+        Set<Object> ids = new HashSet<>(tester.getLoopTotal());
+        ids.addAll(Arrays.asList(tester.getContext()));
         System.out.println("\n其中唯一值：" + ids.size() + " 个\n");
     }
 
     @Test
-    public void randomUUIDTest() throws Exception {
+    public void numberUUIDTest() {
         // 测试预览UUID
         BigInteger numberUUID = GlobalIds.numberUUID();
         System.out.println("预览：" + numberUUID);
@@ -65,26 +59,21 @@ public class GlobalIdsTest {
         System.out.println("预览：" + radix36UUID);
 
         // 高并发性能测试
-        int threads = 100;
-        int perThread = 10000;
-        CountDownLatch latch = new CountDownLatch(threads);
-        Object[] results = new Object[threads * perThread];
-        final AtomicInteger index = new AtomicInteger();
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < threads; i++) {
-            new Thread(() -> {
-                for (int n = 0; n < perThread; n++)
-                    results[index.getAndIncrement()] = GlobalIds.numberUUID();
-                latch.countDown();
-            }).start();
-        }
-        latch.await();
-        System.out.print("\n" + threads + "个线程线程各生成" + perThread + "个用时："
-                + (System.currentTimeMillis() - time) + " 毫秒\n" + "共：" + index.get() + " 个");
+        MultiThreadTester<Object[]> tester = new MultiThreadTester<Object[]>()
+                .threadTotal(100)
+                .loopPerThread(10000);
+
+        long costTime = tester.context(new Object[tester.getLoopTotal()])
+                .testerConsumer((threadTester, thread, threadLoop, currentTotalLoop) ->
+                        threadTester.getContext()[currentTotalLoop] = GlobalIds.numberUUID())
+                .startTest();
+
+        System.out.print("\n" + tester.getThreadTotal() + "个线程线程各生成" + tester.getLoopPerThread() + "个用时："
+                + costTime + " 毫秒\n" + "共：" + tester.getLoopTotal() + " 个");
 
         // 验证是否唯一
-        Set<Object> ids = new HashSet<>(threads * perThread);
-        ids.addAll(Arrays.asList(results));
+        Set<Object> ids = new HashSet<>(tester.getLoopTotal());
+        ids.addAll(Arrays.asList(tester.getContext()));
         System.out.println("\n其中唯一值：" + ids.size() + " 个\n");
     }
 
