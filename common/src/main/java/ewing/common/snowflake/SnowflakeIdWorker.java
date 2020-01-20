@@ -1,8 +1,6 @@
-package ewing.common.idWorker;
+package ewing.common.snowflake;
 
 import java.security.SecureRandom;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 单实例每秒最多获取128000个ID，单机也可以创建多个实例，全局最多4096个实例，总共可每秒最多5亿多个ID。
@@ -12,17 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Ewing
  */
 public class SnowflakeIdWorker {
-    private static final Map<Integer, SnowflakeIdWorker> INSTANCE_MAP = new ConcurrentHashMap<>();
     // 各组成部分的数位长度
-    private static final int CLUSTER_LENGTH = 6;
-    private static final int SERVER_LENGTH = 6;
     private static final int COUNTER_LENGTH = 7;
-    private static final int INSTANCE_LENGTH = CLUSTER_LENGTH + SERVER_LENGTH;
+    private static final int INSTANCE_LENGTH = 12;
     private static final int TIME_LEFT_SHIFT = INSTANCE_LENGTH + COUNTER_LENGTH;
 
     // 各部分对应的最大值
-    public static final int MAX_CLUSTER = (1 << CLUSTER_LENGTH) - 1;
-    public static final int MAX_SERVER = (1 << SERVER_LENGTH) - 1;
     public static final int MAX_INSTANCE = (1 << INSTANCE_LENGTH) - 1;
     private static final long MAX_TIME = (1L << 63 - TIME_LEFT_SHIFT) - 1;
     private static final int MAX_COUNTER = (1 << COUNTER_LENGTH) - 1;
@@ -35,28 +28,9 @@ public class SnowflakeIdWorker {
     private long lastTime = System.currentTimeMillis();
 
     /**
-     * 根据集群编号和服务编号获取或创建一个新的实例。
-     *
-     * @param cluster 服务集群编号。
-     * @param server  集群内的服务编号。
-     */
-    public static SnowflakeIdWorker getInstance(int cluster, int server) {
-        validate(cluster >= 0 && cluster < MAX_CLUSTER, "Wrong cluster");
-        validate(server >= 0 && server < MAX_SERVER, "Wrong server");
-        return getInstance(cluster << CLUSTER_LENGTH | server);
-    }
-
-    /**
      * 根据全局唯一的实例编号获取或创建一个新的实例。
      */
-    public static SnowflakeIdWorker getInstance(int instance) {
-        return INSTANCE_MAP.computeIfAbsent(instance, SnowflakeIdWorker::new);
-    }
-
-    /**
-     * 根据全局唯一的实例编号获取或创建一个新的实例。
-     */
-    private SnowflakeIdWorker(int instance) {
+    public SnowflakeIdWorker(int instance) {
         validate(instance >= 0 && instance < MAX_INSTANCE, "Wrong instance");
         this.instance = instance;
     }
@@ -64,7 +38,7 @@ public class SnowflakeIdWorker {
     /**
      * 获取下一个ID值。
      */
-    public synchronized long nextId() {
+    public synchronized long nextLong() {
         long nowTime = System.currentTimeMillis();
         validate(nowTime < MAX_TIME, "System time too large");
 

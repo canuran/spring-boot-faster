@@ -231,14 +231,14 @@ INSERT INTO `user_role` VALUES (123456223456123455, 123456123456123453, '2018-01
 -- ----------------------------
 DROP TABLE IF EXISTS `snowflake_id_instance`;
 CREATE TABLE `snowflake_id_instance`  (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
-  `owner_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `owner_id` varchar(32) NOT NULL DEFAULT '',
   `version` bigint(20) NOT NULL DEFAULT 0,
   `expire` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `instance`(`instance`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8;
 
 -- ----------------------------
 -- Records of snowflake_id_instance

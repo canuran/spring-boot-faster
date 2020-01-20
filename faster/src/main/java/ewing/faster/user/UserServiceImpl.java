@@ -1,6 +1,6 @@
 package ewing.faster.user;
 
-import ewing.common.idWorker.SnowflakeIdWorker;
+import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdWorker snowflakeIdWorker;
+    private SnowflakeIdService snowflakeIdService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 .lessThan(1, "用户名已被使用");
 
         userWithRole.setCreateTime(new Date());
-        userWithRole.setUserId(snowflakeIdWorker.nextId());
+        userWithRole.setUserId(snowflakeIdService.nextId());
         queryFactory.insert(user).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();

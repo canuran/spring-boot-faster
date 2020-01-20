@@ -2,7 +2,8 @@ package ewing.faster;
 
 import ewing.common.config.ExceptionHandler;
 import ewing.common.exception.BusinessException;
-import ewing.common.idWorker.SnowflakeIdWorker;
+import ewing.common.snowflake.DatabaseAutoInstanceSupplier;
+import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
-import java.security.SecureRandom;
+import javax.sql.DataSource;
 
 @EnableCaching
 @EnableScheduling
@@ -36,8 +37,8 @@ public class FasterMain {
     }
 
     @Bean
-    public SnowflakeIdWorker snowflakeIdWorker() {
-        return SnowflakeIdWorker.getInstance(new SecureRandom().nextInt(SnowflakeIdWorker.MAX_INSTANCE));
+    public SnowflakeIdService snowflakeIdService(DataSource dataSource) {
+        return new SnowflakeIdService(new DatabaseAutoInstanceSupplier(dataSource));
     }
 
 }

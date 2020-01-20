@@ -1,6 +1,6 @@
 package ewing.faster.security;
 
-import ewing.common.idWorker.SnowflakeIdWorker;
+import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.AuthorityDao;
@@ -43,7 +43,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdWorker snowflakeIdWorker;
+    private SnowflakeIdService snowflakeIdService;
 
     public static final String CODE_REGEXP = "[a-zA-Z]|([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])";
 
@@ -82,7 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         authorityParam.setCreateTime(new Date());
-        authorityParam.setAuthorityId(snowflakeIdWorker.nextId());
+        authorityParam.setAuthorityId(snowflakeIdService.nextId());
         queryFactory.insert(authority).insertBean(authorityParam);
     }
 
@@ -185,7 +185,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleWithAuthority.setRoleId(snowflakeIdWorker.nextId());
+        roleWithAuthority.setRoleId(snowflakeIdService.nextId());
         queryFactory.insert(role).insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系

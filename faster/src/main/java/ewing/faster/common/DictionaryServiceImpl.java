@@ -1,7 +1,7 @@
 package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
-import ewing.common.idWorker.SnowflakeIdWorker;
+import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
@@ -31,7 +31,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdWorker snowflakeIdWorker;
+    private SnowflakeIdService snowflakeIdService;
 
     @Override
     public Page<Dictionary> findWithSubDictionary(
@@ -68,7 +68,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
 
         dictionaryParam.setCreateTime(new Date());
-        dictionaryParam.setDictionaryId(snowflakeIdWorker.nextId());
+        dictionaryParam.setDictionaryId(snowflakeIdService.nextId());
         queryFactory.insert(dictionary).insertBean(dictionaryParam);
 
         // 没有父字典则自身就是根字典
