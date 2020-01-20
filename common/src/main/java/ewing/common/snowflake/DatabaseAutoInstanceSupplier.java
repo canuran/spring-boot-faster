@@ -15,7 +15,7 @@ import java.util.TimerTask;
 import java.util.function.IntSupplier;
 
 /**
- * 数据库实现的实例编号提供者，实现了基本的多实例可用。
+ * 数据库实现的实例编号提供者，实现了多实例可用。
  *
  * @author caiyouyuan
  * @since 2020年01月20日
