@@ -225,3 +225,25 @@ INSERT INTO `user_role` VALUES (123456223456123453, 123456123456123454, '2018-01
 INSERT INTO `user_role` VALUES (123456223456123454, 123456123456123452, '2018-01-22 22:50:48');
 INSERT INTO `user_role` VALUES (123456223456123455, 123456123456123452, '2018-01-22 22:50:50');
 INSERT INTO `user_role` VALUES (123456223456123455, 123456123456123453, '2018-01-22 22:51:30');
+
+-- ----------------------------
+-- Table structure for snowflake_id_instance
+-- ----------------------------
+DROP TABLE IF EXISTS `snowflake_id_instance`;
+CREATE TABLE `snowflake_id_instance`  (
+  `id` int(11) NOT NULL,
+  `instance` int(11) NOT NULL,
+  `owner_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `version` bigint(20) NOT NULL DEFAULT 0,
+  `expire` bigint(20) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `instance`(`instance`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of snowflake_id_instance
+-- ----------------------------
+INSERT INTO `snowflake_id_instance` VALUES (1, 1, '', 0, 2132);
+INSERT INTO `snowflake_id_instance` VALUES (2, 2, '', 0, 0);
+
+SET FOREIGN_KEY_CHECKS = 1;
