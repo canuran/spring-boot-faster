@@ -60,13 +60,13 @@ public class DatabaseAutoInstanceSupplier implements IntSupplier {
         return instance;
     }
 
-    public static final String DB_TIME = "unix_timestamp(current_timestamp(3)) * 1000";
+    private static final String DB_TIME = "unix_timestamp(current_timestamp(3)) * 1000";
 
-    public static final String APPLY_SQL = "update snowflake_id_instance" +
+    private static final String APPLY_SQL = "update snowflake_id_instance" +
             " set version = version + 1, owner_id = ?," +
             " expire = " + DB_TIME + " + ? where id = ? and version = ?";
 
-    public static final String QUERY_SQL = "select id, min(instance) as instance, version" +
+    private static final String QUERY_SQL = "select id, min(instance) as instance, version" +
             " from snowflake_id_instance where owner_id = ? and expire > " + DB_TIME + " + 1000" +
             " union select id, min(instance) as instance, version" +
             " from snowflake_id_instance where expire < " + DB_TIME + " - 1000";
@@ -75,11 +75,13 @@ public class DatabaseAutoInstanceSupplier implements IntSupplier {
         try {
             long update = 0;
             long time = System.currentTimeMillis();
-            try (Connection connection = dataSource.getConnection()) {
-                for (int i = 0; i < 3; i++) {
-                    Integer queryId = null;
-                    Integer queryInstance = null;
-                    Long version = null;
+            // 每秒尝试1次，共3次机会
+            for (int i = 0; i < 3; i++) {
+                Integer queryId = null;
+                Integer queryInstance = null;
+                Long version = null;
+                try (Connection connection = dataSource.getConnection()) {
+                    // 获取正在使用或者可用的实例编号
                     try (PreparedStatement statement = connection.prepareStatement(QUERY_SQL)) {
                         statement.setString(1, owner);
                         try (ResultSet resultSet = statement.executeQuery()) {
@@ -90,31 +92,33 @@ public class DatabaseAutoInstanceSupplier implements IntSupplier {
                                 queryId = getQueryResult(resultSet, "id", Integer.class);
                                 queryInstance = getQueryResult(resultSet, "instance", Integer.class);
                                 version = getQueryResult(resultSet, "version", Long.class);
-                                if (queryId != null && queryInstance != null && version != null) {
-                                    if (queryInstance < 0 || queryInstance > SnowflakeIdWorker.MAX_INSTANCE) {
-                                        throw new IllegalStateException("Query instance value wrong");
-                                    }
-                                }
                             }
                         }
                     }
-                    if (queryId == null || queryInstance == null || version == null) {
-                        Thread.sleep(1000);
-                        continue;
-                    }
-                    try (PreparedStatement statement = connection.prepareStatement(APPLY_SQL)) {
-                        int index = 1;
-                        statement.setString(index++, owner);
-                        statement.setLong(index++, VALID_TIME);
-                        statement.setInt(index++, queryId);
-                        statement.setLong(index, version);
-                        update = statement.executeUpdate();
-                        if (update > 0) {
-                            this.instance = queryInstance;
-                            expire = time + VALID_TIME;
-                            break;
+                    // 使用乐观锁占用获取到的编号
+                    if (queryId != null && queryInstance != null && version != null) {
+                        if (queryInstance < 0 || queryInstance > SnowflakeIdWorker.MAX_INSTANCE) {
+                            throw new IllegalStateException("Query instance value wrong");
+                        }
+                        try (PreparedStatement statement = connection.prepareStatement(APPLY_SQL)) {
+                            int index = 1;
+                            statement.setString(index++, owner);
+                            statement.setLong(index++, VALID_TIME);
+                            statement.setInt(index++, queryId);
+                            statement.setLong(index, version);
+                            update = statement.executeUpdate();
+                            if (update > 0) {
+                                this.instance = queryInstance;
+                                expire = time + VALID_TIME;
+                                break;
+                            }
                         }
                     }
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             }
             if (update < 1) {
