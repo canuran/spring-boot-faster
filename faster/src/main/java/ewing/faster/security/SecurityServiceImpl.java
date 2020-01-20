@@ -1,7 +1,7 @@
 package ewing.faster.security;
 
+import ewing.common.idWorker.SnowflakeIdWorker;
 import ewing.common.utils.Arguments;
-import ewing.common.utils.SnowflakeIdWorker;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.AuthorityDao;
 import ewing.faster.dao.RoleDao;

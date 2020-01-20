@@ -1,4 +1,4 @@
-package ewing.common.utils;
+package ewing.common.idWorker;
 
 import java.security.SecureRandom;
 import java.util.Map;

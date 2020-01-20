@@ -1,8 +1,8 @@
 package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
+import ewing.common.idWorker.SnowflakeIdWorker;
 import ewing.common.utils.Arguments;
-import ewing.common.utils.SnowflakeIdWorker;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;

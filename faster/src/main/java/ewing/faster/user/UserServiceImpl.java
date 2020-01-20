@@ -1,7 +1,7 @@
 package ewing.faster.user;
 
+import ewing.common.idWorker.SnowflakeIdWorker;
 import ewing.common.utils.Arguments;
-import ewing.common.utils.SnowflakeIdWorker;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;

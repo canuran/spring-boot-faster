@@ -1,5 +1,6 @@
 package ewing.common.utils;
 
+import ewing.common.idWorker.SnowflakeIdWorker;
 import ewing.common.test.MultiThreadTester;
 
 import java.util.Arrays;

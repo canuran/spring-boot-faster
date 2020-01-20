@@ -2,8 +2,8 @@ package ewing.faster;
 
 import ewing.common.config.ExceptionHandler;
 import ewing.common.exception.BusinessException;
+import ewing.common.idWorker.SnowflakeIdWorker;
 import ewing.common.utils.Arguments;
-import ewing.common.utils.SnowflakeIdWorker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
