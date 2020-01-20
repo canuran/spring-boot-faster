@@ -2,7 +2,7 @@ package ewing.faster;
 
 import ewing.common.config.ExceptionHandler;
 import ewing.common.exception.BusinessException;
-import ewing.common.snowflake.DatabaseAutoInstanceSupplier;
+import ewing.common.snowflake.MysqlAutoInstanceSupplier;
 import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +38,7 @@ public class FasterMain {
 
     @Bean
     public SnowflakeIdService snowflakeIdService(DataSource dataSource) {
-        return new SnowflakeIdService(new DatabaseAutoInstanceSupplier(dataSource));
+        return new SnowflakeIdService(new MysqlAutoInstanceSupplier(dataSource));
     }
 
 }

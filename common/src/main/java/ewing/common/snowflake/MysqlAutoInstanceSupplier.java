@@ -21,8 +21,8 @@ import java.util.function.IntSupplier;
  * @since 2020年01月20日
  */
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
-public class DatabaseAutoInstanceSupplier implements IntSupplier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseAutoInstanceSupplier.class);
+public class MysqlAutoInstanceSupplier implements IntSupplier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlAutoInstanceSupplier.class);
     private static final String TABLE_NAME = "snowflake_id_instance";
     private static final String DB_TIME = "unix_timestamp(current_timestamp(3)) * 1000";
     private static final String APPLY_SQL = "update " + TABLE_NAME + " set version = version + 1," +
@@ -45,11 +45,11 @@ public class DatabaseAutoInstanceSupplier implements IntSupplier {
     private int instance = -1;
     private long expire = 0L;
 
-    public DatabaseAutoInstanceSupplier(DataSource dataSource) {
+    public MysqlAutoInstanceSupplier(DataSource dataSource) {
         this(dataSource, TABLE_NAME);
     }
 
-    private DatabaseAutoInstanceSupplier(DataSource dataSource, String tableName) {
+    private MysqlAutoInstanceSupplier(DataSource dataSource, String tableName) {
         if (dataSource == null) {
             throw new IllegalArgumentException("DataSource wrong");
         }
