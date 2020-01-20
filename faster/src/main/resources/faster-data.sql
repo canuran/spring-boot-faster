@@ -243,7 +243,9 @@ CREATE TABLE `snowflake_id_instance`  (
 -- ----------------------------
 -- Records of snowflake_id_instance
 -- ----------------------------
-INSERT INTO `snowflake_id_instance` VALUES (1, 1, '', 0, 2132);
+INSERT INTO `snowflake_id_instance` VALUES (0, 0, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (1, 1, '', 0, 0);
 INSERT INTO `snowflake_id_instance` VALUES (2, 2, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (3, 3, '', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
