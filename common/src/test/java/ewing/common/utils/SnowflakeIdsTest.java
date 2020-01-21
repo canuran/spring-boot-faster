@@ -3,6 +3,7 @@ package ewing.common.utils;
 import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.snowflake.SnowflakeIdWorker;
 import ewing.common.test.MultiThreadTester;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,7 +21,8 @@ public class SnowflakeIdsTest {
     /**
      * 生成器测试。
      */
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void nextLong() {
         // 预览测试
         for (int i = 0; i < 10; i++) {
             SnowflakeIdWorker idWorker = new SnowflakeIdWorker(i);
@@ -29,7 +31,7 @@ public class SnowflakeIdsTest {
 
         // 高并发性能测试，开启64个生成器
         AtomicInteger counter = new AtomicInteger();
-        IntSupplier supplier = () -> counter.getAndUpdate(now -> ++now & 63);
+        IntSupplier supplier = () -> counter.updateAndGet(now -> ++now & 63);
         SnowflakeIdService snowflakeIdService = new SnowflakeIdService(supplier);
 
         MultiThreadTester<Object[]> tester = new MultiThreadTester<Object[]>()
@@ -38,7 +40,7 @@ public class SnowflakeIdsTest {
 
         long costTime = tester.context(new Object[tester.getLoopTotal()])
                 .testerConsumer((threadTester, thread, threadLoop, currentTotalLoop) ->
-                        threadTester.getContext()[currentTotalLoop] = snowflakeIdService.nextId())
+                        threadTester.getContext()[currentTotalLoop] = snowflakeIdService.getAsLong())
                 .startTest();
 
         System.out.print("\n" + tester.getThreadTotal() + "个线程线程各生成" + tester.getLoopPerThread() + "个");

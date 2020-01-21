@@ -68,7 +68,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
 
         dictionaryParam.setCreateTime(new Date());
-        dictionaryParam.setDictionaryId(snowflakeIdService.nextId());
+        dictionaryParam.setDictionaryId(snowflakeIdService.getAsLong());
         queryFactory.insert(dictionary).insertBean(dictionaryParam);
 
         // 没有父字典则自身就是根字典

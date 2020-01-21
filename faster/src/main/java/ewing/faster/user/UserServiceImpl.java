@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 .lessThan(1, "用户名已被使用");
 
         userWithRole.setCreateTime(new Date());
-        userWithRole.setUserId(snowflakeIdService.nextId());
+        userWithRole.setUserId(snowflakeIdService.getAsLong());
         queryFactory.insert(user).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();

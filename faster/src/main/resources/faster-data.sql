@@ -231,21 +231,23 @@ INSERT INTO `user_role` VALUES (123456223456123455, 123456123456123453, '2018-01
 -- ----------------------------
 DROP TABLE IF EXISTS `snowflake_id_instance`;
 CREATE TABLE `snowflake_id_instance`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `instance` int(11) NOT NULL,
   `owner_id` varchar(32) NOT NULL DEFAULT '',
   `version` bigint(20) NOT NULL DEFAULT 0,
   `expire` bigint(20) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `instance`(`instance`) USING BTREE
+  PRIMARY KEY (`instance`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8;
 
 -- ----------------------------
 -- Records of snowflake_id_instance
 -- ----------------------------
-INSERT INTO `snowflake_id_instance` VALUES (0, 0, '', 0, 0);
-INSERT INTO `snowflake_id_instance` VALUES (1, 1, '', 0, 0);
-INSERT INTO `snowflake_id_instance` VALUES (2, 2, '', 0, 0);
-INSERT INTO `snowflake_id_instance` VALUES (3, 3, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (0, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (1, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (2, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (3, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (4, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (5, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (6, '', 0, 0);
+INSERT INTO `snowflake_id_instance` VALUES (7, '', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;

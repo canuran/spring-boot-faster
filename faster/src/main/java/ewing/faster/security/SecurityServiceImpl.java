@@ -82,7 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         authorityParam.setCreateTime(new Date());
-        authorityParam.setAuthorityId(snowflakeIdService.nextId());
+        authorityParam.setAuthorityId(snowflakeIdService.getAsLong());
         queryFactory.insert(authority).insertBean(authorityParam);
     }
 
@@ -185,7 +185,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleWithAuthority.setRoleId(snowflakeIdService.nextId());
+        roleWithAuthority.setRoleId(snowflakeIdService.getAsLong());
         queryFactory.insert(role).insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系

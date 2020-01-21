@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
 
 /**
  * 请输入描述说明。
@@ -11,7 +12,7 @@ import java.util.function.IntSupplier;
  * @author caiyouyuan
  * @since 2020年01月20日
  */
-public class SnowflakeIdService {
+public class SnowflakeIdService implements LongSupplier {
     private static final Map<Integer, SnowflakeIdWorker> INSTANCE_MAP = new ConcurrentHashMap<>();
 
     private final IntSupplier instanceSupplier;
@@ -26,7 +27,8 @@ public class SnowflakeIdService {
     /**
      * 使用缓存的ID生成器获取下一个ID。
      */
-    public long nextId() {
+    @Override
+    public long getAsLong() {
         return INSTANCE_MAP.computeIfAbsent(instanceSupplier.getAsInt(), SnowflakeIdWorker::new).nextLong();
     }
 
