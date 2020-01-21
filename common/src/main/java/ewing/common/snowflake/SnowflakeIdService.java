@@ -7,7 +7,7 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 
 /**
- * 请输入描述说明。
+ * 全局ID生成服务。
  *
  * @author caiyouyuan
  * @since 2020年01月20日
