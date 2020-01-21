@@ -155,13 +155,13 @@ public class MysqlWorkerInfoSupplier implements IntSupplier {
         try (ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 Object objectInstance = resultSet.getObject("instance");
-                Integer queryInstance = objectInstance instanceof Integer ? (Integer) objectInstance : null;
+                Integer queryInstance = objectInstance instanceof Number ? ((Number) objectInstance).intValue() : null;
 
                 Object objectVersion = resultSet.getObject("version");
-                Long queryVersion = objectVersion instanceof Long ? (Long) objectVersion : null;
+                Long queryVersion = objectVersion instanceof Number ? ((Number) objectVersion).longValue() : null;
 
                 Object objectTime = resultSet.getObject("time");
-                Long queryTime = objectTime instanceof Long ? (Long) objectTime : null;
+                Long queryTime = objectTime instanceof Number ? ((Number) objectTime).longValue() : null;
 
                 if (queryInstance == null || queryVersion == null || queryTime == null) {
                     return null;
