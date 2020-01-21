@@ -21,35 +21,41 @@ import java.util.function.IntSupplier;
  * @since 2020年01月20日
  */
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
-public class MysqlAutoInstanceSupplier implements IntSupplier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlAutoInstanceSupplier.class);
+public class MysqlWorkerInfoSupplier implements IntSupplier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlWorkerInfoSupplier.class);
     private static final String TABLE_NAME = "snowflake_id_instance";
     private static final String DB_TIME = "unix_timestamp(current_timestamp(3)) * 1000";
     private static final String APPLY_SQL = "update " + TABLE_NAME + " set version = version + 1," +
             " owner_id = ?, expire = " + DB_TIME + " + ? where instance = ? and version = ?";
-    private static final String QUERY_MINE = "select min(instance) as instance, version" +
-            " from " + TABLE_NAME + " where owner_id = ? and expire > " + DB_TIME + " + 1000";
-    private static final String QUERY_EXPIRE = "select instance, version" +
+    private static final String QUERY_MINE = "select min(instance) as instance, version, " + DB_TIME +
+            " as time from " + TABLE_NAME + " where owner_id = ? and expire > " + DB_TIME + " + 1000";
+    private static final String QUERY_EXPIRE = "select instance, version, " + DB_TIME + " as time" +
             " from " + TABLE_NAME + " where expire < " + DB_TIME + " - 1000 limit 1";
 
-    // 实例编号有效期
-    private static final long VALID_TIME = 300000L;
+    // 与数据库的最大时间差
+    private static final long MAX_DIFF_TIME = 100000L;
+    // 全局编号占用的有效期
+    private static final long GLOBAL_VALID_TIME = 300000L;
     // 续约或者更新间隔
     private static final long REFRESH_TIME = 60000L;
+    // 本地编号的有效期
+    private static final long INSTANCE_VALID_TIME = GLOBAL_VALID_TIME - MAX_DIFF_TIME;
 
     private final DataSource dataSource;
     private final String applySql;
     private final String queryMine;
     private final String queryExpire;
     private final String owner;
+
     private int instance = -1;
     private long expire = 0L;
+    private long diffTime = 0L;
 
-    public MysqlAutoInstanceSupplier(DataSource dataSource) {
+    public MysqlWorkerInfoSupplier(DataSource dataSource) {
         this(dataSource, TABLE_NAME);
     }
 
-    private MysqlAutoInstanceSupplier(DataSource dataSource, String tableName) {
+    private MysqlWorkerInfoSupplier(DataSource dataSource, String tableName) {
         if (dataSource == null) {
             throw new IllegalArgumentException("DataSource wrong");
         }
@@ -76,8 +82,12 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
         }, 0L, REFRESH_TIME);
     }
 
+
     @Override
     public int getAsInt() {
+        if (diffTime > MAX_DIFF_TIME) {
+            throw new IllegalStateException("System time wrong");
+        }
         if (System.currentTimeMillis() > expire) {
             throw new IllegalStateException("Instance expire");
         }
@@ -87,7 +97,7 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
     private void refresh() {
         try {
             long update = 0;
-            long time = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             // 每秒尝试1次，共3次机会
             for (int i = 0; i < 3; i++) {
                 QueryInstance queryInstance;
@@ -112,13 +122,14 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
                         try (PreparedStatement statement = connection.prepareStatement(applySql)) {
                             int index = 1;
                             statement.setString(index++, owner);
-                            statement.setLong(index++, VALID_TIME);
+                            statement.setLong(index++, GLOBAL_VALID_TIME);
                             statement.setInt(index++, queryInstance.getInstance());
                             statement.setLong(index, queryInstance.getVersion());
                             update = statement.executeUpdate();
                             if (update > 0) {
                                 this.instance = queryInstance.getInstance();
-                                expire = time + VALID_TIME;
+                                expire = startTime + INSTANCE_VALID_TIME;
+                                diffTime = Math.abs(queryInstance.getTime() - System.currentTimeMillis());
                                 break;
                             }
                         }
@@ -149,10 +160,13 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
                 Object objectVersion = resultSet.getObject("version");
                 Long queryVersion = objectVersion instanceof Long ? (Long) objectVersion : null;
 
-                if (queryInstance == null || queryVersion == null) {
+                Object objectTime = resultSet.getObject("time");
+                Long queryTime = objectTime instanceof Long ? (Long) objectTime : null;
+
+                if (queryInstance == null || queryVersion == null || queryTime == null) {
                     return null;
                 } else {
-                    return new QueryInstance(queryInstance, queryVersion);
+                    return new QueryInstance(queryInstance, queryVersion, queryTime);
                 }
             }
             return null;
@@ -162,10 +176,12 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
     private static class QueryInstance {
         private Integer instance;
         private Long version;
+        private Long time;
 
-        QueryInstance(Integer instance, Long version) {
+        QueryInstance(Integer instance, Long version, Long time) {
             this.instance = instance;
             this.version = version;
+            this.time = time;
         }
 
         Integer getInstance() {
@@ -174,6 +190,10 @@ public class MysqlAutoInstanceSupplier implements IntSupplier {
 
         Long getVersion() {
             return version;
+        }
+
+        Long getTime() {
+            return time;
         }
     }
 
