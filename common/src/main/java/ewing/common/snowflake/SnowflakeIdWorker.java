@@ -3,7 +3,7 @@ package ewing.common.snowflake;
 import java.security.SecureRandom;
 
 /**
- * 单实例每秒最多获取128000个ID，单机也可以创建多个实例，全局最多4096个实例，总共可每秒最多5亿多个ID。
+ * 单实例每秒最多获取256000个ID，单机也可以创建多个实例，全局最多2048个实例，总共可每秒最多5亿多个ID。
  * <p>
  * 时间长度44位可使用到2527年，趋势递增对数据库索引友好，尾数随机保证ID在取余时分布均匀。
  *
@@ -11,8 +11,8 @@ import java.security.SecureRandom;
  */
 public class SnowflakeIdWorker {
     // 各组成部分的数位长度
-    private static final int COUNTER_LENGTH = 7;
-    private static final int INSTANCE_LENGTH = 12;
+    private static final int COUNTER_LENGTH = 8;
+    private static final int INSTANCE_LENGTH = 11;
     private static final int TIME_LEFT_SHIFT = INSTANCE_LENGTH + COUNTER_LENGTH;
 
     // 各部分对应的最大值

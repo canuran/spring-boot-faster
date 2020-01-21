@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.util.function.LongSupplier;
 
 @EnableCaching
 @EnableScheduling
@@ -37,7 +38,7 @@ public class FasterMain {
     }
 
     @Bean
-    public SnowflakeIdService snowflakeIdService(DataSource dataSource) {
+    public LongSupplier longSupplier(DataSource dataSource) {
         return new SnowflakeIdService(new MysqlAutoInstanceSupplier(dataSource));
     }
 

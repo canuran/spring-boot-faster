@@ -1,6 +1,5 @@
 package ewing.faster.user;
 
-import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import static ewing.faster.dao.query.QUser.user;
 import static ewing.faster.dao.query.QUserRole.userRole;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdService snowflakeIdService;
+    private LongSupplier longSupplier;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 .lessThan(1, "用户名已被使用");
 
         userWithRole.setCreateTime(new Date());
-        userWithRole.setUserId(snowflakeIdService.getAsLong());
+        userWithRole.setUserId(longSupplier.getAsLong());
         queryFactory.insert(user).insertBean(userWithRole);
         addUserRoles(userWithRole);
         return userWithRole.getUserId();

@@ -1,7 +1,6 @@
 package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
-import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import static ewing.faster.dao.query.QDictionary.dictionary;
 
@@ -31,7 +31,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdService snowflakeIdService;
+    private LongSupplier longSupplier;
 
     @Override
     public Page<Dictionary> findWithSubDictionary(
@@ -68,7 +68,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
 
         dictionaryParam.setCreateTime(new Date());
-        dictionaryParam.setDictionaryId(snowflakeIdService.getAsLong());
+        dictionaryParam.setDictionaryId(longSupplier.getAsLong());
         queryFactory.insert(dictionary).insertBean(dictionaryParam);
 
         // 没有父字典则自身就是根字典

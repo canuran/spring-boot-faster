@@ -1,6 +1,5 @@
 package ewing.faster.security;
 
-import ewing.common.snowflake.SnowflakeIdService;
 import ewing.common.utils.Arguments;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.dao.AuthorityDao;
@@ -22,6 +21,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import static ewing.faster.dao.query.QAuthority.authority;
 import static ewing.faster.dao.query.QPermission.permission;
@@ -43,7 +43,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private BaseQueryFactory queryFactory;
     @Autowired
-    private SnowflakeIdService snowflakeIdService;
+    private LongSupplier longSupplier;
 
     public static final String CODE_REGEXP = "[a-zA-Z]|([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])";
 
@@ -82,7 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         authorityParam.setCreateTime(new Date());
-        authorityParam.setAuthorityId(snowflakeIdService.getAsLong());
+        authorityParam.setAuthorityId(longSupplier.getAsLong());
         queryFactory.insert(authority).insertBean(authorityParam);
     }
 
@@ -185,7 +185,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         // 使用自定义VO新增角色
         roleWithAuthority.setCreateTime(new Date());
-        roleWithAuthority.setRoleId(snowflakeIdService.getAsLong());
+        roleWithAuthority.setRoleId(longSupplier.getAsLong());
         queryFactory.insert(role).insertBean(roleWithAuthority);
 
         // 批量建立新的角色权限关系
