@@ -34,9 +34,9 @@ public class ExceptionUtils {
     }
 
     /**
-     * 获取根源异常。
+     * 获取最开始的原始异常。
      */
-    public static Throwable getRootCause(Throwable throwable) {
+    public static Throwable getOriginCause(Throwable throwable) {
         Throwable cause = throwable;
         while (throwable != null) {
             cause = throwable;

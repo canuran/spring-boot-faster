@@ -85,7 +85,7 @@ public class RemoteDebugger {
                 page += methodExecute(expression);
             }
         } catch (Exception e) {
-            page += "调用异常：" + ExceptionUtils.getRootCause(e).getMessage();
+            page += "调用异常：" + ExceptionUtils.getOriginCause(e).getMessage();
         }
 
         page += "</textarea>\n" +
