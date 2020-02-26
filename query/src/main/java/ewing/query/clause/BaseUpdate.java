@@ -175,9 +175,8 @@ public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
         return 0L;
     }
 
-    @Override
-    public long execute() {
-        return isEmpty() ? 0L : super.execute();
+    public long executeBatch() {
+        return batches.isEmpty() ? 0L : execute();
     }
 
 }

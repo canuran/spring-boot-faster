@@ -184,9 +184,8 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
         return this;
     }
 
-    @Override
-    public long execute() {
-        return isEmpty() ? 0L : super.execute();
+    public long executeBatch() {
+        return batches.isEmpty() ? 0L : execute();
     }
 
 }
