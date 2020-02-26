@@ -11,9 +11,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.util.BeanUtils;
 import com.querydsl.core.util.ReflectionUtils;
-import com.querydsl.sql.PrimaryKey;
-import com.querydsl.sql.RelationalPath;
-import com.querydsl.sql.RelationalPathBase;
+import com.querydsl.sql.*;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -34,6 +32,10 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class QueryUtils {
+
+    public static final Configuration DEFAULT_CONFIGURATION = new Configuration(SQLTemplates.DEFAULT);
+
+    public static final RelationalPathBase<Object> EMPTY_PATH_BASE = new RelationalPathBase<>(Object.class, "object", "schema", "table");
 
     private QueryUtils() {
     }

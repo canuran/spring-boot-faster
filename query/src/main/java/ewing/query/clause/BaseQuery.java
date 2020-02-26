@@ -7,7 +7,6 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.sql.AbstractSQLQuery;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLTemplates;
 import ewing.query.QueryUtils;
 import ewing.query.paging.Page;
 import ewing.query.paging.Paging;
@@ -27,14 +26,13 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("unchecked")
 public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
-    private static final Configuration DEFAULT_CONFIG = new Configuration(SQLTemplates.DEFAULT);
 
     private boolean pageCountRows = true;
     private boolean pageFetchRows = true;
     private Provider<Connection> connectionProvider;
 
     public BaseQuery() {
-        super((Connection) null, DEFAULT_CONFIG, new DefaultQueryMetadata());
+        super((Connection) null, QueryUtils.DEFAULT_CONFIGURATION, new DefaultQueryMetadata());
     }
 
     public BaseQuery(Connection conn, Configuration configuration) {

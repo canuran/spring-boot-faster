@@ -22,6 +22,10 @@ import java.util.function.Supplier;
  */
 public class BaseDelete extends AbstractSQLDeleteClause<BaseDelete> {
 
+    public BaseDelete() {
+        super((Connection) null, QueryUtils.DEFAULT_CONFIGURATION, QueryUtils.EMPTY_PATH_BASE);
+    }
+
     public BaseDelete(Connection connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }

@@ -25,6 +25,10 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
 
+    public BaseInsert() {
+        super((Connection) null, QueryUtils.DEFAULT_CONFIGURATION, QueryUtils.EMPTY_PATH_BASE);
+    }
+
     public BaseInsert(Connection connection, Configuration configuration, RelationalPath<?> entity, SQLQuery<?> subQuery) {
         super(connection, configuration, entity, subQuery);
     }

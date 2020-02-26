@@ -24,6 +24,10 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class MysqlInsert extends AbstractSQLInsertClause<MysqlInsert> {
 
+    public MysqlInsert() {
+        super((Connection) null, QueryUtils.DEFAULT_CONFIGURATION, QueryUtils.EMPTY_PATH_BASE);
+    }
+
     public MysqlInsert(Connection connection, Configuration configuration, RelationalPath<?> entity, SQLQuery<?> subQuery) {
         super(connection, configuration, entity, subQuery);
     }

@@ -24,6 +24,10 @@ import java.util.function.Supplier;
  */
 public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
 
+    public BaseUpdate() {
+        super((Connection) null, QueryUtils.DEFAULT_CONFIGURATION, QueryUtils.EMPTY_PATH_BASE);
+    }
+
     public BaseUpdate(Connection connection, Configuration configuration, RelationalPath<?> entity) {
         super(connection, configuration, entity);
     }
