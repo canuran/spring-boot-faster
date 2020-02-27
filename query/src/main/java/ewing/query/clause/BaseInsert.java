@@ -109,7 +109,7 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
             for (Object bean : beans) {
                 populate(bean).addBatch();
             }
-            return execute();
+            return executeBatch();
         }
         return 0L;
     }
@@ -122,7 +122,7 @@ public class BaseInsert extends AbstractSQLInsertClause<BaseInsert> {
             for (Object bean : beans) {
                 populate(bean, DefaultMapper.WITH_NULL_BINDINGS).addBatch();
             }
-            return execute();
+            return executeBatch();
         }
         return 0L;
     }

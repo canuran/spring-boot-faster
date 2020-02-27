@@ -170,7 +170,7 @@ public class BaseUpdate extends AbstractSQLUpdateClause<BaseUpdate> {
                         .where(QueryUtils.beanKeyEquals(keyPaths, bean))
                         .addBatch();
             }
-            return execute();
+            return executeBatch();
         }
         return 0L;
     }

@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import ewing.query.clause.BaseQuery;
+import ewing.query.clause.BaseUpdate;
 import ewing.query.paging.Page;
 import ewing.query.querydsldemo.entity.DemoAddress;
 import ewing.query.querydsldemo.entity.DemoUser;
@@ -353,7 +354,7 @@ public class QuerydslDemos {
         update.set(demoUser.username, demoUser.username.append("妹妹"))
                 .where(demoUser.gender.eq(2)).addBatch();
 
-        System.out.println(update.execute());
+        System.out.println(((BaseUpdate) update).executeBatch());
     }
 
     /**

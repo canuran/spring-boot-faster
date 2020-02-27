@@ -91,7 +91,7 @@ public class BaseDelete extends AbstractSQLDeleteClause<BaseDelete> {
             for (Object key : keys) {
                 where(QueryUtils.baseKeyEquals((RelationalPathBase) entity, key)).addBatch();
             }
-            return execute();
+            return executeBatch();
         }
         return 0L;
     }
@@ -113,9 +113,13 @@ public class BaseDelete extends AbstractSQLDeleteClause<BaseDelete> {
             for (Object bean : beans) {
                 where(QueryUtils.beanKeyEquals(keyPaths, bean)).addBatch();
             }
-            return execute();
+            return executeBatch();
         }
         return 0L;
+    }
+
+    public long executeBatch() {
+        return batches.isEmpty() ? 0L : execute();
     }
 
 }
