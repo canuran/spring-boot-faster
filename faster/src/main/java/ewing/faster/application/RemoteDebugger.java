@@ -63,7 +63,7 @@ public class RemoteDebugger {
                 "<form method='post' action=''>\n" +
                 "    <label>在线调试</label>\n" +
                 "    <br/>\n" +
-                "    <textarea rows='10' cols='120' name='expression' placeholder='" +
+                "    <textarea rows='20' cols='150' name='expression' placeholder='" +
                 "用 Spring bean name 调用：userServiceImpl.findUser({id:123})\n" +
                 "用 IDEA 右键复制方法引用：com.ewing.UserServiceImpl#findUser({id:123})\n" +
                 "静态方法或new一个新对象调用：ewing.common.TimeUtils.getDaysOfMonth(2018,5)\n" +
@@ -74,10 +74,10 @@ public class RemoteDebugger {
 
         page += "</textarea>\n" +
                 "    <br/>\n" +
-                "    <input type='submit'  value='调用方法' style='width:863px'/>\n" +
+                "    <input type='submit'  value='调用方法' style='width:1073px'/>\n" +
                 "</form>\n" +
                 "<br/>\n" +
-                "<textarea rows='20' cols='120' placeholder='调用返回的结果'>";
+                "<textarea rows='20' cols='150' placeholder='调用返回的结果'>";
 
         // 写入返回值
         try {
