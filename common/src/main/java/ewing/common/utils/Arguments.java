@@ -131,7 +131,7 @@ public final class Arguments {
     }
 
     public static <T> T nullToDefault(T value, T defaults) {
-        return value == null ? defaults : null;
+        return value == null ? defaults : value;
     }
 
     @SuppressWarnings("unchecked")

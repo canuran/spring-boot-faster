@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,10 +75,6 @@ public class SecurityServiceImpl implements SecurityService {
                 .fetchCount())
                 .lessThan(1, "权限编码已存在");
 
-        // 内容不允许为空串
-        if (!StringUtils.hasText(authorityParam.getContent())) {
-            authorityParam.setContent(null);
-        }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         authorityParam.setCreateTime(new Date());
         authorityParam.setAuthorityId(longSupplier.getAsLong());
@@ -91,6 +86,9 @@ public class SecurityServiceImpl implements SecurityService {
 
         Arguments.of(authorityParam.getName()).name("权限名称")
                 .hasText().minLength(2).maxLength(32).normalChars();
+
+        Arguments.of(authorityParam.getContent()).name("权限内容")
+                .maxLength(255).normalChars();
 
         Arguments.of(authorityParam.getCode()).name("权限编码")
                 .hasText().minLength(2).maxLength(32).matches(CODE_REGEXP);
@@ -116,10 +114,6 @@ public class SecurityServiceImpl implements SecurityService {
                 .fetchCount())
                 .lessThan(1, "权限编码已存在");
 
-        // 内容不允许为空串
-        if (!StringUtils.hasText(authorityParam.getContent())) {
-            authorityParam.setContent(null);
-        }
         authorityParam.setCode(authorityParam.getCode().toUpperCase());
         queryFactory.update(authority).updateBean(authorityParam);
     }
