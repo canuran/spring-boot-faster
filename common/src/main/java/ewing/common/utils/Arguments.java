@@ -4,10 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.regex.Pattern;
 
 /**
@@ -78,11 +75,15 @@ public final class Arguments {
         return new Comparables<>(comparable);
     }
 
-    public static <O extends Collection<?>> Collections<O> of(O collection) {
+    public static <A extends Iterables<A, O, E>, O extends Iterable<E>, E> Iterables<A, O, E> of(O iterable) {
+        return new Iterables<>(iterable);
+    }
+
+    public static <O extends Collection<E>, E> Collections<O, E> of(O collection) {
         return new Collections<>(collection);
     }
 
-    public static <O extends Map<?, ?>> Maps<O> of(O map) {
+    public static <O extends Map<K, V>, K, V> Maps<O, K, V> of(O map) {
         return new Maps<>(map);
     }
 
@@ -286,13 +287,13 @@ public final class Arguments {
             return (A) this;
         }
 
-        public Objects mapToObjects(Function<O, Object> mapping) {
-            return new Objects(mapping.apply(object));
+        public <B extends Objects<B, E>, E> Objects<B, E> mapToObjects(Function<O, E> mapping) {
+            return new Objects<>(mapping.apply(object));
         }
 
         public <C extends Comparables<C, E>, E extends Comparable<E>> Comparables<C, E> mapToComparables(
                 Function<O, E> mapping) {
-            return new Comparables(mapping.apply(object));
+            return new Comparables<>(mapping.apply(object));
         }
 
         public Integers mapToIntegers(Function<O, Integer> mapping) {
@@ -311,12 +312,12 @@ public final class Arguments {
             return new Strings(mapping.apply(object));
         }
 
-        public <C extends Collection<?>> Collections<C> mapToCollections(Function<O, C> mapping) {
-            return new Collections(mapping.apply(object));
+        public <C extends Collection<E>, E> Collections<C, E> mapToCollections(Function<O, C> mapping) {
+            return new Collections<>(mapping.apply(object));
         }
 
-        public <M extends Map<?, ?>> Maps<M> mapToMaps(Function<O, M> mapping) {
-            return new Maps(mapping.apply(object));
+        public <M extends Map<K, V>, K, V> Maps<M, K, V> mapToMaps(Function<O, M> mapping) {
+            return new Maps<>(mapping.apply(object));
         }
     }
 
@@ -529,28 +530,20 @@ public final class Arguments {
         }
     }
 
-    public static final class Collections<O extends Collection<?>> extends Objects<Collections<O>, O> {
-        public Collections(O object) {
+    public static class Iterables<I extends Iterables<I, O, E>, O extends Iterable<E>, E> extends Objects<I, O> {
+        public Iterables(O object) {
             super(object);
         }
 
-        private static boolean isEmpty(Collection<?> collection) {
-            return collection == null || collection.isEmpty();
-        }
-
-        private static int getSize(Collection<?> collection) {
-            return collection == null ? 0 : collection.size();
-        }
-
-        public Collections<O> allNotNull() {
+        public Iterables<I, O, E> allNotNull() {
             return allNotNull(defaultExceptor.apply(() -> localMessager.canNotContainsNull(name)));
         }
 
-        public Collections<O> allNotNull(String message) {
+        public Iterables<I, O, E> allNotNull(String message) {
             return allNotNull(defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> allNotNull(Supplier<RuntimeException> exceptor) {
+        public Iterables<I, O, E> allNotNull(Supplier<RuntimeException> exceptor) {
             if (object == null) {
                 throw exceptor.get();
             } else {
@@ -563,90 +556,142 @@ public final class Arguments {
             return this;
         }
 
-        public Collections<O> notEmpty() {
+        public Iterables<I, O, E> allTrue(Predicate<E> predicate) {
+            return allTrue(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
+        }
+
+        public Iterables<I, O, E> allTrue(Predicate<E> predicate, String message) {
+            return allTrue(predicate, defaultExceptor.apply(() -> message));
+        }
+
+        public Iterables<I, O, E> allTrue(Predicate<E> predicate, Supplier<RuntimeException> exceptor) {
+            if (object != null) {
+                for (E e : object) {
+                    if (!predicate.test(e)) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Iterables<I, O, E> allFalse(Predicate<E> predicate) {
+            return allFalse(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
+        }
+
+        public Iterables<I, O, E> allFalse(Predicate<E> predicate, String message) {
+            return allFalse(predicate, defaultExceptor.apply(() -> message));
+        }
+
+        public Iterables<I, O, E> allFalse(Predicate<E> predicate, Supplier<RuntimeException> exceptor) {
+            if (object != null) {
+                for (E e : object) {
+                    if (predicate.test(e)) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+    }
+
+    public static final class Collections<O extends Collection<E>, E> extends Iterables<Collections<O, E>, O, E> {
+        public Collections(O object) {
+            super(object);
+        }
+
+        private static boolean isEmpty(Collection<?> collection) {
+            return collection == null || collection.isEmpty();
+        }
+
+        private static int getSize(Collection<?> collection) {
+            return collection == null ? 0 : collection.size();
+        }
+
+        public Collections<O, E> notEmpty() {
             return notEmpty(defaultExceptor.apply(() -> localMessager.canNotEmpty(name)));
         }
 
-        public Collections<O> notEmpty(String message) {
+        public Collections<O, E> notEmpty(String message) {
             return notEmpty(defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> notEmpty(Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> notEmpty(Supplier<RuntimeException> exceptor) {
             if (isEmpty(object)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Collections<O> size(int size) {
+        public Collections<O, E> size(int size) {
             return size(size, defaultExceptor.apply(() -> localMessager.sizeMustBe(name, size)));
         }
 
-        public Collections<O> size(int size, String message) {
+        public Collections<O, E> size(int size, String message) {
             return size(size, defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> size(int size, Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> size(int size, Supplier<RuntimeException> exceptor) {
             if (getSize(object) != size) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Collections<O> minSize(int minSize) {
+        public Collections<O, E> minSize(int minSize) {
             return minSize(minSize, defaultExceptor.apply(() -> localMessager.sizeMustGreaterThan(name, minSize)));
         }
 
-        public Collections<O> minSize(int minSize, String message) {
+        public Collections<O, E> minSize(int minSize, String message) {
             return minSize(minSize, defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> minSize(int minSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) < minSize) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Collections<O> maxSize(int maxSize) {
+        public Collections<O, E> maxSize(int maxSize) {
             return maxSize(maxSize, defaultExceptor.apply(() -> localMessager.sizeMustLessThan(name, maxSize)));
         }
 
-        public Collections<O> maxSize(int maxSize, String message) {
+        public Collections<O, E> maxSize(int maxSize, String message) {
             return maxSize(maxSize, defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) > maxSize) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Collections<O> contains(Object other) {
+        public Collections<O, E> contains(Object other) {
             return contains(other, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedValue(name)));
         }
 
-        public Collections<O> contains(Object other, String message) {
+        public Collections<O, E> contains(Object other, String message) {
             return contains(other, defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> contains(Object other, Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> contains(Object other, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.contains(other)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Collections<O> containsAll(O other) {
+        public Collections<O, E> containsAll(O other) {
             return containsAll(other, defaultExceptor.apply(() -> localMessager.mustContainsAllSpecifiedValues(name)));
         }
 
-        public Collections<O> containsAll(O other, String message) {
+        public Collections<O, E> containsAll(O other, String message) {
             return containsAll(other, defaultExceptor.apply(() -> message));
         }
 
-        public Collections<O> containsAll(O other, Supplier<RuntimeException> exceptor) {
+        public Collections<O, E> containsAll(O other, Supplier<RuntimeException> exceptor) {
             if (!isEmpty(other) && (!isEmpty(object) && !object.containsAll(other))) {
                 throw exceptor.get();
             }
@@ -654,7 +699,7 @@ public final class Arguments {
         }
     }
 
-    public static final class Maps<O extends Map<?, ?>> extends Objects<Maps<O>, O> {
+    public static final class Maps<O extends Map<K, V>, K, V> extends Objects<Maps<O, K, V>, O> {
         public Maps(O object) {
             super(object);
         }
@@ -667,92 +712,130 @@ public final class Arguments {
             return map == null ? 0 : map.size();
         }
 
-        public Maps<O> notEmpty() {
+        public Maps<O, K, V> notEmpty() {
             return notEmpty(defaultExceptor.apply(() -> localMessager.canNotEmpty(name)));
         }
 
-        public Maps<O> notEmpty(String message) {
+        public Maps<O, K, V> notEmpty(String message) {
             return notEmpty(defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> notEmpty(Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> notEmpty(Supplier<RuntimeException> exceptor) {
             if (isEmpty(object)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Maps<O> size(int size) {
+        public Maps<O, K, V> size(int size) {
             return size(size, defaultExceptor.apply(() -> localMessager.sizeMustBe(name, size)));
         }
 
-        public Maps<O> size(int size, String message) {
+        public Maps<O, K, V> size(int size, String message) {
             return size(size, defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> size(int size, Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> size(int size, Supplier<RuntimeException> exceptor) {
             if (getSize(object) != size) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Maps<O> minSize(int minSize) {
+        public Maps<O, K, V> minSize(int minSize) {
             return minSize(minSize, defaultExceptor.apply(() -> localMessager.sizeMustGreaterThan(name, minSize)));
         }
 
-        public Maps<O> minSize(int minSize, String message) {
+        public Maps<O, K, V> minSize(int minSize, String message) {
             return minSize(minSize, defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> minSize(int minSize, Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> minSize(int minSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) < minSize) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Maps<O> maxSize(int maxSize) {
+        public Maps<O, K, V> maxSize(int maxSize) {
             return maxSize(maxSize, defaultExceptor.apply(() -> localMessager.sizeMustLessThan(name, maxSize)));
         }
 
-        public Maps<O> maxSize(int maxSize, String message) {
+        public Maps<O, K, V> maxSize(int maxSize, String message) {
             return maxSize(maxSize, defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> maxSize(int maxSize, Supplier<RuntimeException> exceptor) {
             if (getSize(object) > maxSize) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Maps<O> containsKey(Object key) {
+        public Maps<O, K, V> containsKey(Object key) {
             return containsKey(key, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedKey(name)));
         }
 
-        public Maps<O> containsKey(Object key, String message) {
+        public Maps<O, K, V> containsKey(Object key, String message) {
             return containsKey(key, defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> containsKey(Object key, Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> containsKey(Object key, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.containsKey(key)) {
                 throw exceptor.get();
             }
             return this;
         }
 
-        public Maps<O> containsValue(Object value) {
+        public Maps<O, K, V> containsValue(Object value) {
             return containsValue(value, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedValue(name)));
         }
 
-        public Maps<O> containsValue(Object value, String message) {
+        public Maps<O, K, V> containsValue(Object value, String message) {
             return containsValue(value, defaultExceptor.apply(() -> message));
         }
 
-        public Maps<O> containsValue(Object value, Supplier<RuntimeException> exceptor) {
+        public Maps<O, K, V> containsValue(Object value, Supplier<RuntimeException> exceptor) {
             if (object == null || !object.containsValue(value)) {
                 throw exceptor.get();
+            }
+            return this;
+        }
+
+        public Maps<O, K, V> allTrue(BiPredicate<K, V> predicate) {
+            return allTrue(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
+        }
+
+        public Maps<O, K, V> allTrue(BiPredicate<K, V> predicate, String message) {
+            return allTrue(predicate, defaultExceptor.apply(() -> message));
+        }
+
+        public Maps<O, K, V> allTrue(BiPredicate<K, V> predicate, Supplier<RuntimeException> exceptor) {
+            if (!isEmpty(object)) {
+                for (Map.Entry<K, V> e : object.entrySet()) {
+                    if (!predicate.test(e.getKey(), e.getValue())) {
+                        throw exceptor.get();
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Maps<O, K, V> allFalse(BiPredicate<K, V> predicate) {
+            return allFalse(predicate, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(name)));
+        }
+
+        public Maps<O, K, V> allFalse(BiPredicate<K, V> predicate, String message) {
+            return allFalse(predicate, defaultExceptor.apply(() -> message));
+        }
+
+        public Maps<O, K, V> allFalse(BiPredicate<K, V> predicate, Supplier<RuntimeException> exceptor) {
+            if (!isEmpty(object)) {
+                for (Map.Entry<K, V> e : object.entrySet()) {
+                    if (!predicate.test(e.getKey(), e.getValue())) {
+                        throw exceptor.get();
+                    }
+                }
             }
             return this;
         }
