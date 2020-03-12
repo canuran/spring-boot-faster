@@ -11,21 +11,21 @@ import java.util.regex.Pattern;
  * 检查应用参数并抛出相应的异常。
  *
  * <pre>
- *  // 设置全局默认消息产生器，默认为英文消息
+ *  // 应用启动时设置全局默认消息产生器，默认为英文消息
  *  Arguments.setDefaultMessager(Arguments.CN_MESSAGER);
  *
- *  // 设置全局默认异常产生器，默认为IllegalArgumentException
+ *  // 应用启动时设置全局默认异常产生器，默认为IllegalArgumentException
  *  Arguments.setDefaultExceptor(message -> () -> new IllegalArgumentException(message));
  *
- *  // 链式校验，根据参数不同提供不同校验方法，可自定义异常，或使用默认异常信息
+ *  // 链式校验，根据参数不同提供不同校验方法，默认使用消息和异常产生器，支持自定义消息和异常，以字符串为例：
  *  Arguments.of("18888888888")
- *          .name("手机号")
- *          .hasText()
- *          .maxLength(15)
+ *          .name("手机号")  // 参数命名为手机号，非必须
+ *          .hasText()  // 手机号必须包含文本
+ *          .maxLength(15)  // 手机号长度必须小于15
  *          .matches(".{11,15}", "手机号必须是11至15位")
- *          .normalChars(() -> new IllegalArgumentException("手机号填错了"))
- *          .digits()
- *          .get();
+ *          .normalChars(() -> new IllegalArgumentException("手机号不能包含特殊字符"))
+ *          .digits() // 手机号必须是数字
+ *          .get();  // 获取参数，可用于不方便使用分号的链式代码中
  * </pre>
  *
  * @author Ewing
