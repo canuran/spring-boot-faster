@@ -102,6 +102,34 @@ public final class Arguments {
         return new Doubles(value);
     }
 
+    public static void isTrue(boolean bool) {
+        isTrue(bool, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
+    }
+
+    public static void isTrue(boolean bool, String message) {
+        isTrue(bool, defaultExceptor.apply(() -> message));
+    }
+
+    public static void isTrue(boolean bool, Supplier<RuntimeException> exceptor) {
+        if (!bool) {
+            throw exceptor.get();
+        }
+    }
+
+    public static void isFalse(boolean bool) {
+        isFalse(bool, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
+    }
+
+    public static void isFalse(boolean bool, String message) {
+        isFalse(bool, defaultExceptor.apply(() -> message));
+    }
+
+    public static void isFalse(boolean bool, Supplier<RuntimeException> exceptor) {
+        if (bool) {
+            throw exceptor.get();
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static class Objects<A extends Objects<A, O>, O> {
         protected final O object;
@@ -161,7 +189,7 @@ public final class Arguments {
         }
 
         public A equalsTo(O other) {
-            return equalsTo(other, defaultExceptor.apply(() -> localMessager.mustEqualsTheOther(name)));
+            return equalsTo(other, defaultExceptor.apply(() -> localMessager.mustEqualsSpecifiedValue(name)));
         }
 
         public A equalsTo(O other, String message) {
@@ -176,7 +204,7 @@ public final class Arguments {
         }
 
         public A notEquals(O other) {
-            return notEquals(other, defaultExceptor.apply(() -> localMessager.mustNotEqualsTheOther(name)));
+            return notEquals(other, defaultExceptor.apply(() -> localMessager.mustNotEqualsSpecifiedValue(name)));
         }
 
         public A notEquals(O other, String message) {
@@ -191,7 +219,7 @@ public final class Arguments {
         }
 
         public <I extends Iterable<O>> A in(I others) {
-            return in(others, defaultExceptor.apply(() -> localMessager.mustInTheOthers(name)));
+            return in(others, defaultExceptor.apply(() -> localMessager.mustInSpecifiedValues(name)));
         }
 
         public <I extends Iterable<O>> A in(I others, String message) {
@@ -208,7 +236,7 @@ public final class Arguments {
         }
 
         public <I extends Iterable<O>> A notIn(I others) {
-            return notIn(others, defaultExceptor.apply(() -> localMessager.mustNotInTheOthers(name)));
+            return notIn(others, defaultExceptor.apply(() -> localMessager.mustNotInSpecifiedValues(name)));
         }
 
         public <I extends Iterable<O>> A notIn(I others, String message) {
@@ -348,15 +376,15 @@ public final class Arguments {
          * 判断字符串里只有普通UTF8字符，基本定义范围，最长为3字节，常用于mysql字符集。
          * 1111 开头的字节只会出现在16位以上的字符中，非基本定义范围，详见UTF-8的规范。
          */
-        public Strings normalChars() {
-            return normalChars(defaultExceptor.apply(() -> localMessager.canNotContainSpecialCharacters(name)));
+        public Strings utf8Basic() {
+            return utf8Basic(defaultExceptor.apply(() -> localMessager.canNotContainSpecialCharacters(name)));
         }
 
-        public Strings normalChars(String message) {
-            return normalChars(defaultExceptor.apply(() -> message));
+        public Strings utf8Basic(String message) {
+            return utf8Basic(defaultExceptor.apply(() -> message));
         }
 
-        public Strings normalChars(Supplier<RuntimeException> exceptor) {
+        public Strings utf8Basic(Supplier<RuntimeException> exceptor) {
             if (object != null && object.length() > 0) {
                 for (byte aByte : object.getBytes(StandardCharsets.UTF_8)) {
                     if ((aByte & 0b11110000) == 0b11110000) {
@@ -592,7 +620,7 @@ public final class Arguments {
         }
 
         public Collections<O> contains(Object other) {
-            return contains(other, defaultExceptor.apply(() -> localMessager.mustContainsOther(name)));
+            return contains(other, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedValue(name)));
         }
 
         public Collections<O> contains(Object other, String message) {
@@ -607,7 +635,7 @@ public final class Arguments {
         }
 
         public Collections<O> containsAll(O other) {
-            return containsAll(other, defaultExceptor.apply(() -> localMessager.mustContainsAllOthers(name)));
+            return containsAll(other, defaultExceptor.apply(() -> localMessager.mustContainsAllSpecifiedValues(name)));
         }
 
         public Collections<O> containsAll(O other, String message) {
@@ -696,7 +724,7 @@ public final class Arguments {
         }
 
         public Maps<O> containsKey(Object key) {
-            return containsKey(key, defaultExceptor.apply(() -> localMessager.mustContainsKey(name)));
+            return containsKey(key, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedKey(name)));
         }
 
         public Maps<O> containsKey(Object key, String message) {
@@ -711,7 +739,7 @@ public final class Arguments {
         }
 
         public Maps<O> containsValue(Object value) {
-            return containsValue(value, defaultExceptor.apply(() -> localMessager.mustContainsValue(name)));
+            return containsValue(value, defaultExceptor.apply(() -> localMessager.mustContainsSpecifiedValue(name)));
         }
 
         public Maps<O> containsValue(Object value, String message) {
@@ -966,7 +994,7 @@ public final class Arguments {
         }
 
         public A greaterThan(O other) {
-            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOther(name)));
+            return greaterThan(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanSpecifiedValue(name)));
         }
 
         public A greaterThan(O other, String message) {
@@ -981,7 +1009,7 @@ public final class Arguments {
         }
 
         public A lessThan(O other) {
-            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThanOther(name)));
+            return lessThan(other, defaultExceptor.apply(() -> localMessager.mustLessThanSpecifiedValue(name)));
         }
 
         public A lessThan(O other, String message) {
@@ -996,7 +1024,7 @@ public final class Arguments {
         }
 
         public A greaterThanOrEquals(O other) {
-            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEqualsOther(name)));
+            return greaterThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustGreaterThanOrEqualsSpecifiedValue(name)));
         }
 
         public A greaterThanOrEquals(O other, String message) {
@@ -1011,7 +1039,7 @@ public final class Arguments {
         }
 
         public A lessThanOrEquals(O other) {
-            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEqualsOther(name)));
+            return lessThanOrEquals(other, defaultExceptor.apply(() -> localMessager.mustLessThanOrEqualsSpecifiedValue(name)));
         }
 
         public A lessThanOrEquals(O other, String message) {
@@ -1047,20 +1075,20 @@ public final class Arguments {
             return name + " can not null";
         }
 
-        default String mustEqualsTheOther(String name) {
-            return name + " must equals the other";
+        default String mustEqualsSpecifiedValue(String name) {
+            return name + " must equals specified value";
         }
 
-        default String mustNotEqualsTheOther(String name) {
-            return name + " must not equals the other";
+        default String mustNotEqualsSpecifiedValue(String name) {
+            return name + " must not equals specified value";
         }
 
-        default String mustInTheOthers(String name) {
-            return name + " must in the others";
+        default String mustInSpecifiedValues(String name) {
+            return name + " must in specified values";
         }
 
-        default String mustNotInTheOthers(String name) {
-            return name + " must not in the others";
+        default String mustNotInSpecifiedValues(String name) {
+            return name + " must not in specified values";
         }
 
         default String notMeetTheCondition(String name) {
@@ -1123,20 +1151,16 @@ public final class Arguments {
             return name + " size must less than " + maxSize;
         }
 
-        default String mustContainsOther(String name) {
-            return name + " must contains other";
+        default String mustContainsSpecifiedValue(String name) {
+            return name + " must contains specified value";
         }
 
-        default String mustContainsAllOthers(String name) {
-            return name + " must contains all others";
+        default String mustContainsAllSpecifiedValues(String name) {
+            return name + " must contains all specified values";
         }
 
-        default String mustContainsKey(String name) {
-            return name + " must contains key";
-        }
-
-        default String mustContainsValue(String name) {
-            return name + " must contains value";
+        default String mustContainsSpecifiedKey(String name) {
+            return name + " must contains specified key";
         }
 
         default String mustBePositive(String name) {
@@ -1175,20 +1199,20 @@ public final class Arguments {
             return name + " must less than or equals " + other;
         }
 
-        default String mustGreaterThanOther(String name) {
-            return name + " must greater than other";
+        default String mustGreaterThanSpecifiedValue(String name) {
+            return name + " must greater than specified value";
         }
 
-        default String mustLessThanOther(String name) {
-            return name + " must less than other";
+        default String mustLessThanSpecifiedValue(String name) {
+            return name + " must less than specified value";
         }
 
-        default String mustGreaterThanOrEqualsOther(String name) {
-            return name + " must greater than or equals other";
+        default String mustGreaterThanOrEqualsSpecifiedValue(String name) {
+            return name + " must greater than or equals specified value";
         }
 
-        default String mustLessThanOrEqualsOther(String name) {
-            return name + " must less than or equals other";
+        default String mustLessThanOrEqualsSpecifiedValue(String name) {
+            return name + " must less than or equals specified value";
         }
     }
 
@@ -1216,20 +1240,20 @@ public final class Arguments {
             return name + "不能为空";
         }
 
-        public String mustEqualsTheOther(String name) {
-            return name + "必须相等";
+        public String mustEqualsSpecifiedValue(String name) {
+            return name + "必须为指定值";
         }
 
-        public String mustNotEqualsTheOther(String name) {
-            return name + "不能相等";
+        public String mustNotEqualsSpecifiedValue(String name) {
+            return name + "不能为指定值";
         }
 
-        public String mustInTheOthers(String name) {
-            return name + "必须在它们中";
+        public String mustInSpecifiedValues(String name) {
+            return name + "必须在指定值中";
         }
 
-        public String mustNotInTheOthers(String name) {
-            return name + "不能在它们中";
+        public String mustNotInSpecifiedValues(String name) {
+            return name + "不能在指定值中";
         }
 
         public String notMeetTheCondition(String name) {
@@ -1292,20 +1316,16 @@ public final class Arguments {
             return name + "大小必须小于" + maxSize;
         }
 
-        public String mustContainsOther(String name) {
-            return name + "必须包含它";
+        public String mustContainsSpecifiedValue(String name) {
+            return name + "必须包含指定值";
         }
 
-        public String mustContainsAllOthers(String name) {
-            return name + "必须包含它们";
+        public String mustContainsAllSpecifiedValues(String name) {
+            return name + "必须包含所有指定值";
         }
 
-        public String mustContainsKey(String name) {
-            return name + "必须包含该键";
-        }
-
-        public String mustContainsValue(String name) {
-            return name + "必须包含该值";
+        public String mustContainsSpecifiedKey(String name) {
+            return name + "必须包含指定键";
         }
 
         public String mustBePositive(String name) {
@@ -1344,20 +1364,20 @@ public final class Arguments {
             return name + "必须小于或等于" + other;
         }
 
-        public String mustGreaterThanOther(String name) {
-            return name + "必须大于它";
+        public String mustGreaterThanSpecifiedValue(String name) {
+            return name + "必须大于指定值";
         }
 
-        public String mustLessThanOther(String name) {
-            return name + "必须小于它";
+        public String mustLessThanSpecifiedValue(String name) {
+            return name + "必须小于指定值";
         }
 
-        public String mustGreaterThanOrEqualsOther(String name) {
-            return name + "必须大于等于它";
+        public String mustGreaterThanOrEqualsSpecifiedValue(String name) {
+            return name + "必须大于等于指定值";
         }
 
-        public String mustLessThanOrEqualsOther(String name) {
-            return name + "必须小于等于它";
+        public String mustLessThanOrEqualsSpecifiedValue(String name) {
+            return name + "必须小于等于指定值";
         }
     }
 
