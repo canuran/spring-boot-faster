@@ -376,15 +376,15 @@ public final class Arguments {
          * 判断字符串里只有普通UTF8字符，基本定义范围，最长为3字节，常用于mysql字符集。
          * 1111 开头的字节只会出现在16位以上的字符中，非基本定义范围，详见UTF-8的规范。
          */
-        public Strings utf8Basic() {
-            return utf8Basic(defaultExceptor.apply(() -> localMessager.canNotContainSpecialCharacters(name)));
+        public Strings normalChars() {
+            return normalChars(defaultExceptor.apply(() -> localMessager.canNotContainSpecialCharacters(name)));
         }
 
-        public Strings utf8Basic(String message) {
-            return utf8Basic(defaultExceptor.apply(() -> message));
+        public Strings normalChars(String message) {
+            return normalChars(defaultExceptor.apply(() -> message));
         }
 
-        public Strings utf8Basic(Supplier<RuntimeException> exceptor) {
+        public Strings normalChars(Supplier<RuntimeException> exceptor) {
             if (object != null && object.length() > 0) {
                 for (byte aByte : object.getBytes(StandardCharsets.UTF_8)) {
                     if ((aByte & 0b11110000) == 0b11110000) {
