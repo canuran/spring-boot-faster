@@ -130,6 +130,10 @@ public final class Arguments {
         }
     }
 
+    public static <T> T nullToDefault(T value, T defaults) {
+        return value == null ? defaults : null;
+    }
+
     @SuppressWarnings("unchecked")
     public static class Objects<A extends Objects<A, O>, O> {
         protected final O object;
