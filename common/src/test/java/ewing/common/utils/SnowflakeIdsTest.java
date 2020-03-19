@@ -1,15 +1,12 @@
 package ewing.common.utils;
 
 import ewing.common.snowflake.SnowflakeIdService;
-import ewing.common.snowflake.SnowflakeIdWorker;
 import ewing.common.test.MultiThreadTester;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntSupplier;
 
 /**
  * 全局ID测试类。
@@ -22,18 +19,14 @@ public class SnowflakeIdsTest {
      * 生成器测试。
      */
     @Test
-    public void nextLong() {
+    public void getAsLong() {
         // 预览测试
+        SnowflakeIdService snowflakeIdService = new SnowflakeIdService();
         for (int i = 0; i < 10; i++) {
-            SnowflakeIdWorker idWorker = new SnowflakeIdWorker(i);
-            System.out.println("预览：" + idWorker.nextLong());
+            System.out.println("预览：" + snowflakeIdService.getAsLong());
         }
 
-        // 高并发性能测试，开启64个生成器
-        AtomicInteger counter = new AtomicInteger();
-        IntSupplier supplier = () -> counter.updateAndGet(now -> ++now & 63);
-        SnowflakeIdService snowflakeIdService = new SnowflakeIdService(supplier);
-
+        // 高并发性能测试
         MultiThreadTester<Object[]> tester = new MultiThreadTester<Object[]>()
                 .threadTotal(100)
                 .loopPerThread(100000);

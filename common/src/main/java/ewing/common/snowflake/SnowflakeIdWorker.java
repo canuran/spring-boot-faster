@@ -4,16 +4,16 @@ import java.security.SecureRandom;
 import java.util.function.LongSupplier;
 
 /**
- * 单实例每秒最多获取256000个ID，单机也可以创建多个实例，全局最多2048个实例，总共可每秒最多5亿多个ID。
+ * 单实例每秒最多获取2^累加器长度*1000个，累加器长度可调节，总共可每秒最多5亿多个ID。
  * <p>
  * 时间长度44位可使用到2527年，趋势递增对数据库索引友好，尾数随机保证ID在取余时分布均匀。
  *
  * @author Ewing
  */
-public class SnowflakeIdWorker {
-    // 各组成部分的数位长度
-    private static final int COUNTER_LENGTH = 8;
-    private static final int INSTANCE_LENGTH = 11;
+public class SnowflakeIdWorker implements LongSupplier {
+    // 各组成部分最大长度
+    private static final int COUNTER_LENGTH = 12;
+    private static final int INSTANCE_LENGTH = 19 - COUNTER_LENGTH;
     private static final int TIME_LEFT_SHIFT = INSTANCE_LENGTH + COUNTER_LENGTH;
 
     // 各部分对应的最大值
@@ -22,7 +22,6 @@ public class SnowflakeIdWorker {
     private static final int MAX_COUNTER = (1 << COUNTER_LENGTH) - 1;
 
     // 对象实例的私有变量
-    private final LongSupplier timeSupplier;
     private final int instance;
     private final SecureRandom RANDOM = new SecureRandom();
     private int counter = RANDOM.nextInt(MAX_COUNTER);
@@ -30,24 +29,19 @@ public class SnowflakeIdWorker {
     private long lastTime = System.currentTimeMillis();
 
     /**
-     * 根据全局唯一的实例编号获取或创建一个新的实例。
+     * 根据全局唯一的实例编号创建一个新的实例。
      */
     public SnowflakeIdWorker(int instance) {
-        this(instance, System::currentTimeMillis);
-    }
-
-    public SnowflakeIdWorker(int instance, LongSupplier timeSupplier) {
-        validate(instance >= 0 && instance < MAX_INSTANCE, "Wrong instance");
-        validate(timeSupplier != null, "Wrong time supplier");
+        validate(instance >= 0 && instance <= MAX_INSTANCE, "Wrong instance");
         this.instance = instance;
-        this.timeSupplier = timeSupplier;
     }
 
     /**
      * 获取下一个ID值。
      */
-    public synchronized long nextLong() {
-        long nowTime = timeSupplier.getAsLong();
+    @Override
+    public synchronized long getAsLong() {
+        long nowTime = System.currentTimeMillis();
         validate(nowTime < MAX_TIME, "System time too large");
 
         // 相同毫秒时间内尾数递增
@@ -56,14 +50,14 @@ public class SnowflakeIdWorker {
             if (starter == counter) {
                 // 递增数用完了只能改变时间
                 while (nowTime == lastTime) {
-                    nowTime = timeSupplier.getAsLong();
+                    nowTime = System.currentTimeMillis();
                 }
             }
         } else if (nowTime < lastTime) {
             // 时间退后时最多等待10毫秒
             validate(lastTime - nowTime < 10, "Wrong system time");
             while (nowTime <= lastTime) {
-                nowTime = timeSupplier.getAsLong();
+                nowTime = System.currentTimeMillis();
             }
         }
 
