@@ -39,8 +39,7 @@ public class SnowflakeIdWorker implements LongSupplier {
     /**
      * 获取下一个ID值。
      */
-    @Override
-    public synchronized long getAsLong() {
+    public synchronized Identity getIdentity() {
         long nowTime = System.currentTimeMillis();
         validate(nowTime < MAX_TIME, "System time too large");
 
@@ -67,13 +66,55 @@ public class SnowflakeIdWorker implements LongSupplier {
             counter = RANDOM.nextInt(MAX_COUNTER);
             starter = counter;
         }
+        return new Identity(nowTime, instance, counter);
+    }
 
-        return nowTime << TIME_LEFT_SHIFT | (instance << COUNTER_LENGTH) | counter;
+    /**
+     * 获取下一个ID值。
+     */
+    @Override
+    public long getAsLong() {
+        return getIdentity().getAsLong();
     }
 
     private static void validate(boolean value, String message) {
         if (!value) {
             throw new RuntimeException(message);
+        }
+    }
+
+    public static class Identity implements LongSupplier {
+        private final long timestamp;
+        private final int instance;
+        private final int counter;
+
+        public Identity(long identity) {
+            this.timestamp = identity >> TIME_LEFT_SHIFT;
+            this.instance = (int) (identity >> COUNTER_LENGTH) & MAX_INSTANCE;
+            this.counter = (int) identity & MAX_COUNTER;
+        }
+
+        public Identity(long timestamp, int instance, int counter) {
+            this.timestamp = timestamp;
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        @Override
+        public long getAsLong() {
+            return timestamp << TIME_LEFT_SHIFT | (instance << COUNTER_LENGTH) | counter;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public int getInstance() {
+            return instance;
+        }
+
+        public int getCounter() {
+            return counter;
         }
     }
 
