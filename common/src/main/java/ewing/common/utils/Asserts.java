@@ -67,6 +67,10 @@ public final class Asserts {
         }
     }
 
+    public static <T> T nullToDefault(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
+    }
+
     public static <A extends Objects<A, O>, O> Objects<A, O> of(O object) {
         return new Objects<>(object);
     }
@@ -103,36 +107,61 @@ public final class Asserts {
         return new Doubles(value);
     }
 
-    public static void isTrue(boolean bool) {
+    public static void isTrue(Boolean bool) {
         isTrue(bool, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
     }
 
-    public static void isTrue(boolean bool, String message) {
+    public static void isTrue(Boolean bool, String message) {
         isTrue(bool, defaultExceptor.apply(() -> message));
     }
 
-    public static void isTrue(boolean bool, Supplier<RuntimeException> exceptor) {
-        if (!bool) {
+    public static void isTrue(Boolean bool, Supplier<RuntimeException> exceptor) {
+        if (!Boolean.TRUE.equals(bool)) {
             throw exceptor.get();
         }
     }
 
-    public static void isFalse(boolean bool) {
+    public static void isFalse(Boolean bool) {
         isFalse(bool, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
     }
 
-    public static void isFalse(boolean bool, String message) {
+    public static void isFalse(Boolean bool, String message) {
         isFalse(bool, defaultExceptor.apply(() -> message));
     }
 
-    public static void isFalse(boolean bool, Supplier<RuntimeException> exceptor) {
-        if (bool) {
+    public static void isFalse(Boolean bool, Supplier<RuntimeException> exceptor) {
+        if (!Boolean.FALSE.equals(bool)) {
             throw exceptor.get();
         }
     }
 
-    public static <T> T nullToDefault(T value, T defaults) {
-        return value == null ? defaults : value;
+
+    public static void isNull(Object object) {
+        isNull(object, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
+    }
+
+    public static void isNull(Object object, String message) {
+        isNull(object, defaultExceptor.apply(() -> message));
+    }
+
+    public static void isNull(Object object, Supplier<RuntimeException> exceptor) {
+        if (object != null) {
+            throw exceptor.get();
+        }
+    }
+
+    public static void notNull(Object object) {
+        notNull(object, defaultExceptor.apply(() -> localMessager.notMeetTheCondition(localMessager.defaultArgumentName())));
+    }
+
+    public static void notNull(Object object, String message) {
+        notNull(object, defaultExceptor.apply(() -> message));
+    }
+
+    public static void notNull(Object object, Supplier<RuntimeException> exceptor) {
+        if (object == null) {
+            throw exceptor.get();
+        }
     }
 
     @SuppressWarnings("unchecked")
