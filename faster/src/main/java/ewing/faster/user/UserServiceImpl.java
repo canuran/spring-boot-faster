@@ -43,8 +43,6 @@ public class UserServiceImpl implements UserService {
 
         Asserts.of(userWithRole.getUsername()).name("用户名")
                 .hasText().minLength(2).maxLength(32).lettersOrDigits();
-        Asserts.of(userWithRole.getNickname()).name("昵称")
-                .hasText().minLength(2).maxLength(32).normalChars();
 
         Asserts.of(queryFactory.selectFrom(user)
                 .where(user.username.eq(userWithRole.getUsername()))
