@@ -400,6 +400,9 @@ public final class Asserts {
             return this;
         }
 
+        /**
+         * 由文字组成，这里是所用编码的文字部分而不仅仅是字母。
+         */
         public Strings letters() {
             return letters(defaultExceptor.apply(() -> localMessager.mustComposeWithLetters(name)));
         }
