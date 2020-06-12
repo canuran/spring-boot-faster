@@ -3,7 +3,7 @@ package ewing.faster.application;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import ewing.common.exception.ExceptionUtils;
-import ewing.common.utils.Arguments;
+import ewing.common.utils.Asserts;
 import ewing.common.utils.GsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,7 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Method;
@@ -49,7 +49,7 @@ public class RemoteDebugger {
 
     private static final Pattern BEAN_METHOD = Pattern.compile("([a-zA-Z0-9_$.]+)[.#]([a-zA-Z0-9_$]+)[（(](.*)[)）](\\d*)", Pattern.DOTALL);
 
-    @RequestMapping("/debugger")
+    @PostMapping("/debugger")
     @ApiOperation(value = "在线调试")
     public ResponseEntity home(@RequestParam(value = "expression", required = false) String expression) {
         String page = "<!DOCTYPE html>\n" +
@@ -106,9 +106,9 @@ public class RemoteDebugger {
      *                   方法参数为去掉中括号的JSON数组，多个方法匹配则在表达式最后加数字指定调用哪个方法。
      */
     private String methodExecute(String expression) {
-        Arguments.of(expression).hasText("表达式不能为空");
+        Asserts.of(expression).hasText("表达式不能为空");
         Matcher matcher = BEAN_METHOD.matcher(expression);
-        Arguments.of(matcher.matches()).equalsTo(true, "表达式格式不正确");
+        Asserts.of(matcher.matches()).equalsTo(true, "表达式格式不正确");
 
         String classOrBeanName = matcher.group(1);
         String methodName = matcher.group(2);
@@ -130,7 +130,7 @@ public class RemoteDebugger {
             return resultBuilder.toString();
         }
 
-        Arguments.of(targetInvokers).notEmpty("找不到满足参数的方法：" + methodName)
+        Asserts.of(targetInvokers).notEmpty("找不到满足参数的方法：" + methodName)
                 .minSize(methodIndex + 1, "没有第 " + methodIndex + " 个可调用的方法");
 
         Object result = targetInvokers.get(methodIndex).invoke();

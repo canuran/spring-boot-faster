@@ -278,7 +278,7 @@ public class BaseQuery<E> extends AbstractSQLQuery<E, BaseQuery<E>> {
                 long offset = qm == null || qm.getOffset() == null ? 0L : qm.getOffset();
                 if (total > 0L && total > offset) {
                     Connection conn = Objects.requireNonNull(connectionProvider,
-                            "No connection provided").get();
+                            "ConnectionProvider must nonnull").get();
                     return new Page<>(total, clone(conn).fetch());
                 }
             }

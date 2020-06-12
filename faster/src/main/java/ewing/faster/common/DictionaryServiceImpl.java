@@ -1,7 +1,7 @@
 package ewing.faster.common;
 
 import ewing.common.exception.BusinessException;
-import ewing.common.utils.Arguments;
+import ewing.common.utils.Asserts;
 import ewing.common.utils.TreeUtils;
 import ewing.faster.common.vo.DictionaryNode;
 import ewing.faster.common.vo.FindDictionaryParam;
@@ -36,7 +36,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public Page<Dictionary> findWithSubDictionary(
             FindDictionaryParam findDictionaryParam) {
-        Arguments.of(findDictionaryParam).name("查询字典参数").notNull();
+        Asserts.of(findDictionaryParam).name("查询字典参数").notNull();
 
         return dictionaryDao.findWithSubDictionary(findDictionaryParam);
     }
@@ -45,7 +45,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     public void addDictionary(Dictionary dictionaryParam) {
         checkCommonSave(dictionaryParam);
 
-        Arguments.of(queryFactory.selectFrom(dictionary)
+        Asserts.of(queryFactory.selectFrom(dictionary)
                 .where(dictionaryParam.getParentId() == null ?
                         dictionary.parentId.isNull() :
                         dictionary.parentId.eq(dictionaryParam.getParentId()))
@@ -81,21 +81,21 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     private void checkCommonSave(Dictionary dictionaryParam) {
-        Arguments.of(dictionaryParam).name("字典项").notNull();
+        Asserts.of(dictionaryParam).name("字典项").notNull();
 
-        Arguments.of(dictionaryParam.getName()).name("字典名")
+        Asserts.of(dictionaryParam.getName()).name("字典名")
                 .hasText().minLength(1).maxLength(32).normalChars();
 
-        Arguments.of(dictionaryParam.getValue()).name("字典值")
+        Asserts.of(dictionaryParam.getValue()).name("字典值")
                 .hasText().minLength(1).maxLength(32).normalChars();
     }
 
     @Override
     public void updateDictionary(Dictionary dictionaryParam) {
         checkCommonSave(dictionaryParam);
-        Arguments.of(dictionaryParam.getDictionaryId()).name("字典ID").notNull();
+        Asserts.of(dictionaryParam.getDictionaryId()).name("字典ID").notNull();
 
-        Arguments.of(queryFactory.selectFrom(dictionary)
+        Asserts.of(queryFactory.selectFrom(dictionary)
                 .where(dictionary.dictionaryId.ne(dictionaryParam.getDictionaryId()))
                 .where(dictionaryParam.getParentId() == null ?
                         dictionary.parentId.isNull() :
@@ -113,12 +113,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public void deleteDictionary(Long dictionaryId) {
-        Arguments.of(dictionaryId).name("字典ID").notNull();
+        Asserts.of(dictionaryId).name("字典ID").notNull();
 
         Dictionary dictionaryDto = queryFactory.selectFrom(dictionary).fetchByKey(dictionaryId);
-        Arguments.of(dictionaryDto).notNull("该字典不存在或已删除");
+        Asserts.of(dictionaryDto).notNull("该字典不存在或已删除");
 
-        Arguments.of(queryFactory.selectFrom(dictionary)
+        Asserts.of(queryFactory.selectFrom(dictionary)
                 .where(dictionary.parentId.eq(dictionaryId))
                 .fetchCount())
                 .lessThan(1, "请先删除该字典的所有子项");
@@ -128,7 +128,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     public List<DictionaryNode> findDictionaryTrees(String[] rootValues) {
-        Arguments.of(rootValues).name("查询参数").notNull();
+        Asserts.of(rootValues).name("查询参数").notNull();
 
         List<DictionaryNode> dictionaries = dictionaryDao
                 .findRootSubDictionaries(rootValues);

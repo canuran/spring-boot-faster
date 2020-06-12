@@ -10,6 +10,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * 安全连接提供者及监听器，主动释放没有被Spring事务管理的连接。
@@ -19,13 +20,14 @@ import java.sql.SQLException;
  * @author caiyouyuan
  * @since 2018年06月18日
  */
-public class ConnectionProvider extends SQLBaseListener implements Provider<Connection> {
+public class SpringConnectionProvider extends SQLBaseListener implements Provider<Connection> {
 
     private final DataSource dataSource;
 
-    public ConnectionProvider(DataSource dataSource, Configuration configuration) {
-        this.dataSource = dataSource;
-        configuration.addListener(this);
+    public SpringConnectionProvider(DataSource dataSource, Configuration configuration) {
+        this.dataSource = Objects.requireNonNull(dataSource, "DataSource must nonnull");
+        Objects.requireNonNull(configuration, "Configuration must nonnull")
+                .addListener(this);
     }
 
     @Override
@@ -36,13 +38,14 @@ public class ConnectionProvider extends SQLBaseListener implements Provider<Conn
     @Override
     public void end(SQLListenerContext context) {
         Connection connection = context.getConnection();
-        // 主动释放没有被Spring事务管理的连接
-        if (connection != null && !DataSourceUtils.isConnectionTransactional(connection, this.dataSource)) {
-            try {
+        try {
+            // 主动释放没有被Spring事务管理的连接
+            if (connection != null && !connection.isClosed()
+                    && !DataSourceUtils.isConnectionTransactional(connection, this.dataSource)) {
                 DataSourceUtils.doCloseConnection(connection, this.dataSource);
-            } catch (SQLException e) {
-                throw new QueryException(e);
             }
+        } catch (SQLException e) {
+            throw new QueryException(e);
         }
     }
 

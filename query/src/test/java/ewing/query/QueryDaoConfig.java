@@ -3,9 +3,9 @@ package ewing.query;
 import com.querydsl.sql.H2Templates;
 import com.querydsl.sql.SQLTemplates;
 import com.querydsl.sql.spring.SpringExceptionTranslator;
-import ewing.query.support.ConnectionProvider;
 import ewing.query.support.FriendlySQLLogger;
 import ewing.query.support.SafeSQLListener;
+import ewing.query.support.SpringConnectionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +37,7 @@ public class QueryDaoConfig {
         configuration.setExceptionTranslator(new SpringExceptionTranslator());
         configuration.addListener(new FriendlySQLLogger());
         configuration.addListener(new SafeSQLListener());
-        return new BaseQueryFactory(configuration, new ConnectionProvider(dataSource, configuration));
+        return new BaseQueryFactory(configuration, new SpringConnectionProvider(dataSource, configuration));
     }
 
 }

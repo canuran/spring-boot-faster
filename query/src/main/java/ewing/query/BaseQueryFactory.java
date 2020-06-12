@@ -8,14 +8,20 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import ewing.query.clause.*;
+import ewing.query.support.DataSourceProvider;
 
 import javax.inject.Provider;
+import javax.sql.DataSource;
 import java.sql.Connection;
 
 /**
  * 增强的查询工厂类。
  */
 public class BaseQueryFactory extends AbstractSQLQueryFactory<BaseQuery<?>> {
+
+    public BaseQueryFactory(Configuration configuration, DataSource dataSource) {
+        super(configuration, new DataSourceProvider(dataSource));
+    }
 
     public BaseQueryFactory(Configuration configuration, Provider<Connection> connProvider) {
         super(configuration, connProvider);

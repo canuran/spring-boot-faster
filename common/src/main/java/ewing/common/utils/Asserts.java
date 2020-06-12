@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
  *
  * <pre>
  *  // 应用启动时设置全局默认消息产生器，默认为英文消息
- *  Arguments.setDefaultMessager(Arguments.CN_MESSAGER);
+ *  Asserts.setDefaultMessager(Asserts.CN_MESSAGER);
  *
  *  // 应用启动时设置全局默认异常产生器，默认为IllegalArgumentException
- *  Arguments.setDefaultExceptor(message -> () -> new IllegalArgumentException(message));
+ *  Asserts.setDefaultExceptor(message -> () -> new IllegalArgumentException(message));
  *
  *  // 链式校验，根据参数不同提供不同校验方法，默认使用消息和异常产生器，支持自定义消息和异常，以字符串为例：
- *  Arguments.of("18888888888")
+ *  Asserts.of("18888888888")
  *          .name("手机号")  // 参数命名为手机号，非必须
  *          .hasText()  // 手机号必须包含文本
  *          .maxLength(15)  // 手机号长度必须小于15
@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
  *
  * @author Ewing
  */
-public final class Arguments {
-    private Arguments() {
-        throw new AssertionError("Can not construct Arguments");
+public final class Asserts {
+    private Asserts() {
+        throw new AssertionError("Can not construct Asserts");
     }
 
     public static final LocalMessager EN_MESSAGER = new EnMessager();
@@ -49,8 +49,8 @@ public final class Arguments {
      * 设置默认的参数消息语言，只能设置一次。
      */
     public static synchronized void setDefaultMessager(LocalMessager messager) {
-        if (Arguments.localMessager == EN_MESSAGER) {
-            Arguments.localMessager = messager;
+        if (Asserts.localMessager == EN_MESSAGER) {
+            Asserts.localMessager = messager;
         } else {
             throw new IllegalStateException(localMessager.canNotResetDefaultMessager());
         }
@@ -60,8 +60,8 @@ public final class Arguments {
      * 设置默认的参数异常产生器，只能设置一次。
      */
     public static synchronized void setDefaultExceptor(Function<Supplier<String>, Supplier<RuntimeException>> exceptor) {
-        if (Arguments.defaultExceptor == DEFAULT_EXCEPTOR) {
-            Arguments.defaultExceptor = exceptor;
+        if (Asserts.defaultExceptor == DEFAULT_EXCEPTOR) {
+            Asserts.defaultExceptor = exceptor;
         } else {
             throw new IllegalStateException(localMessager.canNotResetDefaultExceptor());
         }
@@ -1159,7 +1159,7 @@ public final class Arguments {
         }
 
         default String canNotNull(String name) {
-            return name + " can not null";
+            return name + " must nonnull";
         }
 
         default String mustEqualsSpecifiedValue(String name) {
@@ -1368,7 +1368,7 @@ public final class Arguments {
         }
 
         public String mustComposeWithLettersOrDigits(String name) {
-            return name + "必须由字母或数字组成";
+            return name + "必须由文字或数字组成";
         }
 
         public String mustMatchesPattern(String name) {

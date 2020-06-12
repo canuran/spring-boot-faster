@@ -3,7 +3,7 @@ package ewing.faster;
 import ewing.common.config.ExceptionHandler;
 import ewing.common.exception.BusinessException;
 import ewing.common.snowflake.SnowflakeIdService;
-import ewing.common.utils.Arguments;
+import ewing.common.utils.Asserts;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -26,8 +26,8 @@ public class FasterMain {
 
     @PostConstruct
     public void globalSettings() {
-        Arguments.setDefaultMessager(Arguments.CN_MESSAGER);
-        Arguments.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
+        Asserts.setDefaultMessager(Asserts.CN_MESSAGER);
+        Asserts.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
     }
 
     @Bean

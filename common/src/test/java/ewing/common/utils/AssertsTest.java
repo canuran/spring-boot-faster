@@ -13,17 +13,17 @@ import java.util.List;
  * @author Ewing
  * @since 2019年12月20日
  */
-public class ArgumentsTest {
+public class AssertsTest {
 
     @Test(expected = BusinessException.class)
     public void exception() {
-        Arguments.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
-        Arguments.of("哈哈").matches("\\d+");
+        Asserts.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
+        Asserts.of("哈哈").matches("\\d+");
     }
 
     @Test
     public void strings() {
-        String args = Arguments.of("123")
+        String args = Asserts.of("123")
                 .notNull()
                 .equalsTo("123")
                 .hasText()
@@ -41,7 +41,7 @@ public class ArgumentsTest {
 
     @Test
     public void longs() {
-        long args = Arguments.of(123L)
+        long args = Asserts.of(123L)
                 .notNull()
                 .equalsTo(123L)
                 .greaterThan(122)
@@ -56,7 +56,7 @@ public class ArgumentsTest {
 
     @Test
     public void integers() {
-        int args = Arguments.of(123)
+        int args = Asserts.of(123)
                 .notNull()
                 .equalsTo(123)
                 .greaterThan(122)
@@ -71,7 +71,7 @@ public class ArgumentsTest {
 
     @Test
     public void comparables() {
-        BigDecimal args = Arguments.of(BigDecimal.valueOf(123))
+        BigDecimal args = Asserts.of(BigDecimal.valueOf(123))
                 .notNull()
                 .equalsTo(BigDecimal.valueOf(123))
                 .greaterThan(BigDecimal.valueOf(122))
@@ -86,7 +86,7 @@ public class ArgumentsTest {
 
     @Test
     public void collections() {
-        List<Integer> args = Arguments.of(Arrays.asList(1, 2, 3))
+        List<Integer> args = Asserts.of(Arrays.asList(1, 2, 3))
                 .notNull()
                 .notEmpty()
                 .allNotNull()

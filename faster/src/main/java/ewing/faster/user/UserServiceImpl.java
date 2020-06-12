@@ -1,6 +1,6 @@
 package ewing.faster.user;
 
-import ewing.common.utils.Arguments;
+import ewing.common.utils.Asserts;
 import ewing.faster.dao.UserDao;
 import ewing.faster.dao.entity.Role;
 import ewing.faster.dao.entity.User;
@@ -41,10 +41,12 @@ public class UserServiceImpl implements UserService {
     public Long addUserWithRole(UserWithRole userWithRole) {
         checkCommonSave(userWithRole);
 
-        Arguments.of(userWithRole.getUsername()).name("用户名")
+        Asserts.of(userWithRole.getUsername()).name("用户名")
                 .hasText().minLength(2).maxLength(32).lettersOrDigits();
+        Asserts.of(userWithRole.getNickname()).name("昵称")
+                .hasText().minLength(2).maxLength(32).normalChars();
 
-        Arguments.of(queryFactory.selectFrom(user)
+        Asserts.of(queryFactory.selectFrom(user)
                 .where(user.username.eq(userWithRole.getUsername()))
                 .fetchCount())
                 .lessThan(1, "用户名已被使用");
@@ -57,15 +59,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkCommonSave(UserWithRole userWithRole) {
-        Arguments.of(userWithRole).name("用户").notNull();
+        Asserts.of(userWithRole).name("用户").notNull();
 
-        Arguments.of(userWithRole.getNickname()).name("昵称")
+        Asserts.of(userWithRole.getNickname()).name("昵称")
                 .hasText().minLength(2).maxLength(32).normalChars();
 
-        Arguments.of(userWithRole.getPassword()).name("密码")
+        Asserts.of(userWithRole.getPassword()).name("密码")
                 .hasText().minLength(2).maxLength(32).lettersOrDigits();
 
-        Arguments.of(userWithRole.getGender()).name("性别")
+        Asserts.of(userWithRole.getGender()).name("性别")
                 .hasText().minLength(1).maxLength(8).letters();
     }
 
@@ -87,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(cacheNames = "UserCache", key = "#userId", unless = "#result==null")
     public User getUser(Long userId) {
-        Arguments.of(userId).name("用户ID").notNull();
+        Asserts.of(userId).name("用户ID").notNull();
 
         return queryFactory.selectFrom(user).fetchByKey(userId);
     }
@@ -98,7 +100,7 @@ public class UserServiceImpl implements UserService {
     public long updateUserWithRole(UserWithRole userWithRole) {
         checkCommonSave(userWithRole);
 
-        Arguments.of(userWithRole.getUserId()).name("用户ID").notNull();
+        Asserts.of(userWithRole.getUserId()).name("用户ID").notNull();
 
         // 更新用户的角色列表
         queryFactory.delete(userRole)
@@ -125,7 +127,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     @CacheEvict(cacheNames = "UserCache", key = "#userId")
     public long deleteUser(Long userId) {
-        Arguments.of(userId).name("用户ID").notNull();
+        Asserts.of(userId).name("用户ID").notNull();
 
         queryFactory.delete(userRole)
                 .where(userRole.userId.eq(userId))
