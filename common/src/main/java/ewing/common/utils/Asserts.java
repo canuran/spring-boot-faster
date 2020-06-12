@@ -49,6 +49,7 @@ public final class Asserts {
      * 设置默认的参数消息语言，只能设置一次。
      */
     public static synchronized void setDefaultMessager(LocalMessager messager) {
+        notNull(messager);
         if (Asserts.localMessager == EN_MESSAGER) {
             Asserts.localMessager = messager;
         } else {
@@ -60,6 +61,7 @@ public final class Asserts {
      * 设置默认的参数异常产生器，只能设置一次。
      */
     public static synchronized void setDefaultExceptor(Function<Supplier<String>, Supplier<RuntimeException>> exceptor) {
+        notNull(exceptor);
         if (Asserts.defaultExceptor == DEFAULT_EXCEPTOR) {
             Asserts.defaultExceptor = exceptor;
         } else {
