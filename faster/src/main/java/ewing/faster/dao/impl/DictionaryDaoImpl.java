@@ -46,6 +46,7 @@ public class DictionaryDaoImpl implements DictionaryDao {
                 .from(rootQuery.as(dictionary))
                 .leftJoin(qAllDictionary)
                 .on(dictionary.dictionaryId.eq(qAllDictionary.rootId))
+                .orderBy(dictionary.dictionaryId.asc())
                 .fetch();
 
         return new Page<>(total, dictionaries);
@@ -58,6 +59,7 @@ public class DictionaryDaoImpl implements DictionaryDao {
                 .join(qAllDictionary)
                 .on(dictionary.dictionaryId.eq(qAllDictionary.rootId))
                 .where(dictionary.value.in(rootValues))
+                .orderBy(qAllDictionary.dictionaryId.asc())
                 .fitBean(DictionaryNode.class)
                 .fetch();
     }

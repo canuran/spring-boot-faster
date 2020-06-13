@@ -137,6 +137,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public List<AuthorityNode> getAuthorityTree() {
         List<AuthorityNode> nodes = queryFactory.selectFrom(authority)
+                .orderBy(authority.authorityId.asc())
                 .fitBean(AuthorityNode.class)
                 .fetch();
         return TreeUtils.toTree(nodes,
@@ -156,7 +157,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public List<Role> getAllRoles() {
-        return queryFactory.selectFrom(role).fetch();
+        return queryFactory.selectFrom(role)
+                .orderBy(role.roleId.asc())
+                .fetch();
     }
 
     @Override

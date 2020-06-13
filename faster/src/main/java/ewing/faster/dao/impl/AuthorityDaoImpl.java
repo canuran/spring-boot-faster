@@ -31,6 +31,7 @@ public class AuthorityDaoImpl implements AuthorityDao {
                 .join(userRole)
                 .on(roleAuthority.roleId.eq(userRole.roleId))
                 .where(userRole.userId.eq(userId))
+                .orderBy(authority.authorityId.asc())
                 .fitBean(AuthorityNode.class)
                 .fetch();
     }

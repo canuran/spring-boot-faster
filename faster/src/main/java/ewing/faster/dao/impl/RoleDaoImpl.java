@@ -46,6 +46,7 @@ public class RoleDaoImpl implements RoleDao {
                 .from(roleQuery.as(role))
                 .leftJoin(roleAuthority).on(role.roleId.eq(roleAuthority.roleId))
                 .leftJoin(authority).on(roleAuthority.authorityId.eq(authority.authorityId))
+                .orderBy(role.roleId.asc())
                 .fetch();
 
         return new Page<>(total, QueryUtils.rowsToTree(

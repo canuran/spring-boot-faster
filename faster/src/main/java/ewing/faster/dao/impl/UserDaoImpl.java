@@ -47,6 +47,7 @@ public class UserDaoImpl implements UserDao {
                 .from(userQuery.as(user))
                 .leftJoin(userRole).on(user.userId.eq(userRole.userId))
                 .leftJoin(role).on(userRole.roleId.eq(role.roleId))
+                .orderBy(user.userId.asc())
                 .fetch();
 
 

@@ -12,7 +12,7 @@ import java.util.function.LongSupplier;
  */
 public class SnowflakeIdWorker implements LongSupplier {
     // 各组成部分最大长度
-    private static final int COUNTER_LENGTH = 12;
+    private static final int COUNTER_LENGTH = 15;
     private static final int INSTANCE_LENGTH = 19 - COUNTER_LENGTH;
     private static final int TIME_LEFT_SHIFT = INSTANCE_LENGTH + COUNTER_LENGTH;
 
