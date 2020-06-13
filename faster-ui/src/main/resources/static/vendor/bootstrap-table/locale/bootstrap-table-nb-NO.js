@@ -1,37 +1,80 @@
-/**
- * Bootstrap Table norwegian translation
- * Author: Jim Nordbø, jim@nordb.no
- */
-(function ($) {
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([], factory);
+    } else if (typeof exports !== "undefined") {
+        factory();
+    } else {
+        var mod = {
+            exports: {}
+        };
+        factory();
+        global.bootstrapTableNbNO = mod.exports;
+    }
+})(this, function () {
     'use strict';
 
+    /**
+     * Bootstrap Table norwegian translation
+     * Author: Jim Nordbø, jim@nordb.no
+     */
+    (function ($) {
     $.fn.bootstrapTable.locales['nb-NO'] = {
-        formatLoadingMessage: function () {
-            return 'Oppdaterer, vennligst vent...';
+        formatLoadingMessage: function formatLoadingMessage() {
+            return 'Oppdaterer, vennligst vent';
         },
-        formatRecordsPerPage: function (pageNumber) {
+        formatRecordsPerPage: function formatRecordsPerPage(pageNumber) {
             return pageNumber + ' poster pr side';
         },
-        formatShowingRows: function (pageFrom, pageTo, totalRows) {
+        formatShowingRows: function formatShowingRows(pageFrom, pageTo, totalRows) {
             return 'Viser ' + pageFrom + ' til ' + pageTo + ' av ' + totalRows + ' rekker';
         },
-        formatSearch: function () {
+        formatDetailPagination: function formatDetailPagination(totalRows) {
+            return 'Showing ' + totalRows + ' rows';
+        },
+        formatSearch: function formatSearch() {
             return 'Søk';
         },
-        formatNoMatches: function () {
+        formatNoMatches: function formatNoMatches() {
             return 'Ingen poster funnet';
         },
-        formatRefresh: function () {
+        formatPaginationSwitch: function formatPaginationSwitch() {
+            return 'Hide/Show pagination';
+        },
+        formatRefresh: function formatRefresh() {
             return 'Oppdater';
         },
-        formatToggle: function () {
+        formatToggle: function formatToggle() {
             return 'Endre';
         },
-        formatColumns: function () {
+        formatColumns: function formatColumns() {
             return 'Kolonner';
+        },
+        formatFullscreen: function formatFullscreen() {
+            return 'Fullscreen';
+        },
+        formatAllRows: function formatAllRows() {
+            return 'All';
+        },
+        formatAutoRefresh: function formatAutoRefresh() {
+            return 'Auto Refresh';
+        },
+        formatExport: function formatExport() {
+            return 'Export data';
+        },
+        formatClearFilters: function formatClearFilters() {
+            return 'Clear filters';
+        },
+        formatJumpto: function formatJumpto() {
+            return 'GO';
+        },
+        formatAdvancedSearch: function formatAdvancedSearch() {
+            return 'Advanced search';
+        },
+        formatAdvancedCloseButton: function formatAdvancedCloseButton() {
+            return 'Close';
         }
     };
 
     $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['nb-NO']);
-
-})(jQuery);
+    })(jQuery);
+});

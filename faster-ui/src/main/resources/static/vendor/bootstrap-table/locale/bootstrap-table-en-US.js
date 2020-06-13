@@ -1,49 +1,80 @@
-/**
- * Bootstrap Table English translation
- * Author: Zhixin Wen<wenzhixin2010@gmail.com>
- */
-(function ($) {
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([], factory);
+    } else if (typeof exports !== "undefined") {
+        factory();
+    } else {
+        var mod = {
+            exports: {}
+        };
+        factory();
+        global.bootstrapTableEnUS = mod.exports;
+    }
+})(this, function () {
     'use strict';
 
+    /**
+     * Bootstrap Table English translation
+     * Author: Zhixin Wen<wenzhixin2010@gmail.com>
+     */
+    (function ($) {
     $.fn.bootstrapTable.locales['en-US'] = {
-        formatLoadingMessage: function () {
-            return 'Loading, please wait...';
+        formatLoadingMessage: function formatLoadingMessage() {
+            return 'Loading, please wait';
         },
-        formatRecordsPerPage: function (pageNumber) {
+        formatRecordsPerPage: function formatRecordsPerPage(pageNumber) {
             return pageNumber + ' rows per page';
         },
-        formatShowingRows: function (pageFrom, pageTo, totalRows) {
+        formatShowingRows: function formatShowingRows(pageFrom, pageTo, totalRows) {
             return 'Showing ' + pageFrom + ' to ' + pageTo + ' of ' + totalRows + ' rows';
         },
-        formatSearch: function () {
+        formatDetailPagination: function formatDetailPagination(totalRows) {
+            return 'Showing ' + totalRows + ' rows';
+        },
+        formatSearch: function formatSearch() {
             return 'Search';
         },
-        formatNoMatches: function () {
+        formatNoMatches: function formatNoMatches() {
             return 'No matching records found';
         },
-        formatPaginationSwitch: function () {
+        formatPaginationSwitch: function formatPaginationSwitch() {
             return 'Hide/Show pagination';
         },
-        formatRefresh: function () {
+        formatRefresh: function formatRefresh() {
             return 'Refresh';
         },
-        formatToggle: function () {
+        formatToggle: function formatToggle() {
             return 'Toggle';
         },
-        formatColumns: function () {
+        formatColumns: function formatColumns() {
             return 'Columns';
         },
-        formatAllRows: function () {
+        formatFullscreen: function formatFullscreen() {
+            return 'Fullscreen';
+        },
+        formatAllRows: function formatAllRows() {
             return 'All';
         },
-        formatExport: function () {
+        formatAutoRefresh: function formatAutoRefresh() {
+            return 'Auto Refresh';
+        },
+        formatExport: function formatExport() {
             return 'Export data';
         },
-        formatClearFilters: function () {
+        formatClearFilters: function formatClearFilters() {
             return 'Clear filters';
+        },
+        formatJumpto: function formatJumpto() {
+            return 'GO';
+        },
+        formatAdvancedSearch: function formatAdvancedSearch() {
+            return 'Advanced search';
+        },
+        formatAdvancedCloseButton: function formatAdvancedCloseButton() {
+            return 'Close';
         }
     };
 
     $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US']);
-
-})(jQuery);
+    })(jQuery);
+});
