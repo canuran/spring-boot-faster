@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 参数测试。
+ * 参数断言测试。
  *
  * @author Ewing
  * @since 2019年12月20日
@@ -17,7 +17,7 @@ public class AssertsTest {
 
     @Test(expected = BusinessException.class)
     public void exception() {
-        Asserts.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
+        Asserts.setDefaultExceptor(BusinessException::new);
         Asserts.of("哈哈").matches("\\d+");
     }
 

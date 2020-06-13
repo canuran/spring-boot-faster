@@ -27,7 +27,7 @@ public class FasterMain {
     @PostConstruct
     public void globalSettings() {
         Asserts.setDefaultMessager(Asserts.CN_MESSAGER);
-        Asserts.setDefaultExceptor(messager -> () -> new BusinessException(messager.get()));
+        Asserts.setDefaultExceptor(BusinessException::new);
     }
 
     @Bean
