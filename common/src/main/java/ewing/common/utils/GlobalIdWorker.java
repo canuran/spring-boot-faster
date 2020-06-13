@@ -14,7 +14,7 @@ import java.util.UUID;
  *
  * @author Ewing
  */
-public final class GlobalIds {
+public final class GlobalIdWorker {
     private static final long UUID_MASK = 1L << 63;
     private static final long MAX_TIME = (1L << 47) - 1;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -22,8 +22,8 @@ public final class GlobalIds {
     private static int starter = counter;
     private static long lastTime = System.currentTimeMillis();
 
-    private GlobalIds() {
-        throw new IllegalStateException("Can not construct GlobalIds");
+    private GlobalIdWorker() {
+        throw new IllegalStateException("Can not construct GlobalIdWorker");
     }
 
     /**

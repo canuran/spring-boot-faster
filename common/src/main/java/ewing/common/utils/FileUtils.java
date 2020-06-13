@@ -19,6 +19,9 @@ public final class FileUtils {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 用于释放依赖的可执行文件到指定目录，如 gif2webp 依赖用于转换 gif 格式为 webp 格式。
+     */
     public static String copyCommandFromResource(String linuxFile, String windowsFile, String targetPath) {
         String osName = System.getProperty("os.name");
         boolean isWindows = osName != null && osName.contains("Windows");

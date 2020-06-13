@@ -14,7 +14,7 @@ import java.util.Set;
  * @author Ewing
  * @since 2017-04-22
  **/
-public class GlobalIdsTest {
+public class GlobalIdWorkerTest {
 
     /**
      * 测试方法。
@@ -23,7 +23,7 @@ public class GlobalIdsTest {
     public void nextIdTest() {
         // 测试当前的ID
         for (int i = 0; i < 5; i++) {
-            BigInteger id = GlobalIds.nextId();
+            BigInteger id = GlobalIdWorker.nextId();
             System.out.println("预览：" + id);
         }
 
@@ -34,7 +34,7 @@ public class GlobalIdsTest {
 
         long costTime = tester.context(new Object[tester.getLoopTotal()])
                 .testerConsumer((threadTester, thread, threadLoop, currentTotalLoop) ->
-                        threadTester.getContext()[currentTotalLoop] = GlobalIds.nextId())
+                        threadTester.getContext()[currentTotalLoop] = GlobalIdWorker.nextId())
                 .startTest();
 
         System.out.print("\n" + tester.getThreadTotal() + "个线程线程各生成" + tester.getLoopPerThread() + "个用时："
@@ -49,13 +49,13 @@ public class GlobalIdsTest {
     @Test
     public void numberUUIDTest() {
         // 测试预览UUID
-        BigInteger numberUUID = GlobalIds.numberUUID();
+        BigInteger numberUUID = GlobalIdWorker.numberUUID();
         System.out.println("预览：" + numberUUID);
 
-        String hexUUID = GlobalIds.hexUUID();
+        String hexUUID = GlobalIdWorker.hexUUID();
         System.out.println("预览：" + hexUUID);
 
-        String radix36UUID = GlobalIds.radix36UUID();
+        String radix36UUID = GlobalIdWorker.radix36UUID();
         System.out.println("预览：" + radix36UUID);
 
         // 高并发性能测试
@@ -65,7 +65,7 @@ public class GlobalIdsTest {
 
         long costTime = tester.context(new Object[tester.getLoopTotal()])
                 .testerConsumer((threadTester, thread, threadLoop, currentTotalLoop) ->
-                        threadTester.getContext()[currentTotalLoop] = GlobalIds.numberUUID())
+                        threadTester.getContext()[currentTotalLoop] = GlobalIdWorker.numberUUID())
                 .startTest();
 
         System.out.print("\n" + tester.getThreadTotal() + "个线程线程各生成" + tester.getLoopPerThread() + "个用时："
