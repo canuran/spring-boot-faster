@@ -22,7 +22,7 @@ import java.util.List;
  **/
 @RestController
 @RequestMapping("/dictionary")
-@Api(tags = "dictionary", description = "数据字典")
+@Api(tags = "数据字典")
 public class DictionaryController {
 
     @Autowired

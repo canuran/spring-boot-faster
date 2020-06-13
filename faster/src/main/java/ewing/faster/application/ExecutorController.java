@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 @Controller
 @RequestMapping("/executor")
 @ConditionalOnProperty(name = "executor.enable", havingValue = "true")
-@Api(value = "/executor", description = "Groovy调试接口")
+@Api(value = "Groovy调试接口")
 public class ExecutorController {
 
     private static final String CODE_TEMPLATE = "import " + Autowired.class.getName() + ";\n" +

@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  */
 @Controller
 @ConditionalOnProperty(name = "debugger.enable", havingValue = "true")
-@Api(tags = "debugger", description = "调试接口")
+@Api(tags = "调试接口")
 public class RemoteDebugger {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteDebugger.class);
 

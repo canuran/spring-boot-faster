@@ -25,7 +25,7 @@ import java.util.List;
  **/
 @RestController
 @RequestMapping("/security")
-@Api(tags = "security", description = "安全接口")
+@Api(tags = "安全接口")
 public class SecurityController {
 
     private static String prefix = "package " +
