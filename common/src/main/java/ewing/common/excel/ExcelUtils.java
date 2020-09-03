@@ -62,7 +62,7 @@ public class ExcelUtils {
     /**
      * 导出多Sheet页的Excel。
      *
-     * @param type 具有多个带@ExcelSheet注解的List<T>属性的类。
+     * @param type 具有多个带@ExcelSheet注解的List属性的类。
      * @return XSSF格式的Workbook，即xlsx格式。
      */
     @SuppressWarnings("unchecked")
