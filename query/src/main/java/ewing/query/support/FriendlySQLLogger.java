@@ -33,7 +33,7 @@ public class FriendlySQLLogger extends SQLBaseListener {
             StringBuilder sqlBuilder = new StringBuilder(32 * context.getAllSQLBindings().size());
             for (SQLBindings sqlBindings : context.getAllSQLBindings()) {
                 char[] sqlChars = sqlBindings.getSQL().toCharArray();
-                Iterator iterator = sqlBindings.getNullFriendlyBindings().iterator();
+                Iterator<?> iterator = sqlBindings.getNullFriendlyBindings().iterator();
                 if (sqlBuilder.length() > 0) {
                     sqlBuilder.append('\n');
                 }
@@ -46,6 +46,12 @@ public class FriendlySQLLogger extends SQLBaseListener {
                             sqlBuilder.append(param);
                         } else if (param instanceof String) {
                             sqlBuilder.append('\'').append(param).append('\'');
+                        } else if (param instanceof java.sql.Date) {
+                            sqlBuilder.append('\'').append(param.toString()).append('\'');
+                        } else if (param instanceof Timestamp) {
+                            sqlBuilder.append('\'').append(param.toString()).append('\'');
+                        } else if (param instanceof Time) {
+                            sqlBuilder.append('\'').append(param.toString()).append('\'');
                         } else if (param instanceof Date) {
                             sqlBuilder.append('\'').append(dateToString((Date) param)).append('\'');
                         } else {
@@ -68,52 +74,15 @@ public class FriendlySQLLogger extends SQLBaseListener {
      * 日期及Sql日期序列化为字符串。
      */
     private static String dateToString(Date source) {
-        if (source == null) {
-            return null;
-        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(source);
         StringBuilder builder = new StringBuilder();
-        if (source instanceof java.sql.Date) {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day);
-        } else if (source instanceof Time) {
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second);
-        } else if (source instanceof Timestamp) {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day).append(' ');
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second).append('.');
-            int millis = calendar.get(Calendar.MILLISECOND);
-            builder.append(millis);
-        } else {
-            builder.append(calendar.get(Calendar.YEAR)).append('-');
-            int month = calendar.get(Calendar.MONTH) + 1;
-            appendDateField(builder, month).append('-');
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            appendDateField(builder, day).append(' ');
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            appendDateField(builder, hour).append(':');
-            int minute = calendar.get(Calendar.MINUTE);
-            appendDateField(builder, minute).append(':');
-            int second = calendar.get(Calendar.SECOND);
-            appendDateField(builder, second);
-        }
+        builder.append(calendar.get(Calendar.YEAR)).append('-');
+        appendDateField(builder, calendar.get(Calendar.MONTH) + 1).append('-');
+        appendDateField(builder, calendar.get(Calendar.DAY_OF_MONTH)).append(' ');
+        appendDateField(builder, calendar.get(Calendar.HOUR_OF_DAY)).append(':');
+        appendDateField(builder, calendar.get(Calendar.MINUTE)).append(':');
+        appendDateField(builder, calendar.get(Calendar.SECOND));
         return builder.toString();
     }
 

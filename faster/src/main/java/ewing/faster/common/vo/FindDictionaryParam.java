@@ -1,8 +1,8 @@
 package ewing.faster.common.vo;
 
-import ewing.query.paging.OffsetPager;
+import ewing.query.paging.OffsetPaging;
 
-public class FindDictionaryParam extends OffsetPager {
+public class FindDictionaryParam extends OffsetPaging {
 
     private String name;
 

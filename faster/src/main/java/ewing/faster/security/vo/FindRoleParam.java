@@ -1,8 +1,8 @@
 package ewing.faster.security.vo;
 
-import ewing.query.paging.OffsetPager;
+import ewing.query.paging.OffsetPaging;
 
-public class FindRoleParam extends OffsetPager {
+public class FindRoleParam extends OffsetPaging {
 
     private String search;
 

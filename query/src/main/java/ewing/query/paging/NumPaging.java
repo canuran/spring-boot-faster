@@ -7,26 +7,26 @@ import java.io.Serializable;
  *
  * @author Ewing
  **/
-public class NumPager implements Serializable, Paging {
+public class NumPaging implements Serializable, Paging {
     private static final long serialVersionUID = 1L;
 
-    public static final NumPager COUNT_ONLY = new NumPager(1, 0, true, false);
-    public static final NumPager ROWS_ONLY = new NumPager(1, 0, false, true);
+    public static final NumPaging COUNT_ONLY = new NumPaging(1, 0, true, false);
+    public static final NumPaging ROWS_ONLY = new NumPaging(1, 0, false, true);
 
     private long page = 1;
     private long size = 100;
     private boolean countRows = true;
     private boolean fetchRows = true;
 
-    public NumPager() {
+    public NumPaging() {
     }
 
-    public NumPager(long page, long size) {
+    public NumPaging(long page, long size) {
         this.page = page;
         this.size = size;
     }
 
-    public NumPager(long page, long size, boolean countRows, boolean fetchRows) {
+    public NumPaging(long page, long size, boolean countRows, boolean fetchRows) {
         this.page = page;
         this.size = size;
         this.countRows = countRows;

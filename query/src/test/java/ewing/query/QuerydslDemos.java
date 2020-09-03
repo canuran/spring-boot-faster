@@ -10,6 +10,7 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import ewing.query.clause.BaseQuery;
 import ewing.query.clause.BaseUpdate;
+import ewing.query.paging.NumPaging;
 import ewing.query.paging.Page;
 import ewing.query.querydsldemo.entity.DemoAddress;
 import ewing.query.querydsldemo.entity.DemoUser;
@@ -29,6 +30,7 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -158,13 +160,13 @@ public class QuerydslDemos {
         DemoUser demoUserDo = queryFactory.selectFrom(demoUser).fetchByKey(1);
         System.out.println(demoUserDo);
 
-        // 查询列表
+        // 根据条件查询
         List<DemoUser> demoUsers = queryFactory.selectFrom(demoUser)
                 .where(demoUser.userId.gt(0L))
                 .fetch();
         System.out.println(demoUsers);
 
-        // 字段自适应对象属性
+        // 查询结果自适应类型
         List<DemoUserSimple> demoUserSimples = queryFactory.selectFrom(demoUser)
                 .fitBean(DemoUserSimple.class)
                 .fetch();
@@ -187,36 +189,38 @@ public class QuerydslDemos {
     public void queryPage() {
         // 查询分页
         Page<DemoUser> demoUserPage = queryFactory.selectFrom(demoUser)
-                .pagingIfNotnull(1, 1)
+                .pagingIfNotnull(1, 10)
                 .fetchPage();
         System.out.println(demoUserPage);
 
         // 只统计总数
-        demoUserPage = queryFactory.selectFrom(demoUser)
+        Page<DemoUser> countPage = queryFactory.selectFrom(demoUser)
                 .pageFetchRows(false)
                 .fetchPage();
-        System.out.println(demoUserPage);
+        System.out.println(countPage);
 
         // 只查询数据
-        demoUserPage = queryFactory.selectFrom(demoUser)
+        Page<DemoUser> rowsPage = queryFactory.selectFrom(demoUser)
+                .pagingIfNotnull(1, 10)
                 .pageCountRows(false)
                 .fetchPage();
-        System.out.println(demoUserPage);
+        System.out.println(rowsPage);
 
-        // 查询全部
-        demoUserPage = queryFactory.selectFrom(demoUser)
+        // 根据NumPaging对象分页，还有OffsetPaging分页
+        Page<DemoUser> totalPage = queryFactory.selectFrom(demoUser)
+                .pagingIfNotnull(new NumPaging(1, 10))
                 .fetchPage();
-        System.out.println(demoUserPage);
+        System.out.println(totalPage);
 
-        // 当没有更多数据时，只做统计，不再查询数据
-        demoUserPage = queryFactory.selectFrom(demoUser)
+        // 智能分页，当没有更多数据时，只做统计，不再查询数据
+        Page<DemoUser> smartPage = queryFactory.selectFrom(demoUser)
                 .offset(100)
                 .fetchPage();
-        System.out.println(demoUserPage);
+        System.out.println(smartPage);
     }
 
     /**
-     * 进阶构建复杂查询。
+     * 超全功能的查询案例。
      */
     @Test
     public void advanceQuery() {
@@ -244,10 +248,11 @@ public class QuerydslDemos {
                 demoUser.userId.divide(2))
                 .distinct()
 
-                // 多表关联、动态关联条件
+                // 多表关联
                 .from(demoUser)
                 .leftJoin(demoAddress)
                 .on(demoUser.addressId.eq(demoAddress.addressId))
+                // 动态关联条件
                 .onIfNotNull(address, demoAddress.name::contains)
 
                 // 简单动态条件
@@ -390,8 +395,9 @@ public class QuerydslDemos {
     @Test
     public void customSqlTemplate() throws Exception {
         BaseQuery<Tuple> query = queryFactory.select(
+                // 基础表达式
                 Expressions.asNumber(2).sum(),
-                Expressions.asNumber(1).count(),
+                demoUser.userId.count(),
                 SQLExpressions.sum(Expressions.constant(3)),
 
                 // CASE选择语句
@@ -411,7 +417,7 @@ public class QuerydslDemos {
                 Expressions.stringPath(demoUser.username.getMetadata()),
                 Expressions.numberPath(BigInteger.class, demoUser.userId.getMetadata()),
 
-                // 【慎用】自定义列名和表达式
+                // 【慎用】自定义查询结果表达式
                 Expressions.stringTemplate("group_concat({0})", demoUser.username))
 
                 .from(demoUser)
@@ -427,11 +433,18 @@ public class QuerydslDemos {
 
         System.out.println(query.getSQL().getSQL());
 
-        // 极端场景执行任意SQL（暂未遇到过）
+        nativeSql();
+    }
+
+    /**
+     * 极端场景执行本地SQL，暂未遇到过。
+     */
+    @Test
+    public void nativeSql() throws SQLException {
         String anySql = "select 123 from dual";
         Connection connection = queryFactory.getConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(anySql)) {
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement statement = connection.prepareStatement(anySql)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     System.out.println(resultSet.getInt(1));
                 }

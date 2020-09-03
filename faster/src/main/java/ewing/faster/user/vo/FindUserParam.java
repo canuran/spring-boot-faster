@@ -1,8 +1,8 @@
 package ewing.faster.user.vo;
 
-import ewing.query.paging.OffsetPager;
+import ewing.query.paging.OffsetPaging;
 
-public class FindUserParam extends OffsetPager {
+public class FindUserParam extends OffsetPaging {
 
     private String username;
 
