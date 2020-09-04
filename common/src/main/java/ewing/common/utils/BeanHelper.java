@@ -1,24 +1,20 @@
 package ewing.common.utils;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.ClassUtils;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-@SuppressWarnings("unchecked")
 public class BeanHelper {
+    private static final Map<CopyCacheKey, List<PropertyPair>> COPY_CACHE = new ConcurrentHashMap<>();
+
     private BeanHelper() {
         throw new IllegalStateException("Can not construct BeanHelper");
     }
@@ -26,6 +22,7 @@ public class BeanHelper {
     /**
      * 调用对象中的方法。
      */
+    @SuppressWarnings("unchecked")
     public static <E> E invokeMethod(Object target, String methodName, Class<?>[] argTypes, Object... args) {
         try {
             Method method = target.getClass().getDeclaredMethod(methodName, argTypes);
@@ -39,7 +36,7 @@ public class BeanHelper {
     /**
      * 静默调用对象中的方法。
      */
-    public static <E> E invokeSlience(Object target, String methodName, Class<?>[] argTypes, Object... args) {
+    public static <E> E invokeSilence(Object target, String methodName, Class<?>[] argTypes, Object... args) {
         try {
             return invokeMethod(target, methodName, argTypes, args);
         } catch (Exception e) {
@@ -78,11 +75,18 @@ public class BeanHelper {
         if (source == null || targetCreator == null) {
             return null;
         }
-        T target = targetCreator.get();
-        if (target == null) {
-            return null;
+        return copyProperties(source, targetCreator.get());
+    }
+
+    /**
+     * 复制对象属性，比Spring的BeanUtils快且具有更好的兼容性。
+     */
+    public static <T> T copyProperties(Object source, T target) {
+        if (source == null || target == null) {
+            return target;
         }
-        BeanUtils.copyProperties(source, target);
+        List<PropertyPair> propertyPairs = getCachedPropertyPairs(source, target, false);
+        copyByPropertyPairs(source, target, propertyPairs);
         return target;
     }
 
@@ -113,65 +117,124 @@ public class BeanHelper {
     /**
      * 复制对象同义属性到对象。
      */
-    public static <T> T copySynonymForBean(Object source, Supplier<T> target) {
-        return copySynonymFields(source, target.get());
+    public static <T> T copySynonymForBean(Object source, Supplier<T> targetCreator) {
+        if (source == null || targetCreator == null) {
+            return null;
+        }
+        return copySynonymProperties(source, targetCreator.get());
     }
-
-    private static final Map<SimpleEntry<Class, Class>, List<SimpleEntry<PropertyDescriptor, PropertyDescriptor>>> SYNONYM_MAP = new ConcurrentHashMap<>();
 
     /**
      * 相同含义字段名属性复制，即忽略字段名中的大小写和下划线。
      * <p>
      * 字段类型必须兼容，包装类型为null时不会复制到对应的基本类型。
      */
-    public static <T> T copySynonymFields(Object source, T target) {
+    public static <T> T copySynonymProperties(Object source, T target) {
         if (source == null || target == null) {
             return target;
         }
-        SimpleEntry<Class, Class> classEntry = new SimpleEntry<>(source.getClass(), target.getClass());
-        List<SimpleEntry<PropertyDescriptor, PropertyDescriptor>> propertyEntries = SYNONYM_MAP.computeIfAbsent(classEntry, entry -> {
-            try {
-                PropertyDescriptor[] sourceProperties = Introspector.getBeanInfo(entry.getKey()).getPropertyDescriptors();
-                PropertyDescriptor[] targetProperties = Introspector.getBeanInfo(entry.getValue()).getPropertyDescriptors();
-                List<SimpleEntry<PropertyDescriptor, PropertyDescriptor>> entries = new ArrayList<>();
-                for (PropertyDescriptor sourceProperty : sourceProperties) {
-                    for (PropertyDescriptor targetProperty : targetProperties) {
-                        if (sourceProperty.getReadMethod() != null && targetProperty.getWriteMethod() != null &&
-                                ClassUtils.isAssignable(targetProperty.getPropertyType(), sourceProperty.getPropertyType()) &&
-                                sourceProperty.getName().replace("_", "")
-                                        .equalsIgnoreCase(targetProperty.getName().replace("_", ""))) {
-                            entries.add(new SimpleEntry<>(sourceProperty, targetProperty));
-                        }
-                    }
-                }
-                return entries;
-            } catch (IntrospectionException e) {
-                throw new IllegalStateException(e);
-            }
-        });
+        List<PropertyPair> propertyPairs = getCachedPropertyPairs(source, target, true);
+        copyByPropertyPairs(source, target, propertyPairs);
+        return target;
+    }
+
+    /**
+     * 通过属性对复制属性。
+     */
+    private static <T> void copyByPropertyPairs(Object source, T target, List<PropertyPair> propertyPairs) {
         try {
-            for (SimpleEntry<PropertyDescriptor, PropertyDescriptor> propertyEntry : propertyEntries) {
-                Object value = propertyEntry.getKey().getReadMethod().invoke(source);
-                if (value != null || !propertyEntry.getValue().getPropertyType().isPrimitive()) {
-                    propertyEntry.getValue().getWriteMethod().invoke(target, value);
+            for (PropertyPair propertyPair : propertyPairs) {
+                Method readMethod = propertyPair.sourceProperty.getReadMethod();
+                if (!propertyPair.sourceAccessible) {
+                    readMethod.setAccessible(true);
+                }
+                Object value = readMethod.invoke(source);
+                if (value != null || !propertyPair.targetProperty.getPropertyType().isPrimitive()) {
+                    Method writeMethod = propertyPair.targetProperty.getWriteMethod();
+                    if (!propertyPair.targetAccessible) {
+                        writeMethod.setAccessible(true);
+                    }
+                    writeMethod.invoke(target, value);
                 }
             }
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
-        return target;
     }
 
     /**
-     * 通过序列化深度复制对象。
+     * 获取待复制对象的属性对。
      */
-    public static <T extends Serializable> T deepCopySerializable(T source) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            new ObjectOutputStream(bos).writeObject(source);
-            return (T) new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+    private static <T> List<PropertyPair> getCachedPropertyPairs(Object source, T target, boolean synonym) {
+        CopyCacheKey cacheKey = new CopyCacheKey(source.getClass(), target.getClass(), synonym);
+        return COPY_CACHE.computeIfAbsent(cacheKey, key -> {
+            try {
+                PropertyDescriptor[] sourceProperties = Introspector.getBeanInfo(key.sourceClass).getPropertyDescriptors();
+                PropertyDescriptor[] targetProperties = Introspector.getBeanInfo(key.targetClass).getPropertyDescriptors();
+                List<PropertyPair> propertyPairs = new ArrayList<>();
+                for (PropertyDescriptor targetProperty : targetProperties) {
+                    for (PropertyDescriptor sourceProperty : sourceProperties) {
+                        Method readMethod = sourceProperty.getReadMethod();
+                        Method writeMethod = targetProperty.getWriteMethod();
+                        if (readMethod != null && writeMethod != null &&
+                                ClassUtils.isAssignable(targetProperty.getPropertyType(), sourceProperty.getPropertyType())) {
+                            // 名称相同或者名称同义则添加到属性对
+                            if (sourceProperty.getName().equals(targetProperty.getName()) ||
+                                    (key.synonym && sourceProperty.getName().replace("_", "")
+                                            .equalsIgnoreCase(targetProperty.getName().replace("_", "")))) {
+                                propertyPairs.add(new PropertyPair(sourceProperty, targetProperty,
+                                        Modifier.isPublic(readMethod.getDeclaringClass().getModifiers()),
+                                        Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())));
+                                break;
+                            }
+                        }
+                    }
+                }
+                return propertyPairs;
+            } catch (IntrospectionException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    private static class CopyCacheKey {
+        private final Class<?> sourceClass;
+        private final Class<?> targetClass;
+        private final boolean synonym;
+
+        private CopyCacheKey(Class<?> sourceClass, Class<?> targetClass, boolean synonym) {
+            this.sourceClass = sourceClass;
+            this.targetClass = targetClass;
+            this.synonym = synonym;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CopyCacheKey that = (CopyCacheKey) o;
+            return synonym == that.synonym &&
+                    sourceClass.equals(that.sourceClass) &&
+                    targetClass.equals(that.targetClass);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sourceClass, targetClass, synonym);
+        }
+    }
+
+    private static class PropertyPair {
+        private final PropertyDescriptor sourceProperty;
+        private final PropertyDescriptor targetProperty;
+        private final boolean sourceAccessible;
+        private final boolean targetAccessible;
+
+        public PropertyPair(PropertyDescriptor sourceProperty, PropertyDescriptor targetProperty, boolean sourceAccessible, boolean targetAccessible) {
+            this.sourceProperty = sourceProperty;
+            this.targetProperty = targetProperty;
+            this.sourceAccessible = sourceAccessible;
+            this.targetAccessible = targetAccessible;
         }
     }
 
