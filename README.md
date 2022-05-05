@@ -60,4 +60,4 @@ DSL使用自动生成的表模型映射对象代替SQL中的表对象，具有�
 
 ## 管理界面预览：
 少量更改没有重新截图了，请以实际运行效果为准。  
-![image](https://github.com/ewingtsai/spring-boot-faster/raw/master/screens/home.gif)  
+![image](screens/home.gif)  
