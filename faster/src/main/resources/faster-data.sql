@@ -195,7 +195,7 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (123456123456123451, 'Ewing', 'yb', '元宝', 'MALE', '2000-02-10', '2017-08-23 18:43:52');
+INSERT INTO `user` VALUES (123456123456123451, 'canuran', 'yb', '元宝', 'MALE', '2000-02-10', '2017-08-23 18:43:52');
 INSERT INTO `user` VALUES (123456123456123452, 'Rose', 'zx', '紫霞', 'FEMALE', '2002-05-20', '2017-08-24 12:06:02');
 INSERT INTO `user` VALUES (123456123456123453, 'Jay', 'zjl', '周杰伦', 'MALE', '2018-01-21', '2018-01-21 17:19:51');
 INSERT INTO `user` VALUES (123456123456123454, 'Zanilia', 'zly', '赵丽颖', 'FEMALE', '2018-01-21', '2018-01-21 17:21:40');

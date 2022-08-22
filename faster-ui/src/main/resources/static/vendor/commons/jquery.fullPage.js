@@ -34,7 +34,7 @@
     var NO_TRANSITION =         'fp-notransition';
     var DESTROYED =             'fp-destroyed';
     var ENABLED =               'fp-enabled';
-    var VIEWING_PREFIX =        'fp-viewing';
+    var VIEWING_PREFIX =        'fp-vicanuran';
     var ACTIVE =                'active';
     var ACTIVE_SEL =            '.' + ACTIVE;
 
@@ -2479,7 +2479,7 @@
             // remove .fp-enabled class
             $('html').removeClass(ENABLED);
 
-            // remove all of the .fp-viewing- classes
+            // remove all of the .fp-vicanuran- classes
             $.each($body.get(0).className.split(/\s+/), function (index, className) {
                 if (className.indexOf(VIEWING_PREFIX) === 0) {
                     $body.removeClass(className);
